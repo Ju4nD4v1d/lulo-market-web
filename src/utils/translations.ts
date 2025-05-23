@@ -108,6 +108,15 @@ export const translations: Translations = {
     'auth.backToLogin': 'Back to Login',
     'auth.rememberPassword': 'Remember your password?',
     'auth.signIn': 'Sign in',
+    'auth.welcomeMessage': 'Start your journey with',
+    'auth.subtitle': 'Bringing Latin flavors closer to your door',
+    'auth.trustMessage': 'Your data is safe with us — we never share your information',
+    'auth.backToHome': 'Back to Home',
+    'auth.forgotTitle': 'Forgot your password?',
+    'auth.forgotSubtitle': 'Enter your email address and we\'ll send you instructions to reset your password.',
+    'auth.forgotSuccess': 'If an account exists with this email, you will receive password reset instructions.',
+    'auth.welcomeHero': 'Welcome to',
+    'auth.welcomeSubtitle': 'Your gateway to authentic Latin American flavors and products'
   },
   es: {
     // Navigation
@@ -206,5 +215,14 @@ export const translations: Translations = {
     'auth.backToLogin': 'Volver a Iniciar Sesión',
     'auth.rememberPassword': '¿Recuerdas tu contraseña?',
     'auth.signIn': 'Iniciar Sesión',
+    'auth.welcomeMessage': 'Comienza tu viaje con',
+    'auth.subtitle': 'Acercando los sabores latinos a tu puerta',
+    'auth.trustMessage': 'Tus datos están seguros con nosotros — nunca compartimos tu información',
+    'auth.backToHome': 'Volver al Inicio',
+    'auth.forgotTitle': '¿Olvidaste tu contraseña?',
+    'auth.forgotSubtitle': 'Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.',
+    'auth.forgotSuccess': 'Si existe una cuenta con este correo electrónico, recibirás instrucciones para restablecer tu contraseña.',
+    'auth.welcomeHero': 'Bienvenido a',
+    'auth.welcomeSubtitle': 'Tu puerta de entrada a auténticos sabores y productos latinoamericanos'
   }
 };
