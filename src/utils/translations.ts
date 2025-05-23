@@ -84,7 +84,6 @@ export const translations: Translations = {
     'footer.faqs': 'FAQs',
     'footer.ourStory': 'Our Story',
     'footer.careers': 'Careers',
-    'footer.press': 'Press',
 
     // Language Toggle
     'language.toggle': 'Español',
@@ -191,7 +190,6 @@ export const translations: Translations = {
     'footer.faqs': 'Preguntas Frecuentes',
     'footer.ourStory': 'Nuestra Historia',
     'footer.careers': 'Carreras',
-    'footer.press': 'Prensa',
 
     // Language Toggle
     'language.toggle': 'English',

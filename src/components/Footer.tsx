@@ -116,11 +116,6 @@ export const Footer = () => {
                   {t('footer.contact')}
                 </a>
               </li>
-              <li>
-                <a href="#" className="text-white/60 hover:text-white transition-colors">
-                  {t('footer.press')}
-                </a>
-              </li>
             </ul>
           </div>
         </div>
