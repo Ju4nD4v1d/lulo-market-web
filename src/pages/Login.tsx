@@ -8,7 +8,7 @@ import { getAuthErrorMessage } from '../utils/auth-errors';
 type AuthMode = 'login' | 'register';
 
 export const Login = () => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { login, register, currentUser } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -36,11 +36,11 @@ export const Login = () => {
         window.location.hash = '#dashboard';
       } else {
         await register(email, password);
-        setSuccess('Account created successfully!');
+        setSuccess(t('auth.registrationSuccess'));
         window.location.hash = '#dashboard';
       }
     } catch (err: any) {
-      setError(getAuthErrorMessage(err));
+      setError(getAuthErrorMessage(err, locale));
     } finally {
       setIsLoading(false);
     }
@@ -59,10 +59,10 @@ export const Login = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-primary-600/70" />
           <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
             <h2 className="text-4xl font-bold mb-4 font-heading">
-              Welcome to {COMPANY_NAME}
+              {t('auth.welcomeHero')} {COMPANY_NAME}
             </h2>
             <p className="text-lg text-white/90">
-              Your gateway to authentic Latin American flavors and products
+              {t('auth.welcomeSubtitle')}
             </p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export const Login = () => {
           className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft size={20} />
-          <span>Back to Home</span>
+          <span>{t('auth.backToHome')}</span>
         </a>
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
@@ -84,10 +84,10 @@ export const Login = () => {
             {/* Welcome Text */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
-                Start your journey with {COMPANY_NAME}
+                {t('auth.welcomeMessage')} {COMPANY_NAME}
               </h1>
               <p className="text-gray-600">
-                Bringing Latin flavors closer to your door
+                {t('auth.subtitle')}
               </p>
             </div>
 
@@ -207,12 +207,12 @@ export const Login = () => {
                   transform hover:scale-[1.02] active:scale-[0.98]
                   ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? 'Please wait...' : mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
+                {isLoading ? t('auth.loading') : mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
               </button>
 
               {/* Trust Message */}
               <p className="text-center text-sm text-gray-600 mt-4">
-                Your data is safe with us — we never share your information.
+                {t('auth.trustMessage')}
               </p>
             </form>
           </div>
