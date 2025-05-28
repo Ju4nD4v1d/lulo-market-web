@@ -115,7 +115,17 @@ export const translations: Translations = {
     'auth.forgotSubtitle': 'Enter your email address and we\'ll send you instructions to reset your password.',
     'auth.forgotSuccess': 'If an account exists with this email, you will receive password reset instructions.',
     'auth.welcomeHero': 'Welcome to',
-    'auth.welcomeSubtitle': 'Your gateway to authentic Latin American flavors and products'
+    'auth.welcomeSubtitle': 'Your gateway to authentic Latin American flavors and products',
+    'auth.loading': 'Please wait...',
+    'auth.registrationSuccess': 'Account created successfully!',
+    'auth.loginSuccess': 'Login successful!',
+    'auth.logoutSuccess': 'Logged out successfully',
+    'auth.welcomeDashboard': 'Welcome to your Dashboard',
+    'auth.loggedInAs': 'You\'re now logged in as',
+    'auth.logout': 'Logout',
+    'auth.dashboard': 'Dashboard',
+    'auth.accountSettings': 'Account Settings',
+    'auth.profile': 'Profile',
   },
   es: {
     // Navigation
@@ -221,6 +231,16 @@ export const translations: Translations = {
     'auth.forgotSubtitle': 'Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.',
     'auth.forgotSuccess': 'Si existe una cuenta con este correo electrónico, recibirás instrucciones para restablecer tu contraseña.',
     'auth.welcomeHero': 'Bienvenido a',
-    'auth.welcomeSubtitle': 'Tu puerta de entrada a auténticos sabores y productos latinoamericanos'
+    'auth.welcomeSubtitle': 'Tu puerta de entrada a auténticos sabores y productos latinoamericanos',
+    'auth.loading': 'Por favor espera...',
+    'auth.registrationSuccess': '¡Cuenta creada exitosamente!',
+    'auth.loginSuccess': '¡Inicio de sesión exitoso!',
+    'auth.logoutSuccess': 'Sesión cerrada exitosamente',
+    'auth.welcomeDashboard': 'Bienvenido a tu Panel',
+    'auth.loggedInAs': 'Has iniciado sesión como',
+    'auth.logout': 'Cerrar Sesión',
+    'auth.dashboard': 'Panel',
+    'auth.accountSettings': 'Configuración de Cuenta',
+    'auth.profile': 'Perfil',
   }
 };
