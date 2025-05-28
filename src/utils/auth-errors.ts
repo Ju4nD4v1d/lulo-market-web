@@ -9,11 +9,12 @@ export const getAuthErrorMessage = (error: { code?: string; message: string }, l
       'auth/operation-not-allowed': 'Email/password accounts are not enabled. Please contact support.',
       'auth/weak-password': 'Password should be at least 6 characters long.',
       'auth/user-disabled': 'This account has been disabled. Please contact support.',
-      'auth/user-not-found': 'No account found with this email. Please check your email or register.',
-      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/user-not-found': 'Invalid email or password. Please try again.',
+      'auth/wrong-password': 'Invalid email or password. Please try again.',
+      'auth/invalid-login-credentials': 'Invalid email or password. Please try again.',
       'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
       'auth/network-request-failed': 'Network error. Please check your internet connection.',
-      'default': 'An unexpected error occurred. Please try again.'
+      'default': 'Authentication failed. Please check your credentials and try again.'
     },
     es: {
       'auth/email-already-in-use': 'Este correo ya está registrado. Por favor, intenta iniciar sesión.',
@@ -21,11 +22,12 @@ export const getAuthErrorMessage = (error: { code?: string; message: string }, l
       'auth/operation-not-allowed': 'Las cuentas de correo/contraseña no están habilitadas. Contacta a soporte.',
       'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
       'auth/user-disabled': 'Esta cuenta ha sido deshabilitada. Contacta a soporte.',
-      'auth/user-not-found': 'No se encontró una cuenta con este correo. Verifica tu correo o regístrate.',
-      'auth/wrong-password': 'Contraseña incorrecta. Por favor, intenta de nuevo.',
+      'auth/user-not-found': 'Correo o contraseña inválidos. Por favor, intenta de nuevo.',
+      'auth/wrong-password': 'Correo o contraseña inválidos. Por favor, intenta de nuevo.',
+      'auth/invalid-login-credentials': 'Correo o contraseña inválidos. Por favor, intenta de nuevo.',
       'auth/too-many-requests': 'Demasiados intentos fallidos. Por favor, intenta más tarde.',
       'auth/network-request-failed': 'Error de red. Verifica tu conexión a internet.',
-      'default': 'Ocurrió un error inesperado. Por favor, intenta de nuevo.'
+      'default': 'Error de autenticación. Verifica tus credenciales e intenta de nuevo.'
     }
   };
 
