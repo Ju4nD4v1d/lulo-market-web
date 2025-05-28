@@ -4,6 +4,9 @@ import App from './App.tsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext';
 
+// Log Firebase project ID on load
+console.log("PROJECT:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
