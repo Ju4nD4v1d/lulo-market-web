@@ -1,23 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
 
 type AuthMode = 'login' | 'register';
 
 export const Login = () => {
   const { t } = useLanguage();
+  const { login, register, currentUser } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Redirect if user is already logged in
+    if (currentUser) {
+      window.location.hash = '#dashboard';
+    }
+  }, [currentUser]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for auth logic
     setError('');
-    setSuccess('Authentication successful!');
+    setSuccess('');
+    setIsLoading(true);
+
+    try {
+      if (mode === 'login') {
+        await login(email, password);
+        window.location.hash = '#dashboard';
+      } else {
+        await register(email, password);
+        setSuccess('Account created successfully!');
+        window.location.hash = '#dashboard';
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -174,12 +199,14 @@ export const Login = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
+                disabled={isLoading}
+                className={`w-full bg-primary-600 text-white py-3 px-4 rounded-lg
                   hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2
                   focus:ring-primary-500 font-medium transition-all duration-200
-                  transform hover:scale-[1.02] active:scale-[0.98]"
+                  transform hover:scale-[1.02] active:scale-[0.98]
+                  ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
+                {isLoading ? 'Please wait...' : mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
               </button>
 
               {/* Trust Message */}

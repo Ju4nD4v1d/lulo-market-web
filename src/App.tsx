@@ -8,6 +8,7 @@ import { About } from './components/About';
 import { Footer } from './components/Footer';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
+import { Dashboard } from './pages/Dashboard';
 import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
@@ -28,6 +29,8 @@ function App() {
         return <Login />;
       case '#forgot-password':
         return <ForgotPassword />;
+      case '#dashboard':
+        return <Dashboard />;
       default:
         return (
           <>
