@@ -3,6 +3,7 @@ import { Mail, Lock, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
+import { getAuthErrorMessage } from '../utils/auth-errors';
 
 type AuthMode = 'login' | 'register';
 
@@ -38,8 +39,8 @@ export const Login = () => {
         setSuccess('Account created successfully!');
         window.location.hash = '#dashboard';
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      setError(getAuthErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
