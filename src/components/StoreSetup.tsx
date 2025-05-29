@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store, Upload } from 'lucide-react';
+import { Store, Upload, AlertCircle } from 'lucide-react';
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +14,16 @@ interface StoreData {
   imageUrl?: string;
   ownerId: string;
 }
+
+interface AboutUsSection {
+  title: string;
+  description: string;
+  image: File | null;
+  imagePreview?: string;
+}
+
+const MAX_DESCRIPTION_LENGTH = 500;
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
@@ -30,6 +40,12 @@ export const StoreSetup = () => {
     deliveryCostWithDiscount: 0,
     imageUrl: ''
   });
+
+  const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
+    { title: '', description: '', image: null },
+    { title: '', description: '', image: null },
+    { title: '', description: '', image: null }
+  ]);
 
   useEffect(() => {
     const fetchUserStore = async () => {
@@ -63,10 +79,64 @@ export const StoreSetup = () => {
     }
   }, [currentUser]);
 
+  const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string | File) => {
+    const newSections = [...aboutUsSections];
+    
+    if (field === 'image' && value instanceof File) {
+      if (value.size > MAX_FILE_SIZE) {
+        setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
+        return;
+      }
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(value);
+      newSections[index] = {
+        ...newSections[index],
+        image: value,
+        imagePreview: previewUrl
+      };
+    } else if (field === 'description' && typeof value === 'string') {
+      if (value.length > MAX_DESCRIPTION_LENGTH) {
+        return;
+      }
+      newSections[index] = {
+        ...newSections[index],
+        [field]: value
+      };
+    } else {
+      newSections[index] = {
+        ...newSections[index],
+        [field]: value
+      };
+    }
+    
+    setAboutUsSections(newSections);
+  };
+
+  const validateAboutUs = () => {
+    for (let i = 0; i < aboutUsSections.length; i++) {
+      const section = aboutUsSections[i];
+      if (!section.title || !section.description || !section.image) {
+        setError(`Please fill all fields in About Us section ${i + 1}`);
+        return false;
+      }
+      if (section.description.length > MAX_DESCRIPTION_LENGTH) {
+        setError(`Description in section ${i + 1} exceeds ${MAX_DESCRIPTION_LENGTH} characters`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    
+    if (!validateAboutUs()) {
+      return;
+    }
+    
     setSaving(true);
 
     try {
@@ -114,7 +184,8 @@ export const StoreSetup = () => {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600">
+        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600 flex items-center">
+          <AlertCircle className="w-5 h-5 mr-2" />
           {error}
         </div>
       )}
@@ -125,79 +196,150 @@ export const StoreSetup = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Store Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
+          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Name *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter store name"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter phone number"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Store Name *
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="Enter store description"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
             </label>
             <input
               type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter store name"
-              required
+              placeholder="Enter store address"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
+              Store Image
             </label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter phone number"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            placeholder="Enter store description"
-            rows={3}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Address
-          </label>
-          <input
-            type="text"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            placeholder="Enter store address"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Store Image
-          </label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-            <div className="space-y-1 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="flex text-sm text-gray-600">
-                <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
-                  <span>Upload a file</span>
-                  <input type="file" className="sr-only" />
-                </label>
-                <p className="pl-1">or drag and drop</p>
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+              <div className="space-y-1 text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <div className="flex text-sm text-gray-600">
+                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
+                    <span>Upload a file</span>
+                    <input type="file" className="sr-only" />
+                  </label>
+                  <p className="pl-1">or drag and drop</p>
+                </div>
+                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
               </div>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
             </div>
           </div>
+        </div>
+
+        {/* About Us Sections */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
+          <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
+          
+          {aboutUsSections.map((section, index) => (
+            <div key={index} className="p-6 bg-gray-50 rounded-lg space-y-4">
+              <h3 className="font-medium text-gray-900">Section {index + 1}</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  value={section.title}
+                  onChange={(e) => handleAboutUsChange(index, 'title', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter section title"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description * ({section.description.length}/{MAX_DESCRIPTION_LENGTH})
+                </label>
+                <textarea
+                  value={section.description}
+                  onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter section description"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image * (Max 1MB)
+                </label>
+                <div className="mt-1 flex items-center space-x-4">
+                  <input
+                    type="file"
+                    onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
+                    accept="image/*"
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-primary-50 file:text-primary-700
+                      hover:file:bg-primary-100"
+                    required={!section.image}
+                  />
+                  {section.imagePreview && (
+                    <img
+                      src={section.imagePreview}
+                      alt={`Preview ${index + 1}`}
+                      className="h-16 w-16 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         <input
