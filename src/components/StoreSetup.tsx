@@ -97,6 +97,10 @@ export const StoreSetup = () => {
       const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
       setError(errorMessage);
       e.target.value = ''; // Reset the input
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: '' // Clear the preview
+      }));
       return;
     }
 
@@ -124,6 +128,17 @@ export const StoreSetup = () => {
         if (value.size > MAX_FILE_SIZE) {
           const errorMessage = `Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`;
           setError(errorMessage);
+          
+          // Clear the preview and file input
+          if (newSections[index].imagePreview) {
+            URL.revokeObjectURL(newSections[index].imagePreview);
+          }
+          newSections[index] = {
+            ...newSections[index],
+            image: null,
+            imagePreview: undefined
+          };
+          setAboutUsSections(newSections);
           return;
         }
 
