@@ -458,18 +458,17 @@ export const StoreSetup = () => {
                   <input
                     type="number"
                     id="deliveryCost"
-                    value={formData.deliveryCostWithDiscount}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryCostWithDiscount: parseFloat(e.target.value)
-                    })}
-                    min="0"
-                    step="0.01"
+                    value={0}
+                    disabled
                     className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                       focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                      placeholder-gray-400 text-gray-900 text-right"
+                      placeholder-gray-400 text-gray-900 text-right
+                      bg-gray-50 cursor-not-allowed"
                   />
                 </div>
+                <p className="mt-2 text-sm text-gray-600 italic">
+                  Delivery cost will be calculated automatically based on the distance between your store and the customer's location.
+                </p>
               </div>
             )}
 
