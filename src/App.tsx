@@ -24,13 +24,17 @@ function App() {
   }, []);
 
   const renderRoute = () => {
+    // Check for dashboard routes first
+    if (currentRoute.startsWith('#dashboard')) {
+      return <Dashboard />;
+    }
+
+    // Then check other routes
     switch (currentRoute) {
       case '#login':
         return <Login />;
       case '#forgot-password':
         return <ForgotPassword />;
-      case '#dashboard':
-        return <Dashboard />;
       default:
         return (
           <>
