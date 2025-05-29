@@ -493,6 +493,9 @@ export const StoreSetup = () => {
                     placeholder-gray-400 text-gray-900 text-right"
                 />
               </div>
+              <p className="mt-2 text-sm text-gray-600 italic">
+                Customers must meet this minimum order amount to complete their purchase. Orders below this amount cannot be processed.
+              </p>
             </div>
 
             <div>
