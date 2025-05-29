@@ -1017,5 +1017,3 @@ export const StoreSetup = () => {
     </div>
   );
 };
-
-export { StoreSetup }
