@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, DragEvent } from 'react';
 import { Store, Upload, AlertCircle, Camera, Trash2, CheckCircle2, Info } from 'lucide-react';
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -53,6 +53,77 @@ export const StoreSetup = () => {
 
   const [mainImagePreview, setMainImagePreview] = useState<string | undefined>();
   const [mainImage, setMainImage] = useState<File | null>(null);
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const target = e.currentTarget;
+    target.classList.add('border-primary-500', 'bg-primary-50');
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const target = e.currentTarget;
+    target.classList.remove('border-primary-500', 'bg-primary-50');
+  };
+
+  const handleMainImageDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const target = e.currentTarget;
+    target.classList.remove('border-primary-500', 'bg-primary-50');
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      setImageError('Please drop an image file');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
+      setImageError(errorMessage);
+      if (mainImageInputRef.current) {
+        mainImageInputRef.current.value = '';
+      }
+      
+      if (mainImagePreview) {
+        URL.revokeObjectURL(mainImagePreview);
+      }
+      setMainImagePreview(undefined);
+      setMainImage(null);
+      return;
+    }
+
+    setImageError(null);
+    
+    if (mainImagePreview) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setMainImagePreview(previewUrl);
+    setMainImage(file);
+  };
+
+  const handleSectionDrop = (e: DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const target = e.currentTarget;
+    target.classList.remove('border-primary-500', 'bg-primary-50');
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      const newErrors = [...aboutUsErrors];
+      newErrors[index] = 'Please drop an image file';
+      setAboutUsErrors(newErrors);
+      return;
+    }
+
+    handleAboutUsChange(index, 'image', file);
+  };
 
   useEffect(() => {
     return () => {
@@ -413,7 +484,12 @@ export const StoreSetup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Store Image
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-primary-500 transition-colors duration-200">
+            <div 
+              className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-primary-500 transition-colors duration-200"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleMainImageDrop}
+            >
               <div className="space-y-2 text-center">
                 {mainImagePreview ? (
                   <div className="relative inline-block group">
@@ -517,47 +593,59 @@ export const StoreSetup = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Image * (Max 1MB)
                     </label>
-                    <div className="mt-1 flex flex-col space-y-2">
-                      <div className="flex items-center space-x-4">
-                        <input
-                          ref={el => aboutUsImageRefs.current[index] = el}
-                          type="file"
-                          onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
-                          accept="image/*"
-                          className="block w-full text-sm text-gray-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-primary-50 file:text-primary-700
-                            hover:file:bg-primary-100"
-                          required={!section.image}
-                        />
+                    <div 
+                      className="mt-1 border-2 border-dashed border-gray-300 rounded-lg p-4 transition-colors duration-200"
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleSectionDrop(e, index)}
+                    >
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <input
+                            ref={el => aboutUsImageRefs.current[index] = el}
+                            type="file"
+                            onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
+                            accept="image/*"
+                            className="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-full file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-primary-50 file:text-primary-700
+                              hover:file:bg-primary-100"
+                            required={!section.image}
+                          />
+                        </div>
+                        {!section.imagePreview && (
+                          <p className="text-sm text-gray-500 text-center">
+                            or drag and drop an image here
+                          </p>
+                        )}
+                        {aboutUsErrors[index] && (
+                          <p className="text-sm text-red-600 flex items-center">
+                            <AlertCircle className="w-4 h-4 mr-1" />
+                            {aboutUsErrors[index]}
+                          </p>
+                        )}
                       </div>
-                      {aboutUsErrors[index] && (
-                        <p className="text-sm text-red-600 flex items-center">
-                          <AlertCircle className="w-4 h-4 mr-1" />
-                          {aboutUsErrors[index]}
-                        </p>
-                      )}
                     </div>
-                  </div>
 
-                  {section.imagePreview && (
-                    <div className="relative group">
-                      <img
-                        src={section.imagePreview}
-                        alt={`Section ${index + 1} preview`}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={(e) => handleRemoveImage(e, index)}
-                        className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm
-                          opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  )}
+                    {section.imagePreview && (
+                      <div className="relative group mt-4">
+                        <img
+                          src={section.imagePreview}
+                          alt={`Section ${index + 1} preview`}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={(e) => handleRemoveImage(e, index)}
+                          className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
