@@ -23,7 +23,8 @@ const validateImage = (file: File): string | null => {
   return null;
 };
 
-interface AboutUs {
+interface AboutUsSection {
+  id: string;
   title: string;
   description: string;
   image?: File;
@@ -34,7 +35,10 @@ export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
+  const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
+    { id: '1', title: '', description: '' }
+  ]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -61,13 +65,7 @@ export const StoreSetup = () => {
       transfer: true
     },
     deliveryCostWithDiscount: 0,
-    minimumOrder: 0,
-    aboutUs: {
-      title: '',
-      description: '',
-      image: undefined,
-      imagePreview: undefined
-    } as AboutUs
+    minimumOrder: 0
   });
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -75,63 +73,75 @@ export const StoreSetup = () => {
     e.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback((e: React.DragEvent, sectionId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setImageError(null);
+    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
 
     const file = e.dataTransfer.files[0];
     if (file) {
       const error = validateImage(file);
       if (error) {
-        setImageError(error);
+        setImageErrors(prev => ({ ...prev, [sectionId]: error }));
         return;
       }
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          aboutUs: {
-            ...prev.aboutUs,
-            image: file,
-            imagePreview: reader.result as string
-          }
-        }));
+        setAboutUsSections(prev => prev.map(section => 
+          section.id === sectionId
+            ? { ...section, image: file, imagePreview: reader.result as string }
+            : section
+        ));
       };
       reader.readAsDataURL(file);
     }
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageError(null);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
+    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
     const file = e.target.files?.[0];
     if (file) {
       const error = validateImage(file);
       if (error) {
-        setImageError(error);
+        setImageErrors(prev => ({ ...prev, [sectionId]: error }));
         return;
       }
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          aboutUs: {
-            ...prev.aboutUs,
-            image: file,
-            imagePreview: reader.result as string
-          }
-        }));
+        setAboutUsSections(prev => prev.map(section => 
+          section.id === sectionId
+            ? { ...section, image: file, imagePreview: reader.result as string }
+            : section
+        ));
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const addAboutUsSection = () => {
+    if (aboutUsSections.length < 3) {
+      setAboutUsSections(prev => [
+        ...prev,
+        { id: String(prev.length + 1), title: '', description: '' }
+      ]);
+    }
+  };
+
+  const removeAboutUsSection = (id: string) => {
+    setAboutUsSections(prev => prev.filter(section => section.id !== id));
+    setImageErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[id];
+      return newErrors;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setImageError(null);
+    setImageErrors({});
     setSuccess(null);
 
     try {
@@ -139,7 +149,7 @@ export const StoreSetup = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSuccess('Store information saved successfully');
     } catch (err) {
-      setImageError('Failed to save store information');
+      setImageErrors({ general: 'Failed to save store information' });
     } finally {
       setSaving(false);
     }
@@ -152,10 +162,10 @@ export const StoreSetup = () => {
         <p className="text-gray-600">Configure your store information and settings</p>
       </div>
 
-      {imageError && (
+      {imageErrors.general && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
           <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p>{imageError}</p>
+          <p>{imageErrors.general}</p>
         </div>
       )}
 
@@ -414,115 +424,142 @@ export const StoreSetup = () => {
           </div>
         </div>
 
-        {/* About Us Section */}
+        {/* About Us Sections */}
         <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">About Us</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="aboutTitle" className="block text-sm font-medium text-gray-700 mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                id="aboutTitle"
-                value={formData.aboutUs.title}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  aboutUs: { ...formData.aboutUs, title: e.target.value }
-                })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter a title for your about section"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="aboutDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                id="aboutDescription"
-                value={formData.aboutUs.description}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  aboutUs: { ...formData.aboutUs, description: e.target.value }
-                })}
-                rows={4}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Tell your story..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Image
-              </label>
-              <div
-                className={`
-                  border-2 border-dashed rounded-lg p-8
-                  ${formData.aboutUs.imagePreview ? 'border-primary-300' : imageError ? 'border-red-300' : 'border-gray-300'}
-                  hover:border-primary-400 transition-colors duration-200
-                  flex flex-col items-center justify-center
-                  cursor-pointer
-                `}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
+            {aboutUsSections.length < 3 && (
+              <button
+                type="button"
+                onClick={addAboutUsSection}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               >
-                {formData.aboutUs.imagePreview ? (
-                  <div className="space-y-4 w-full">
-                    <img
-                      src={formData.aboutUs.imagePreview}
-                      alt="Preview"
-                      className="max-h-48 mx-auto rounded-lg"
+                + Add Another Section
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-8">
+            {aboutUsSections.map((section, index) => (
+              <div key={section.id} className="relative">
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => removeAboutUsSection(section.id)}
+                    className="absolute -top-2 -right-2 text-red-600 hover:text-red-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor={`title-${section.id}`} className="block text-sm font-medium text-gray-700 mb-1">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      id={`title-${section.id}`}
+                      value={section.title}
+                      onChange={(e) => setAboutUsSections(prev => prev.map(s => 
+                        s.id === section.id ? { ...s, title: e.target.value } : s
+                      ))}
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter a title for this section"
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          aboutUs: { ...formData.aboutUs, image: undefined, imagePreview: undefined }
-                        });
-                        setImageError(null);
-                      }}
-                      className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
-                    >
-                      Remove Image
-                    </button>
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <label
-                          htmlFor="about-image"
-                          className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
-                        >
-                          <span>Upload a file</span>
-                          <input
-                            id="about-image"
-                            name="about-image"
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            onChange={handleImageChange}
+
+                  <div>
+                    <label htmlFor={`description-${section.id}`} className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      id={`description-${section.id}`}
+                      value={section.description}
+                      onChange={(e) => setAboutUsSections(prev => prev.map(s => 
+                        s.id === section.id ? { ...s, description: e.target.value } : s
+                      ))}
+                      rows={4}
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Tell your story..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Image
+                    </label>
+                    <div
+                      className={`
+                        border-2 border-dashed rounded-lg p-8
+                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
+                        hover:border-primary-400 transition-colors duration-200
+                        flex flex-col items-center justify-center
+                        cursor-pointer
+                      `}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, section.id)}
+                    >
+                      {section.imagePreview ? (
+                        <div className="space-y-4 w-full">
+                          <img
+                            src={section.imagePreview}
+                            alt="Preview"
+                            className="max-h-48 mx-auto rounded-lg"
                           />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="mt-2 text-xs text-gray-500">
-                        PNG, JPG, GIF
-                        <span className="font-semibold text-gray-600"> (max 1MB)</span>
-                      </p>
-                      {imageError && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {imageError}
-                        </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAboutUsSections(prev => prev.map(s => 
+                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                              ));
+                              setImageErrors(prev => ({ ...prev, [section.id]: '' }));
+                            }}
+                            className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                            <div className="flex items-center">
+                              <label
+                                htmlFor={`about-image-${section.id}`}
+                                className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
+                              >
+                                <span>Upload a file</span>
+                                <input
+                                  id={`about-image-${section.id}`}
+                                  name={`about-image-${section.id}`}
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageChange(e, section.id)}
+                                />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                            </div>
+                            <p className="mt-2 text-xs text-gray-500">
+                              PNG, JPG, GIF
+                              <span className="font-semibold text-gray-600"> (max 1MB)</span>
+                            </p>
+                            {imageErrors[section.id] && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {imageErrors[section.id]}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
