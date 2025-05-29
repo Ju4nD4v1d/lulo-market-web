@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Store, Upload, AlertCircle } from 'lucide-react';
+import { Store, Upload, AlertCircle, Camera, Trash2, CheckCircle2, Info } from 'lucide-react';
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -312,136 +312,169 @@ export const StoreSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {userStore ? 'Update Store' : 'Create Store'}
-        </h1>
-        <Store className="w-8 h-8 text-primary-600" />
+      <div className="bg-gradient-to-r from-primary-500/10 to-primary-600/10 rounded-2xl p-8 mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {userStore ? 'Manage Your Store' : 'Create Your Store'}
+            </h1>
+            <p className="text-gray-600">
+              {userStore 
+                ? 'Update your store information and keep your business details fresh.'
+                : 'Get started by setting up your store profile and sharing your story.'}
+            </p>
+          </div>
+          <Store className="w-12 h-12 text-primary-600" />
+        </div>
       </div>
 
       {success && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg text-green-600">
-          {success}
+        <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-200 flex items-center text-green-700">
+          <CheckCircle2 className="w-5 h-5 mr-3 flex-shrink-0" />
+          <p>{success}</p>
         </div>
       )}
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-200 flex items-center text-red-700">
+          <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+          <p>{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 space-y-8">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Store Profile</h2>
+              <p className="text-gray-500 text-sm mt-1">Basic information about your business</p>
+            </div>
+            <Info className="w-5 h-5 text-gray-400" />
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Store Name *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter store name"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter phone number"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter store description"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address
-            </label>
-            <input
-              type="text"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter store address"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Store Image (Max 1MB)
-            </label>
-            <div className="mt-1 flex flex-col space-y-2">
-              <div className="flex items-center space-x-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name *
+                </label>
                 <input
-                  ref={mainImageInputRef}
-                  type="file"
-                  onChange={handleMainImageChange}
-                  accept="image/*"
-                  className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-primary-50 file:text-primary-700
-                    hover:file:bg-primary-100"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter your store name"
+                  required
                 />
-                {mainImagePreview && (
-                  <div className="relative group">
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter store address"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Store Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 h-[calc(100%-2rem)]"
+                placeholder="Tell customers about your store..."
+                rows={6}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Store Image
+            </label>
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-primary-500 transition-colors duration-200">
+              <div className="space-y-2 text-center">
+                {mainImagePreview ? (
+                  <div className="relative inline-block group">
                     <img
                       src={mainImagePreview}
                       alt="Store preview"
-                      className="h-32 w-32 object-cover rounded-lg"
+                      className="max-h-64 rounded-lg"
                     />
                     <button
                       onClick={handleRemoveMainImage}
-                      className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="absolute top-2 right-2 bg-black/50 text-white p-2 rounded-full
+                        opacity-0 group-hover:opacity-100 transition-all duration-200
+                        hover:bg-black/70"
                     >
-                      Remove
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
+                ) : (
+                  <>
+                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                      <label
+                        htmlFor="main-image-upload"
+                        className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
+                      >
+                        <span>Upload a file</span>
+                        <input
+                          id="main-image-upload"
+                          ref={mainImageInputRef}
+                          type="file"
+                          className="sr-only"
+                          onChange={handleMainImageChange}
+                          accept="image/*"
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG up to 1MB</p>
+                  </>
                 )}
               </div>
-              {imageError && (
-                <p className="text-sm text-red-600 flex items-center">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  {imageError}
-                </p>
-              )}
             </div>
+            {imageError && (
+              <p className="mt-2 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                {imageError}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
-            <p className="text-sm text-gray-500">Tell your story in 3 sections</p>
+        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 space-y-8">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">About Us</h2>
+              <p className="text-gray-500 text-sm mt-1">Share your story in three engaging sections</p>
+            </div>
+            <Info className="w-5 h-5 text-gray-400" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {aboutUsSections.map((section, index) => (
               <div 
                 key={index} 
@@ -531,30 +564,28 @@ export const StoreSetup = () => {
           </div>
         </div>
 
-        <input
-          type="hidden"
-          value={formData.deliveryCostWithDiscount}
-          onChange={(e) => setFormData({ ...formData, deliveryCostWithDiscount: Number(e.target.value) })}
-        />
-
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={saving}
             className={`
-              px-6 py-2 bg-primary-600 text-white rounded-lg
-              hover:bg-primary-700 transition-colors
-              flex items-center
+              px-8 py-3 bg-primary-600 text-white rounded-xl
+              hover:bg-primary-700 transition-all duration-200
+              transform hover:scale-105
+              flex items-center space-x-2
               ${saving ? 'opacity-70 cursor-not-allowed' : ''}
             `}
           >
             {saving ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Saving...
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Saving...</span>
               </>
             ) : (
-              userStore ? 'Update Store' : 'Create Store'
+              <>
+                <Upload className="w-5 h-5" />
+                <span>{userStore ? 'Update Store' : 'Create Store'}</span>
+              </>
             )}
           </button>
         </div>
