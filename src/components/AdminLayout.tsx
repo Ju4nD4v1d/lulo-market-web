@@ -20,6 +20,7 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   const { currentUser, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,6 +29,10 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
     } catch (error) {
       console.error('Failed to log out:', error);
     }
+  };
+
+  const handleLogoError = () => {
+    setLogoError(true);
   };
 
   const menuItems = [
@@ -53,11 +58,20 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
           ${isCollapsed ? 'px-4 justify-center' : 'px-6'}
         `}>
           {isCollapsed ? (
-            <img 
-              src="/logo_lulo.png" 
-              alt="LuloCart Logo"
-              className="h-8 w-8 object-contain"
-            />
+            logoError ? (
+              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                <span className="text-primary-600 font-bold">
+                  {COMPANY_NAME.charAt(0)}
+                </span>
+              </div>
+            ) : (
+              <img 
+                src="/logo_lulo.png" 
+                alt={COMPANY_NAME}
+                className="h-8 w-8 object-contain"
+                onError={handleLogoError}
+              />
+            )
           ) : (
             <h1 className="text-xl font-bold text-gray-900 truncate">
               {COMPANY_NAME}
