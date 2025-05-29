@@ -19,16 +19,17 @@ export const StoreList = () => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const storesCollection = collection(db, 'Stores');
+        const storesCollection = collection(db, 'stores'); // Changed from 'Stores' to 'stores'
         const storesSnapshot = await getDocs(storesCollection);
         const storesData = storesSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         } as StoreData));
         setStores(storesData);
-        setLoading(false);
       } catch (err) {
+        console.error('Error fetching stores:', err);
         setError('Failed to fetch stores. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
