@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Package, 
   Plus, 
@@ -25,6 +25,18 @@ interface Product {
   status: 'active' | 'draft' | 'outOfStock';
 }
 
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
+
+const validateImage = (file: File): string | null => {
+  if (!file.type.startsWith('image/')) {
+    return 'Please upload an image file';
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return 'Image size must be less than 1MB';
+  }
+  return null;
+};
+
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +55,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     images: []
   });
   const [dragActive, setDragActive] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -60,7 +74,45 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    // Handle file drop logic here
+    setImageError('');
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setImageError(error);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageError('');
+    const file = e.target.files?.[0];
+    if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setImageError(error);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setImageError('');
   };
 
   if (!isOpen) return null;
@@ -89,7 +141,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               <div
                 className={`
                   border-2 border-dashed rounded-lg p-8
-                  ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
+                  ${dragActive ? 'border-primary-500 bg-primary-50' : imageError ? 'border-red-300' : 'border-gray-300'}
                   hover:border-primary-400 transition-colors duration-200
                   text-center cursor-pointer
                 `}
@@ -97,17 +149,54 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="mt-4 flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                    <span>Upload files</span>
-                    <input type="file" className="sr-only" multiple accept="image/*" />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  PNG, JPG, GIF up to 5MB
-                </p>
+                {imagePreview ? (
+                  <div className="space-y-4">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="max-h-48 mx-auto rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <label
+                          htmlFor="product-image"
+                          className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="product-image"
+                            name="product-image"
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        PNG, JPG, GIF
+                        <span className="font-semibold text-gray-600"> (max 1MB)</span>
+                      </p>
+                      {imageError && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {imageError}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
