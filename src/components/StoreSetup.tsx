@@ -11,7 +11,9 @@ import {
   Clock,
   CreditCard,
   Truck,
-  ShoppingBag
+  ShoppingBag,
+  Building2,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -208,7 +210,7 @@ export const StoreSetup = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <FormSection title="Basic Information" icon={Store}>
+        <FormSection title="Basic Information" icon={Building2}>
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -569,7 +571,7 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        <FormSection title="About Us" icon={Store}>
+        <FormSection title="About Us" icon={BookOpen}>
           <div className="space-y-8">
             <div className="flex items-center justify-between">
               {aboutUsSections.length < 3 && (
