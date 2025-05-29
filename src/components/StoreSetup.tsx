@@ -49,8 +49,14 @@ export const StoreSetup = () => {
     { title: '', description: '', image: null }
   ]);
 
+  const [mainImagePreview, setMainImagePreview] = useState<string | undefined>();
+  const [mainImage, setMainImage] = useState<File | null>(null);
+
   useEffect(() => {
     return () => {
+      if (mainImagePreview) {
+        URL.revokeObjectURL(mainImagePreview);
+      }
       aboutUsSections.forEach(section => {
         if (section.imagePreview) {
           URL.revokeObjectURL(section.imagePreview);
@@ -90,6 +96,50 @@ export const StoreSetup = () => {
       fetchUserStore();
     }
   }, [currentUser]);
+
+  const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
+      setImageError(errorMessage);
+      e.target.value = ''; // Reset the input
+      
+      // Clear preview if it exists
+      if (mainImagePreview) {
+        URL.revokeObjectURL(mainImagePreview);
+      }
+      setMainImagePreview(undefined);
+      setMainImage(null);
+      return;
+    }
+
+    // Clear any previous errors
+    setImageError(null);
+    
+    // Revoke previous preview URL if it exists
+    if (mainImagePreview) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+
+    // Create new preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setMainImagePreview(previewUrl);
+    setMainImage(file);
+  };
+
+  const handleRemoveMainImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (mainImagePreview) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+    setMainImagePreview(undefined);
+    setMainImage(null);
+    setImageError(null);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -349,23 +399,28 @@ export const StoreSetup = () => {
               Store Image (Max 1MB)
             </label>
             <div className="mt-1 flex flex-col space-y-2">
-              <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                <div className="space-y-1 text-center">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="flex text-sm text-gray-600">
-                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
-                      <span>Upload a file</span>
-                      <input 
-                        type="file" 
-                        className="sr-only" 
-                        onChange={handleFileChange}
-                        accept="image/*"
-                      />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="file"
+                  onChange={handleMainImageChange}
+                  accept="image/*"
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary-50 file:text-primary-700
+                    hover:file:bg-primary-100"
+                />
+                {mainImagePreview && (
+                  <div className="relative">
+                    <img
+                      src={mainImagePreview}
+                      alt="Store preview"
+                      className="h-16 w-16 object-cover rounded-lg cursor-pointer"
+                      onClick={handleRemoveMainImage}
+                    />
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
-                </div>
+                )}
               </div>
               {imageError && (
                 <p className="text-sm text-red-600 flex items-center">
