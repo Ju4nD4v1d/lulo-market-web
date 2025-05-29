@@ -1,14 +1,3 @@
-export interface Coordinates {
-  lat: number;
-  lng: number;
-}
-
-export interface StoreLocation {
-  address: string;
-  coordinates: Coordinates;
-  placeId?: string;
-}
-
 export interface AboutUsSection {
   title: string;
   description: string;
@@ -19,7 +8,7 @@ export interface StoreData {
   id: string;
   name: string;
   description?: string;
-  location?: StoreLocation;
+  address?: string;
   phone?: string;
   website?: string;
   instagram?: string;
