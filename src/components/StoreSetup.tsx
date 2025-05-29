@@ -286,7 +286,10 @@ export const StoreSetup = () => {
                         [day]: { ...hours, open: e.target.value }
                       }
                     })}
-                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg 
+                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                      text-gray-900 [color-scheme:light]
+                      disabled:bg-gray-100 disabled:text-gray-500"
                     disabled={hours.closed}
                   />
                   <span className="text-gray-500 w-6 text-center">to</span>
@@ -300,7 +303,10 @@ export const StoreSetup = () => {
                         [day]: { ...hours, close: e.target.value }
                       }
                     })}
-                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg 
+                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                      text-gray-900 [color-scheme:light]
+                      disabled:bg-gray-100 disabled:text-gray-500"
                     disabled={hours.closed}
                   />
                   <label className="inline-flex items-center ml-4">
@@ -314,7 +320,11 @@ export const StoreSetup = () => {
                           [day]: { ...hours, closed: e.target.checked }
                         }
                       })}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      className="rounded border-gray-300 
+                        text-primary-500 
+                        focus:ring-primary-500 focus:ring-offset-0
+                        checked:bg-primary-500 checked:hover:bg-primary-600
+                        transition-colors duration-200"
                     />
                     <span className="ml-2 text-sm text-gray-600">Closed</span>
                   </label>
@@ -340,7 +350,11 @@ export const StoreSetup = () => {
                       pickup: e.target.checked
                     }
                   })}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="rounded border-gray-300 
+                    text-primary-500 
+                    focus:ring-primary-500 focus:ring-offset-0
+                    checked:bg-primary-500 checked:hover:bg-primary-600
+                    transition-colors duration-200"
                 />
                 <span className="ml-2 text-sm text-gray-700">Store Pickup</span>
               </label>
@@ -356,7 +370,11 @@ export const StoreSetup = () => {
                       delivery: e.target.checked
                     }
                   })}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="rounded border-gray-300 
+                    text-primary-500 
+                    focus:ring-primary-500 focus:ring-offset-0
+                    checked:bg-primary-500 checked:hover:bg-primary-600
+                    transition-colors duration-200"
                 />
                 <span className="ml-2 text-sm text-gray-700">Local Delivery</span>
               </label>
@@ -372,7 +390,11 @@ export const StoreSetup = () => {
                       shipping: e.target.checked
                     }
                   })}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="rounded border-gray-300 
+                    text-primary-500 
+                    focus:ring-primary-500 focus:ring-offset-0
+                    checked:bg-primary-500 checked:hover:bg-primary-600
+                    transition-colors duration-200"
                 />
                 <span className="ml-2 text-sm text-gray-700">Shipping</span>
               </label>
