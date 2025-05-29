@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for form elements */
+@layer base {
+  /* Time picker styles */
+  input[type="time"] {
+    @apply text-gray-900 border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500;
+  }
+
+  /* Checkbox styles */
+  input[type="checkbox"] {
+    @apply rounded border-gray-300 
+      text-primary-500 
+      focus:ring-primary-500 focus:ring-offset-0
+      checked:bg-primary-500 checked:hover:bg-primary-600
+      transition-colors duration-200;
+  }
+
+  /* General input styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  textarea {
+    @apply block w-full px-4 py-2 border border-gray-300 rounded-lg 
+      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+      placeholder-gray-400 text-gray-900;
+  }
+
+  /* File input container styles */
+  .file-input-container {
+    @apply border-2 border-dashed rounded-lg p-8
+      hover:border-primary-400 transition-colors duration-200
+      focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500;
+  }
+}
