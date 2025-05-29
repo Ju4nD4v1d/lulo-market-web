@@ -47,7 +47,6 @@ export const StoreSetup = () => {
     { title: '', description: '', image: null }
   ]);
 
-  // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
       aboutUsSections.forEach(section => {
@@ -95,19 +94,16 @@ export const StoreSetup = () => {
     const newSections = [...aboutUsSections];
     
     if (field === 'image') {
-      // Clean up previous preview URL if it exists
       if (newSections[index].imagePreview) {
         URL.revokeObjectURL(newSections[index].imagePreview);
       }
 
       if (value instanceof File) {
-        // Validate file size
         if (value.size > MAX_FILE_SIZE) {
           setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
           return;
         }
 
-        // Create new preview URL
         const previewUrl = URL.createObjectURL(value);
         newSections[index] = {
           ...newSections[index],
@@ -115,7 +111,6 @@ export const StoreSetup = () => {
           imagePreview: previewUrl
         };
       } else {
-        // Handle image removal
         newSections[index] = {
           ...newSections[index],
           image: null,
@@ -140,8 +135,12 @@ export const StoreSetup = () => {
     setAboutUsSections(newSections);
   };
 
-  const handleRemoveImage = (index: number) => {
-    handleAboutUsChange(index, 'image', null);
+  const handleRemoveImage = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    
+    if ((e.target as HTMLElement).textContent === 'Remove') {
+      handleAboutUsChange(index, 'image', null);
+    }
   };
 
   const validateAboutUs = () => {
@@ -176,7 +175,6 @@ export const StoreSetup = () => {
 
     try {
       if (userStore) {
-        // Update existing store
         const storeRef = doc(db, 'Stores', userStore.id);
         await updateDoc(storeRef, {
           ...formData,
@@ -184,7 +182,6 @@ export const StoreSetup = () => {
         });
         setSuccess('Store updated successfully!');
       } else {
-        // Create new store
         const storeData = {
           ...formData,
           ownerId: currentUser?.uid,
@@ -232,7 +229,6 @@ export const StoreSetup = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Basic Store Information */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
           <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
           
@@ -311,7 +307,6 @@ export const StoreSetup = () => {
           </div>
         </div>
 
-        {/* About Us Sections */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
           <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
           
@@ -371,13 +366,12 @@ export const StoreSetup = () => {
                         alt={`Preview ${index + 1}`}
                         className="h-16 w-16 object-cover rounded-lg"
                       />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute inset-0 bg-black/50 text-white text-xs font-medium hidden group-hover:flex items-center justify-center rounded-lg"
+                      <div
+                        className="absolute inset-0 bg-black/50 text-white text-xs font-medium hidden group-hover:flex items-center justify-center rounded-lg cursor-pointer"
+                        onClick={(e) => handleRemoveImage(e, index)}
                       >
                         Remove
-                      </button>
+                      </div>
                     </div>
                   )}
                 </div>
