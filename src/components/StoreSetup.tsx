@@ -13,7 +13,8 @@ import {
   Truck,
   ShoppingBag,
   Building2,
-  BookOpen
+  BookOpen,
+  Info as InfoIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -573,6 +574,14 @@ export const StoreSetup = () => {
 
         <FormSection title="About Us" icon={BookOpen}>
           <div className="space-y-8">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
+              <p className="text-sm text-primary-800">
+                <InfoIcon className="w-5 h-5 inline-block mr-2" />
+                These sections will be prominently featured in your store profile on the mobile app. 
+                A compelling story helps attract customers and builds trust with your Latin American audience.
+              </p>
+            </div>
+
             <div className="flex items-center justify-between">
               {aboutUsSections.length < 3 && (
                 <button
@@ -727,7 +736,8 @@ export const StoreSetup = () => {
           >
             {saving ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3">
+                </div>
                 Saving...
               </>
             ) : (
@@ -735,7 +745,6 @@ export const StoreSetup = () => {
                 <Store className="w-5 h-5 mr-2" />
                 Save Store
               </>
-            
             )}
           </button>
         </div>
