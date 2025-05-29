@@ -7,7 +7,11 @@ import {
   Phone,
   Globe,
   DollarSign,
-  Upload
+  Upload,
+  Clock,
+  CreditCard,
+  Truck,
+  ShoppingBag
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -30,6 +34,26 @@ interface AboutUsSection {
   image?: File;
   imagePreview?: string;
 }
+
+const FormSection = ({ 
+  title, 
+  icon: Icon, 
+  children 
+}: { 
+  title: string; 
+  icon: React.ElementType; 
+  children: React.ReactNode;
+}) => (
+  <div className="bg-white rounded-xl p-6 border border-gray-200 transition-all duration-300 hover:shadow-md">
+    <div className="flex items-center space-x-3 mb-6">
+      <div className="bg-primary-50 p-2 rounded-lg">
+        <Icon className="w-5 h-5 text-primary-600" />
+      </div>
+      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+    </div>
+    {children}
+  </div>
+);
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
@@ -157,9 +181,16 @@ export const StoreSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Store Setup</h1>
-        <p className="text-gray-600">Configure your store information and settings</p>
+      <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
+        <div className="flex items-center space-x-4">
+          <div className="bg-primary-50 p-3 rounded-lg">
+            <Store className="w-6 h-6 text-primary-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Store Setup</h1>
+            <p className="text-gray-600 mt-1">Configure your store information and settings</p>
+          </div>
+        </div>
       </div>
 
       {imageErrors.general && (
@@ -176,10 +207,8 @@ export const StoreSetup = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Basic Information */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Basic Information" icon={Store}>
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -212,11 +241,9 @@ export const StoreSetup = () => {
               />
             </div>
           </div>
-        </div>
+        </FormSection>
 
-        {/* Contact Information */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+        <FormSection title="Contact Information" icon={Phone}>
           <div className="space-y-4">
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
@@ -272,11 +299,9 @@ export const StoreSetup = () => {
               </div>
             </div>
           </div>
-        </div>
+        </FormSection>
 
-        {/* Business Hours */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Hours</h2>
+        <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-4">
             {Object.entries(formData.businessHours).map(([day, hours]) => (
               <div key={day} className="flex items-center space-x-4">
@@ -342,72 +367,82 @@ export const StoreSetup = () => {
               </div>
             ))}
           </div>
-        </div>
+        </FormSection>
 
-        {/* Delivery Options */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Delivery Options</h2>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.deliveryOptions.pickup}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    deliveryOptions: {
-                      ...formData.deliveryOptions,
-                      pickup: e.target.checked
-                    }
-                  })}
-                  className="rounded border-gray-300 
-                    text-primary-500 
-                    focus:ring-primary-500 focus:ring-offset-0
-                    checked:bg-primary-500 checked:hover:bg-primary-600
-                    transition-colors duration-200"
-                />
-                <span className="ml-2 text-sm text-gray-700">Store Pickup</span>
-              </label>
+        <FormSection title="Delivery & Payment" icon={Truck}>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Delivery Options</h3>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.deliveryOptions.pickup}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      deliveryOptions: {
+                        ...formData.deliveryOptions,
+                        pickup: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Store Pickup</span>
+                    <span className="block text-sm text-gray-500">Customers pick up orders</span>
+                  </div>
+                </label>
 
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.deliveryOptions.delivery}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    deliveryOptions: {
-                      ...formData.deliveryOptions,
-                      delivery: e.target.checked
-                    }
-                  })}
-                  className="rounded border-gray-300 
-                    text-primary-500 
-                    focus:ring-primary-500 focus:ring-offset-0
-                    checked:bg-primary-500 checked:hover:bg-primary-600
-                    transition-colors duration-200"
-                />
-                <span className="ml-2 text-sm text-gray-700">Local Delivery</span>
-              </label>
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.deliveryOptions.delivery}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      deliveryOptions: {
+                        ...formData.deliveryOptions,
+                        delivery: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Local Delivery</span>
+                    <span className="block text-sm text-gray-500">Deliver to local area</span>
+                  </div>
+                </label>
 
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.deliveryOptions.shipping}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    deliveryOptions: {
-                      ...formData.deliveryOptions,
-                      shipping: e.target.checked
-                    }
-                  })}
-                  className="rounded border-gray-300 
-                    text-primary-500 
-                    focus:ring-primary-500 focus:ring-offset-0
-                    checked:bg-primary-500 checked:hover:bg-primary-600
-                    transition-colors duration-200"
-                />
-                <span className="ml-2 text-sm text-gray-700">Shipping</span>
-              </label>
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.deliveryOptions.shipping}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      deliveryOptions: {
+                        ...formData.deliveryOptions,
+                        shipping: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Shipping</span>
+                    <span className="block text-sm text-gray-500">Ship nationwide</span>
+                  </div>
+                </label>
+              </div>
             </div>
 
             {formData.deliveryOptions.delivery && (
@@ -457,27 +492,99 @@ export const StoreSetup = () => {
                 />
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* About Us Sections */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
-            {aboutUsSections.length < 3 && (
-              <button
-                type="button"
-                onClick={addAboutUsSection}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                + Add Another Section
-              </button>
-            )}
-          </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Payment Methods</h3>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.paymentMethods.cash}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      paymentMethods: {
+                        ...formData.paymentMethods,
+                        cash: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Cash</span>
+                    <span className="block text-sm text-gray-500">Accept cash payments</span>
+                  </div>
+                </label>
 
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.paymentMethods.card}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      paymentMethods: {
+                        ...formData.paymentMethods,
+                        card: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Credit Card</span>
+                    <span className="block text-sm text-gray-500">Accept card payments</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.paymentMethods.transfer}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      paymentMethods: {
+                        ...formData.paymentMethods,
+                        transfer: e.target.checked
+                      }
+                    })}
+                    className="rounded border-gray-300 
+                      text-primary-500 
+                      focus:ring-primary-500 focus:ring-offset-0
+                      checked:bg-primary-500 checked:hover:bg-primary-600
+                      transition-colors duration-200"
+                  />
+                  <div className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Bank Transfer</span>
+                    <span className="block text-sm text-gray-500">Accept bank transfers</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="About Us" icon={Store}>
           <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              {aboutUsSections.length < 3 && (
+                <button
+                  type="button"
+                  onClick={addAboutUsSection}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  + Add Another Section
+                </button>
+              )}
+            </div>
+
             {aboutUsSections.map((section, index) => (
-              <div key={section.id} className="relative">
+              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
                 {index > 0 && (
                   <button
                     type="button"
@@ -601,7 +708,7 @@ export const StoreSetup = () => {
               </div>
             ))}
           </div>
-        </div>
+        </FormSection>
 
         {/* Submit Button */}
         <div className="flex justify-end">
@@ -612,8 +719,8 @@ export const StoreSetup = () => {
               inline-flex items-center px-6 py-3 rounded-lg text-white
               ${saving
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700'}
-              transition-colors duration-200
+                : 'bg-primary-600 hover:bg-primary-700 transform transition-all duration-200 hover:scale-105'}
+              shadow-lg hover:shadow-xl
             `}
           >
             {saving ? (
@@ -626,6 +733,7 @@ export const StoreSetup = () => {
                 <Store className="w-5 h-5 mr-2" />
                 Save Store
               </>
+            
             )}
           </button>
         </div>
