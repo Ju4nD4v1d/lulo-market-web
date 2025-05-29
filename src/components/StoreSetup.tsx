@@ -94,25 +94,34 @@ export const StoreSetup = () => {
     setError(null);
     const newSections = [...aboutUsSections];
     
-    if (field === 'image' && value instanceof File) {
+    if (field === 'image') {
       // Clean up previous preview URL if it exists
       if (newSections[index].imagePreview) {
         URL.revokeObjectURL(newSections[index].imagePreview);
       }
 
-      // Validate file size
-      if (value.size > MAX_FILE_SIZE) {
-        setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
-        return;
-      }
+      if (value instanceof File) {
+        // Validate file size
+        if (value.size > MAX_FILE_SIZE) {
+          setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
+          return;
+        }
 
-      // Create new preview URL
-      const previewUrl = URL.createObjectURL(value);
-      newSections[index] = {
-        ...newSections[index],
-        image: value,
-        imagePreview: previewUrl
-      };
+        // Create new preview URL
+        const previewUrl = URL.createObjectURL(value);
+        newSections[index] = {
+          ...newSections[index],
+          image: value,
+          imagePreview: previewUrl
+        };
+      } else {
+        // Handle image removal
+        newSections[index] = {
+          ...newSections[index],
+          image: null,
+          imagePreview: undefined
+        };
+      }
     } else if (field === 'description' && typeof value === 'string') {
       if (value.length > MAX_DESCRIPTION_LENGTH) {
         return;
@@ -129,6 +138,10 @@ export const StoreSetup = () => {
     }
     
     setAboutUsSections(newSections);
+  };
+
+  const handleRemoveImage = (index: number) => {
+    handleAboutUsChange(index, 'image', null);
   };
 
   const validateAboutUs = () => {
@@ -360,7 +373,7 @@ export const StoreSetup = () => {
                       />
                       <button
                         type="button"
-                        onClick={() => handleAboutUsChange(index, 'image', null)}
+                        onClick={() => handleRemoveImage(index)}
                         className="absolute inset-0 bg-black/50 text-white text-xs font-medium hidden group-hover:flex items-center justify-center rounded-lg"
                       >
                         Remove
