@@ -190,7 +190,9 @@ export const StoreSetup = () => {
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
+                  placeholder-gray-400 text-gray-900"
                 required
               />
             </div>
@@ -204,7 +206,9 @@ export const StoreSetup = () => {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                  placeholder-gray-400 text-gray-900"
               />
             </div>
           </div>
@@ -225,7 +229,9 @@ export const StoreSetup = () => {
                   id="address"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                    placeholder-gray-400 text-gray-900"
                 />
               </div>
             </div>
@@ -241,7 +247,9 @@ export const StoreSetup = () => {
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                    placeholder-gray-400 text-gray-900"
                 />
               </div>
             </div>
@@ -257,7 +265,9 @@ export const StoreSetup = () => {
                   id="website"
                   value={formData.website}
                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                    placeholder-gray-400 text-gray-900"
                 />
               </div>
             </div>
@@ -417,7 +427,9 @@ export const StoreSetup = () => {
                     })}
                     min="0"
                     step="0.01"
-                    className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                      placeholder-gray-400 text-gray-900"
                   />
                 </div>
               </div>
@@ -439,7 +451,9 @@ export const StoreSetup = () => {
                   })}
                   min="0"
                   step="0.01"
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                    placeholder-gray-400 text-gray-900"
                 />
               </div>
             </div>
@@ -488,7 +502,9 @@ export const StoreSetup = () => {
                       onChange={(e) => setAboutUsSections(prev => prev.map(s => 
                         s.id === section.id ? { ...s, title: e.target.value } : s
                       ))}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       placeholder="Enter a title for this section"
                     />
                   </div>
@@ -504,7 +520,9 @@ export const StoreSetup = () => {
                         s.id === section.id ? { ...s, description: e.target.value } : s
                       ))}
                       rows={4}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       placeholder="Tell your story..."
                     />
                   </div>
