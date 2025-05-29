@@ -31,6 +31,8 @@ export const StoreSetup = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [aboutUsErrors, setAboutUsErrors] = useState<(string | null)[]>([null, null, null]);
   const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -95,7 +97,7 @@ export const StoreSetup = () => {
 
     if (file.size > MAX_FILE_SIZE) {
       const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
-      setError(errorMessage);
+      setImageError(errorMessage);
       e.target.value = ''; // Reset the input
       setFormData(prev => ({
         ...prev,
@@ -105,7 +107,7 @@ export const StoreSetup = () => {
     }
 
     // Clear any previous errors
-    setError(null);
+    setImageError(null);
     
     // Handle the valid file
     const reader = new FileReader();
@@ -119,15 +121,16 @@ export const StoreSetup = () => {
   };
 
   const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string | File | null) => {
-    setError(null);
     const newSections = [...aboutUsSections];
+    const newErrors = [...aboutUsErrors];
     
     if (field === 'image') {
       // Handle file selection
       if (value instanceof File) {
         if (value.size > MAX_FILE_SIZE) {
           const errorMessage = `Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`;
-          setError(errorMessage);
+          newErrors[index] = errorMessage;
+          setAboutUsErrors(newErrors);
           
           // Clear the preview and file input
           if (newSections[index].imagePreview) {
@@ -154,6 +157,7 @@ export const StoreSetup = () => {
           image: value,
           imagePreview: previewUrl
         };
+        newErrors[index] = null;
       }
       // Handle remove button click
       else if (value === null && !newSections[index].image) {
@@ -165,6 +169,7 @@ export const StoreSetup = () => {
           image: null,
           imagePreview: undefined
         };
+        newErrors[index] = null;
       }
     } else if (field === 'description' && typeof value === 'string') {
       if (value.length > MAX_DESCRIPTION_LENGTH) {
@@ -182,6 +187,7 @@ export const StoreSetup = () => {
     }
     
     setAboutUsSections(newSections);
+    setAboutUsErrors(newErrors);
   };
 
   const handleRemoveImage = (e: React.MouseEvent, index: number) => {
@@ -191,22 +197,27 @@ export const StoreSetup = () => {
   };
 
   const validateAboutUs = () => {
+    const newErrors = [...aboutUsErrors];
+    let isValid = true;
+
     for (let i = 0; i < aboutUsSections.length; i++) {
       const section = aboutUsSections[i];
       if (!section.title || !section.description || !section.image) {
-        setError(`Please fill all fields in About Us section ${i + 1}`);
-        return false;
-      }
-      if (section.description.length > MAX_DESCRIPTION_LENGTH) {
-        setError(`Description in section ${i + 1} exceeds ${MAX_DESCRIPTION_LENGTH} characters`);
-        return false;
-      }
-      if (section.image && section.image.size > MAX_FILE_SIZE) {
-        setError(`Image in section ${i + 1} exceeds 1MB size limit`);
-        return false;
+        newErrors[i] = `Please fill all fields in section ${i + 1}`;
+        isValid = false;
+      } else if (section.description.length > MAX_DESCRIPTION_LENGTH) {
+        newErrors[i] = `Description exceeds ${MAX_DESCRIPTION_LENGTH} characters`;
+        isValid = false;
+      } else if (section.image && section.image.size > MAX_FILE_SIZE) {
+        newErrors[i] = `Image exceeds 1MB size limit`;
+        isValid = false;
+      } else {
+        newErrors[i] = null;
       }
     }
-    return true;
+
+    setAboutUsErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -265,6 +276,12 @@ export const StoreSetup = () => {
       {success && (
         <div className="mb-6 p-4 bg-green-50 rounded-lg text-green-600">
           {success}
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600">
+          {error}
         </div>
       )}
 
@@ -350,10 +367,10 @@ export const StoreSetup = () => {
                   <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
                 </div>
               </div>
-              {error && (
+              {imageError && (
                 <p className="text-sm text-red-600 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
-                  {error}
+                  {imageError}
                 </p>
               )}
             </div>
@@ -424,10 +441,10 @@ export const StoreSetup = () => {
                       </div>
                     )}
                   </div>
-                  {error && (
+                  {aboutUsErrors[index] && (
                     <p className="text-sm text-red-600 flex items-center">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {error}
+                      {aboutUsErrors[index]}
                     </p>
                   )}
                 </div>
