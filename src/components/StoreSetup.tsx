@@ -89,6 +89,30 @@ export const StoreSetup = () => {
     }
   }, [currentUser]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+      e.target.value = ''; // Reset the input
+      return;
+    }
+
+    // Clear any previous errors
+    setError(null);
+    
+    // Handle the valid file
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: reader.result as string
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string | File | null) => {
     setError(null);
     const newSections = [...aboutUsSections];
@@ -295,7 +319,7 @@ export const StoreSetup = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Store Image
+              Store Image (Max 1MB)
             </label>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
               <div className="space-y-1 text-center">
@@ -303,11 +327,16 @@ export const StoreSetup = () => {
                 <div className="flex text-sm text-gray-600">
                   <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
                     <span>Upload a file</span>
-                    <input type="file" className="sr-only" />
+                    <input 
+                      type="file" 
+                      className="sr-only" 
+                      onChange={handleFileChange}
+                      accept="image/*"
+                    />
                   </label>
                   <p className="pl-1">or drag and drop</p>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
               </div>
             </div>
           </div>
