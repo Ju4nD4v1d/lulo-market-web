@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Store, 
   AlertCircle, 
@@ -6,14 +6,16 @@ import {
   MapPin,
   Phone,
   Globe,
-  DollarSign
+  DollarSign,
+  Upload
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-interface AboutUsSection {
+interface AboutUs {
   title: string;
   description: string;
-  imageUrl?: string;
+  image?: File;
+  imagePreview?: string;
 }
 
 export const StoreSetup = () => {
@@ -48,24 +50,57 @@ export const StoreSetup = () => {
     },
     deliveryCostWithDiscount: 0,
     minimumOrder: 0,
-    aboutUs: [
-      {
-        title: 'Our Story',
-        description: '',
-        imageUrl: ''
-      },
-      {
-        title: 'Our Mission',
-        description: '',
-        imageUrl: ''
-      },
-      {
-        title: 'Our Values',
-        description: '',
-        imageUrl: ''
-      }
-    ]
+    aboutUs: {
+      title: '',
+      description: '',
+      image: undefined,
+      imagePreview: undefined
+    } as AboutUs
   });
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          aboutUs: {
+            ...prev.aboutUs,
+            image: file,
+            imagePreview: reader.result as string
+          }
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          aboutUs: {
+            ...prev.aboutUs,
+            image: file,
+            imagePreview: reader.result as string
+          }
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,15 +117,6 @@ export const StoreSetup = () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      aboutUs: prev.aboutUs.map((section, i) => 
-        i === index ? { ...section, [field]: value } : section
-      )
-    }));
   };
 
   return (
@@ -362,44 +388,102 @@ export const StoreSetup = () => {
           </div>
         </div>
 
-        {/* About Us Sections */}
+        {/* About Us Section */}
         <div className="bg-white rounded-xl p-6 border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">About Us</h2>
-          <div className="space-y-8">
-            {formData.aboutUs.map((section, index) => (
-              <div key={index} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-md font-medium text-gray-700">{section.title}</h3>
-                  <div className="h-px flex-1 bg-gray-200 mx-4"></div>
-                </div>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="aboutTitle" className="block text-sm font-medium text-gray-700 mb-1">
+                Title
+              </label>
+              <input
+                type="text"
+                id="aboutTitle"
+                value={formData.aboutUs.title}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  aboutUs: { ...formData.aboutUs, title: e.target.value }
+                })}
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter a title for your about section"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={section.description}
-                    onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
-                    rows={4}
-                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder={`Tell us about ${section.title.toLowerCase()}...`}
-                  />
-                </div>
+            <div>
+              <label htmlFor="aboutDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                id="aboutDescription"
+                value={formData.aboutUs.description}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  aboutUs: { ...formData.aboutUs, description: e.target.value }
+                })}
+                rows={4}
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Tell your story..."
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={section.imageUrl}
-                    onChange={(e) => handleAboutUsChange(index, 'imageUrl', e.target.value)}
-                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Enter image URL"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Image
+              </label>
+              <div
+                className={`
+                  border-2 border-dashed rounded-lg p-8
+                  ${formData.aboutUs.imagePreview ? 'border-primary-300' : 'border-gray-300'}
+                  hover:border-primary-400 transition-colors duration-200
+                  flex flex-col items-center justify-center
+                  cursor-pointer
+                `}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {formData.aboutUs.imagePreview ? (
+                  <div className="space-y-4 w-full">
+                    <img
+                      src={formData.aboutUs.imagePreview}
+                      alt="Preview"
+                      className="max-h-48 mx-auto rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({
+                        ...formData,
+                        aboutUs: { ...formData.aboutUs, image: undefined, imagePreview: undefined }
+                      })}
+                      className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4 flex text-sm text-gray-600">
+                      <label
+                        htmlFor="about-image"
+                        className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
+                      >
+                        <span>Upload a file</span>
+                        <input
+                          id="about-image"
+                          name="about-image"
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                  </div>
+                )}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
