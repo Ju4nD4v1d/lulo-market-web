@@ -21,8 +21,6 @@ import {
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import { LocationPicker } from './LocationPicker';
-import type { StoreLocation } from '../types/store';
 
 interface StoreData {
   id: string;
@@ -55,7 +53,6 @@ interface StoreData {
   minimumOrder?: number;
   imageUrl?: string;
   ownerId: string;
-  location?: StoreLocation;
 }
 
 interface AboutUsSection {
@@ -109,11 +106,7 @@ export const StoreSetup = () => {
     },
     deliveryCostWithDiscount: 0,
     minimumOrder: 0,
-    imageUrl: '',
-    location: {
-      address: '',
-      coordinates: { lat: 0, lng: 0 }
-    }
+    imageUrl: ''
   });
 
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
@@ -129,27 +122,7 @@ export const StoreSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* ... existing JSX ... */}
-      
-      {/* Add this inside the form, after the address input field */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Location
-        </label>
-        <LocationPicker
-          value={formData.location}
-          onChange={(location) => {
-            setFormData(prev => ({
-              ...prev,
-              address: location.address,
-              location
-            }));
-          }}
-          onError={setError}
-        />
-      </div>
-
-      {/* ... rest of the JSX remains exactly the same ... */}
+      {/* ... existing JSX without the LocationPicker component ... */}
     </div>
   );
 };
