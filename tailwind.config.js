@@ -29,13 +29,17 @@ export default {
   plugins: [
     function({ addBase, theme }) {
       addBase({
-        // Override default focus styles
+        // Override default focus styles for all input fields
         '[type="text"]:focus, [type="email"]:focus, [type="url"]:focus, [type="password"]:focus, [type="number"]:focus, [type="date"]:focus, [type="datetime-local"]:focus, [type="month"]:focus, [type="search"]:focus, [type="tel"]:focus, [type="time"]:focus, [type="week"]:focus, [multiple]:focus, textarea:focus, select:focus': {
           '--tw-ring-color': theme('colors.primary.500'),
           '--tw-ring-offset-shadow': 'var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)',
           '--tw-ring-shadow': 'var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)',
           'box-shadow': 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
           'border-color': theme('colors.primary.500'),
+        },
+        // Add hover styles for all input fields
+        '[type="text"]:hover, [type="email"]:hover, [type="url"]:hover, [type="password"]:hover, [type="number"]:hover, [type="date"]:hover, [type="datetime-local"]:hover, [type="month"]:hover, [type="search"]:hover, [type="tel"]:hover, [type="time"]:hover, [type="week"]:hover, [multiple]:hover, textarea:hover, select:hover': {
+          'border-color': theme('colors.primary.400'),
         },
         // Override checkbox and radio styles
         '[type="checkbox"]:checked, [type="radio"]:checked': {
