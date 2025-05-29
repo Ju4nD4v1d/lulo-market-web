@@ -14,7 +14,8 @@ import {
   ShoppingBag,
   Building2,
   BookOpen,
-  Info as InfoIcon
+  Info as InfoIcon,
+  Bank
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -90,7 +91,22 @@ export const StoreSetup = () => {
       card: true
     },
     deliveryCostWithDiscount: 0,
-    minimumOrder: 0
+    minimumOrder: 0,
+    payoutMethod: 'credit_card',
+    payoutDetails: {
+      creditCard: {
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        cardholderName: ''
+      },
+      bankAccount: {
+        accountNumber: '',
+        transitNumber: '',
+        institutionNumber: '',
+        accountHolderName: ''
+      }
+    }
   });
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -522,6 +538,267 @@ export const StoreSetup = () => {
                   </div>
                 </label>
               </div>
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Payout Method" icon={CreditCard}>
+          <div className="space-y-6">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                <p className="text-sm text-yellow-700">
+                  Note: This payment method is for setup purposes only. You must complete full onboarding and verification before receiving payouts.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <label className="flex-1 relative border rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-colors">
+                  <input
+                    type="radio"
+                    name="payoutMethod"
+                    value="credit_card"
+                    checked={formData.payoutMethod === 'credit_card'}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      payoutMethod: e.target.value
+                    })}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center">
+                    <CreditCard className="w-5 h-5 text-primary-600 mr-3" />
+                    <span className="font-medium text-gray-900">Credit Card</span>
+                  </div>
+                  <div className={`absolute inset-0 rounded-lg border-2 pointer-events-none transition-colors ${
+                    formData.payoutMethod === 'credit_card' ? 'border-primary-500' : 'border-transparent'
+                  }`} />
+                </label>
+
+                <label className="flex-1 relative border rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-colors">
+                  <input
+                    type="radio"
+                    name="payoutMethod"
+                    value="bank_account"
+                    checked={formData.payoutMethod === 'bank_account'}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      payoutMethod: e.target.value
+                    })}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center">
+                    <Bank className="w-5 h-5 text-primary-600 mr-3" />
+                    <span className="font-medium text-gray-900">Bank Account</span>
+                  </div>
+                  <div className={`absolute inset-0 rounded-lg border-2 pointer-events-none transition-colors ${
+                    formData.payoutMethod === 'bank_account' ? 'border-primary-500' : 'border-transparent'
+                  }`} />
+                </label>
+              </div>
+
+              {formData.payoutMethod === 'credit_card' && (
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label htmlFor="cardholderName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Cardholder Name
+                    </label>
+                    <input
+                      type="text"
+                      id="cardholderName"
+                      value={formData.payoutDetails.creditCard.cardholderName}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          creditCard: {
+                            ...formData.payoutDetails.creditCard,
+                            cardholderName: e.target.value
+                          }
+                        }
+                      })}
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      Card Number
+                    </label>
+                    <input
+                      type="text"
+                      id="cardNumber"
+                      value={formData.payoutDetails.creditCard.cardNumber}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          creditCard: {
+                            ...formData.payoutDetails.creditCard,
+                            cardNumber: e.target.value
+                          }
+                        }
+                      })}
+                      placeholder="•••• •••• •••• ••••"
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-1">
+                        Expiry Date
+                      </label>
+                      <input
+                        type="text"
+                        id="expiryDate"
+                        value={formData.payoutDetails.creditCard.expiryDate}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          payoutDetails: {
+                            ...formData.payoutDetails,
+                            creditCard: {
+                              ...formData.payoutDetails.creditCard,
+                              expiryDate: e.target.value
+                            }
+                          }
+                        })}
+                        placeholder="MM/YY"
+                        className="block w-full"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="cvv" className="block text-sm font-medium text-gray-700 mb-1">
+                        CVV
+                      </label>
+                      <input
+                        type="text"
+                        id="cvv"
+                        value={formData.payoutDetails.creditCard.cvv}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          payoutDetails: {
+                            ...formData.payoutDetails,
+                            creditCard: {
+                              ...formData.payoutDetails.creditCard,
+                              cvv: e.target.value
+                            }
+                          }
+                        })}
+                        placeholder="•••"
+                        className="block w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {formData.payoutMethod === 'bank_account' && (
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label htmlFor="accountHolderName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Holder Name
+                    </label>
+                    <input
+                      type="text"
+                      id="accountHolderName"
+                      value={formData.payoutDetails.bankAccount.accountHolderName}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          bankAccount: {
+                            ...formData.payoutDetails.bankAccount,
+                            accountHolderName: e.target.value
+                          }
+                        }
+                      })}
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="transitNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      Transit Number (5 digits)
+                    </label>
+                    <input
+                      type="text"
+                      id="transitNumber"
+                      value={formData.payoutDetails.bankAccount.transitNumber}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          bankAccount: {
+                            ...formData.payoutDetails.bankAccount,
+                            transitNumber: e.target.value
+                          }
+                        }
+                      })}
+                      placeholder="12345"
+                      maxLength={5}
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="institutionNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      Institution Number (3 digits)
+                    </label>
+                    <input
+                      type="text"
+                      id="institutionNumber"
+                      value={formData.payoutDetails.bankAccount.institutionNumber}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          bankAccount: {
+                            ...formData.payoutDetails.bankAccount,
+                            institutionNumber: e.target.value
+                          }
+                        }
+                      })}
+                      placeholder="002"
+                      maxLength={3}
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Number
+                    </label>
+                    <input
+                      type="text"
+                      id="accountNumber"
+                      value={formData.payoutDetails.bankAccount.accountNumber}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        payoutDetails: {
+                          ...formData.payoutDetails,
+                          bankAccount: {
+                            ...formData.payoutDetails.bankAccount,
+                            accountNumber: e.target.value
+                          }
+                        }
+                      })}
+                      placeholder="12345678"
+                      className="block w-full"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </FormSection>
