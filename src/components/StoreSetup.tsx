@@ -11,6 +11,18 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
+
+const validateImage = (file: File): string | null => {
+  if (!file.type.startsWith('image/')) {
+    return 'Please upload an image file';
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return 'Image size must be less than 1MB';
+  }
+  return null;
+};
+
 interface AboutUs {
   title: string;
   description: string;
@@ -68,7 +80,13 @@ export const StoreSetup = () => {
     e.stopPropagation();
 
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setError(error);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
@@ -87,6 +105,12 @@ export const StoreSetup = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setError(error);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
