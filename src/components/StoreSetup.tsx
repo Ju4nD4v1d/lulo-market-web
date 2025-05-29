@@ -94,7 +94,8 @@ export const StoreSetup = () => {
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE) {
-      setError(`Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+      const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
+      setError(errorMessage);
       e.target.value = ''; // Reset the input
       return;
     }
@@ -121,7 +122,8 @@ export const StoreSetup = () => {
       // Handle file selection
       if (value instanceof File) {
         if (value.size > MAX_FILE_SIZE) {
-          setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
+          const errorMessage = `Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`;
+          setError(errorMessage);
           return;
         }
 
@@ -245,13 +247,6 @@ export const StoreSetup = () => {
         <Store className="w-8 h-8 text-primary-600" />
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600 flex items-center">
-          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          {error}
-        </div>
-      )}
-
       {success && (
         <div className="mb-6 p-4 bg-green-50 rounded-lg text-green-600">
           {success}
@@ -321,23 +316,31 @@ export const StoreSetup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Store Image (Max 1MB)
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-              <div className="space-y-1 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
-                    <span>Upload a file</span>
-                    <input 
-                      type="file" 
-                      className="sr-only" 
-                      onChange={handleFileChange}
-                      accept="image/*"
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
+            <div className="mt-1 flex flex-col space-y-2">
+              <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                <div className="space-y-1 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="flex text-sm text-gray-600">
+                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
+                      <span>Upload a file</span>
+                      <input 
+                        type="file" 
+                        className="sr-only" 
+                        onChange={handleFileChange}
+                        accept="image/*"
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
               </div>
+              {error && (
+                <p className="text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {error}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -381,28 +384,36 @@ export const StoreSetup = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Image * (Max 1MB)
                 </label>
-                <div className="mt-1 flex items-center space-x-4">
-                  <input
-                    type="file"
-                    onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
-                    accept="image/*"
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-primary-50 file:text-primary-700
-                      hover:file:bg-primary-100"
-                    required={!section.image}
-                  />
-                  {section.imagePreview && (
-                    <div className="relative">
-                      <img
-                        src={section.imagePreview}
-                        alt={`Preview ${index + 1}`}
-                        className="h-16 w-16 object-cover rounded-lg"
-                        onClick={(e) => handleRemoveImage(e, index)}
-                      />
-                    </div>
+                <div className="mt-1 flex flex-col space-y-2">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="file"
+                      onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
+                      accept="image/*"
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-primary-50 file:text-primary-700
+                        hover:file:bg-primary-100"
+                      required={!section.image}
+                    />
+                    {section.imagePreview && (
+                      <div className="relative">
+                        <img
+                          src={section.imagePreview}
+                          alt={`Preview ${index + 1}`}
+                          className="h-16 w-16 object-cover rounded-lg"
+                          onClick={(e) => handleRemoveImage(e, index)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {error && (
+                    <p className="text-sm text-red-600 flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {error}
+                    </p>
                   )}
                 </div>
               </div>
