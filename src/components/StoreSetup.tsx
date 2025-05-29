@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Store, Upload, AlertCircle } from 'lucide-react';
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -27,6 +27,8 @@ const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const aboutUsImageRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [userStore, setUserStore] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -104,7 +106,9 @@ export const StoreSetup = () => {
     if (file.size > MAX_FILE_SIZE) {
       const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
       setImageError(errorMessage);
-      e.target.value = ''; // Reset the input
+      if (mainImageInputRef.current) {
+        mainImageInputRef.current.value = '';
+      }
       
       if (mainImagePreview) {
         URL.revokeObjectURL(mainImagePreview);
@@ -135,6 +139,10 @@ export const StoreSetup = () => {
     setMainImagePreview(undefined);
     setMainImage(null);
     setImageError(null);
+    
+    if (mainImageInputRef.current) {
+      mainImageInputRef.current.value = '';
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,18 +152,16 @@ export const StoreSetup = () => {
     if (file.size > MAX_FILE_SIZE) {
       const errorMessage = `Image size must be less than 1MB. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
       setImageError(errorMessage);
-      e.target.value = ''; // Reset the input
+      e.target.value = '';
       setFormData(prev => ({
         ...prev,
-        imageUrl: '' // Clear the preview
+        imageUrl: ''
       }));
       return;
     }
 
-    // Clear any previous errors
     setImageError(null);
     
-    // Handle the valid file
     const reader = new FileReader();
     reader.onload = () => {
       setFormData(prev => ({
@@ -176,6 +182,10 @@ export const StoreSetup = () => {
           const errorMessage = `Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`;
           newErrors[index] = errorMessage;
           setAboutUsErrors(newErrors);
+          
+          if (aboutUsImageRefs.current[index]) {
+            aboutUsImageRefs.current[index]!.value = '';
+          }
           
           if (newSections[index].imagePreview) {
             URL.revokeObjectURL(newSections[index].imagePreview);
@@ -210,6 +220,10 @@ export const StoreSetup = () => {
           imagePreview: undefined
         };
         newErrors[index] = null;
+        
+        if (aboutUsImageRefs.current[index]) {
+          aboutUsImageRefs.current[index]!.value = '';
+        }
       }
     } else {
       newSections[index] = {
@@ -383,6 +397,7 @@ export const StoreSetup = () => {
             <div className="mt-1 flex flex-col space-y-2">
               <div className="flex items-center space-x-4">
                 <input
+                  ref={mainImageInputRef}
                   type="file"
                   onChange={handleMainImageChange}
                   accept="image/*"
@@ -472,6 +487,7 @@ export const StoreSetup = () => {
                     <div className="mt-1 flex flex-col space-y-2">
                       <div className="flex items-center space-x-4">
                         <input
+                          ref={el => aboutUsImageRefs.current[index] = el}
                           type="file"
                           onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
                           accept="image/*"
