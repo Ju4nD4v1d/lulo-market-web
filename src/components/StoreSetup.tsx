@@ -146,10 +146,7 @@ export const StoreSetup = () => {
   const handleRemoveImage = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if ((e.target as HTMLElement).textContent === 'Remove') {
-      handleAboutUsChange(index, 'image', null);
-    }
+    handleAboutUsChange(index, 'image', null);
   };
 
   const validateAboutUs = () => {
@@ -369,18 +366,13 @@ export const StoreSetup = () => {
                     required={!section.image}
                   />
                   {section.imagePreview && (
-                    <div className="relative group">
+                    <div className="relative">
                       <img
                         src={section.imagePreview}
                         alt={`Preview ${index + 1}`}
                         className="h-16 w-16 object-cover rounded-lg"
-                      />
-                      <div
-                        className="absolute inset-0 bg-black/50 text-white text-xs font-medium hidden group-hover:flex items-center justify-center rounded-lg cursor-pointer"
                         onClick={(e) => handleRemoveImage(e, index)}
-                      >
-                        Remove
-                      </div>
+                      />
                     </div>
                   )}
                 </div>
