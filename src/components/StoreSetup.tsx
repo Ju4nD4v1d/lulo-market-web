@@ -527,10 +527,10 @@ export const StoreSetup = () => {
 
         <FormSection title="Payout Method" icon={CreditCard}>
           <div className="space-y-6">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100">
               <div className="flex items-start">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
-                <p className="text-sm text-yellow-700">
+                <InfoIcon className="w-5 h-5 text-primary-800 mt-0.5 mr-3 flex-shrink-0" />
+                <p className="text-sm text-primary-800">
                   Note: This payment method is for setup purposes only. You must complete full onboarding and verification before receiving payouts.
                 </p>
               </div>
@@ -601,7 +601,9 @@ export const StoreSetup = () => {
                           }
                         }
                       })}
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
@@ -625,7 +627,9 @@ export const StoreSetup = () => {
                         }
                       })}
                       placeholder="•••• •••• •••• ••••"
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
@@ -650,7 +654,9 @@ export const StoreSetup = () => {
                           }
                         })}
                         placeholder="MM/YY"
-                        className="block w-full"
+                        className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                          focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                          placeholder-gray-400 text-gray-900"
                         required
                       />
                     </div>
@@ -674,7 +680,9 @@ export const StoreSetup = () => {
                           }
                         })}
                         placeholder="•••"
-                        className="block w-full"
+                        className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                          focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                          placeholder-gray-400 text-gray-900"
                         required
                       />
                     </div>
@@ -702,7 +710,9 @@ export const StoreSetup = () => {
                           }
                         }
                       })}
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
@@ -727,7 +737,9 @@ export const StoreSetup = () => {
                       })}
                       placeholder="12345"
                       maxLength={5}
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
@@ -752,7 +764,9 @@ export const StoreSetup = () => {
                       })}
                       placeholder="002"
                       maxLength={3}
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
@@ -776,7 +790,9 @@ export const StoreSetup = () => {
                         }
                       })}
                       placeholder="12345678"
-                      className="block w-full"
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                        placeholder-gray-400 text-gray-900"
                       required
                     />
                   </div>
