@@ -9,6 +9,12 @@ export interface StoreLocation {
   placeId?: string;
 }
 
+export interface AboutUsSection {
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
+
 export interface StoreData {
   id: string;
   name: string;
@@ -39,5 +45,6 @@ export interface StoreData {
   deliveryCostWithDiscount?: number;
   minimumOrder?: number;
   imageUrl?: string;
+  aboutUs?: AboutUsSection[];
   ownerId: string;
 }
