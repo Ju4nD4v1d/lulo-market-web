@@ -106,7 +106,6 @@ export const StoreSetup = () => {
       setImageError(errorMessage);
       e.target.value = ''; // Reset the input
       
-      // Clear preview if it exists
       if (mainImagePreview) {
         URL.revokeObjectURL(mainImagePreview);
       }
@@ -115,15 +114,12 @@ export const StoreSetup = () => {
       return;
     }
 
-    // Clear any previous errors
     setImageError(null);
     
-    // Revoke previous preview URL if it exists
     if (mainImagePreview) {
       URL.revokeObjectURL(mainImagePreview);
     }
 
-    // Create new preview URL
     const previewUrl = URL.createObjectURL(file);
     setMainImagePreview(previewUrl);
     setMainImage(file);
@@ -175,14 +171,12 @@ export const StoreSetup = () => {
     const newErrors = [...aboutUsErrors];
     
     if (field === 'image') {
-      // Handle file selection
       if (value instanceof File) {
         if (value.size > MAX_FILE_SIZE) {
           const errorMessage = `Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`;
           newErrors[index] = errorMessage;
           setAboutUsErrors(newErrors);
           
-          // Clear the preview and file input
           if (newSections[index].imagePreview) {
             URL.revokeObjectURL(newSections[index].imagePreview);
           }
@@ -195,12 +189,10 @@ export const StoreSetup = () => {
           return;
         }
 
-        // Revoke previous preview URL if it exists
         if (newSections[index].imagePreview) {
           URL.revokeObjectURL(newSections[index].imagePreview);
         }
 
-        // Create new preview URL
         const previewUrl = URL.createObjectURL(value);
         newSections[index] = {
           ...newSections[index],
@@ -208,9 +200,7 @@ export const StoreSetup = () => {
           imagePreview: previewUrl
         };
         newErrors[index] = null;
-      }
-      // Handle remove button click
-      else if (value === null && !newSections[index].image) {
+      } else if (value === null) {
         if (newSections[index].imagePreview) {
           URL.revokeObjectURL(newSections[index].imagePreview);
         }
@@ -221,14 +211,6 @@ export const StoreSetup = () => {
         };
         newErrors[index] = null;
       }
-    } else if (field === 'description' && typeof value === 'string') {
-      if (value.length > MAX_DESCRIPTION_LENGTH) {
-        return;
-      }
-      newSections[index] = {
-        ...newSections[index],
-        [field]: value
-      };
     } else {
       newSections[index] = {
         ...newSections[index],
@@ -412,13 +394,19 @@ export const StoreSetup = () => {
                     hover:file:bg-primary-100"
                 />
                 {mainImagePreview && (
-                  <div className="relative">
+                  <div className="relative group">
                     <img
                       src={mainImagePreview}
                       alt="Store preview"
-                      className="h-16 w-16 object-cover rounded-lg cursor-pointer"
-                      onClick={handleRemoveMainImage}
+                      className="h-32 w-32 object-cover rounded-lg"
                     />
+                    <button
+                      onClick={handleRemoveMainImage}
+                      className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      Remove
+                    </button>
                   </div>
                 )}
               </div>
@@ -505,7 +493,6 @@ export const StoreSetup = () => {
                     </div>
                   </div>
 
-                  {/* Image Preview */}
                   {section.imagePreview && (
                     <div className="relative group">
                       <img
