@@ -3,6 +3,7 @@ import { LogOut, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { COMPANY_NAME } from '../config/company';
+import { StoreList } from '../components/StoreList';
 
 export const Dashboard = () => {
   const { currentUser, logout } = useAuth();
@@ -48,12 +49,14 @@ export const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">{t('auth.welcomeDashboard')}</h2>
           <p className="text-gray-600">
             {t('auth.loggedInAs')} {currentUser.email}
           </p>
         </div>
+
+        <StoreList />
       </main>
     </div>
   );
