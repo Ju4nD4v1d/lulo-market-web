@@ -94,10 +94,7 @@ export const StoreSetup = () => {
     const newSections = [...aboutUsSections];
     
     if (field === 'image') {
-      if (newSections[index].imagePreview) {
-        URL.revokeObjectURL(newSections[index].imagePreview);
-      }
-
+      // Only process if a file is provided - ignore if canceled
       if (value instanceof File) {
         if (value.size > MAX_FILE_SIZE) {
           setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
@@ -110,12 +107,19 @@ export const StoreSetup = () => {
           image: value,
           imagePreview: previewUrl
         };
-      } else {
+      }
+      // If value is null and it came from the remove button, clear the image
+      else if (value === null && newSections[index].imagePreview) {
+        URL.revokeObjectURL(newSections[index].imagePreview);
         newSections[index] = {
           ...newSections[index],
           image: null,
           imagePreview: undefined
         };
+      }
+      // If value is null but came from a canceled file dialog, do nothing
+      else {
+        return;
       }
     } else if (field === 'description' && typeof value === 'string') {
       if (value.length > MAX_DESCRIPTION_LENGTH) {
