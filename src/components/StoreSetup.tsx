@@ -433,79 +433,125 @@ export const StoreSetup = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">About Us</h2>
+            <p className="text-sm text-gray-500">Tell your story in 3 sections</p>
+          </div>
           
-          {aboutUsSections.map((section, index) => (
-            <div key={index} className="p-6 bg-gray-50 rounded-lg space-y-4">
-              <h3 className="font-medium text-gray-900">Section {index + 1}</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={section.title}
-                  onChange={(e) => handleAboutUsChange(index, 'title', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter section title"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description * ({section.description.length}/{MAX_DESCRIPTION_LENGTH})
-                </label>
-                <textarea
-                  value={section.description}
-                  onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter section description"
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image * (Max 1MB)
-                </label>
-                <div className="mt-1 flex flex-col space-y-2">
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="file"
-                      onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
-                      accept="image/*"
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-primary-50 file:text-primary-700
-                        hover:file:bg-primary-100"
-                      required={!section.image}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {aboutUsSections.map((section, index) => (
+              <div 
+                key={index} 
+                className={`
+                  relative p-6 rounded-xl transition-all duration-300
+                  ${section.imagePreview 
+                    ? 'bg-gray-900 text-white' 
+                    : 'bg-gray-50 text-gray-900'
+                  }
+                `}
+              >
+                {/* Background Image with Overlay */}
+                {section.imagePreview && (
+                  <div className="absolute inset-0 rounded-xl overflow-hidden">
+                    <img
+                      src={section.imagePreview}
+                      alt={`Section ${index + 1} background`}
+                      className="w-full h-full object-cover"
                     />
-                    {section.imagePreview && (
-                      <div className="relative">
-                        <img
-                          src={section.imagePreview}
-                          alt={`Preview ${index + 1}`}
-                          className="h-16 w-16 object-cover rounded-lg"
-                          onClick={(e) => handleRemoveImage(e, index)}
-                        />
-                      </div>
-                    )}
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
                   </div>
-                  {aboutUsErrors[index] && (
-                    <p className="text-sm text-red-600 flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      {aboutUsErrors[index]}
-                    </p>
-                  )}
+                )}
+
+                {/* Content */}
+                <div className="relative z-10 space-y-4">
+                  <h3 className="font-medium">Section {index + 1}</h3>
+                  
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
+                      Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => handleAboutUsChange(index, 'title', e.target.value)}
+                      className={`
+                        w-full px-4 py-2 rounded-lg
+                        ${section.imagePreview
+                          ? 'bg-white/10 border-white/20 placeholder-white/50 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                        }
+                        border focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                      `}
+                      placeholder="Enter section title"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
+                      Description * ({section.description.length}/{MAX_DESCRIPTION_LENGTH})
+                    </label>
+                    <textarea
+                      value={section.description}
+                      onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
+                      className={`
+                        w-full px-4 py-2 rounded-lg
+                        ${section.imagePreview
+                          ? 'bg-white/10 border-white/20 placeholder-white/50 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                        }
+                        border focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                      `}
+                      placeholder="Enter section description"
+                      rows={3}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
+                      Background Image * (Max 1MB)
+                    </label>
+                    <div className="mt-1 flex flex-col space-y-2">
+                      <div className="flex items-center space-x-4">
+                        <input
+                          type="file"
+                          onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
+                          accept="image/*"
+                          className={`
+                            block w-full text-sm
+                            ${section.imagePreview
+                              ? 'text-white/70 file:bg-white/20 file:text-white'
+                              : 'text-gray-500 file:bg-primary-50 file:text-primary-700'
+                            }
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            hover:file:bg-opacity-80
+                          `}
+                          required={!section.image}
+                        />
+                        {section.imagePreview && (
+                          <button
+                            onClick={(e) => handleRemoveImage(e, index)}
+                            className="text-white/70 hover:text-white transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      {aboutUsErrors[index] && (
+                        <p className={`text-sm flex items-center ${section.imagePreview ? 'text-red-300' : 'text-red-600'}`}>
+                          <AlertCircle className="w-4 h-4 mr-1" />
+                          {aboutUsErrors[index]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <input
