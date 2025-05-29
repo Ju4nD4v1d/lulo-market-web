@@ -1,78 +1,26 @@
-import React, { useState, useEffect, useRef, DragEvent } from 'react';
+import React, { useState } from 'react';
 import { 
   Store, 
-  Upload, 
   AlertCircle, 
-  Camera, 
-  Trash2, 
-  CheckCircle2, 
-  Info,
-  Clock,
+  CheckCircle2,
   MapPin,
   Phone,
   Globe,
   Instagram,
   Facebook,
   Twitter,
-  DollarSign,
-  Truck,
-  CreditCard
+  DollarSign
 } from 'lucide-react';
-import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import type { StoreData, AboutUsSection } from '../types/store';
-
-interface StoreData {
-  id: string;
-  name: string;
-  description?: string;
-  address?: string;
-  phone?: string;
-  website?: string;
-  instagram?: string;
-  facebook?: string;
-  twitter?: string;
-  businessHours?: {
-    [key: string]: {
-      open: string;
-      close: string;
-      closed: boolean;
-    };
-  };
-  deliveryOptions?: {
-    pickup: boolean;
-    delivery: boolean;
-    shipping: boolean;
-  };
-  paymentMethods?: {
-    cash: boolean;
-    card: boolean;
-    transfer: boolean;
-  };
-  deliveryCostWithDiscount?: number;
-  minimumOrder?: number;
-  imageUrl?: string;
-  ownerId: string;
-  aboutUs?: AboutUsSection[];
-}
 
 interface AboutUsSection {
   title: string;
   description: string;
-  image: File | null;
-  imagePreview?: string;
   imageUrl?: string;
 }
 
-const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB
-
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
-  const mainImageInputRef = useRef<HTMLInputElement>(null);
-  const [userStore, setUserStore] = useState<StoreData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -106,91 +54,37 @@ export const StoreSetup = () => {
     },
     deliveryCostWithDiscount: 0,
     minimumOrder: 0,
-    imageUrl: '',
     aboutUs: [
       {
         title: 'Our Story',
         description: '',
-        image: null,
         imageUrl: ''
       },
       {
         title: 'Our Mission',
         description: '',
-        image: null,
         imageUrl: ''
       },
       {
         title: 'Our Values',
         description: '',
-        image: null,
         imageUrl: ''
       }
     ]
   });
 
-  useEffect(() => {
-    const fetchUserStore = async () => {
-      if (!currentUser) return;
-
-      try {
-        const storesRef = collection(db, 'stores');
-        const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const storeData = {
-            id: querySnapshot.docs[0].id,
-            ...querySnapshot.docs[0].data()
-          } as StoreData;
-          setUserStore(storeData);
-          setFormData({
-            ...formData,
-            ...storeData
-          });
-        }
-      } catch (err) {
-        setError('Failed to fetch store data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserStore();
-  }, [currentUser]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
-
     setSaving(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const storeData = {
-        ...formData,
-        ownerId: currentUser.uid,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (userStore) {
-        // Update existing store
-        const storeRef = doc(db, 'stores', userStore.id);
-        await updateDoc(storeRef, storeData);
-        setSuccess('Store updated successfully');
-      } else {
-        // Create new store
-        const storesRef = collection(db, 'stores');
-        const docRef = await addDoc(storesRef, {
-          ...storeData,
-          createdAt: new Date().toISOString()
-        });
-        setUserStore({ id: docRef.id, ...storeData });
-        setSuccess('Store created successfully');
-      }
+      // Placeholder for future implementation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSuccess('Store information saved successfully');
     } catch (err) {
-      setError('Failed to save store data');
+      setError('Failed to save store information');
     } finally {
       setSaving(false);
     }
@@ -205,25 +99,11 @@ export const StoreSetup = () => {
     }));
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          {userStore ? 'Edit Store' : 'Create Your Store'}
-        </h1>
-        <p className="text-gray-600">
-          {userStore 
-            ? 'Update your store information and settings'
-            : 'Get started by setting up your store profile'}
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Store Setup</h1>
+        <p className="text-gray-600">Configure your store information and settings</p>
       </div>
 
       {error && (
@@ -267,13 +147,9 @@ export const StoreSetup = () => {
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={4}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
-              <p className="mt-1 text-sm text-gray-500">
-                {formData.description?.length || 0}/{MAX_DESCRIPTION_LENGTH} characters
-              </p>
             </div>
           </div>
         </div>
@@ -549,62 +425,8 @@ export const StoreSetup = () => {
           </div>
         </div>
 
-        {/* Payment Methods */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Methods</h2>
-          <div className="flex items-center space-x-6">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.paymentMethods.cash}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  paymentMethods: {
-                    ...formData.paymentMethods,
-                    cash: e.target.checked
-                  }
-                })}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">Cash</span>
-            </label>
-
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.paymentMethods.card}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  paymentMethods: {
-                    ...formData.paymentMethods,
-                    card: e.target.checked
-                  }
-                })}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">Credit/Debit Card</span>
-            </label>
-
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.paymentMethods.transfer}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  paymentMethods: {
-                    ...formData.paymentMethods,
-                    transfer: e.target.checked
-                  }
-                })}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">Bank Transfer</span>
-            </label>
-          </div>
-        </div>
-
         {/* About Us Sections */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">About Us</h2>
           <div className="space-y-8">
             {formData.aboutUs.map((section, index) => (
@@ -631,27 +453,13 @@ export const StoreSetup = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Image URL
                   </label>
-                  <div className="relative">
-                    <input
-                      type="url"
-                      value={section.imageUrl}
-                      onChange={(e) => handleAboutUsChange(index, 'imageUrl', e.target.value)}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Enter image URL"
-                    />
-                  </div>
-                  {section.imageUrl && (
-                    <div className="mt-2">
-                      <img
-                        src={section.imageUrl}
-                        alt={section.title}
-                        className="w-32 h-32 object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
-                        }}
-                      />
-                    </div>
-                  )}
+                  <input
+                    type="url"
+                    value={section.imageUrl}
+                    onChange={(e) => handleAboutUsChange(index, 'imageUrl', e.target.value)}
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Enter image URL"
+                  />
                 </div>
               </div>
             ))}
@@ -679,7 +487,7 @@ export const StoreSetup = () => {
             ) : (
               <>
                 <Store className="w-5 h-5 mr-2" />
-                {userStore ? 'Update Store' : 'Create Store'}
+                Save Store
               </>
             )}
           </button>
