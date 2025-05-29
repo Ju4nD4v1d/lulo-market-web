@@ -284,9 +284,9 @@ export const ProductManagement = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                   focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                  placeholder:text-gray-400 text-gray-900"
+                  placeholder:pl-0 placeholder:text-gray-400 text-gray-900"
               />
             </div>
             <div className="flex items-center space-x-2">
