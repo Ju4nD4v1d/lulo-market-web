@@ -21,6 +21,7 @@ import {
 import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import type { StoreData, AboutUsSection } from '../types/store';
 
 interface StoreData {
   id: string;
@@ -53,6 +54,7 @@ interface StoreData {
   minimumOrder?: number;
   imageUrl?: string;
   ownerId: string;
+  aboutUs?: AboutUsSection[];
 }
 
 interface AboutUsSection {
@@ -60,6 +62,7 @@ interface AboutUsSection {
   description: string;
   image: File | null;
   imagePreview?: string;
+  imageUrl?: string;
 }
 
 const MAX_DESCRIPTION_LENGTH = 500;
@@ -103,7 +106,27 @@ export const StoreSetup = () => {
     },
     deliveryCostWithDiscount: 0,
     minimumOrder: 0,
-    imageUrl: ''
+    imageUrl: '',
+    aboutUs: [
+      {
+        title: 'Our Story',
+        description: '',
+        image: null,
+        imageUrl: ''
+      },
+      {
+        title: 'Our Mission',
+        description: '',
+        image: null,
+        imageUrl: ''
+      },
+      {
+        title: 'Our Values',
+        description: '',
+        image: null,
+        imageUrl: ''
+      }
+    ]
   });
 
   useEffect(() => {
@@ -171,6 +194,15 @@ export const StoreSetup = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      aboutUs: prev.aboutUs.map((section, i) => 
+        i === index ? { ...section, [field]: value } : section
+      )
+    }));
   };
 
   if (loading) {
@@ -568,6 +600,61 @@ export const StoreSetup = () => {
               />
               <span className="ml-2 text-sm text-gray-700">Bank Transfer</span>
             </label>
+          </div>
+        </div>
+
+        {/* About Us Sections */}
+        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">About Us</h2>
+          <div className="space-y-8">
+            {formData.aboutUs.map((section, index) => (
+              <div key={index} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-md font-medium text-gray-700">{section.title}</h3>
+                  <div className="h-px flex-1 bg-gray-200 mx-4"></div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={section.description}
+                    onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
+                    rows={4}
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder={`Tell us about ${section.title.toLowerCase()}...`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Image URL
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={section.imageUrl}
+                      onChange={(e) => handleAboutUsChange(index, 'imageUrl', e.target.value)}
+                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter image URL"
+                    />
+                  </div>
+                  {section.imageUrl && (
+                    <div className="mt-2">
+                      <img
+                        src={section.imageUrl}
+                        alt={section.title}
+                        className="w-32 h-32 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
