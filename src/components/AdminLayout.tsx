@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Store, 
   Package, 
   BarChart3, 
   ShoppingCart, 
-  Settings, 
   LogOut, 
-  User 
+  User,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
@@ -18,6 +19,7 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   const { currentUser, logout } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -38,9 +40,25 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 fixed h-full">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">{COMPANY_NAME}</h1>
+      <aside 
+        className={`
+          bg-white border-r border-gray-200 fixed h-full
+          transition-all duration-300 ease-in-out
+          ${isCollapsed ? 'w-20' : 'w-64'}
+        `}
+      >
+        <div className={`
+          h-16 flex items-center border-b border-gray-200
+          transition-all duration-300
+          ${isCollapsed ? 'px-4 justify-center' : 'px-6'}
+        `}>
+          <h1 className={`
+            font-bold text-gray-900 truncate
+            transition-all duration-300
+            ${isCollapsed ? 'text-lg' : 'text-xl'}
+          `}>
+            {isCollapsed ? COMPANY_NAME.charAt(0) : COMPANY_NAME}
+          </h1>
         </div>
         
         <nav className="p-4">
@@ -50,15 +68,26 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
                 <a
                   href={item.hash}
                   className={`
-                    flex items-center px-4 py-2 rounded-lg
-                    transition-colors duration-200
+                    flex items-center rounded-lg
+                    transition-all duration-200
+                    ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-2'}
                     ${currentPage === item.id 
                       ? 'bg-primary-50 text-primary-600' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                   `}
+                  title={isCollapsed ? item.label : undefined}
                 >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  {item.label}
+                  <item.icon className={`
+                    flex-shrink-0
+                    transition-all duration-200
+                    ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3'}
+                  `} />
+                  <span className={`
+                    transition-all duration-200
+                    ${isCollapsed ? 'hidden' : 'block'}
+                  `}>
+                    {item.label}
+                  </span>
                 </a>
               </li>
             ))}
@@ -66,22 +95,62 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-          <div className="flex items-center px-4 py-2 text-gray-600">
-            <User className="w-5 h-5 mr-3" />
-            <span className="text-sm truncate">{currentUser?.email}</span>
+          <div className={`
+            flex items-center text-gray-600
+            transition-all duration-200
+            ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-2'}
+          `}>
+            <User className={`
+              flex-shrink-0
+              ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3'}
+            `} />
+            <span className={`text-sm truncate ${isCollapsed ? 'hidden' : 'block'}`}>
+              {currentUser?.email}
+            </span>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors duration-200"
+            className={`
+              flex items-center w-full text-gray-600
+              hover:bg-gray-50 hover:text-gray-900 rounded-lg
+              transition-all duration-200
+              ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-2'}
+            `}
           >
-            <LogOut className="w-5 h-5 mr-3" />
-            Logout
+            <LogOut className={`
+              flex-shrink-0
+              ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3'}
+            `} />
+            <span className={isCollapsed ? 'hidden' : 'block'}>
+              Logout
+            </span>
           </button>
         </div>
+
+        {/* Toggle Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={`
+            absolute -right-3 top-20
+            bg-white border border-gray-200 rounded-full p-1
+            text-gray-500 hover:text-gray-700
+            transition-all duration-200
+            hover:bg-gray-50
+          `}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </button>
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 flex-1">
+      <main className={`
+        flex-1 transition-all duration-300
+        ${isCollapsed ? 'ml-20' : 'ml-64'}
+      `}>
         <div className="p-8">
           {children}
         </div>
