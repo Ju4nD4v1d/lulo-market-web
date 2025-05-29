@@ -1,7 +1,9 @@
 export interface AboutUsSection {
+  id: string;
   title: string;
   description: string;
-  imageUrl?: string;
+  image?: File;
+  imagePreview?: string;
 }
 
 export interface StoreData {
@@ -34,6 +36,6 @@ export interface StoreData {
   deliveryCostWithDiscount?: number;
   minimumOrder?: number;
   imageUrl?: string;
-  aboutUs?: AboutUsSection[];
+  aboutUsSections: AboutUsSection[];
   ownerId: string;
 }
