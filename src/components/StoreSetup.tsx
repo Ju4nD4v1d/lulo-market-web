@@ -442,66 +442,35 @@ export const StoreSetup = () => {
             {aboutUsSections.map((section, index) => (
               <div 
                 key={index} 
-                className={`
-                  relative p-6 rounded-xl transition-all duration-300
-                  ${section.imagePreview 
-                    ? 'bg-gray-900 text-white' 
-                    : 'bg-gray-50 text-gray-900'
-                  }
-                `}
+                className="bg-gray-50 rounded-xl p-6 space-y-4"
               >
-                {/* Background Image with Overlay */}
-                {section.imagePreview && (
-                  <div className="absolute inset-0 rounded-xl overflow-hidden">
-                    <img
-                      src={section.imagePreview}
-                      alt={`Section ${index + 1} background`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className="relative z-10 space-y-4">
-                  <h3 className="font-medium">Section {index + 1}</h3>
+                <div className="space-y-4">
+                  <h3 className="font-medium text-gray-900">Section {index + 1}</h3>
                   
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Title *
                     </label>
                     <input
                       type="text"
                       value={section.title}
                       onChange={(e) => handleAboutUsChange(index, 'title', e.target.value)}
-                      className={`
-                        w-full px-4 py-2 rounded-lg
-                        ${section.imagePreview
-                          ? 'bg-white/10 border-white/20 placeholder-white/50 text-white'
-                          : 'bg-white border-gray-300 text-gray-900'
-                        }
-                        border focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                      `}
+                      className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900
+                        focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter section title"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Description * ({section.description.length}/{MAX_DESCRIPTION_LENGTH})
                     </label>
                     <textarea
                       value={section.description}
                       onChange={(e) => handleAboutUsChange(index, 'description', e.target.value)}
-                      className={`
-                        w-full px-4 py-2 rounded-lg
-                        ${section.imagePreview
-                          ? 'bg-white/10 border-white/20 placeholder-white/50 text-white'
-                          : 'bg-white border-gray-300 text-gray-900'
-                        }
-                        border focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                      `}
+                      className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900
+                        focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter section description"
                       rows={3}
                       required
@@ -509,8 +478,8 @@ export const StoreSetup = () => {
                   </div>
 
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${section.imagePreview ? 'text-white/90' : 'text-gray-700'}`}>
-                      Background Image * (Max 1MB)
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Image * (Max 1MB)
                     </label>
                     <div className="mt-1 flex flex-col space-y-2">
                       <div className="flex items-center space-x-4">
@@ -518,36 +487,41 @@ export const StoreSetup = () => {
                           type="file"
                           onChange={(e) => handleAboutUsChange(index, 'image', e.target.files?.[0] || null)}
                           accept="image/*"
-                          className={`
-                            block w-full text-sm
-                            ${section.imagePreview
-                              ? 'text-white/70 file:bg-white/20 file:text-white'
-                              : 'text-gray-500 file:bg-primary-50 file:text-primary-700'
-                            }
+                          className="block w-full text-sm text-gray-500
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-full file:border-0
                             file:text-sm file:font-semibold
-                            hover:file:bg-opacity-80
-                          `}
+                            file:bg-primary-50 file:text-primary-700
+                            hover:file:bg-primary-100"
                           required={!section.image}
                         />
-                        {section.imagePreview && (
-                          <button
-                            onClick={(e) => handleRemoveImage(e, index)}
-                            className="text-white/70 hover:text-white transition-colors"
-                          >
-                            Remove
-                          </button>
-                        )}
                       </div>
                       {aboutUsErrors[index] && (
-                        <p className={`text-sm flex items-center ${section.imagePreview ? 'text-red-300' : 'text-red-600'}`}>
+                        <p className="text-sm text-red-600 flex items-center">
                           <AlertCircle className="w-4 h-4 mr-1" />
                           {aboutUsErrors[index]}
                         </p>
                       )}
                     </div>
                   </div>
+
+                  {/* Image Preview */}
+                  {section.imagePreview && (
+                    <div className="relative group">
+                      <img
+                        src={section.imagePreview}
+                        alt={`Section ${index + 1} preview`}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={(e) => handleRemoveImage(e, index)}
+                        className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
