@@ -33,8 +33,8 @@ interface AboutUs {
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -78,12 +78,13 @@ export const StoreSetup = () => {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setImageError(null);
 
     const file = e.dataTransfer.files[0];
     if (file) {
       const error = validateImage(file);
       if (error) {
-        setError(error);
+        setImageError(error);
         return;
       }
 
@@ -103,11 +104,12 @@ export const StoreSetup = () => {
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageError(null);
     const file = e.target.files?.[0];
     if (file) {
       const error = validateImage(file);
       if (error) {
-        setError(error);
+        setImageError(error);
         return;
       }
 
@@ -129,7 +131,7 @@ export const StoreSetup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
+    setImageError(null);
     setSuccess(null);
 
     try {
@@ -137,7 +139,7 @@ export const StoreSetup = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSuccess('Store information saved successfully');
     } catch (err) {
-      setError('Failed to save store information');
+      setImageError('Failed to save store information');
     } finally {
       setSaving(false);
     }
@@ -150,10 +152,10 @@ export const StoreSetup = () => {
         <p className="text-gray-600">Configure your store information and settings</p>
       </div>
 
-      {error && (
+      {imageError && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
           <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p>{error}</p>
+          <p>{imageError}</p>
         </div>
       )}
 
@@ -457,7 +459,7 @@ export const StoreSetup = () => {
               <div
                 className={`
                   border-2 border-dashed rounded-lg p-8
-                  ${formData.aboutUs.imagePreview ? 'border-primary-300' : 'border-gray-300'}
+                  ${formData.aboutUs.imagePreview ? 'border-primary-300' : imageError ? 'border-red-300' : 'border-gray-300'}
                   hover:border-primary-400 transition-colors duration-200
                   flex flex-col items-center justify-center
                   cursor-pointer
@@ -474,10 +476,13 @@ export const StoreSetup = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => setFormData({
-                        ...formData,
-                        aboutUs: { ...formData.aboutUs, image: undefined, imagePreview: undefined }
-                      })}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          aboutUs: { ...formData.aboutUs, image: undefined, imagePreview: undefined }
+                        });
+                        setImageError(null);
+                      }}
                       className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
                     >
                       Remove Image
@@ -508,6 +513,11 @@ export const StoreSetup = () => {
                         PNG, JPG, GIF
                         <span className="font-semibold text-gray-600"> (max 1MB)</span>
                       </p>
+                      {imageError && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {imageError}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
