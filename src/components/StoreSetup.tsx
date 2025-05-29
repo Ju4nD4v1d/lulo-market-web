@@ -83,13 +83,11 @@ export const StoreSetup = () => {
     },
     deliveryOptions: {
       pickup: true,
-      delivery: true,
-      shipping: false
+      delivery: true
     },
     paymentMethods: {
       cash: true,
-      card: true,
-      transfer: true
+      card: true
     },
     deliveryCostWithDiscount: 0,
     minimumOrder: 0
@@ -422,29 +420,6 @@ export const StoreSetup = () => {
                     <span className="block text-sm text-gray-500">Deliver to local area</span>
                   </div>
                 </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.deliveryOptions.shipping}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryOptions: {
-                        ...formData.deliveryOptions,
-                        shipping: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Shipping</span>
-                    <span className="block text-sm text-gray-500">Ship nationwide</span>
-                  </div>
-                </label>
               </div>
             </div>
 
@@ -544,29 +519,6 @@ export const StoreSetup = () => {
                   <div className="ml-3">
                     <span className="block text-sm font-medium text-gray-900">Credit Card</span>
                     <span className="block text-sm text-gray-500">Accept card payments</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.paymentMethods.transfer}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      paymentMethods: {
-                        ...formData.paymentMethods,
-                        transfer: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Bank Transfer</span>
-                    <span className="block text-sm text-gray-500">Accept bank transfers</span>
                   </div>
                 </label>
               </div>
