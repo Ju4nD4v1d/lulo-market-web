@@ -47,6 +47,17 @@ export const StoreSetup = () => {
     { title: '', description: '', image: null }
   ]);
 
+  // Cleanup preview URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      aboutUsSections.forEach(section => {
+        if (section.imagePreview) {
+          URL.revokeObjectURL(section.imagePreview);
+        }
+      });
+    };
+  }, []);
+
   useEffect(() => {
     const fetchUserStore = async () => {
       try {
@@ -79,16 +90,23 @@ export const StoreSetup = () => {
     }
   }, [currentUser]);
 
-  const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string | File) => {
+  const handleAboutUsChange = (index: number, field: keyof AboutUsSection, value: string | File | null) => {
+    setError(null);
     const newSections = [...aboutUsSections];
     
     if (field === 'image' && value instanceof File) {
+      // Clean up previous preview URL if it exists
+      if (newSections[index].imagePreview) {
+        URL.revokeObjectURL(newSections[index].imagePreview);
+      }
+
+      // Validate file size
       if (value.size > MAX_FILE_SIZE) {
         setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
         return;
       }
-      
-      // Create preview URL
+
+      // Create new preview URL
       const previewUrl = URL.createObjectURL(value);
       newSections[index] = {
         ...newSections[index],
@@ -122,6 +140,10 @@ export const StoreSetup = () => {
       }
       if (section.description.length > MAX_DESCRIPTION_LENGTH) {
         setError(`Description in section ${i + 1} exceeds ${MAX_DESCRIPTION_LENGTH} characters`);
+        return false;
+      }
+      if (section.image && section.image.size > MAX_FILE_SIZE) {
+        setError(`Image in section ${i + 1} exceeds 1MB size limit`);
         return false;
       }
     }
@@ -185,7 +207,7 @@ export const StoreSetup = () => {
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600 flex items-center">
-          <AlertCircle className="w-5 h-5 mr-2" />
+          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
           {error}
         </div>
       )}
@@ -330,11 +352,20 @@ export const StoreSetup = () => {
                     required={!section.image}
                   />
                   {section.imagePreview && (
-                    <img
-                      src={section.imagePreview}
-                      alt={`Preview ${index + 1}`}
-                      className="h-16 w-16 object-cover rounded-lg"
-                    />
+                    <div className="relative group">
+                      <img
+                        src={section.imagePreview}
+                        alt={`Preview ${index + 1}`}
+                        className="h-16 w-16 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAboutUsChange(index, 'image', null)}
+                        className="absolute inset-0 bg-black/50 text-white text-xs font-medium hidden group-hover:flex items-center justify-center rounded-lg"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
