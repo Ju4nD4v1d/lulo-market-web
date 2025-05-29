@@ -271,7 +271,7 @@ export const StoreSetup = () => {
           <div className="space-y-4">
             {Object.entries(formData.businessHours).map(([day, hours]) => (
               <div key={day} className="flex items-center space-x-4">
-                <div className="w-24">
+                <div className="w-28">
                   <span className="text-sm font-medium text-gray-700 capitalize">
                     {day}
                   </span>
@@ -287,10 +287,10 @@ export const StoreSetup = () => {
                         [day]: { ...hours, open: e.target.value }
                       }
                     })}
-                    className="block w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     disabled={hours.closed}
                   />
-                  <span className="text-gray-500">to</span>
+                  <span className="text-gray-500 w-6 text-center">to</span>
                   <input
                     type="time"
                     value={hours.close}
@@ -301,10 +301,10 @@ export const StoreSetup = () => {
                         [day]: { ...hours, close: e.target.value }
                       }
                     })}
-                    className="block w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     disabled={hours.closed}
                   />
-                  <label className="inline-flex items-center">
+                  <label className="inline-flex items-center ml-4">
                     <input
                       type="checkbox"
                       checked={hours.closed}
