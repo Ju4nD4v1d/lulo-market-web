@@ -52,13 +52,17 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
           transition-all duration-300
           ${isCollapsed ? 'px-4 justify-center' : 'px-6'}
         `}>
-          <h1 className={`
-            font-bold text-gray-900 truncate
-            transition-all duration-300
-            ${isCollapsed ? 'text-lg' : 'text-xl'}
-          `}>
-            {isCollapsed ? COMPANY_NAME.charAt(0) : COMPANY_NAME}
-          </h1>
+          {isCollapsed ? (
+            <img 
+              src="/logo_lulo.png" 
+              alt="LuloCart Logo"
+              className="h-8 w-8 object-contain"
+            />
+          ) : (
+            <h1 className="text-xl font-bold text-gray-900 truncate">
+              {COMPANY_NAME}
+            </h1>
+          )}
         </div>
         
         <nav className="p-4">
