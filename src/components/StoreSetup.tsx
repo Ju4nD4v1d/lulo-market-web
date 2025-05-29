@@ -6,9 +6,6 @@ import {
   MapPin,
   Phone,
   Globe,
-  Instagram,
-  Facebook,
-  Twitter,
   DollarSign
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -30,9 +27,6 @@ export const StoreSetup = () => {
     address: '',
     phone: '',
     website: '',
-    instagram: '',
-    facebook: '',
-    twitter: '',
     businessHours: {
       monday: { open: '09:00', close: '18:00', closed: false },
       tuesday: { open: '09:00', close: '18:00', closed: false },
@@ -202,63 +196,6 @@ export const StoreSetup = () => {
                   value={formData.website}
                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                   className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Social Media */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Media</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-1">
-                Instagram
-              </label>
-              <div className="relative">
-                <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  id="instagram"
-                  value={formData.instagram}
-                  onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="@username"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-1">
-                Facebook
-              </label>
-              <div className="relative">
-                <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  id="facebook"
-                  value={formData.facebook}
-                  onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="username or page URL"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 mb-1">
-                Twitter
-              </label>
-              <div className="relative">
-                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  id="twitter"
-                  value={formData.twitter}
-                  onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="@username"
                 />
               </div>
             </div>
