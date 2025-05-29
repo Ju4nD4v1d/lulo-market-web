@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Store, AlertCircle, CheckCircle2, MapPin, Phone, Globe, DollarSign, Upload, Clock, CreditCard, Truck, ShoppingBag, Building2, BookOpen, Info as InfoIcon, Ban as Bank } from 'lucide-react';
+import { Store, AlertCircle, CheckCircle2, MapPin, Phone, Globe, DollarSign, Upload, Clock, CreditCard, Truck, ShoppingBag, Building2, BookOpen, Info as InfoIcon, Building as Bank } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
