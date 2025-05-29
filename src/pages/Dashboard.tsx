@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadScript } from '@react-google-maps/api';
 import { AdminLayout } from '../components/AdminLayout';
 import { StoreSetup } from '../components/StoreSetup';
 import { ProductManagement } from '../components/ProductManagement';
@@ -24,7 +25,11 @@ export const Dashboard = () => {
       case '#dashboard/orders':
         return <OrderManagement />;
       default:
-        return <StoreSetup />;
+        return (
+          <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+            <StoreSetup />
+          </LoadScript>
+        );
     }
   };
 

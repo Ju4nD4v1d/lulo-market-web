@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 import { MapPin, Loader2 } from 'lucide-react';
 import type { Coordinates, StoreLocation } from '../types/store';
 
@@ -118,27 +118,25 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange,
         </button>
       </div>
 
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={mapCenter}
-          zoom={15}
-          onClick={handleMapClick}
-          options={{
-            streetViewControl: false,
-            mapTypeControl: false,
-            fullscreenControl: true,
-            zoomControl: true,
-          }}
-        >
-          {value.coordinates.lat && (
-            <Marker
-              position={value.coordinates}
-              animation={google.maps.Animation.DROP}
-            />
-          )}
-        </GoogleMap>
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={mapCenter}
+        zoom={15}
+        onClick={handleMapClick}
+        options={{
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: true,
+          zoomControl: true,
+        }}
+      >
+        {value.coordinates.lat && (
+          <Marker
+            position={value.coordinates}
+            animation={google.maps.Animation.DROP}
+          />
+        )}
+      </GoogleMap>
 
       {value.coordinates.lat && (
         <p className="text-sm text-gray-500">
