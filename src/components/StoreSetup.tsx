@@ -486,24 +486,29 @@ export const StoreSetup = () => {
                 ) : (
                   <div className="text-center">
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-4 flex text-sm text-gray-600">
-                      <label
-                        htmlFor="about-image"
-                        className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          id="about-image"
-                          name="about-image"
-                          type="file"
-                          className="sr-only"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
+                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <label
+                          htmlFor="about-image"
+                          className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="about-image"
+                            name="about-image"
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        PNG, JPG, GIF
+                        <span className="font-semibold text-gray-600"> (max 1MB)</span>
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                   </div>
                 )}
               </div>
