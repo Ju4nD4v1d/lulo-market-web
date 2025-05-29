@@ -19,7 +19,7 @@ export const StoreList = () => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const storesCollection = collection(db, 'stores');
+        const storesCollection = collection(db, 'Stores');
         const storesSnapshot = await getDocs(storesCollection);
         const storesData = storesSnapshot.docs.map(doc => ({
           id: doc.id,
