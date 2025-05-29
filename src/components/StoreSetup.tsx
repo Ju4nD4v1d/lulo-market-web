@@ -467,7 +467,7 @@ export const StoreSetup = () => {
                     step="0.01"
                     className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                       focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                      placeholder-gray-400 text-gray-900"
+                      placeholder-gray-400 text-gray-900 text-right"
                   />
                 </div>
               </div>
@@ -491,7 +491,7 @@ export const StoreSetup = () => {
                   step="0.01"
                   className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                     focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
+                    placeholder-gray-400 text-gray-900 text-right"
                 />
               </div>
             </div>
