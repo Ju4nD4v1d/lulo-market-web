@@ -94,13 +94,19 @@ export const StoreSetup = () => {
     const newSections = [...aboutUsSections];
     
     if (field === 'image') {
-      // Only process if a file is provided - ignore if canceled
+      // Handle file selection
       if (value instanceof File) {
         if (value.size > MAX_FILE_SIZE) {
           setError(`Image size must be less than 1MB. Current size: ${(value.size / (1024 * 1024)).toFixed(2)}MB`);
           return;
         }
 
+        // Revoke previous preview URL if it exists
+        if (newSections[index].imagePreview) {
+          URL.revokeObjectURL(newSections[index].imagePreview);
+        }
+
+        // Create new preview URL
         const previewUrl = URL.createObjectURL(value);
         newSections[index] = {
           ...newSections[index],
@@ -108,18 +114,16 @@ export const StoreSetup = () => {
           imagePreview: previewUrl
         };
       }
-      // If value is null and it came from the remove button, clear the image
-      else if (value === null && newSections[index].imagePreview) {
-        URL.revokeObjectURL(newSections[index].imagePreview);
+      // Handle remove button click
+      else if (value === null && !newSections[index].image) {
+        if (newSections[index].imagePreview) {
+          URL.revokeObjectURL(newSections[index].imagePreview);
+        }
         newSections[index] = {
           ...newSections[index],
           image: null,
           imagePreview: undefined
         };
-      }
-      // If value is null but came from a canceled file dialog, do nothing
-      else {
-        return;
       }
     } else if (field === 'description' && typeof value === 'string') {
       if (value.length > MAX_DESCRIPTION_LENGTH) {
@@ -140,6 +144,7 @@ export const StoreSetup = () => {
   };
 
   const handleRemoveImage = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
     e.stopPropagation();
     
     if ((e.target as HTMLElement).textContent === 'Remove') {
