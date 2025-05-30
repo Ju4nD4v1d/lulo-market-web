@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Store, 
   Upload,
@@ -79,6 +79,15 @@ export const StoreSetup = () => {
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
 
+  // Add refs for form fields
+  const nameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const websiteRef = useRef<HTMLInputElement>(null);
+  const businessHoursRef = useRef<HTMLDivElement>(null);
+  const aboutSectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   useEffect(() => {
     const loadStoreData = async () => {
       if (!currentUser) return;
@@ -149,32 +158,39 @@ export const StoreSetup = () => {
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
+    let firstErrorElement: HTMLElement | null = null;
 
     // Validate basic information
     if (!formData.name.trim()) {
       errors.name = 'Store name is required';
+      firstErrorElement = firstErrorElement || nameRef.current;
     }
 
     if (!formData.description.trim()) {
       errors.description = 'Store description is required';
+      firstErrorElement = firstErrorElement || descriptionRef.current;
     }
 
     if (!formData.address.trim()) {
       errors.address = 'Store address is required';
+      firstErrorElement = firstErrorElement || addressRef.current;
     }
 
     if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
       errors.phone = 'Invalid phone number format';
+      firstErrorElement = firstErrorElement || phoneRef.current;
     }
 
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
       errors.website = 'Invalid website URL format';
+      firstErrorElement = firstErrorElement || websiteRef.current;
     }
 
     // Validate business hours
     const hasOpenDay = Object.values(formData.businessHours).some(day => !day.closed);
     if (!hasOpenDay) {
       errors.businessHours = 'At least one day must be open for business';
+      firstErrorElement = firstErrorElement || businessHoursRef.current;
     }
 
     // Validate about sections
@@ -184,9 +200,11 @@ export const StoreSetup = () => {
       
       if (!section.title.trim()) {
         sectionErrors.title = 'Section title is required';
+        firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
       }
       if (!section.description.trim()) {
         sectionErrors.description = 'Section description is required';
+        firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
       }
 
       if (Object.keys(sectionErrors).length > 0) {
@@ -195,7 +213,15 @@ export const StoreSetup = () => {
     });
 
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+
+    // Focus and scroll to first error
+    if (firstErrorElement) {
+      firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstErrorElement.focus();
+      return false;
+    }
+
+    return true;
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -521,6 +547,7 @@ export const StoreSetup = () => {
                 Store Name
               </label>
               <input
+                ref={nameRef}
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -539,6 +566,7 @@ export const StoreSetup = () => {
                 Store Description
               </label>
               <textarea
+                ref={descriptionRef}
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
@@ -563,6 +591,7 @@ export const StoreSetup = () => {
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
+                  ref={addressRef}
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
@@ -584,6 +613,7 @@ export const StoreSetup = () => {
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
+                  ref={phoneRef}
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -605,6 +635,7 @@ export const StoreSetup = () => {
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
+                  ref={websiteRef}
                   type="url"
                   value={formData.website}
                   onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
@@ -622,7 +653,7 @@ export const StoreSetup = () => {
         </FormSection>
 
         <FormSection title="Business Hours" icon={Clock}>
-          <div className="space-y-4">
+          <div ref={businessHoursRef} className="space-y-4">
             {validationErrors.businessHours && (
               <div className="p-4 bg-red-50 rounded-lg text-red-700 mb-4">
                 {validationErrors.businessHours}
@@ -698,8 +729,12 @@ export const StoreSetup = () => {
               </p>
             </div>
 
-            {formData.aboutSections.map((section) => (
-              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
+            {formData.aboutSections.map((section, index) => (
+              <div
+                key={section.id}
+                ref={el => aboutSectionRefs.current[index] = el}
+                className="relative bg-gray-50 rounded-lg p-6"
+              >
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
