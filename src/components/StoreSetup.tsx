@@ -6,13 +6,14 @@ import {
   MapPin,
   Phone,
   Globe,
-  DollarSign,
   Upload,
   Clock,
   Building2,
   BookOpen,
   Info as InfoIcon,
-  X
+  X,
+  Package,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { collection, doc, setDoc, getDoc, GeoPoint } from 'firebase/firestore';
@@ -50,6 +51,49 @@ interface StoreData {
   bodyTabAboutThird?: string;
   ownerId: string;
 }
+
+interface SuccessDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const SuccessDialog: React.FC<SuccessDialogProps> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl max-w-md w-full p-6 m-4">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <CheckCircle2 className="h-6 w-6 text-green-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Store Setup Complete!
+          </h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Your store information has been saved successfully. Ready to start adding your products?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500"
+            >
+              Close
+            </button>
+            <a
+              href="#dashboard/products"
+              className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Add Products
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
@@ -95,6 +139,7 @@ export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [touchedFields, setTouchedFields] = useState<TouchedFields>({});
@@ -427,8 +472,8 @@ export const StoreSetup = () => {
       const storeDoc = doc(storesRef, currentUser.uid);
 
       await setDoc(storeDoc, storeData, { merge: true });
-      setSuccess('Store information saved successfully');
       setExistingStoreId(currentUser.uid);
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error('Error saving store data:', error);
       setFormErrors({ submit: 'Failed to save store information' });
@@ -869,6 +914,11 @@ export const StoreSetup = () => {
           </button>
         </div>
       </form>
+
+      <SuccessDialog 
+        isOpen={showSuccessDialog} 
+        onClose={() => setShowSuccessDialog(false)} 
+      />
     </div>
   );
 };
