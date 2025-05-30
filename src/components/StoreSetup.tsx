@@ -20,6 +20,14 @@ import { useAuth } from '../context/AuthContext';
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
+interface FormErrors {
+  [key: string]: string;
+}
+
+interface TouchedFields {
+  [key: string]: boolean;
+}
+
 const validateImage = (file: File): string | null => {
   if (!file.type.startsWith('image/')) {
     return 'Please upload an image file';
@@ -63,6 +71,8 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({});
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
     { id: '1', title: '', description: '' }
   ]);
@@ -95,6 +105,37 @@ export const StoreSetup = () => {
     minimumOrder: 0
   });
 
+  const validateForm = () => {
+    const errors: FormErrors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Store name is required';
+    }
+    
+    if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    
+    if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
+      errors.website = 'Please enter a valid website URL';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleBlur = (field: string) => {
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
+    validateForm();
+  };
+
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (touchedFields[field]) {
+      validateForm();
+    }
+  };
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -115,10 +156,10 @@ export const StoreSetup = () => {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAboutUsSections(prev => prev.map(section => 
-          section.id === sectionId
-            ? { ...section, image: file, imagePreview: reader.result as string }
-            : section
+        setAboutUsSections(prev => prev.map(s => 
+          s.id === sectionId
+            ? { ...s, image: file, imagePreview: reader.result as string }
+            : s
         ));
       };
       reader.readAsDataURL(file);
@@ -137,10 +178,10 @@ export const StoreSetup = () => {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAboutUsSections(prev => prev.map(section => 
-          section.id === sectionId
-            ? { ...section, image: file, imagePreview: reader.result as string }
-            : section
+        setAboutUsSections(prev => prev.map(s => 
+          s.id === sectionId
+            ? { ...s, image: file, imagePreview: reader.result as string }
+            : s
         ));
       };
       reader.readAsDataURL(file);
@@ -170,6 +211,17 @@ export const StoreSetup = () => {
     setSaving(true);
     setImageErrors({});
     setSuccess(null);
+    
+    // Mark all fields as touched on submit
+    const allFields = ['name', 'phone', 'website', 'address'];
+    setTouchedFields(
+      allFields.reduce((acc, field) => ({ ...acc, [field]: true }), {})
+    );
+
+    if (!validateForm()) {
+      setSaving(false);
+      return;
+    }
 
     try {
       // Placeholder for future implementation
@@ -180,6 +232,10 @@ export const StoreSetup = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const shouldShowError = (field: string) => {
+    return touchedFields[field] && formErrors[field];
   };
 
   return (
@@ -221,12 +277,18 @@ export const StoreSetup = () => {
                 type="text"
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                onChange={(e) => handleChange('name', e.target.value)}
+                onBlur={() => handleBlur('name')}
+                className={`block w-full px-4 py-2 border border-gray-300 rounded-lg 
                   focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                  placeholder-gray-400 text-gray-900"
+                  placeholder-gray-400 text-gray-900 ${
+                  shouldShowError('name') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
+                }`}
                 required
               />
+              {shouldShowError('name') && (
+                <p className="mt-2 text-sm text-red-600">{formErrors.name}</p>
+              )}
             </div>
 
             <div>
@@ -236,7 +298,7 @@ export const StoreSetup = () => {
               <textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
                   focus:ring-2 focus:ring-primary-500 focus:border-primary-500
@@ -258,11 +320,17 @@ export const StoreSetup = () => {
                   type="text"
                   id="address"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                  onChange={(e) => handleChange('address', e.target.value)}
+                  onBlur={() => handleBlur('address')}
+                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                     focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
+                    placeholder-gray-400 text-gray-900 ${
+                    shouldShowError('address') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
+                  }`}
                 />
+                {shouldShowError('address') && (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.address}</p>
+                )}
               </div>
             </div>
 
@@ -276,11 +344,17 @@ export const StoreSetup = () => {
                   type="tel"
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onBlur={() => handleBlur('phone')}
+                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                     focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
+                    placeholder-gray-400 text-gray-900 ${
+                    shouldShowError('phone') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
+                  }`}
                 />
+                {shouldShowError('phone') && (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.phone}</p>
+                )}
               </div>
             </div>
 
@@ -294,11 +368,17 @@ export const StoreSetup = () => {
                   type="url"
                   id="website"
                   value={formData.website}
-                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+                  onChange={(e) => handleChange('website', e.target.value)}
+                  onBlur={() => handleBlur('website')}
+                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
                     focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
+                    placeholder-gray-400 text-gray-900 ${
+                    shouldShowError('website') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
+                  }`}
                 />
+                {shouldShowError('website') && (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.website}</p>
+                )}
               </div>
             </div>
           </div>
@@ -658,7 +738,8 @@ export const StoreSetup = () => {
                         cursor-pointer
                       `}
                       onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, section.id)}
+                      onD
+rop={(e) => handleDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
                         <div className="space-y-4 w-full">
@@ -721,7 +802,6 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"
