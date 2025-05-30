@@ -10,7 +10,8 @@ import {
   Globe,
   Clock,
   Building2,
-  AlertCircle
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
@@ -66,6 +67,10 @@ export const StoreSetup = () => {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
+  const [validationStatus, setValidationStatus] = useState<{
+    passed: boolean;
+    message: string;
+  } | null>(null);
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
@@ -235,6 +240,14 @@ export const StoreSetup = () => {
     });
 
     setValidationErrors(errors);
+    
+    const passed = Object.keys(errors).length === 0;
+    setValidationStatus({
+      passed,
+      message: passed 
+        ? 'All fields are valid! You can save your changes.'
+        : 'Please fix the validation errors before saving.'
+    });
 
     // Focus and scroll to first error
     if (firstErrorElement) {
@@ -243,7 +256,7 @@ export const StoreSetup = () => {
       return false;
     }
 
-    return Object.keys(errors).length === 0;
+    return passed;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -779,7 +792,7 @@ export const StoreSetup = () => {
                     <div
                       className={`
                         border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : validationErrors.aboutSections?.[section.id]?.image ? 'border-re d-300' : 'border-gray-300'}
+                        ${section.imagePreview ? 'border-primary-300' : validationErrors.aboutSections?.[section.id]?.image ? 'border-red-300' : 'border-gray-300'}
                         hover:border-primary-400 transition-colors duration-200
                         flex flex-col items-center justify-center
                         cursor-pointer
@@ -843,7 +856,7 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        <div className="flex justify-end">
+        <div className="flex flex-col items-end space-y-4">
           <button
             type="submit"
             disabled={saving}
@@ -867,6 +880,21 @@ export const StoreSetup = () => {
               </>
             )}
           </button>
+
+          {validationStatus && (
+            <div 
+              className={`text-sm flex items-center ${
+                validationStatus.passed ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {validationStatus.passed ? (
+                <CheckCircle2 className="w-4 h-4 mr-1" />
+              ) : (
+                <AlertCircle className="w-4 h-4 mr-1" />
+              )}
+              {validationStatus.message}
+            </div>
+          )}
         </div>
       </form>
     </div>
