@@ -68,18 +68,42 @@ export const StoreSetup = () => {
             }));
           }
 
-          // Set business hours
-          if (storeData.storeBusinessHours) {
-            setFormData(prev => ({
-              ...prev,
-              businessHours: storeData.storeBusinessHours,
-              name: storeData.name || '',
-              description: storeData.description || '',
-              address: storeData.address || '',
-              phone: storeData.phone || '',
-              website: storeData.website || ''
-            }));
+          // Map About Us sections from Firestore fields
+          const aboutSections = [
+            {
+              id: '1',
+              title: storeData.titleTabAboutFirst || '',
+              description: storeData.bodyTabAboutFirst || ''
+            }
+          ];
+
+          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
+            aboutSections.push({
+              id: '2',
+              title: storeData.titleTabAboutSecond || '',
+              description: storeData.bodyTabAboutSecond || ''
+            });
           }
+
+          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
+            aboutSections.push({
+              id: '3',
+              title: storeData.titleTabAboutThird || '',
+              description: storeData.bodyTabAboutThird || ''
+            });
+          }
+
+          // Set form data with all fields
+          setFormData(prev => ({
+            ...prev,
+            businessHours: storeData.storeBusinessHours || prev.businessHours,
+            name: storeData.name || '',
+            description: storeData.description || '',
+            address: storeData.address || '',
+            phone: storeData.phone || '',
+            website: storeData.website || '',
+            aboutSections
+          }));
         }
       } catch (err) {
         console.error('Error loading store data:', err);
