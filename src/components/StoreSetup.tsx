@@ -9,7 +9,9 @@ import {
   Phone,
   Globe,
   Clock,
-  Building2
+  Building2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
@@ -35,12 +37,12 @@ export const StoreSetup = () => {
     phone: '',
     website: '',
     storeDeliverySchedule: {
-      Monday: { open: '09:00', close: '18:00', closed: false },
-      Tuesday: { open: '09:00', close: '18:00', closed: false },
-      Wednesday: { open: '09:00', close: '18:00', closed: false },
-      Thursday: { open: '09:00', close: '18:00', closed: false },
-      Friday: { open: '09:00', close: '18:00', closed: false },
-      Saturday: { open: '10:00', close: '16:00', closed: false },
+      Monday: { open: '07:00', close: '19:00', closed: false },
+      Tuesday: { open: '07:00', close: '19:00', closed: false },
+      Wednesday: { open: '07:00', close: '19:00', closed: false },
+      Thursday: { open: '07:00', close: '19:00', closed: false },
+      Friday: { open: '07:00', close: '19:00', closed: false },
+      Saturday: { open: '07:00', close: '19:00', closed: false },
       Sunday: { open: '', close: '', closed: true }
     },
     aboutSections: [
@@ -63,7 +65,6 @@ export const StoreSetup = () => {
         if (!querySnapshot.empty) {
           const storeData = querySnapshot.docs[0].data();
           
-          // Set store image if exists
           if (storeData.storeImage) {
             setStoreImage(prev => ({
               ...prev,
@@ -97,7 +98,6 @@ export const StoreSetup = () => {
             }
           ];
 
-          // Set form data with all fields
           setFormData(prev => ({
             ...prev,
             storeDeliverySchedule: storeData.storeDeliverySchedule || prev.storeDeliverySchedule,
@@ -297,6 +297,19 @@ export const StoreSetup = () => {
     window.location.hash = '#dashboard/products';
   };
 
+  const handleSetAllHours = (open: string, close: string, closed: boolean) => {
+    const updatedSchedule = { ...formData.storeDeliverySchedule };
+    Object.keys(updatedSchedule).forEach(day => {
+      if (day !== 'Sunday') { // Keep Sunday as is
+        updatedSchedule[day] = { open, close, closed };
+      }
+    });
+    setFormData(prev => ({
+      ...prev,
+      storeDeliverySchedule: updatedSchedule
+    }));
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       {showConfirmation && (
@@ -481,60 +494,88 @@ export const StoreSetup = () => {
         </FormSection>
 
         <FormSection title="Business Hours" icon={Clock}>
-          <div className="space-y-4">
-            {Object.entries(formData.storeDeliverySchedule).map(([day, hours]) => (
-              <div key={day} className="flex items-center space-x-4">
-                <div className="w-28">
-                  <span className="text-sm font-medium text-gray-700">
-                    {day}
-                  </span>
+          <div className="space-y-6">
+            <div className="flex items-center justify-end space-x-4 mb-4">
+              <button
+                type="button"
+                onClick={() => handleSetAllHours('07:00', '19:00', false)}
+                className="flex items-center px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 
+                  bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+              >
+                <Sun className="w-4 h-4 mr-2" />
+                Set All to 7 AM - 7 PM
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetAllHours('00:00', '23:59', false)}
+                className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-700 
+                  bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Moon className="w-4 h-4 mr-2" />
+                Set All to 24/7
+              </button>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+              {Object.entries(formData.storeDeliverySchedule).map(([day, hours]) => (
+                <div key={day} className="flex items-center space-x-4 p-3 bg-white rounded-lg shadow-sm">
+                  <div className="w-28">
+                    <span className="text-sm font-medium text-gray-700">
+                      {day}
+                    </span>
+                  </div>
+                  <div className="flex-1 flex items-center space-x-4">
+                    <div className="flex-1 grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <input
+                          type="time"
+                          value={hours.open}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            storeDeliverySchedule: {
+                              ...formData.storeDeliverySchedule,
+                              [day]: { ...hours, open: e.target.value }
+                            }
+                          })}
+                          className="w-full"
+                          disabled={hours.closed}
+                        />
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          value={hours.close}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            storeDeliverySchedule: {
+                              ...formData.storeDeliverySchedule,
+                              [day]: { ...hours, close: e.target.value }
+                            }
+                          })}
+                          className="w-full"
+                          disabled={hours.closed}
+                        />
+                      </div>
+                    </div>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={hours.closed}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          storeDeliverySchedule: {
+                            ...formData.storeDeliverySchedule,
+                            [day]: { ...hours, closed: e.target.checked }
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="ml-2 text-sm text-gray-600">Closed</span>
+                    </label>
+                  </div>
                 </div>
-                <div className="flex-1 flex items-center space-x-4">
-                  <input
-                    type="time"
-                    value={hours.open}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      storeDeliverySchedule: {
-                        ...formData.storeDeliverySchedule,
-                        [day]: { ...hours, open: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={hours.closed}
-                  />
-                  <span className="text-gray-500">to</span>
-                  <input
-                    type="time"
-                    value={hours.close}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      storeDeliverySchedule: {
-                        ...formData.storeDeliverySchedule,
-                        [day]: { ...hours, close: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={hours.closed}
-                  />
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={hours.closed}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        storeDeliverySchedule: {
-                          ...formData.storeDeliverySchedule,
-                          [day]: { ...hours, closed: e.target.checked }
-                        }
-                      })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Closed</span>
-                  </label>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </FormSection>
 
