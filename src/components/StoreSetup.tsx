@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Store, 
   Upload,
@@ -8,11 +8,11 @@ import {
   MapPin,
   Phone,
   Globe,
-  Clock
+  Clock,
+  Building2
 } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, GeoPoint } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,6 +21,7 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
@@ -42,6 +43,39 @@ export const StoreSetup = () => {
     },
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
+
+  useEffect(() => {
+    const geocodeAddress = async () => {
+      if (formData.address) {
+        try {
+          const geocoder = new google.maps.Geocoder();
+          const result = await geocoder.geocode({ address: formData.address });
+          
+          if (result.results[0]) {
+            const location = result.results[0].geometry.location;
+            setCoordinates({
+              lat: location.lat(),
+              lng: location.lng()
+            });
+          }
+        } catch (error) {
+          console.error('Geocoding error:', error);
+        }
+      }
+    };
+
+    geocodeAddress();
+  }, [formData.address]);
+
+  const formatBusinessHours = () => {
+    const schedule: string[] = [];
+    Object.entries(formData.businessHours).forEach(([day, hours]) => {
+      if (!hours.closed) {
+        schedule.push(`${day.charAt(0).toUpperCase() + day.slice(1)} ${hours.open} to ${hours.close}`);
+      }
+    });
+    return schedule;
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -115,52 +149,26 @@ export const StoreSetup = () => {
     setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
   };
 
-  const uploadImage = async (file: File, path: string) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!currentUser || !coordinates) return;
 
     setSaving(true);
     try {
-      let storeImageUrl;
-      if (storeImage.file) {
-        const imagePath = `stores/${currentUser.uid}/store-image/${storeImage.file.name}`;
-        storeImageUrl = await uploadImage(storeImage.file, imagePath);
-      }
-
-      // Upload images and get URLs
-      const sectionPromises = formData.aboutSections.map(async (section) => {
-        if (section.image) {
-          const imagePath = `stores/${currentUser.uid}/sections/${section.id}/${section.image.name}`;
-          const imageUrl = await uploadImage(section.image, imagePath);
-          return {
-            ...section,
-            imageUrl,
-            image: undefined,
-            imagePreview: undefined
-          };
-        }
-        return section;
-      });
-
-      const sectionsWithUrls = await Promise.all(sectionPromises);
-
-      // Save store data to Firestore
       const storeData = {
         name: formData.name,
-        description: formData.description,
+        details: formData.description,
         address: formData.address,
+        location: new GeoPoint(coordinates.lat, coordinates.lng),
         phone: formData.phone,
         website: formData.website,
-        businessHours: formData.businessHours,
-        aboutSections: sectionsWithUrls,
-        storeImageUrl,
+        storeDeliverySchedule: formatBusinessHours(),
+        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
+        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
+        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        titleTabAboutThird: formData.aboutSections[2]?.title || '',
+        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
         ownerId: currentUser.uid,
         createdAt: new Date(),
       };
