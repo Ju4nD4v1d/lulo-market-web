@@ -28,7 +28,6 @@ const defaultBusinessHours = {
   Saturday: { open: "09:00", close: "18:00", closed: true }
 };
 
-// Order of days starting with Sunday
 const daysOrder = [
   'Sunday',
   'Monday',
@@ -81,7 +80,6 @@ export const StoreSetup = () => {
             }));
           }
 
-          // Map About Us sections from Firestore fields
           const aboutSections = [
             {
               id: '1',
@@ -165,15 +163,20 @@ export const StoreSetup = () => {
     setImageErrors(prev => ({ ...prev, storeImage: '' }));
   };
 
-  const simulateProgress = async () => {
-    setSaving(true);
-    setSaveStep('saving');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaveStep('uploading');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaveStep('finalizing');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaveStep('complete');
+  const uploadStoreImage = async (storeId: string): Promise<string | null> => {
+    if (!storeImage.file || !currentUser) return null;
+
+    const storageRef = ref(storage, `stores/${storeId}/storeImage.png`);
+    await uploadBytes(storageRef, storeImage.file);
+    return getDownloadURL(storageRef);
+  };
+
+  const uploadSectionImage = async (storeId: string, section: any): Promise<string | null> => {
+    if (!section.image) return null;
+
+    const storageRef = ref(storage, `stores/${storeId}/section_${section.id}.png`);
+    await uploadBytes(storageRef, section.image);
+    return getDownloadURL(storageRef);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -184,13 +187,7 @@ export const StoreSetup = () => {
     setError(null);
 
     try {
-      await simulateProgress();
-
-      // Upload store image if exists
-      let storeImageUrl = storeImage.url;
-      if (storeImage.file) {
-        storeImageUrl = await uploadStoreImage();
-      }
+      setSaveStep('saving');
 
       // Geocode the address
       const geocoder = new google.maps.Geocoder();
@@ -206,6 +203,43 @@ export const StoreSetup = () => {
         lng: location.lng()
       };
 
+      // Check if store already exists
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      let storeId: string;
+      let storeDoc;
+
+      if (querySnapshot.empty) {
+        // Create new store
+        const docRef = await addDoc(collection(db, 'stores'), {
+          ownerId: currentUser.uid,
+          createdAt: new Date()
+        });
+        storeId = docRef.id;
+        storeDoc = docRef;
+      } else {
+        storeDoc = querySnapshot.docs[0].ref;
+        storeId = querySnapshot.docs[0].id;
+      }
+
+      setSaveStep('uploading');
+
+      // Upload store image
+      let storeImageUrl = storeImage.url;
+      if (storeImage.file) {
+        storeImageUrl = await uploadStoreImage(storeId);
+      }
+
+      // Upload section images
+      const sectionImagePromises = formData.aboutSections.map(section => 
+        uploadSectionImage(storeId, section)
+      );
+      const sectionImageUrls = await Promise.all(sectionImagePromises);
+
+      setSaveStep('finalizing');
+
       const storeData = {
         name: formData.name,
         description: formData.description,
@@ -220,24 +254,14 @@ export const StoreSetup = () => {
         bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
         titleTabAboutThird: formData.aboutSections[2]?.title || '',
         bodyTabAboutThird: formData.aboutSections[2]?.description || '',
-        ownerId: currentUser.uid,
-        createdAt: new Date(),
-        storeImage: storeImageUrl
+        storeImage: storeImageUrl,
+        sectionImages: sectionImageUrls.filter(Boolean), // Remove null values
+        updatedAt: new Date()
       };
 
-      // Check if store already exists
-      const storesRef = collection(db, 'stores');
-      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const querySnapshot = await getDocs(q);
+      await updateDoc(storeDoc, storeData);
 
-      if (querySnapshot.empty) {
-        await addDoc(collection(db, 'stores'), storeData);
-      } else {
-        // Update existing store
-        const storeDoc = querySnapshot.docs[0].ref;
-        await updateDoc(storeDoc, storeData);
-      }
-
+      setSaveStep('complete');
       setShowConfirmation(true);
     } catch (error) {
       console.error('Error saving store:', error);
