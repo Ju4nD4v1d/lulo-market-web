@@ -86,7 +86,6 @@ export const ForgotPassword = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder="Enter your email address"
-                    required
                   />
                 </div>
               </div>

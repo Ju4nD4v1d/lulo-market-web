@@ -139,7 +139,6 @@ export const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
-                    required
                   />
                 </div>
               </div>
@@ -159,7 +158,6 @@ export const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
-                    required
                   />
                 </div>
               </div>
