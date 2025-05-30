@@ -346,6 +346,150 @@ export const StoreSetup = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Basic Information" icon={Store}>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Image
+              </label>
+              <div
+                className={`
+                  border-2 border-dashed rounded-lg p-8
+                  ${storeImage.preview ? 'border-primary-300' : imageErrors.storeImage ? 'border-red-300' : 'border-gray-300'}
+                  hover:border-primary-400 transition-colors duration-200
+                  flex flex-col items-center justify-center
+                  cursor-pointer
+                `}
+                onDragOver={handleDragOver}
+                onDrop={handleStoreDrop}
+              >
+                {storeImage.preview ? (
+                  <div className="relative w-full">
+                    <img
+                      src={storeImage.preview}
+                      alt="Store preview"
+                      className="max-h-48 mx-auto rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setStoreImage({})}
+                      className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
+                          <span>Upload a file</span>
+                          <input
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleStoreImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        PNG, JPG, GIF up to 1MB
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {imageErrors.storeImage && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {imageErrors.storeImage}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Name *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full"
+                placeholder="Enter your store name"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={4}
+                className="w-full"
+                placeholder="Describe your store and what makes it unique"
+              />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Contact Information" icon={Phone}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address *
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your store address"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Website
+              </label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your website URL"
+                />
+              </div>
+            </div>
+          </div>
+        </FormSection>
+
         <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-6">
             <div className="flex items-center justify-end space-x-4 mb-4">
