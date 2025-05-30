@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
   Store, 
   AlertCircle, 
@@ -15,6 +15,8 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { collection, doc, setDoc, getDoc, GeoPoint } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 interface FormErrors {
   [key: string]: string;
@@ -22,6 +24,31 @@ interface FormErrors {
 
 interface TouchedFields {
   [key: string]: boolean;
+}
+
+interface BusinessHours {
+  [key: string]: {
+    open: string;
+    close: string;
+    closed: boolean;
+  };
+}
+
+interface StoreData {
+  name: string;
+  details: string;
+  address: string;
+  location?: GeoPoint;
+  phone: string;
+  website: string;
+  storeDeliverySchedule: string[];
+  titleTabAboutFirst: string;
+  bodyTabAboutFirst: string;
+  titleTabAboutSecond?: string;
+  bodyTabAboutSecond?: string;
+  titleTabAboutThird?: string;
+  bodyTabAboutThird?: string;
+  ownerId: string;
 }
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -77,6 +104,7 @@ export const StoreSetup = () => {
   ]);
   const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string }>({});
   const [storeImageError, setStoreImageError] = useState('');
+  const [existingStoreId, setExistingStoreId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -92,23 +120,99 @@ export const StoreSetup = () => {
       friday: { open: '09:00', close: '18:00', closed: false },
       saturday: { open: '10:00', close: '16:00', closed: false },
       sunday: { open: '10:00', close: '16:00', closed: true }
-    },
-    deliveryOptions: {
-      pickup: true,
-      delivery: true,
-      shipping: false
-    },
-    paymentMethods: {
-      cash: true,
-      card: true,
-      transfer: true
-    },
-    deliveryCostWithDiscount: 0,
-    minimumOrder: 0
+    } as BusinessHours,
+    aboutSections: [
+      { id: '1', title: '', description: '' },
+      { id: '2', title: '', description: '' },
+      { id: '3', title: '', description: '' }
+    ]
   });
+
+  useEffect(() => {
+    const fetchExistingStore = async () => {
+      if (!currentUser) return;
+
+      try {
+        const storesRef = collection(db, 'stores');
+        const storeDoc = doc(storesRef, currentUser.uid);
+        const storeSnapshot = await getDoc(storeDoc);
+
+        if (storeSnapshot.exists()) {
+          const storeData = storeSnapshot.data();
+          setExistingStoreId(storeSnapshot.id);
+          
+          // Convert delivery schedule back to business hours
+          const deliverySchedule = storeData.storeDeliverySchedule || [];
+          const businessHours = { ...formData.businessHours };
+          
+          // Reset all days to closed
+          Object.keys(businessHours).forEach(day => {
+            businessHours[day].closed = true;
+          });
+
+          // Parse delivery schedule strings and update business hours
+          deliverySchedule.forEach(schedule => {
+            const [day, time] = schedule.split(' ');
+            const [open, close] = time.split(' to ');
+            const lowercaseDay = day.toLowerCase();
+            
+            if (businessHours[lowercaseDay]) {
+              businessHours[lowercaseDay] = {
+                open: open,
+                close: close,
+                closed: false
+              };
+            }
+          });
+
+          setFormData({
+            name: storeData.name || '',
+            description: storeData.details || '',
+            address: storeData.address || '',
+            phone: storeData.phone || '',
+            website: storeData.website || '',
+            businessHours,
+            aboutSections: [
+              { 
+                id: '1', 
+                title: storeData.titleTabAboutFirst || '', 
+                description: storeData.bodyTabAboutFirst || '' 
+              },
+              { 
+                id: '2', 
+                title: storeData.titleTabAboutSecond || '', 
+                description: storeData.bodyTabAboutSecond || '' 
+              },
+              { 
+                id: '3', 
+                title: storeData.titleTabAboutThird || '', 
+                description: storeData.bodyTabAboutThird || '' 
+              }
+            ]
+          });
+
+          if (storeData.location) {
+            setCoordinates({
+              lat: storeData.location.latitude,
+              lng: storeData.location.longitude
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching store data:', error);
+        setFormErrors({ fetch: 'Failed to load store data' });
+      }
+    };
+
+    fetchExistingStore();
+  }, [currentUser]);
 
   const validateForm = () => {
     const errors: FormErrors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Store name is required';
+    }
     
     if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
       errors.phone = 'Please enter a valid phone number';
@@ -116,6 +220,14 @@ export const StoreSetup = () => {
     
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
       errors.website = 'Please enter a valid website URL';
+    }
+
+    if (!formData.address.trim()) {
+      errors.address = 'Address is required';
+    }
+
+    if (!coordinates) {
+      errors.address = 'Please enter a valid address that can be geocoded';
     }
 
     setFormErrors(errors);
@@ -274,13 +386,14 @@ export const StoreSetup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setImageErrors({});
     setSuccess(null);
-    
-    const allFields = ['name', 'phone', 'website', 'address'];
-    setTouchedFields(
-      allFields.reduce((acc, field) => ({ ...acc, [field]: true }), {})
-    );
+    setFormErrors({});
+
+    if (!currentUser) {
+      setFormErrors({ auth: 'You must be logged in to save store information' });
+      setSaving(false);
+      return;
+    }
 
     if (!validateForm()) {
       setSaving(false);
@@ -288,10 +401,37 @@ export const StoreSetup = () => {
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Prepare delivery schedule
+      const storeDeliverySchedule = Object.entries(formData.businessHours)
+        .filter(([_, hours]) => !hours.closed)
+        .map(([day, hours]) => `${day.charAt(0).toUpperCase() + day.slice(1)} ${hours.open} to ${hours.close}`);
+
+      const storeData: StoreData = {
+        name: formData.name,
+        details: formData.description,
+        address: formData.address,
+        location: coordinates ? new GeoPoint(coordinates.lat, coordinates.lng) : undefined,
+        phone: formData.phone,
+        website: formData.website,
+        storeDeliverySchedule,
+        titleTabAboutFirst: formData.aboutSections[0].title,
+        bodyTabAboutFirst: formData.aboutSections[0].description,
+        titleTabAboutSecond: formData.aboutSections[1].title,
+        bodyTabAboutSecond: formData.aboutSections[1].description,
+        titleTabAboutThird: formData.aboutSections[2].title,
+        bodyTabAboutThird: formData.aboutSections[2].description,
+        ownerId: currentUser.uid
+      };
+
+      const storesRef = collection(db, 'stores');
+      const storeDoc = doc(storesRef, currentUser.uid);
+
+      await setDoc(storeDoc, storeData, { merge: true });
       setSuccess('Store information saved successfully');
-    } catch (err) {
-      setImageErrors({ general: 'Failed to save store information' });
+      setExistingStoreId(currentUser.uid);
+    } catch (error) {
+      console.error('Error saving store data:', error);
+      setFormErrors({ submit: 'Failed to save store information' });
     } finally {
       setSaving(false);
     }
@@ -315,10 +455,10 @@ export const StoreSetup = () => {
         </div>
       </div>
 
-      {imageErrors.general && (
+      {formErrors.general && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
           <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p>{imageErrors.general}</p>
+          <p>{formErrors.general}</p>
         </div>
       )}
 
@@ -404,6 +544,9 @@ export const StoreSetup = () => {
                 className="w-full"
                 placeholder="Enter your store name"
               />
+              {shouldShowError('name') && (
+                <p className="mt-2 text-sm text-red-600">{formErrors.name}</p>
+              )}
             </div>
 
             <div>
@@ -445,6 +588,9 @@ export const StoreSetup = () => {
                   <div className="text-sm text-gray-500 pl-2">
                     Latitude: {coordinates.lat.toFixed(6)}, Longitude: {coordinates.lng.toFixed(6)}
                   </div>
+                )}
+                {shouldShowError('address') && (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.address}</p>
                 )}
               </div>
             </div>
