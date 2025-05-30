@@ -68,6 +68,9 @@ export const StoreSetup = () => {
             }));
           }
 
+          // Map business hours from Firestore
+          const businessHours = storeData.storeBusinessHours || formData.businessHours;
+
           // Map About Us sections from Firestore fields
           const aboutSections = [
             {
@@ -96,7 +99,7 @@ export const StoreSetup = () => {
           // Set form data with all fields
           setFormData(prev => ({
             ...prev,
-            businessHours: storeData.storeBusinessHours || prev.businessHours,
+            businessHours,
             name: storeData.name || '',
             description: storeData.description || '',
             address: storeData.address || '',
