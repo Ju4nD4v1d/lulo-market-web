@@ -1,6 +1,85 @@
-Here's the fixed version with all closing brackets added:
+import React, { useState } from 'react';
+import { Loader2, Upload, X } from 'lucide-react';
+import { FormSection } from './FormSection';
+import { SuccessDialog } from './SuccessDialog';
 
-```javascript
+export const StoreSetup = () => {
+  const [saving, setSaving] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<{
+    aboutSections: Array<{
+      id: string;
+      description: string;
+      image?: File;
+      imagePreview?: string;
+    }>;
+  }>({ aboutSections: [] });
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleImageValidation(file, sectionId);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageValidation(file, sectionId);
+    }
+  };
+
+  const handleImageValidation = (file: File, sectionId: string) => {
+    if (file.size > 1024 * 1024) {
+      setImageErrors(prev => ({
+        ...prev,
+        [sectionId]: 'File size must be less than 1MB'
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFormData(prev => ({
+        ...prev,
+        aboutSections: prev.aboutSections.map(s =>
+          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
+        )
+      }));
+    };
+    reader.readAsDataURL(file);
+    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto py-8 px-4">
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        setSaving(true);
+        // Handle form submission logic here
+        setTimeout(() => {
+          setSaving(false);
+          setShowSuccessDialog(true);
+        }, 1500);
+      }}>
+        <FormSection title="About Sections">
+          <div className="space-y-8">
+            {formData.aboutSections.map((section) => (
+              <div key={section.id} className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      value={section.description}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        aboutSections: prev.aboutSections.map(s =>
                           s.id === section.id ? { ...s, description: e.target.value } : s
                         )
                       }))}
@@ -103,4 +182,3 @@ Here's the fixed version with all closing brackets added:
     </div>
   );
 };
-```
