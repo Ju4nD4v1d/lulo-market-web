@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Store, AlertCircle, CheckCircle2, MapPin, Phone, Globe, DollarSign, Upload, Clock, CreditCard, Truck, ShoppingBag, Building2, BookOpen, Info as InfoIcon, Building as Bank } from 'lucide-react';
+import { Store, AlertCircle, CheckCircle2, MapPin, Phone, Globe, DollarSign, Upload, Clock, CreditCard, Truck, ShoppingBag, Building2, BookOpen, Info as InfoIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { LocationPicker } from './LocationPicker';
+import type { StoreLocation } from '../types/store';
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
@@ -47,13 +49,17 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
+  const [error, setError] = useState<string | null>(null);
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
     { id: '1', title: '', description: '' }
   ]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    address: '',
+    location: {
+      address: '',
+      coordinates: { lat: 0, lng: 0 }
+    },
     phone: '',
     website: '',
     businessHours: {
@@ -246,21 +252,14 @@ export const StoreSetup = () => {
         <FormSection title="Contact Information" icon={Phone}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Address
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Location
               </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
-                />
-              </div>
+              <LocationPicker
+                value={formData.location}
+                onChange={(location) => setFormData({ ...formData, location })}
+                onError={(error) => setError(error)}
+              />
             </div>
 
             <div>
@@ -521,283 +520,6 @@ export const StoreSetup = () => {
                   </div>
                 </label>
               </div>
-            </div>
-          </div>
-        </FormSection>
-
-        <FormSection title="Payout Method" icon={CreditCard}>
-          <div className="space-y-6">
-            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100">
-              <div className="flex items-start">
-                <InfoIcon className="w-5 h-5 text-primary-800 mt-0.5 mr-3 flex-shrink-0" />
-                <p className="text-sm text-primary-800">
-                  Note: This payment method is for setup purposes only. You must complete full onboarding and verification before receiving payouts.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex space-x-4">
-                <label className="flex-1 relative border rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-colors">
-                  <input
-                    type="radio"
-                    name="payoutMethod"
-                    value="credit_card"
-                    checked={formData.payoutMethod === 'credit_card'}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      payoutMethod: e.target.value
-                    })}
-                    className="sr-only"
-                  />
-                  <div className="flex items-center">
-                    <CreditCard className="w-5 h-5 text-primary-600 mr-3" />
-                    <span className="font-medium text-gray-900">Credit Card</span>
-                  </div>
-                  <div className={`absolute inset-0 rounded-lg border-2 pointer-events-none transition-colors ${
-                    formData.payoutMethod === 'credit_card' ? 'border-primary-500' : 'border-transparent'
-                  }`} />
-                </label>
-
-                <label className="flex-1 relative border rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-colors">
-                  <input
-                    type="radio"
-                    name="payoutMethod"
-                    value="bank_account"
-                    checked={formData.payoutMethod === 'bank_account'}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      payoutMethod: e.target.value
-                    })}
-                    className="sr-only"
-                  />
-                  <div className="flex items-center">
-                    <Bank className="w-5 h-5 text-primary-600 mr-3" />
-                    <span className="font-medium text-gray-900">Bank Account</span>
-                  </div>
-                  <div className={`absolute inset-0 rounded-lg border-2 pointer-events-none transition-colors ${
-                    formData.payoutMethod === 'bank_account' ? 'border-primary-500' : 'border-transparent'
-                  }`} />
-                </label>
-              </div>
-
-              {formData.payoutMethod === 'credit_card' && (
-                <div className="space-y-4 mt-4">
-                  <div>
-                    <label htmlFor="cardholderName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Cardholder Name
-                    </label>
-                    <input
-                      type="text"
-                      id="cardholderName"
-                      value={formData.payoutDetails.creditCard.cardholderName}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          creditCard: {
-                            ...formData.payoutDetails.creditCard,
-                            cardholderName: e.target.value
-                          }
-                        }
-                      })}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      id="cardNumber"
-                      value={formData.payoutDetails.creditCard.cardNumber}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          creditCard: {
-                            ...formData.payoutDetails.creditCard,
-                            cardNumber: e.target.value
-                          }
-                        }
-                      })}
-                      placeholder="•••• •••• •••• ••••"
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-1">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        id="expiryDate"
-                        value={formData.payoutDetails.creditCard.expiryDate}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          payoutDetails: {
-                            ...formData.payoutDetails,
-                            creditCard: {
-                              ...formData.payoutDetails.creditCard,
-                              expiryDate: e.target.value
-                            }
-                          }
-                        })}
-                        placeholder="MM/YY"
-                        className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                          focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                          placeholder-gray-400 text-gray-900"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="cvv" className="block text-sm font-medium text-gray-700 mb-1">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        id="cvv"
-                        value={formData.payoutDetails.creditCard.cvv}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          payoutDetails: {
-                            ...formData.payoutDetails,
-                            creditCard: {
-                              ...formData.payoutDetails.creditCard,
-                              cvv: e.target.value
-                            }
-                          }
-                        })}
-                        placeholder="•••"
-                        className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                          focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                          placeholder-gray-400 text-gray-900"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {formData.payoutMethod === 'bank_account' && (
-                <div className="space-y-4 mt-4">
-                  <div>
-                    <label htmlFor="accountHolderName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Account Holder Name
-                    </label>
-                    <input
-                      type="text"
-                      id="accountHolderName"
-                      value={formData.payoutDetails.bankAccount.accountHolderName}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          bankAccount: {
-                            ...formData.payoutDetails.bankAccount,
-                            accountHolderName: e.target.value
-                          }
-                        }
-                      })}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="transitNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Transit Number (5 digits)
-                    </label>
-                    <input
-                      type="text"
-                      id="transitNumber"
-                      value={formData.payoutDetails.bankAccount.transitNumber}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          bankAccount: {
-                            ...formData.payoutDetails.bankAccount,
-                            transitNumber: e.target.value
-                          }
-                        }
-                      })}
-                      placeholder="12345"
-                      maxLength={5}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="institutionNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Institution Number (3 digits)
-                    </label>
-                    <input
-                      type="text"
-                      id="institutionNumber"
-                      value={formData.payoutDetails.bankAccount.institutionNumber}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          bankAccount: {
-                            ...formData.payoutDetails.bankAccount,
-                            institutionNumber: e.target.value
-                          }
-                        }
-                      })}
-                      placeholder="002"
-                      maxLength={3}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Account Number
-                    </label>
-                    <input
-                      type="text"
-                      id="accountNumber"
-                      value={formData.payoutDetails.bankAccount.accountNumber}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        payoutDetails: {
-                          ...formData.payoutDetails,
-                          bankAccount: {
-                            ...formData.payoutDetails.bankAccount,
-                            accountNumber: e.target.value
-                          }
-                        }
-                      })}
-                      placeholder="12345678"
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
-                      required
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </FormSection>
