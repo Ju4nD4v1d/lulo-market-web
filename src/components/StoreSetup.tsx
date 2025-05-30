@@ -84,7 +84,8 @@ export const StoreSetup = () => {
             {
               id: '1',
               title: storeData.titleTabAboutFirst || '',
-              description: storeData.bodyTabAboutFirst || ''
+              description: storeData.bodyTabAboutFirst || '',
+              imagePreview: storeData.imageTabAboutFirst || undefined
             }
           ];
 
@@ -92,7 +93,8 @@ export const StoreSetup = () => {
             aboutSections.push({
               id: '2',
               title: storeData.titleTabAboutSecond || '',
-              description: storeData.bodyTabAboutSecond || ''
+              description: storeData.bodyTabAboutSecond || '',
+              imagePreview: storeData.imageTabAboutSecond || undefined
             });
           }
 
@@ -100,7 +102,8 @@ export const StoreSetup = () => {
             aboutSections.push({
               id: '3',
               title: storeData.titleTabAboutThird || '',
-              description: storeData.bodyTabAboutThird || ''
+              description: storeData.bodyTabAboutThird || '',
+              imagePreview: storeData.imageTabAboutThird || undefined
             });
           }
 
@@ -171,10 +174,10 @@ export const StoreSetup = () => {
     return getDownloadURL(storageRef);
   };
 
-  const uploadSectionImage = async (storeId: string, section: any): Promise<string | null> => {
+  const uploadSectionImage = async (storeId: string, section: any, index: number): Promise<string | null> => {
     if (!section.image) return null;
 
-    const storageRef = ref(storage, `stores/${storeId}/section_${section.id}.png`);
+    const storageRef = ref(storage, `stores/${storeId}/about_section_${index + 1}.png`);
     await uploadBytes(storageRef, section.image);
     return getDownloadURL(storageRef);
   };
@@ -233,8 +236,8 @@ export const StoreSetup = () => {
       }
 
       // Upload section images
-      const sectionImagePromises = formData.aboutSections.map(section => 
-        uploadSectionImage(storeId, section)
+      const sectionImagePromises = formData.aboutSections.map((section, index) => 
+        uploadSectionImage(storeId, section, index)
       );
       const sectionImageUrls = await Promise.all(sectionImagePromises);
 
@@ -250,12 +253,14 @@ export const StoreSetup = () => {
         storeBusinessHours: formData.businessHours,
         titleTabAboutFirst: formData.aboutSections[0]?.title || '',
         bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        imageTabAboutFirst: sectionImageUrls[0] || formData.aboutSections[0]?.imagePreview || '',
         titleTabAboutSecond: formData.aboutSections[1]?.title || '',
         bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        imageTabAboutSecond: sectionImageUrls[1] || formData.aboutSections[1]?.imagePreview || '',
         titleTabAboutThird: formData.aboutSections[2]?.title || '',
         bodyTabAboutThird: formData.aboutSections[2]?.description || '',
+        imageTabAboutThird: sectionImageUrls[2] || formData.aboutSections[2]?.imagePreview || '',
         storeImage: storeImageUrl,
-        sectionImages: sectionImageUrls.filter(Boolean), // Remove null values
         updatedAt: new Date()
       };
 
