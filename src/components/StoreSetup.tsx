@@ -337,7 +337,7 @@ export const StoreSetup = () => {
                 onDrop={handleStoreDrop}
               >
                 {storeImage.preview ? (
-                  <div className="space-y-4 w-full">
+                  <div className="relative w-full">
                     <img
                       src={storeImage.preview}
                       alt="Store preview"
@@ -346,9 +346,9 @@ export const StoreSetup = () => {
                     <button
                       type="button"
                       onClick={() => setStoreImage({})}
-                      className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                      className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
                     >
-                      Remove Image
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
@@ -584,7 +584,7 @@ export const StoreSetup = () => {
                       onDrop={(e) => handleDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
-                        <div className="space-y-4 w-full">
+                        <div className="relative w-full">
                           <img
                             src={section.imagePreview}
                             alt="Preview"
@@ -598,9 +598,9 @@ export const StoreSetup = () => {
                                 s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
                               )
                             }))}
-                            className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                            className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
                           >
-                            Remove Image
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
