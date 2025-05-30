@@ -19,13 +19,13 @@ import { useAuth } from '../context/AuthContext';
 import { SaveProgressModal } from './SaveProgressModal';
 
 const defaultBusinessHours = {
-  Sunday: { open: "", close: "", closed: true },
-  Monday: { open: "", close: "", closed: true },
-  Tuesday: { open: "", close: "", closed: true },
-  Wednesday: { open: "", close: "", closed: true },
-  Thursday: { open: "", close: "", closed: true },
-  Friday: { open: "", close: "", closed: true },
-  Saturday: { open: "", close: "", closed: true }
+  Sunday: { open: "09:00", close: "18:00", closed: true },
+  Monday: { open: "09:00", close: "18:00", closed: true },
+  Tuesday: { open: "09:00", close: "18:00", closed: true },
+  Wednesday: { open: "09:00", close: "18:00", closed: true },
+  Thursday: { open: "09:00", close: "18:00", closed: true },
+  Friday: { open: "09:00", close: "18:00", closed: true },
+  Saturday: { open: "09:00", close: "18:00", closed: true }
 };
 
 // Order of days starting with Sunday
@@ -81,6 +81,31 @@ export const StoreSetup = () => {
             }));
           }
 
+          // Map About Us sections from Firestore fields
+          const aboutSections = [
+            {
+              id: '1',
+              title: storeData.titleTabAboutFirst || '',
+              description: storeData.bodyTabAboutFirst || ''
+            }
+          ];
+
+          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
+            aboutSections.push({
+              id: '2',
+              title: storeData.titleTabAboutSecond || '',
+              description: storeData.bodyTabAboutSecond || ''
+            });
+          }
+
+          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
+            aboutSections.push({
+              id: '3',
+              title: storeData.titleTabAboutThird || '',
+              description: storeData.bodyTabAboutThird || ''
+            });
+          }
+
           // Map business hours from Firestore
           const businessHours = storeData.storeBusinessHours || defaultBusinessHours;
 
@@ -91,7 +116,8 @@ export const StoreSetup = () => {
             description: storeData.description || '',
             address: storeData.address || '',
             phone: storeData.phone || '',
-            website: storeData.website || ''
+            website: storeData.website || '',
+            aboutSections
           }));
         }
       } catch (err) {
@@ -188,6 +214,12 @@ export const StoreSetup = () => {
         phone: formData.phone,
         website: formData.website,
         storeBusinessHours: formData.businessHours,
+        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
+        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
+        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        titleTabAboutThird: formData.aboutSections[2]?.title || '',
+        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
         ownerId: currentUser.uid,
         createdAt: new Date(),
         storeImage: storeImageUrl
@@ -216,6 +248,53 @@ export const StoreSetup = () => {
 
   const handleConfirmation = () => {
     window.location.hash = '#dashboard/products';
+  };
+
+  const handleDrop = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleImageValidation(file, sectionId);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageValidation(file, sectionId);
+    }
+  };
+
+  const handleImageValidation = (file: File, sectionId: string) => {
+    if (file.size > 1024 * 1024) {
+      setImageErrors(prev => ({
+        ...prev,
+        [sectionId]: 'File size must be less than 1MB'
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFormData(prev => ({
+        ...prev,
+        aboutSections: prev.aboutSections.map(s =>
+          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
+        )
+      }));
+    };
+    reader.readAsDataURL(file);
+    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
+  };
+
+  const addSection = () => {
+    if (formData.aboutSections.length < 3) {
+      setFormData(prev => ({
+        ...prev,
+        aboutSections: [
+          ...prev.aboutSections,
+          { id: String(prev.aboutSections.length + 1), title: '', description: '' }
+        ]
+      }));
+    }
   };
 
   return (
@@ -432,10 +511,10 @@ export const StoreSetup = () => {
                         ...formData,
                         businessHours: {
                           ...formData.businessHours,
-                          [day]: { 
-                            open: e.target.checked ? "" : "09:00",
-                            close: e.target.checked ? "" : "18:00",
-                            closed: e.target.checked 
+                          [day]: {
+                            open: e.target.checked ? "09:00" : "09:00",
+                            close: e.target.checked ? "18:00" : "18:00",
+                            closed: e.target.checked
                           }
                         }
                       })}
@@ -446,6 +525,135 @@ export const StoreSetup = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </FormSection>
+
+        <FormSection title="About Us" icon={Store}>
+          <div className="space-y-8">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
+              <p className="text-sm text-primary-800">
+                <InfoIcon className="w-5 h-5 inline-block mr-2" />
+                These sections will be prominently featured in your store profile. 
+                A compelling story helps attract customers and builds trust.
+              </p>
+            </div>
+
+            {formData.aboutSections.map((section) => (
+              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Section Title
+                    </label>
+                    <input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        aboutSections: prev.aboutSections.map(s =>
+                          s.id === section.id ? { ...s, title: e.target.value } : s
+                        )
+                      }))}
+                      className="w-full"
+                      placeholder="Enter a title for this section"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      value={section.description}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        aboutSections: prev.aboutSections.map(s =>
+                          s.id === section.id ? { ...s, description: e.target.value } : s
+                        )
+                      }))}
+                      rows={4}
+                      className="w-full"
+                      placeholder="Tell your story..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Image
+                    </label>
+                    <div
+                      className={`
+                        border-2 border-dashed rounded-lg p-8
+                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
+                        hover:border-primary-400 transition-colors duration-200
+                        flex flex-col items-center justify-center
+                        cursor-pointer
+                      `}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, section.id)}
+                    >
+                      {section.imagePreview ? (
+                        <div className="relative w-full">
+                          <img
+                            src={section.imagePreview}
+                            alt="Preview"
+                            className="max-h-48 mx-auto rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({
+                              ...prev,
+                              aboutSections: prev.aboutSections.map(s =>
+                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                              )
+                            }))}
+                            className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                            <div className="flex items-center">
+                              <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
+                                <span>Upload a file</span>
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageChange(e, section.id)}
+                                />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                              PNG, JPG, GIF up to 1MB
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {imageErrors[section.id] && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {imageErrors[section.id]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {formData.aboutSections.length < 3 && (
+              <button
+                type="button"
+                onClick={addSection}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              >
+                + Add Another Section
+              </button>
+            )}
           </div>
         </FormSection>
 
