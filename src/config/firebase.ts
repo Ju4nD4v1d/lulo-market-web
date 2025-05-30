@@ -1,20 +1,21 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAqJypQXdnA6__A5xDGie-e9rK_UbsCVEE",
-  authDomain: "lulop-eds249.firebaseapp.com",
-  projectId: "lulop-eds249",
-  storageBucket: "lulop-eds249.appspot.com",
-  messagingSenderId: "137283240286",
-  appId: "1:137283240286:web:79986988846a946637cfcf",
-  measurementId: "G-RY9ZQYTHQW"
+  apiKey: "AIzaSyA47HnoQecetepPUSUUyhlqW0kcdUhzJqk",
+  authDomain: "lulocart-9351d.firebaseapp.com",
+  projectId: "lulocart-9351d",
+  storageBucket: "lulocart-9351d.firebasestorage.app",
+  messagingSenderId: "549863703855",
+  appId: "1:549863703855:web:863e16bbe3c82ab94a4dda",
+  measurementId: "G-KKDSZ08NDV"
 };
 
-// Initialize Firebase
+if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
+  throw new Error('Firebase configuration is missing. Please check your environment variables.');
+}
+
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
