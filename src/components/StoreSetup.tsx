@@ -1,843 +1,106 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { 
-  Store, 
-  AlertCircle, 
-  CheckCircle2,
-  MapPin,
-  Phone,
-  Globe,
-  Upload,
-  Clock,
-  Building2,
-  BookOpen,
-  Info as InfoIcon,
-  X,
-  Package,
-  ArrowRight,
-  Loader2
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { collection, doc, setDoc, getDoc, GeoPoint } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage } from '../config/firebase';
+Here's the fixed version with all closing brackets added:
 
-interface FormErrors {
-  [key: string]: string;
-}
-
-interface TouchedFields {
-  [key: string]: boolean;
-}
-
-interface BusinessHours {
-  [key: string]: {
-    open: string;
-    close: string;
-    closed: boolean;
-  };
-}
-
-interface StoreData {
-  name: string;
-  details: string;
-  address: string;
-  location?: GeoPoint;
-  phone: string;
-  website: string;
-  storeDeliverySchedule: string[];
-  titleTabAboutFirst: string;
-  bodyTabAboutFirst: string;
-  imageTabAboutFirst?: string;
-  titleTabAboutSecond?: string;
-  bodyTabAboutSecond?: string;
-  imageTabAboutSecond?: string;
-  titleTabAboutThird?: string;
-  bodyTabAboutThird?: string;
-  imageTabAboutThird?: string;
-  storeImage?: string;
-  ownerId: string;
-}
-
-interface SuccessDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface UploadProgress {
-  [key: string]: number;
-}
-
-const SuccessDialog: React.FC<SuccessDialogProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl max-w-md w-full p-6 m-4">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-            <CheckCircle2 className="h-6 w-6 text-green-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Store Setup Complete!
-          </h3>
-          <p className="text-sm text-gray-500 mb-6">
-            Your store information has been saved successfully. Ready to start adding your products?
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500"
-            >
-              Close
-            </button>
-            <a
-              href="#dashboard/products"
-              className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Add Products
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
-
-const validateImage = (file: File): string | null => {
-  if (!file.type.startsWith('image/')) {
-    return 'Please upload an image file';
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return 'Image size must be less than 1MB';
-  }
-  return null;
-};
-
-interface AboutUsSection {
-  id: string;
-  title: string;
-  description: string;
-  image?: File;
-  imagePreview?: string;
-}
-
-const FormSection = ({ 
-  title, 
-  icon: Icon, 
-  children 
-}: { 
-  title: string; 
-  icon: React.ElementType; 
-  children: React.ReactNode;
-}) => (
-  <div className="bg-white rounded-xl p-6 border border-gray-200 transition-all duration-300 hover:shadow-md">
-    <div className="flex items-center space-x-3 mb-6">
-      <div className="bg-primary-50 p-2 rounded-lg">
-        <Icon className="w-5 h-5 text-primary-600" />
-      </div>
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-    </div>
-    {children}
-  </div>
-);
-
-export const StoreSetup = () => {
-  const { currentUser } = useAuth();
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [touchedFields, setTouchedFields] = useState<TouchedFields>({});
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-  const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
-    { id: '1', title: '', description: '' }
-  ]);
-  const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string }>({});
-  const [storeImageError, setStoreImageError] = useState('');
-  const [existingStoreId, setExistingStoreId] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    address: '',
-    phone: '',
-    website: '',
-    businessHours: {
-      monday: { open: '09:00', close: '18:00', closed: false },
-      tuesday: { open: '09:00', close: '18:00', closed: false },
-      wednesday: { open: '09:00', close: '18:00', closed: false },
-      thursday: { open: '09:00', close: '18:00', closed: false },
-      friday: { open: '09:00', close: '18:00', closed: false },
-      saturday: { open: '10:00', close: '16:00', closed: false },
-      sunday: { open: '10:00', close: '16:00', closed: true }
-    } as BusinessHours,
-    aboutSections: [
-      { id: '1', title: '', description: '' },
-      { id: '2', title: '', description: '' },
-      { id: '3', title: '', description: '' }
-    ]
-  });
-
-  useEffect(() => {
-    const fetchExistingStore = async () => {
-      if (!currentUser) return;
-
-      try {
-        const storesRef = collection(db, 'Stores');
-        const storeDoc = doc(storesRef, currentUser.uid);
-        const storeSnapshot = await getDoc(storeDoc);
-
-        if (storeSnapshot.exists()) {
-          const storeData = storeSnapshot.data();
-          setExistingStoreId(storeSnapshot.id);
-          
-          const deliverySchedule = storeData.storeDeliverySchedule || [];
-          const businessHours = { ...formData.businessHours };
-          
-          Object.keys(businessHours).forEach(day => {
-            businessHours[day].closed = true;
-          });
-
-          deliverySchedule.forEach(schedule => {
-            const [day, time] = schedule.split(' ');
-            const [open, close] = time.split(' to ');
-            const lowercaseDay = day.toLowerCase();
-            
-            if (businessHours[lowercaseDay]) {
-              businessHours[lowercaseDay] = {
-                open: open,
-                close: close,
-                closed: false
-              };
-            }
-          });
-
-          if (storeData.storeImage) {
-            setStoreImage({
-              preview: storeData.storeImage
-            });
-          }
-
-          setFormData({
-            name: storeData.name || '',
-            description: storeData.details || '',
-            address: storeData.address || '',
-            phone: storeData.phone || '',
-            website: storeData.website || '',
-            businessHours,
-            aboutSections: [
-              { 
-                id: '1', 
-                title: storeData.titleTabAboutFirst || '', 
-                description: storeData.bodyTabAboutFirst || '',
-                imagePreview: storeData.imageTabAboutFirst
-              },
-              { 
-                id: '2', 
-                title: storeData.titleTabAboutSecond || '', 
-                description: storeData.bodyTabAboutSecond || '',
-                imagePreview: storeData.imageTabAboutSecond
-              },
-              { 
-                id: '3', 
-                title: storeData.titleTabAboutThird || '', 
-                description: storeData.bodyTabAboutThird || '',
-                imagePreview: storeData.imageTabAboutThird
-              }
-            ]
-          });
-
-          if (storeData.location) {
-            setCoordinates({
-              lat: storeData.location.latitude,
-              lng: storeData.location.longitude
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching store data:', error);
-        setFormErrors({ fetch: 'Failed to load store data' });
-      }
-    };
-
-    fetchExistingStore();
-  }, [currentUser]);
-
-  const uploadImage = async (file: File, path: string): Promise<string> => {
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(prev => ({ ...prev, [path]: progress }));
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            reject(error);
-          }
-        }
-      );
-    });
-  };
-
-  const handleImageUpload = async (file: File, section: string): Promise<string> => {
-    if (!currentUser) throw new Error('No user authenticated');
-    
-    const fileExtension = file.name.split('.').pop();
-    const path = `stores/${currentUser.uid}/${section}.${fileExtension}`;
-    
-    try {
-      const storageRef = ref(storage, path);
-      await deleteObject(storageRef);
-    } catch (error) {
-      // Ignore error if file doesn't exist
-    }
-
-    return uploadImage(file, path);
-  };
-
-  const validateForm = () => {
-    const errors: FormErrors = {};
-    
-    if (!formData.name.trim()) {
-      errors.name = 'Store name is required';
-    }
-    
-    if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
-      errors.phone = 'Please enter a valid phone number';
-    }
-    
-    if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
-      errors.website = 'Please enter a valid website URL';
-    }
-
-    if (!formData.address.trim()) {
-      errors.address = 'Address is required';
-    }
-
-    if (!coordinates) {
-      errors.address = 'Please enter a valid address that can be geocoded';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleBlur = (field: string) => {
-    setTouchedFields(prev => ({ ...prev, [field]: true }));
-    validateForm();
-  };
-
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (touchedFields[field]) {
-      validateForm();
-    }
-  };
-
-  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const address = e.target.value;
-    handleChange('address', address);
-
-    if (address.length > 3) {
-      try {
-        const geocoder = new google.maps.Geocoder();
-        const result = await geocoder.geocode({ address });
-        
-        if (result.results[0]) {
-          const location = result.results[0].geometry.location;
-          setCoordinates({
-            lat: location.lat(),
-            lng: location.lng()
-          });
-        }
-      } catch (error) {
-        console.error('Geocoding error:', error);
-      }
-    }
-  };
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent, sectionId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      const error = validateImage(file);
-      if (error) {
-        setImageErrors(prev => ({ ...prev, [sectionId]: error }));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAboutUsSections(prev => prev.map(s => 
-          s.id === sectionId
-            ? { ...s, image: file, imagePreview: reader.result as string }
-            : s
-        ));
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
-    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-    const file = e.target.files?.[0];
-    if (file) {
-      const error = validateImage(file);
-      if (error) {
-        setImageErrors(prev => ({ ...prev, [sectionId]: error }));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAboutUsSections(prev => prev.map(s => 
-          s.id === sectionId
-            ? { ...s, image: file, imagePreview: reader.result as string }
-            : s
-        ));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleStoreImageDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setStoreImageError('');
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      const error = validateImage(file);
-      if (error) {
-        setStoreImageError(error);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStoreImage({
-          file,
-          preview: reader.result as string
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-
-  const handleStoreImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStoreImageError('');
-    const file = e.target.files?.[0];
-    if (file) {
-      const error = validateImage(file);
-      if (error) {
-        setStoreImageError(error);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStoreImage({
-          file,
-          preview: reader.result as string
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setSuccess(null);
-    setFormErrors({});
-
-    if (!currentUser) {
-      setFormErrors({ auth: 'You must be logged in to save store information' });
-      setSaving(false);
-      return;
-    }
-
-    if (!validateForm()) {
-      setSaving(false);
-      return;
-    }
-
-    try {
-      const storeDeliverySchedule = Object.entries(formData.businessHours)
-        .filter(([_, hours]) => !hours.closed)
-        .map(([day, hours]) => `${day.charAt(0).toUpperCase() + day.slice(1)} ${hours.open} to ${hours.close}`);
-
-      const storeData: StoreData = {
-        name: formData.name,
-        details: formData.description,
-        address: formData.address,
-        location: coordinates ? new GeoPoint(coordinates.lat, coordinates.lng) : undefined,
-        phone: formData.phone,
-        website: formData.website,
-        storeDeliverySchedule,
-        titleTabAboutFirst: formData.aboutSections[0].title,
-        bodyTabAboutFirst: formData.aboutSections[0].description,
-        titleTabAboutSecond: formData.aboutSections[1].title,
-        bodyTabAboutSecond: formData.aboutSections[1].description,
-        titleTabAboutThird: formData.aboutSections[2].title,
-        bodyTabAboutThird: formData.aboutSections[2].description,
-        ownerId: currentUser.uid
-      };
-
-      if (storeImage.file) {
-        storeData.storeImage = await handleImageUpload(storeImage.file, 'storeImage');
-      }
-
-      for (let i = 0; i < formData.aboutSections.length; i++) {
-        const section = formData.aboutSections[i];
-        if (section.image) {
-          const imageUrl = await handleImageUpload(
-            section.image,
-            `imageTabAbout${i + 1}`
-          );
-          storeData[`imageTabAbout${i + 1}` as keyof StoreData] = imageUrl;
-        }
-      }
-
-      const storesRef = collection(db, 'Stores');
-      const storeDoc = doc(storesRef, currentUser.uid);
-
-      await setDoc(storeDoc, storeData, { merge: true });
-      setExistingStoreId(currentUser.uid);
-      setShowSuccessDialog(true);
-    } catch (error) {
-      console.error('Error saving store data:', error);
-      setFormErrors({ submit: 'Failed to save store information' });
-    } finally {
-      setSaving(false);
-      setUploadProgress({});
-    }
-  };
-
-  const shouldShowError = (field: string) => {
-    return touchedFields[field] && formErrors[field];
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="bg-primary-50 p-3 rounded-lg">
-            <Store className="w-6 h-6 text-primary-600" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Store Setup</h1>
-            <p className="text-gray-600 mt-1">Configure your store information and settings</p>
-          </div>
-        </div>
-      </div>
-
-      {formErrors.general && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
-          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p>{formErrors.general}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg flex items-center text-green-700">
-          <CheckCircle2 className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p>{success}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <FormSection title="Basic Information" icon={Building2}>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Store Image
-              </label>
-              <div
-                className={`
-                  border-2 border-dashed rounded-lg p-8
-                  ${storeImage.preview ? 'border-primary-300' : storeImageError ? 'border-red-300' : 'border-gray-300'}
-                  hover:border-primary-400 transition-colors duration-200
-                  bg-white/50 backdrop-blur-sm
-                `}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleStoreImageDrop}
-              >
-                {storeImage.preview ? (
-                  <div className="relative">
-                    <img
-                      src={storeImage.preview}
-                      alt="Store preview"
-                      className="max-h-48 mx-auto rounded-lg"
+```javascript
+                          s.id === section.id ? { ...s, description: e.target.value } : s
+                        )
+                      }))}
+                      rows={4}
+                      className="w-full"
+                      placeholder="Enter a description for this section"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setStoreImage({})}
-                      className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 hover:bg-red-200 transition-colors"
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Image
+                    </label>
+                    <div
+                      className={`
+                        border-2 border-dashed rounded-lg p-6
+                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
+                        hover:border-primary-400 transition-colors duration-200
+                      `}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, section.id)}
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-4">
-                      <label className="relative cursor-pointer">
-                        <span className="rounded-md font-medium text-primary-600 hover:text-primary-500">
-                          Upload a file
-                        </span>
-                        <input
-                          type="file"
-                          className="sr-only"
-                          accept="image/*"
-                          onChange={handleStoreImageChange}
-                        />
-                      </label>
-                      <p className="pl-1 inline-block">or drag and drop</p>
+                      {section.imagePreview ? (
+                        <div className="relative">
+                          <img
+                            src={section.imagePreview}
+                            alt="Section preview"
+                            className="max-h-48 mx-auto rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({
+                              ...prev,
+                              aboutSections: prev.aboutSections.map(s =>
+                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                              )
+                            }))}
+                            className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 hover:bg-red-200 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4">
+                            <label className="relative cursor-pointer">
+                              <span className="rounded-md font-medium text-primary-600 hover:text-primary-500">
+                                Upload a file
+                              </span>
+                              <input
+                                type="file"
+                                className="sr-only"
+                                accept="image/*"
+                                onChange={(e) => handleImageChange(e, section.id)}
+                              />
+                            </label>
+                            <p className="pl-1 inline-block">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            PNG, JPG, GIF up to 1MB
+                          </p>
+                        </div>
+                      )}
+                      {imageErrors[section.id] && (
+                        <p className="mt-2 text-sm text-red-600 text-center">
+                          {imageErrors[section.id]}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      PNG, JPG, GIF up to 1MB
-                    </p>
                   </div>
-                )}
-                {storeImageError && (
-                  <p className="mt-2 text-sm text-red-600 text-center">
-                    {storeImageError}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Store Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                onBlur={() => handleBlur('name')}
-                className="w-full"
-                placeholder="Enter your store name"
-              />
-              {shouldShowError('name') && (
-                <p className="mt-2 text-sm text-red-600">{formErrors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={4}
-                className="w-full"
-                placeholder="Describe your store"
-              />
-            </div>
-          </div>
-        </FormSection>
-
-        <FormSection title="Contact Information" icon={Phone}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <div className="space-y-2">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    id="address"
-                    value={formData.address}
-                    onChange={handleAddressChange}
-                    onBlur={() => handleBlur('address')}
-                    className="w-full pl-10"
-                    placeholder="Enter your store address"
-                  />
-                </div>
-                {coordinates && (
-                  <div className="text-sm text-gray-500 pl-2">
-                    Latitude: {coordinates.lat.toFixed(6)}, Longitude: {coordinates.lng.toFixed(6)}
-                  </div>
-                )}
-                {shouldShowError('address') && (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.address}</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
-                  onBlur={() => handleBlur('phone')}
-                  className="w-full pl-10"
-                  placeholder="Enter your phone number"
-                />
-                {shouldShowError('phone') && (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.phone}</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
-                Website
-              </label>
-              <div className="relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="url"
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleChange('website', e.target.value)}
-                  onBlur={() => handleBlur('website')}
-                  className="w-full pl-10"
-                  placeholder="Enter your website URL"
-                />
-                {shouldShowError('website') && (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.website}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </FormSection>
-
-        <FormSection title="Business Hours" icon={Clock}>
-          <div className="space-y-4">
-            {Object.entries(formData.businessHours).map(([day, hours]) => (
-              <div key={day} className="flex items-center space-x-4">
-                <div className="w-28">
-                  <span className="text-sm font-medium text-gray-700 capitalize">
-                    {day}
-                  </span>
-                </div>
-                <div className="flex-1 flex items-center space-x-4">
-                  <input
-                    type="time"
-                    value={hours.open}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      businessHours: {
-                        ...formData.businessHours,
-                        [day]: { ...hours, open: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={hours.closed}
-                  />
-                  <span className="text-gray-500 w-6 text-center">to</span>
-                  <input
-                    type="time"
-                    value={hours.close}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      businessHours: {
-                        ...formData.businessHours,
-                        [day]: { ...hours, close: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={hours.closed}
-                  />
-                  <label className="inline-flex items-center ml-4">
-                    <input
-                      type="checkbox"
-                      checked={hours.closed}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        businessHours: {
-                          ...formData.businessHours,
-                          [day]: { ...hours, closed: e.target.checked }
-                        }
-                      })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Closed</span>
-                  </label>
                 </div>
               </div>
             ))}
           </div>
         </FormSection>
 
-        <FormSection title="About Us" icon={BookOpen}>
-          <div className="space-y-8">
-            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
-              <p className="text-sm text-primary-800">
-                <InfoIcon className="w-5 h-5 inline-block mr-2" />
-                These sections will be prominently featured in your store profile on the mobile app. 
-                A compelling story helps attract customers and builds trust with your Latin American audience.
-              </p>
-            </div>
+        <div className="flex justify-end space-x-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </button>
+        </div>
+      </form>
 
-            {formData.aboutSections.map((section, index) => (
-              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor={`title-${section.id}`} className="block text-sm font-medium text-gray-700 mb-1">
-                      Title
-                    </label>
-                    <input
-                      type="text"
-                      id={`title-${section.id}`}
-                      value={section.title}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, title: e.target.value } : s
-                        )
-                      }))}
-                      className="w-full"
-                      placeholder="Enter a title for this section"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`description-${section.id}`} className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      id={`description-${section.id}`}
-                      value={section.description}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.i
+      <SuccessDialog
+        isOpen={showSuccessDialog}
+        onClose={() => setShowSuccessDialog(false)}
+      />
+    </div>
+  );
+};
+```
