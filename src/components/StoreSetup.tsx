@@ -34,14 +34,14 @@ export const StoreSetup = () => {
     address: '',
     phone: '',
     website: '',
-    businessHours: {
+    storeDeliverySchedule: {
       Monday: { open: '09:00', close: '18:00', closed: false },
       Tuesday: { open: '09:00', close: '18:00', closed: false },
       Wednesday: { open: '09:00', close: '18:00', closed: false },
       Thursday: { open: '09:00', close: '18:00', closed: false },
       Friday: { open: '09:00', close: '18:00', closed: false },
       Saturday: { open: '10:00', close: '16:00', closed: false },
-      Sunday: { open: '10:00', close: '16:00', closed: true }
+      Sunday: { open: '', close: '', closed: true }
     },
     aboutSections: [
       { id: '1', title: '', description: '', image: undefined, imageUrl: '', imagePreview: '' },
@@ -72,7 +72,7 @@ export const StoreSetup = () => {
             }));
           }
 
-          // Map About Us sections from Firestore fields
+          // Map About Us sections
           const aboutSections = [
             {
               id: '1',
@@ -100,7 +100,7 @@ export const StoreSetup = () => {
           // Set form data with all fields
           setFormData(prev => ({
             ...prev,
-            businessHours: storeData.storeBusinessHours || prev.businessHours,
+            storeDeliverySchedule: storeData.storeDeliverySchedule || prev.storeDeliverySchedule,
             name: storeData.name || '',
             description: storeData.description || '',
             address: storeData.address || '',
@@ -217,7 +217,7 @@ export const StoreSetup = () => {
         location: new GeoPoint(coordinates.lat, coordinates.lng),
         phone: formData.phone,
         website: formData.website,
-        storeBusinessHours: formData.businessHours,
+        storeDeliverySchedule: formData.storeDeliverySchedule,
         titleTabAboutFirst: updatedAboutSections[0]?.title || '',
         bodyTabAboutFirst: updatedAboutSections[0]?.description || '',
         imageTabAboutFirst: updatedAboutSections[0]?.imageUrl || updatedAboutSections[0]?.imagePreview || '',
@@ -482,7 +482,7 @@ export const StoreSetup = () => {
 
         <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-4">
-            {Object.entries(formData.businessHours).map(([day, hours]) => (
+            {Object.entries(formData.storeDeliverySchedule).map(([day, hours]) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
                   <span className="text-sm font-medium text-gray-700">
@@ -495,8 +495,8 @@ export const StoreSetup = () => {
                     value={hours.open}
                     onChange={(e) => setFormData({
                       ...formData,
-                      businessHours: {
-                        ...formData.businessHours,
+                      storeDeliverySchedule: {
+                        ...formData.storeDeliverySchedule,
                         [day]: { ...hours, open: e.target.value }
                       }
                     })}
@@ -509,8 +509,8 @@ export const StoreSetup = () => {
                     value={hours.close}
                     onChange={(e) => setFormData({
                       ...formData,
-                      businessHours: {
-                        ...formData.businessHours,
+                      storeDeliverySchedule: {
+                        ...formData.storeDeliverySchedule,
                         [day]: { ...hours, close: e.target.value }
                       }
                     })}
@@ -523,8 +523,8 @@ export const StoreSetup = () => {
                       checked={hours.closed}
                       onChange={(e) => setFormData({
                         ...formData,
-                        businessHours: {
-                          ...formData.businessHours,
+                        storeDeliverySchedule: {
+                          ...formData.storeDeliverySchedule,
                           [day]: { ...hours, closed: e.target.checked }
                         }
                       })}
