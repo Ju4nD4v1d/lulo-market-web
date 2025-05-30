@@ -3,13 +3,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA47HnoQecetepPUSUUyhlqW0kcdUhzJqk",
-  authDomain: "lulocart-9351d.firebaseapp.com",
-  projectId: "lulocart-9351d",
-  storageBucket: "lulocart-9351d.firebasestorage.app",
-  messagingSenderId: "549863703855",
-  appId: "1:549863703855:web:863e16bbe3c82ab94a4dda",
-  measurementId: "G-KKDSZ08NDV"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
