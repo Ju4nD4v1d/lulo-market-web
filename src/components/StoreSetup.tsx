@@ -636,7 +636,7 @@ export const StoreSetup = () => {
                       onDrop={(e) => handleDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
-                        <div className="space-y-4 w-full">
+                        <div className="relative">
                           <img
                             src={section.imagePreview}
                             alt="Preview"
@@ -650,9 +650,9 @@ export const StoreSetup = () => {
                               ));
                               setImageErrors(prev => ({ ...prev, [section.id]: '' }));
                             }}
-                            className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                            className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 hover:bg-red-200 transition-colors"
                           >
-                            Remove Image
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
