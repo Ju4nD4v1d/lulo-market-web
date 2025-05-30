@@ -43,7 +43,11 @@ export const StoreSetup = () => {
       Saturday: { open: '10:00', close: '16:00', closed: false },
       Sunday: { open: '10:00', close: '16:00', closed: true }
     },
-    aboutSections: [{ id: '1', title: '', description: '' }]
+    aboutSections: [
+      { id: '1', title: '', description: '', image: undefined, imageUrl: '', imagePreview: '' },
+      { id: '2', title: '', description: '', image: undefined, imageUrl: '', imagePreview: '' },
+      { id: '3', title: '', description: '', image: undefined, imageUrl: '', imagePreview: '' }
+    ]
   });
 
   // Load existing store data
@@ -73,25 +77,25 @@ export const StoreSetup = () => {
             {
               id: '1',
               title: storeData.titleTabAboutFirst || '',
-              description: storeData.bodyTabAboutFirst || ''
-            }
-          ];
-
-          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
-            aboutSections.push({
+              description: storeData.bodyTabAboutFirst || '',
+              imageUrl: storeData.imageTabAboutFirst || '',
+              imagePreview: storeData.imageTabAboutFirst || ''
+            },
+            {
               id: '2',
               title: storeData.titleTabAboutSecond || '',
-              description: storeData.bodyTabAboutSecond || ''
-            });
-          }
-
-          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
-            aboutSections.push({
+              description: storeData.bodyTabAboutSecond || '',
+              imageUrl: storeData.imageTabAboutSecond || '',
+              imagePreview: storeData.imageTabAboutSecond || ''
+            },
+            {
               id: '3',
               title: storeData.titleTabAboutThird || '',
-              description: storeData.bodyTabAboutThird || ''
-            });
-          }
+              description: storeData.bodyTabAboutThird || '',
+              imageUrl: storeData.imageTabAboutThird || '',
+              imagePreview: storeData.imageTabAboutThird || ''
+            }
+          ];
 
           // Set form data with all fields
           setFormData(prev => ({
@@ -158,6 +162,15 @@ export const StoreSetup = () => {
     return getDownloadURL(storageRef);
   };
 
+  const uploadAboutImage = async (file: File, index: number): Promise<string> => {
+    if (!currentUser) throw new Error('No user authenticated');
+
+    const filename = `imageTabAbout${['First', 'Second', 'Third'][index]}.jpg`;
+    const storageRef = ref(storage, `stores/${currentUser.uid}/${filename}`);
+    await uploadBytes(storageRef, file);
+    return getDownloadURL(storageRef);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
@@ -171,6 +184,17 @@ export const StoreSetup = () => {
       if (storeImage.file) {
         storeImageUrl = await uploadStoreImage();
       }
+
+      // Upload about section images and get their URLs
+      const aboutSectionPromises = formData.aboutSections.map(async (section, index) => {
+        if (section.image) {
+          const imageUrl = await uploadAboutImage(section.image, index);
+          return { ...section, imageUrl };
+        }
+        return section;
+      });
+
+      const updatedAboutSections = await Promise.all(aboutSectionPromises);
 
       // Geocode the address
       const geocoder = new google.maps.Geocoder();
@@ -194,12 +218,15 @@ export const StoreSetup = () => {
         phone: formData.phone,
         website: formData.website,
         storeBusinessHours: formData.businessHours,
-        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
-        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
-        titleTabAboutThird: formData.aboutSections[2]?.title || '',
-        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
+        titleTabAboutFirst: updatedAboutSections[0]?.title || '',
+        bodyTabAboutFirst: updatedAboutSections[0]?.description || '',
+        imageTabAboutFirst: updatedAboutSections[0]?.imageUrl || updatedAboutSections[0]?.imagePreview || '',
+        titleTabAboutSecond: updatedAboutSections[1]?.title || '',
+        bodyTabAboutSecond: updatedAboutSections[1]?.description || '',
+        imageTabAboutSecond: updatedAboutSections[1]?.imageUrl || updatedAboutSections[1]?.imagePreview || '',
+        titleTabAboutThird: updatedAboutSections[2]?.title || '',
+        bodyTabAboutThird: updatedAboutSections[2]?.description || '',
+        imageTabAboutThird: updatedAboutSections[2]?.imageUrl || updatedAboutSections[2]?.imagePreview || '',
         ownerId: currentUser.uid,
         createdAt: new Date(),
         storeImage: storeImageUrl
@@ -254,24 +281,16 @@ export const StoreSetup = () => {
       setFormData(prev => ({
         ...prev,
         aboutSections: prev.aboutSections.map(s =>
-          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
+          s.id === sectionId ? { 
+            ...s, 
+            image: file,
+            imagePreview: e.target?.result as string 
+          } : s
         )
       }));
     };
     reader.readAsDataURL(file);
     setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-  };
-
-  const addSection = () => {
-    if (formData.aboutSections.length < 3) {
-      setFormData(prev => ({
-        ...prev,
-        aboutSections: [
-          ...prev.aboutSections,
-          { id: String(prev.aboutSections.length + 1), title: '', description: '' }
-        ]
-      }));
-    }
   };
 
   const handleConfirmation = () => {
@@ -529,7 +548,7 @@ export const StoreSetup = () => {
               </p>
             </div>
 
-            {formData.aboutSections.map((section) => (
+            {formData.aboutSections.map((section, index) => (
               <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
                 <div className="space-y-4">
                   <div>
@@ -595,7 +614,7 @@ export const StoreSetup = () => {
                             onClick={() => setFormData(prev => ({
                               ...prev,
                               aboutSections: prev.aboutSections.map(s =>
-                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                                s.id === section.id ? { ...s, image: undefined, imagePreview: '', imageUrl: '' } : s
                               )
                             }))}
                             className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
@@ -635,16 +654,6 @@ export const StoreSetup = () => {
                 </div>
               </div>
             ))}
-
-            {formData.aboutSections.length < 3 && (
-              <button
-                type="button"
-                onClick={addSection}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                + Add Another Section
-              </button>
-            )}
           </div>
         </FormSection>
 
