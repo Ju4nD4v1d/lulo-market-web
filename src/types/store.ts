@@ -6,11 +6,22 @@ export interface AboutUsSection {
   imagePreview?: string;
 }
 
+export interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface StoreLocation {
+  address: string;
+  coordinates: Coordinates;
+  placeId?: string;
+}
+
 export interface StoreData {
   id: string;
   name: string;
   description?: string;
-  address?: string;
+  location?: StoreLocation;
   phone?: string;
   website?: string;
   instagram?: string;
