@@ -170,7 +170,6 @@ export const StoreSetup = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full"
                 placeholder="Enter your store name"
-                required
               />
             </div>
 
@@ -184,7 +183,6 @@ export const StoreSetup = () => {
                 rows={4}
                 className="w-full"
                 placeholder="Describe your store"
-                required
               />
             </div>
           </div>
@@ -204,7 +202,6 @@ export const StoreSetup = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                   className="w-full pl-10"
                   placeholder="Enter your store address"
-                  required
                 />
               </div>
             </div>
@@ -221,7 +218,6 @@ export const StoreSetup = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                   className="w-full pl-10"
                   placeholder="Enter your phone number"
-                  required
                 />
               </div>
             </div>
@@ -330,7 +326,6 @@ export const StoreSetup = () => {
                       }))}
                       className="w-full"
                       placeholder="Enter a title for this section"
-                      required
                     />
                   </div>
 
@@ -349,7 +344,6 @@ export const StoreSetup = () => {
                       rows={4}
                       className="w-full"
                       placeholder="Tell your story..."
-                      required
                     />
                   </div>
 
