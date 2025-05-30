@@ -178,7 +178,7 @@ export const StoreSetup = () => {
       if (!currentUser) return;
 
       try {
-        const storesRef = collection(db, 'stores');
+        const storesRef = collection(db, 'Stores'); // Updated collection name
         const storeDoc = doc(storesRef, currentUser.uid);
         const storeSnapshot = await getDoc(storeDoc);
 
@@ -410,24 +410,6 @@ export const StoreSetup = () => {
     }
   };
 
-  const addAboutUsSection = () => {
-    if (aboutUsSections.length < 3) {
-      setAboutUsSections(prev => [
-        ...prev,
-        { id: String(prev.length + 1), title: '', description: '' }
-      ]);
-    }
-  };
-
-  const removeAboutUsSection = (id: string) => {
-    setAboutUsSections(prev => prev.filter(section => section.id !== id));
-    setImageErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[id];
-      return newErrors;
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -468,7 +450,7 @@ export const StoreSetup = () => {
         ownerId: currentUser.uid
       };
 
-      const storesRef = collection(db, 'stores');
+      const storesRef = collection(db, 'Stores'); // Updated collection name
       const storeDoc = doc(storesRef, currentUser.uid);
 
       await setDoc(storeDoc, storeData, { merge: true });
@@ -752,32 +734,8 @@ export const StoreSetup = () => {
               </p>
             </div>
 
-            <div className="flex items-center justify-between">
-              {aboutUsSections.length < 3 && (
-                <button
-                  type="button"
-                  onClick={addAboutUsSection}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  + Add Another Section
-                </button>
-              )}
-            </div>
-
-            {aboutUsSections.map((section, index) => (
+            {formData.aboutSections.map((section, index) => (
               <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
-                {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => removeAboutUsSection(section.id)}
-                    className="absolute -top-2 -right-2 text-red-600 hover:text-red-700"
-                  >
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
-                )}
-
                 <div className="space-y-4">
                   <div>
                     <label htmlFor={`title-${section.id}`} className="block text-sm font-medium text-gray-700 mb-1">
@@ -787,9 +745,12 @@ export const StoreSetup = () => {
                       type="text"
                       id={`title-${section.id}`}
                       value={section.title}
-                      onChange={(e) => setAboutUsSections(prev => prev.map(s => 
-                        s.id === section.id ? { ...s, title: e.target.value } : s
-                      ))}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        aboutSections: prev.aboutSections.map(s =>
+                          s.id === section.id ? { ...s, title: e.target.value } : s
+                        )
+                      }))}
                       className="w-full"
                       placeholder="Enter a title for this section"
                     />
@@ -802,84 +763,16 @@ export const StoreSetup = () => {
                     <textarea
                       id={`description-${section.id}`}
                       value={section.description}
-                      onChange={(e) => setAboutUsSections(prev => prev.map(s => 
-                        s.id === section.id ? { ...s, description: e.target.value } : s
-                      ))}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        aboutSections: prev.aboutSections.map(s =>
+                          s.id === section.id ? { ...s, description: e.target.value } : s
+                        )
+                      }))}
                       rows={4}
                       className="w-full"
                       placeholder="Tell your story..."
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image
-                    </label>
-                    <div
-                      className={`
-                        border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
-                        hover:border-primary-400 transition-colors duration-200
-                        flex flex-col items-center justify-center
-                        cursor-pointer
-                      `}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, section.id)}
-                    >
-                      {section.imagePreview ? (
-                        <div className="relative">
-                          <img
-                            src={section.imagePreview}
-                            alt="Preview"
-                            className="max-h-48 mx-auto rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAboutUsSections(prev => prev.map(s => 
-                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
-                              ));
-                              setImageErrors(prev => ({ ...prev, [section.id]: '' }));
-                            }}
-                            className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 hover:bg-red-200 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                          <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <label
-                                htmlFor={`about-image-${section.id}`}
-                                className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500"
-                              >
-                                <span>Upload a file</span>
-                                <input
-                                  id={`about-image-${section.id}`}
-                                  name={`about-image-${section.id}`}
-                                  type="file"
-                                  className="sr-only"
-                                  accept="image/*"
-                                  onChange={(e) => handleImageChange(e, section.id)}
-                                />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="mt-2 text-xs text-gray-500">
-                              PNG, JPG, GIF
-                              <span className="font-semibold text-gray-600"> (max 1MB)</span>
-                            </p>
-                            {imageErrors[section.id] && (
-                              <p className="mt-2 text-sm text-red-600">
-                                {imageErrors[section.id]}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
