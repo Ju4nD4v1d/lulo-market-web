@@ -19,14 +19,25 @@ import { useAuth } from '../context/AuthContext';
 import { SaveProgressModal } from './SaveProgressModal';
 
 const defaultBusinessHours = {
+  Sunday: { open: "", close: "", closed: true },
   Monday: { open: "", close: "", closed: true },
   Tuesday: { open: "", close: "", closed: true },
   Wednesday: { open: "", close: "", closed: true },
   Thursday: { open: "", close: "", closed: true },
   Friday: { open: "", close: "", closed: true },
-  Saturday: { open: "", close: "", closed: true },
-  Sunday: { open: "", close: "", closed: true }
+  Saturday: { open: "", close: "", closed: true }
 };
+
+// Order of days starting with Sunday
+const daysOrder = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday'
+];
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
@@ -50,7 +61,6 @@ export const StoreSetup = () => {
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
 
-  // Load existing store data
   useEffect(() => {
     const loadStoreData = async () => {
       if (!currentUser) return;
@@ -63,7 +73,6 @@ export const StoreSetup = () => {
         if (!querySnapshot.empty) {
           const storeData = querySnapshot.docs[0].data();
           
-          // Set store image if exists
           if (storeData.storeImage) {
             setStoreImage(prev => ({
               ...prev,
@@ -75,32 +84,6 @@ export const StoreSetup = () => {
           // Map business hours from Firestore
           const businessHours = storeData.storeBusinessHours || defaultBusinessHours;
 
-          // Map About Us sections from Firestore fields
-          const aboutSections = [
-            {
-              id: '1',
-              title: storeData.titleTabAboutFirst || '',
-              description: storeData.bodyTabAboutFirst || ''
-            }
-          ];
-
-          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
-            aboutSections.push({
-              id: '2',
-              title: storeData.titleTabAboutSecond || '',
-              description: storeData.bodyTabAboutSecond || ''
-            });
-          }
-
-          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
-            aboutSections.push({
-              id: '3',
-              title: storeData.titleTabAboutThird || '',
-              description: storeData.bodyTabAboutThird || ''
-            });
-          }
-
-          // Set form data with all fields
           setFormData(prev => ({
             ...prev,
             businessHours,
@@ -108,8 +91,7 @@ export const StoreSetup = () => {
             description: storeData.description || '',
             address: storeData.address || '',
             phone: storeData.phone || '',
-            website: storeData.website || '',
-            aboutSections
+            website: storeData.website || ''
           }));
         }
       } catch (err) {
@@ -155,14 +137,6 @@ export const StoreSetup = () => {
     };
     reader.readAsDataURL(file);
     setImageErrors(prev => ({ ...prev, storeImage: '' }));
-  };
-
-  const uploadStoreImage = async (): Promise<string | null> => {
-    if (!storeImage.file || !currentUser) return null;
-
-    const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
-    await uploadBytes(storageRef, storeImage.file);
-    return getDownloadURL(storageRef);
   };
 
   const simulateProgress = async () => {
@@ -214,12 +188,6 @@ export const StoreSetup = () => {
         phone: formData.phone,
         website: formData.website,
         storeBusinessHours: formData.businessHours,
-        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
-        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
-        titleTabAboutThird: formData.aboutSections[2]?.title || '',
-        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
         ownerId: currentUser.uid,
         createdAt: new Date(),
         storeImage: storeImageUrl
@@ -421,7 +389,7 @@ export const StoreSetup = () => {
 
         <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-4">
-            {Object.entries(formData.businessHours).map(([day, hours]) => (
+            {daysOrder.map((day) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
                   <span className="text-sm font-medium text-gray-700">
@@ -431,35 +399,35 @@ export const StoreSetup = () => {
                 <div className="flex-1 flex items-center space-x-4">
                   <input
                     type="time"
-                    value={hours.open}
+                    value={formData.businessHours[day].open}
                     onChange={(e) => setFormData({
                       ...formData,
                       businessHours: {
                         ...formData.businessHours,
-                        [day]: { ...hours, open: e.target.value }
+                        [day]: { ...formData.businessHours[day], open: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={hours.closed}
+                    disabled={formData.businessHours[day].closed}
                   />
                   <span className="text-gray-500">to</span>
                   <input
                     type="time"
-                    value={hours.close}
+                    value={formData.businessHours[day].close}
                     onChange={(e) => setFormData({
                       ...formData,
                       businessHours: {
                         ...formData.businessHours,
-                        [day]: { ...hours, close: e.target.value }
+                        [day]: { ...formData.businessHours[day], close: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={hours.closed}
+                    disabled={formData.businessHours[day].closed}
                   />
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      checked={hours.closed}
+                      checked={formData.businessHours[day].closed}
                       onChange={(e) => setFormData({
                         ...formData,
                         businessHours: {
