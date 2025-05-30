@@ -9,7 +9,8 @@ import {
   Phone,
   Globe,
   Clock,
-  Building2
+  Building2,
+  AlertCircle
 } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
@@ -38,12 +39,30 @@ const daysOrder = [
   'Saturday'
 ];
 
+interface ValidationErrors {
+  name?: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  storeImage?: string;
+  businessHours?: string;
+  aboutSections?: {
+    [key: string]: {
+      title?: string;
+      description?: string;
+      image?: string;
+    };
+  };
+}
+
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
   const [storeImage, setStoreImage] = useState<{
     file?: File;
@@ -107,7 +126,6 @@ export const StoreSetup = () => {
             });
           }
 
-          // Map business hours from Firestore
           const businessHours = storeData.storeBusinessHours || defaultBusinessHours;
 
           setFormData(prev => ({
@@ -128,6 +146,57 @@ export const StoreSetup = () => {
 
     loadStoreData();
   }, [currentUser]);
+
+  const validateForm = (): boolean => {
+    const errors: ValidationErrors = {};
+
+    // Validate basic information
+    if (!formData.name.trim()) {
+      errors.name = 'Store name is required';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Store description is required';
+    }
+
+    if (!formData.address.trim()) {
+      errors.address = 'Store address is required';
+    }
+
+    if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
+      errors.phone = 'Invalid phone number format';
+    }
+
+    if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
+      errors.website = 'Invalid website URL format';
+    }
+
+    // Validate business hours
+    const hasOpenDay = Object.values(formData.businessHours).some(day => !day.closed);
+    if (!hasOpenDay) {
+      errors.businessHours = 'At least one day must be open for business';
+    }
+
+    // Validate about sections
+    errors.aboutSections = {};
+    formData.aboutSections.forEach((section, index) => {
+      const sectionErrors: { title?: string; description?: string } = {};
+      
+      if (!section.title.trim()) {
+        sectionErrors.title = 'Section title is required';
+      }
+      if (!section.description.trim()) {
+        sectionErrors.description = 'Section description is required';
+      }
+
+      if (Object.keys(sectionErrors).length > 0) {
+        errors.aboutSections[section.id] = sectionErrors;
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -184,20 +253,33 @@ export const StoreSetup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    setError(null);
+    setValidationErrors({});
+
+    if (!validateForm()) {
+      setError('Please fix the validation errors before saving');
+      return;
+    }
 
     setSaving(true);
-    setError(null);
 
     try {
       setSaveStep('saving');
 
       // Geocode the address
       const geocoder = new google.maps.Geocoder();
-      const geocodeResult = await geocoder.geocode({ address: formData.address });
+      let geocodeResult;
       
-      if (!geocodeResult.results[0]) {
-        throw new Error('Invalid address. Please enter a valid address.');
+      try {
+        geocodeResult = await geocoder.geocode({ address: formData.address });
+        
+        if (!geocodeResult.results[0]) {
+          throw new Error('Invalid address');
+        }
+      } catch (error) {
+        setError('Failed to validate address. Please enter a valid address.');
+        setSaving(false);
+        return;
       }
 
       const location = geocodeResult.results[0].geometry.location;
@@ -232,14 +314,27 @@ export const StoreSetup = () => {
       // Upload store image
       let storeImageUrl = storeImage.url;
       if (storeImage.file) {
-        storeImageUrl = await uploadStoreImage(storeId);
+        try {
+          storeImageUrl = await uploadStoreImage(storeId);
+        } catch (error) {
+          setError('Failed to upload store image. Please try again.');
+          setSaving(false);
+          return;
+        }
       }
 
       // Upload section images
-      const sectionImagePromises = formData.aboutSections.map((section, index) => 
-        uploadSectionImage(storeId, section, index)
-      );
-      const sectionImageUrls = await Promise.all(sectionImagePromises);
+      let sectionImageUrls;
+      try {
+        const sectionImagePromises = formData.aboutSections.map((section, index) => 
+          uploadSectionImage(storeId, section, index)
+        );
+        sectionImageUrls = await Promise.all(sectionImagePromises);
+      } catch (error) {
+        setError('Failed to upload section images. Please try again.');
+        setSaving(false);
+        return;
+      }
 
       setSaveStep('finalizing');
 
@@ -347,8 +442,9 @@ export const StoreSetup = () => {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-700">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
+          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+          <p>{error}</p>
         </div>
       )}
 
@@ -413,6 +509,11 @@ export const StoreSetup = () => {
                   </p>
                 )}
               </div>
+              {validationErrors.storeImage && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.storeImage}
+                </p>
+              )}
             </div>
 
             <div>
@@ -423,9 +524,14 @@ export const StoreSetup = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full"
+                className={`w-full ${validationErrors.name ? 'border-red-300' : ''}`}
                 placeholder="Enter your store name"
               />
+              {validationErrors.name && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.name}
+                </p>
+              )}
             </div>
 
             <div>
@@ -436,9 +542,14 @@ export const StoreSetup = () => {
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
-                className="w-full"
+                className={`w-full ${validationErrors.description ? 'border-red-300' : ''}`}
                 placeholder="Describe your store"
               />
+              {validationErrors.description && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.description}
+                </p>
+              )}
             </div>
           </div>
         </FormSection>
@@ -455,10 +566,15 @@ export const StoreSetup = () => {
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full pl-10"
+                  className={`w-full pl-10 ${validationErrors.address ? 'border-red-300' : ''}`}
                   placeholder="Enter your store address"
                 />
               </div>
+              {validationErrors.address && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.address}
+                </p>
+              )}
             </div>
 
             <div>
@@ -471,10 +587,15 @@ export const StoreSetup = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full pl-10"
+                  className={`w-full pl-10 ${validationErrors.phone ? 'border-red-300' : ''}`}
                   placeholder="Enter your phone number"
                 />
               </div>
+              {validationErrors.phone && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.phone}
+                </p>
+              )}
             </div>
 
             <div>
@@ -487,16 +608,26 @@ export const StoreSetup = () => {
                   type="url"
                   value={formData.website}
                   onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                  className="w-full pl-10"
+                  className={`w-full pl-10 ${validationErrors.website ? 'border-red-300' : ''}`}
                   placeholder="Enter your website URL"
                 />
               </div>
+              {validationErrors.website && (
+                <p className="mt-2 text-sm text-red-600">
+                  {validationErrors.website}
+                </p>
+              )}
             </div>
           </div>
         </FormSection>
 
         <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-4">
+            {validationErrors.businessHours && (
+              <div className="p-4 bg-red-50 rounded-lg text-red-700 mb-4">
+                {validationErrors.businessHours}
+              </div>
+            )}
             {daysOrder.map((day) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
@@ -583,9 +714,14 @@ export const StoreSetup = () => {
                           s.id === section.id ? { ...s, title: e.target.value } : s
                         )
                       }))}
-                      className="w-full"
+                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.title ? 'border-red-300' : ''}`}
                       placeholder="Enter a title for this section"
                     />
+                    {validationErrors.aboutSections?.[section.id]?.title && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {validationErrors.aboutSections[section.id].title}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -601,9 +737,14 @@ export const StoreSetup = () => {
                         )
                       }))}
                       rows={4}
-                      className="w-full"
+                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.description ? 'border-red-300' : ''}`}
                       placeholder="Tell your story..."
                     />
+                    {validationErrors.aboutSections?.[section.id]?.description && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {validationErrors.aboutSections[section.id].description}
+                      </p>
+                    )}
                   </div>
 
                   <div>
