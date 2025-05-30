@@ -16,10 +16,22 @@ import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } f
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { SaveProgressModal } from './SaveProgressModal';
+
+const defaultBusinessHours = {
+  Monday: { open: "", close: "", closed: true },
+  Tuesday: { open: "", close: "", closed: true },
+  Wednesday: { open: "", close: "", closed: true },
+  Thursday: { open: "", close: "", closed: true },
+  Friday: { open: "", close: "", closed: true },
+  Saturday: { open: "", close: "", closed: true },
+  Sunday: { open: "", close: "", closed: true }
+};
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
@@ -34,15 +46,7 @@ export const StoreSetup = () => {
     address: '',
     phone: '',
     website: '',
-    businessHours: {
-      Monday: { open: '09:00', close: '18:00', closed: false },
-      Tuesday: { open: '09:00', close: '18:00', closed: false },
-      Wednesday: { open: '09:00', close: '18:00', closed: false },
-      Thursday: { open: '09:00', close: '18:00', closed: false },
-      Friday: { open: '09:00', close: '18:00', closed: false },
-      Saturday: { open: '10:00', close: '16:00', closed: false },
-      Sunday: { open: '10:00', close: '16:00', closed: true }
-    },
+    businessHours: defaultBusinessHours,
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
 
@@ -69,7 +73,7 @@ export const StoreSetup = () => {
           }
 
           // Map business hours from Firestore
-          const businessHours = storeData.storeBusinessHours || formData.businessHours;
+          const businessHours = storeData.storeBusinessHours || defaultBusinessHours;
 
           // Map About Us sections from Firestore fields
           const aboutSections = [
@@ -161,6 +165,17 @@ export const StoreSetup = () => {
     return getDownloadURL(storageRef);
   };
 
+  const simulateProgress = async () => {
+    setSaving(true);
+    setSaveStep('saving');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSaveStep('uploading');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSaveStep('finalizing');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSaveStep('complete');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
@@ -169,6 +184,8 @@ export const StoreSetup = () => {
     setError(null);
 
     try {
+      await simulateProgress();
+
       // Upload store image if exists
       let storeImageUrl = storeImage.url;
       if (storeImage.file) {
@@ -225,55 +242,7 @@ export const StoreSetup = () => {
     } catch (error) {
       console.error('Error saving store:', error);
       setError(error instanceof Error ? error.message : 'Failed to save store information');
-    } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent, sectionId: string) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleImageValidation(file, sectionId);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImageValidation(file, sectionId);
-    }
-  };
-
-  const handleImageValidation = (file: File, sectionId: string) => {
-    if (file.size > 1024 * 1024) {
-      setImageErrors(prev => ({
-        ...prev,
-        [sectionId]: 'File size must be less than 1MB'
-      }));
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setFormData(prev => ({
-        ...prev,
-        aboutSections: prev.aboutSections.map(s =>
-          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
-        )
-      }));
-    };
-    reader.readAsDataURL(file);
-    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-  };
-
-  const addSection = () => {
-    if (formData.aboutSections.length < 3) {
-      setFormData(prev => ({
-        ...prev,
-        aboutSections: [
-          ...prev.aboutSections,
-          { id: String(prev.aboutSections.length + 1), title: '', description: '' }
-        ]
-      }));
     }
   };
 
@@ -283,25 +252,11 @@ export const StoreSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Store Created Successfully!
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Your store has been created and saved. You can now start adding products to your store.
-            </p>
-            <button
-              onClick={handleConfirmation}
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
-                hover:bg-primary-700 transition-colors"
-            >
-              Continue to Products
-            </button>
-          </div>
-        </div>
-      )}
+      <SaveProgressModal
+        isOpen={saving}
+        currentStep={saveStep}
+        onComplete={handleConfirmation}
+      />
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
         <div className="flex items-center space-x-4">
@@ -509,7 +464,11 @@ export const StoreSetup = () => {
                         ...formData,
                         businessHours: {
                           ...formData.businessHours,
-                          [day]: { ...hours, closed: e.target.checked }
+                          [day]: { 
+                            open: e.target.checked ? "" : "09:00",
+                            close: e.target.checked ? "" : "18:00",
+                            closed: e.target.checked 
+                          }
                         }
                       })}
                       className="rounded border-gray-300"
@@ -519,135 +478,6 @@ export const StoreSetup = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </FormSection>
-
-        <FormSection title="About Us" icon={Store}>
-          <div className="space-y-8">
-            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
-              <p className="text-sm text-primary-800">
-                <InfoIcon className="w-5 h-5 inline-block mr-2" />
-                These sections will be prominently featured in your store profile. 
-                A compelling story helps attract customers and builds trust.
-              </p>
-            </div>
-
-            {formData.aboutSections.map((section) => (
-              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Section Title
-                    </label>
-                    <input
-                      type="text"
-                      value={section.title}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, title: e.target.value } : s
-                        )
-                      }))}
-                      className="w-full"
-                      placeholder="Enter a title for this section"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={section.description}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, description: e.target.value } : s
-                        )
-                      }))}
-                      rows={4}
-                      className="w-full"
-                      placeholder="Tell your story..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image
-                    </label>
-                    <div
-                      className={`
-                        border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
-                        hover:border-primary-400 transition-colors duration-200
-                        flex flex-col items-center justify-center
-                        cursor-pointer
-                      `}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, section.id)}
-                    >
-                      {section.imagePreview ? (
-                        <div className="relative w-full">
-                          <img
-                            src={section.imagePreview}
-                            alt="Preview"
-                            className="max-h-48 mx-auto rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({
-                              ...prev,
-                              aboutSections: prev.aboutSections.map(s =>
-                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
-                              )
-                            }))}
-                            className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                          <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                                <span>Upload a file</span>
-                                <input
-                                  type="file"
-                                  className="sr-only"
-                                  accept="image/*"
-                                  onChange={(e) => handleImageChange(e, section.id)}
-                                />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                              PNG, JPG, GIF up to 1MB
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {imageErrors[section.id] && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {imageErrors[section.id]}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {formData.aboutSections.length < 3 && (
-              <button
-                type="button"
-                onClick={addSection}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                + Add Another Section
-              </button>
-            )}
           </div>
         </FormSection>
 
