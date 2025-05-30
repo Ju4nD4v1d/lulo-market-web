@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X, Store } from 'lucide-react';
 import { FormSection } from './FormSection';
 
 export const StoreSetup = () => {
@@ -63,7 +63,7 @@ export const StoreSetup = () => {
           setSaving(false);
         }, 1500);
       }}>
-        <FormSection title="About Sections">
+        <FormSection title="About Sections" icon={Store}>
           <div className="space-y-8">
             {formData.aboutSections.map((section) => (
               <div key={section.id} className="bg-white p-6 rounded-lg shadow-sm">
