@@ -10,7 +10,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { DollarSign, ShoppingBag, TrendingUp, Users } from 'lucide-react';
+import { DollarSign, ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
 
 const mockData = {
   dailyRevenue: [
