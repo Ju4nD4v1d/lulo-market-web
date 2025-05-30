@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Store, 
   Upload,
@@ -19,9 +19,9 @@ import { useAuth } from '../context/AuthContext';
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
@@ -43,29 +43,6 @@ export const StoreSetup = () => {
     },
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
-
-  useEffect(() => {
-    const geocodeAddress = async () => {
-      if (formData.address) {
-        try {
-          const geocoder = new google.maps.Geocoder();
-          const result = await geocoder.geocode({ address: formData.address });
-          
-          if (result.results[0]) {
-            const location = result.results[0].geometry.location;
-            setCoordinates({
-              lat: location.lat(),
-              lng: location.lng()
-            });
-          }
-        } catch (error) {
-          console.error('Geocoding error:', error);
-        }
-      }
-    };
-
-    geocodeAddress();
-  }, [formData.address]);
 
   const formatBusinessHours = () => {
     const schedule: string[] = [];
@@ -151,10 +128,26 @@ export const StoreSetup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser || !coordinates) return;
+    if (!currentUser) return;
 
     setSaving(true);
+    setError(null);
+
     try {
+      // Geocode the address
+      const geocoder = new google.maps.Geocoder();
+      const geocodeResult = await geocoder.geocode({ address: formData.address });
+      
+      if (!geocodeResult.results[0]) {
+        throw new Error('Invalid address. Please enter a valid address.');
+      }
+
+      const location = geocodeResult.results[0].geometry.location;
+      const coordinates = {
+        lat: location.lat(),
+        lng: location.lng()
+      };
+
       const storeData = {
         name: formData.name,
         details: formData.description,
@@ -174,13 +167,17 @@ export const StoreSetup = () => {
       };
 
       await addDoc(collection(db, 'stores'), storeData);
-      setSuccess(true);
+      setShowConfirmation(true);
     } catch (error) {
       console.error('Error saving store:', error);
-      setImageErrors({ general: 'Failed to save store information' });
+      setError(error instanceof Error ? error.message : 'Failed to save store information');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleConfirmation = () => {
+    window.location.hash = '#dashboard/products';
   };
 
   const addSection = () => {
@@ -197,6 +194,26 @@ export const StoreSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Store Created Successfully!
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Your store has been created and saved. You can now start adding products to your store.
+            </p>
+            <button
+              onClick={handleConfirmation}
+              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
+                hover:bg-primary-700 transition-colors"
+            >
+              Continue to Products
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
         <div className="flex items-center space-x-4">
           <div className="bg-primary-50 p-3 rounded-lg">
@@ -208,6 +225,12 @@ export const StoreSetup = () => {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-700">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="Basic Information" icon={Store}>
@@ -538,18 +561,6 @@ export const StoreSetup = () => {
             )}
           </div>
         </FormSection>
-
-        {imageErrors.general && (
-          <div className="p-4 bg-red-50 rounded-lg text-red-700">
-            {imageErrors.general}
-          </div>
-        )}
-
-        {success && (
-          <div className="p-4 bg-green-50 rounded-lg text-green-700">
-            Store information saved successfully!
-          </div>
-        )}
 
         <div className="flex justify-end">
           <button
