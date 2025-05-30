@@ -11,7 +11,8 @@ import {
   Clock,
   Building2,
   BookOpen,
-  Info as InfoIcon
+  Info as InfoIcon,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -74,6 +75,8 @@ export const StoreSetup = () => {
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
     { id: '1', title: '', description: '' }
   ]);
+  const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string }>({});
+  const [storeImageError, setStoreImageError] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -205,6 +208,51 @@ export const StoreSetup = () => {
     }
   };
 
+  const handleStoreImageDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setStoreImageError('');
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setStoreImageError(error);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStoreImage({
+          file,
+          preview: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const handleStoreImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStoreImageError('');
+    const file = e.target.files?.[0];
+    if (file) {
+      const error = validateImage(file);
+      if (error) {
+        setStoreImageError(error);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStoreImage({
+          file,
+          preview: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const addAboutUsSection = () => {
     if (aboutUsSections.length < 3) {
       setAboutUsSections(prev => [
@@ -283,7 +331,66 @@ export const StoreSetup = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="Basic Information" icon={Building2}>
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Image
+              </label>
+              <div
+                className={`
+                  border-2 border-dashed rounded-lg p-8
+                  ${storeImage.preview ? 'border-primary-300' : storeImageError ? 'border-red-300' : 'border-gray-300'}
+                  hover:border-primary-400 transition-colors duration-200
+                  bg-white/50 backdrop-blur-sm
+                `}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleStoreImageDrop}
+              >
+                {storeImage.preview ? (
+                  <div className="relative">
+                    <img
+                      src={storeImage.preview}
+                      alt="Store preview"
+                      className="max-h-48 mx-auto rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setStoreImage({})}
+                      className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 hover:bg-red-200 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4">
+                      <label className="relative cursor-pointer">
+                        <span className="rounded-md font-medium text-primary-600 hover:text-primary-500">
+                          Upload a file
+                        </span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={handleStoreImageChange}
+                        />
+                      </label>
+                      <p className="pl-1 inline-block">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      PNG, JPG, GIF up to 1MB
+                    </p>
+                  </div>
+                )}
+                {storeImageError && (
+                  <p className="mt-2 text-sm text-red-600 text-center">
+                    {storeImageError}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Store Name
