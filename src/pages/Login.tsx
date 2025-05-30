@@ -18,7 +18,6 @@ export const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Redirect if user is already logged in
     if (currentUser) {
       window.location.hash = '#dashboard';
     }
@@ -48,7 +47,6 @@ export const Login = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Column - Image */}
       <div className="hidden lg:block w-1/2 relative">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -68,9 +66,7 @@ export const Login = () => {
         </div>
       </div>
 
-      {/* Right Column - Form */}
       <div className="w-full lg:w-1/2 bg-white flex flex-col">
-        {/* Back Button */}
         <a 
           href="#" 
           className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
@@ -81,7 +77,6 @@ export const Login = () => {
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
           <div className="w-full max-w-md">
-            {/* Welcome Text */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
                 {t('auth.welcomeMessage')} {COMPANY_NAME}
@@ -91,7 +86,6 @@ export const Login = () => {
               </p>
             </div>
 
-            {/* Auth Mode Tabs */}
             <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setMode('login')}
@@ -115,7 +109,6 @@ export const Login = () => {
               </button>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
                 <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -123,7 +116,6 @@ export const Login = () => {
               </div>
             )}
 
-            {/* Success Message */}
             {success && (
               <div className="mb-6 p-4 bg-green-50 rounded-lg flex items-center text-green-700">
                 <CheckCircle2 className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -132,7 +124,6 @@ export const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.email')}
@@ -146,16 +137,13 @@ export const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg
-                      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                      placeholder-gray-400 text-gray-900"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                     placeholder={t('auth.emailPlaceholder')}
                     required
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.password')}
@@ -169,23 +157,20 @@ export const Login = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg
-                      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                      placeholder-gray-400 text-gray-900"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                     placeholder={t('auth.passwordPlaceholder')}
                     required
                   />
                 </div>
               </div>
 
-              {/* Additional Links */}
               {mode === 'login' && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <input
                       id="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                      className="h-4 w-4 border-gray-300 rounded"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                       {t('auth.rememberMe')}
@@ -197,7 +182,6 @@ export const Login = () => {
                 </div>
               )}
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -210,7 +194,6 @@ export const Login = () => {
                 {isLoading ? t('auth.loading') : mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
               </button>
 
-              {/* Trust Message */}
               <p className="text-center text-sm text-gray-600 mt-4">
                 {t('auth.trustMessage')}
               </p>

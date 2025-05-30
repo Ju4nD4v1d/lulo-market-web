@@ -11,14 +11,12 @@ export const ForgotPassword = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for password reset logic
     setError('');
     setSuccess('If an account exists with this email, you will receive password reset instructions.');
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Column - Image */}
       <div className="hidden lg:block w-1/2 relative">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -38,9 +36,7 @@ export const ForgotPassword = () => {
         </div>
       </div>
 
-      {/* Right Column - Form */}
       <div className="w-full lg:w-1/2 bg-white flex flex-col">
-        {/* Back Button */}
         <a 
           href="#login" 
           className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
@@ -51,7 +47,6 @@ export const ForgotPassword = () => {
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
           <div className="w-full max-w-md">
-            {/* Welcome Text */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
                 Forgot your password?
@@ -61,7 +56,6 @@ export const ForgotPassword = () => {
               </p>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-6 p-4 bg-red-50 rounded-lg flex items-center text-red-700">
                 <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -69,7 +63,6 @@ export const ForgotPassword = () => {
               </div>
             )}
 
-            {/* Success Message */}
             {success && (
               <div className="mb-6 p-4 bg-green-50 rounded-lg flex items-center text-green-700">
                 <CheckCircle2 className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -78,7 +71,6 @@ export const ForgotPassword = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -92,16 +84,13 @@ export const ForgotPassword = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg
-                      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                      placeholder-gray-400 text-gray-900"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                     placeholder="Enter your email address"
                     required
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
@@ -112,7 +101,6 @@ export const ForgotPassword = () => {
                 Send Reset Instructions
               </button>
 
-              {/* Additional Info */}
               <p className="text-center text-sm text-gray-600 mt-4">
                 Remember your password? <a href="#login" className="text-primary-600 hover:text-primary-700 font-medium">Sign in</a>
               </p>
