@@ -13,11 +13,13 @@ import {
   Info as InfoIcon,
   X,
   Package,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { collection, doc, setDoc, getDoc, GeoPoint } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
 
 interface FormErrors {
   [key: string]: string;
@@ -45,16 +47,24 @@ interface StoreData {
   storeDeliverySchedule: string[];
   titleTabAboutFirst: string;
   bodyTabAboutFirst: string;
+  imageTabAboutFirst?: string;
   titleTabAboutSecond?: string;
   bodyTabAboutSecond?: string;
+  imageTabAboutSecond?: string;
   titleTabAboutThird?: string;
   bodyTabAboutThird?: string;
+  imageTabAboutThird?: string;
+  storeImage?: string;
   ownerId: string;
 }
 
 interface SuccessDialogProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface UploadProgress {
+  [key: string]: number;
 }
 
 const SuccessDialog: React.FC<SuccessDialogProps> = ({ isOpen, onClose }) => {
@@ -150,6 +160,7 @@ export const StoreSetup = () => {
   const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string }>({});
   const [storeImageError, setStoreImageError] = useState('');
   const [existingStoreId, setExistingStoreId] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
 
   const [formData, setFormData] = useState({
     name: '',
@@ -178,7 +189,7 @@ export const StoreSetup = () => {
       if (!currentUser) return;
 
       try {
-        const storesRef = collection(db, 'Stores'); // Updated collection name
+        const storesRef = collection(db, 'Stores');
         const storeDoc = doc(storesRef, currentUser.uid);
         const storeSnapshot = await getDoc(storeDoc);
 
@@ -186,16 +197,13 @@ export const StoreSetup = () => {
           const storeData = storeSnapshot.data();
           setExistingStoreId(storeSnapshot.id);
           
-          // Convert delivery schedule back to business hours
           const deliverySchedule = storeData.storeDeliverySchedule || [];
           const businessHours = { ...formData.businessHours };
           
-          // Reset all days to closed
           Object.keys(businessHours).forEach(day => {
             businessHours[day].closed = true;
           });
 
-          // Parse delivery schedule strings and update business hours
           deliverySchedule.forEach(schedule => {
             const [day, time] = schedule.split(' ');
             const [open, close] = time.split(' to ');
@@ -251,6 +259,48 @@ export const StoreSetup = () => {
 
     fetchExistingStore();
   }, [currentUser]);
+
+  const uploadImage = async (file: File, path: string): Promise<string> => {
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(prev => ({ ...prev, [path]: progress }));
+        },
+        (error) => {
+          console.error('Upload error:', error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            reject(error);
+          }
+        }
+      );
+    });
+  };
+
+  const handleImageUpload = async (file: File, section: string): Promise<string> => {
+    if (!currentUser) throw new Error('No user authenticated');
+    
+    const fileExtension = file.name.split('.').pop();
+    const path = `stores/${currentUser.uid}/${section}.${fileExtension}`;
+    
+    try {
+      const storageRef = ref(storage, path);
+      await deleteObject(storageRef);
+    } catch (error) {
+      // Ignore error if file doesn't exist
+    }
+
+    return uploadImage(file, path);
+  };
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -428,7 +478,6 @@ export const StoreSetup = () => {
     }
 
     try {
-      // Prepare delivery schedule
       const storeDeliverySchedule = Object.entries(formData.businessHours)
         .filter(([_, hours]) => !hours.closed)
         .map(([day, hours]) => `${day.charAt(0).toUpperCase() + day.slice(1)} ${hours.open} to ${hours.close}`);
@@ -450,7 +499,22 @@ export const StoreSetup = () => {
         ownerId: currentUser.uid
       };
 
-      const storesRef = collection(db, 'Stores'); // Updated collection name
+      if (storeImage.file) {
+        storeData.storeImage = await handleImageUpload(storeImage.file, 'storeImage');
+      }
+
+      for (let i = 0; i < formData.aboutSections.length; i++) {
+        const section = formData.aboutSections[i];
+        if (section.image) {
+          const imageUrl = await handleImageUpload(
+            section.image,
+            `imageTabAbout${i + 1}`
+          );
+          storeData[`imageTabAbout${i + 1}` as keyof StoreData] = imageUrl;
+        }
+      }
+
+      const storesRef = collection(db, 'Stores');
       const storeDoc = doc(storesRef, currentUser.uid);
 
       await setDoc(storeDoc, storeData, { merge: true });
@@ -461,6 +525,7 @@ export const StoreSetup = () => {
       setFormErrors({ submit: 'Failed to save store information' });
     } finally {
       setSaving(false);
+      setUploadProgress({});
     }
   };
 
@@ -778,6 +843,7 @@ export const StoreSetup = () => {
               </div>
             ))}
           </div>
+        
         </FormSection>
 
         <div className="flex justify-end">
@@ -812,6 +878,15 @@ export const StoreSetup = () => {
         isOpen={showSuccessDialog} 
         onClose={() => setShowSuccessDialog(false)} 
       />
+
+      {Object.entries(uploadProgress).map(([path, progress]) => (
+        <div key={path} className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg">
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm">Uploading: {Math.round(progress)}%</span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
