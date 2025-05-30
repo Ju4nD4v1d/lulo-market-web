@@ -18,6 +18,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import { SaveProgressModal } from './SaveProgressModal';
+import { ConfirmDialog } from './ConfirmDialog';
 
 const defaultBusinessHours = {
   Sunday: { open: "09:00", close: "18:00", closed: true },
@@ -61,6 +62,7 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
@@ -252,6 +254,13 @@ export const StoreSetup = () => {
       return;
     }
 
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSave = async () => {
+    if (!currentUser) return;
+    
+    setShowConfirmDialog(false);
     setSaving(true);
     setSaveStep('saving');
     setError(null);
@@ -426,6 +435,14 @@ export const StoreSetup = () => {
         isOpen={saving}
         currentStep={saveStep}
         onComplete={handleConfirmation}
+      />
+
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onConfirm={handleConfirmSave}
+        onCancel={() => setShowConfirmDialog(false)}
+        title="Save Store Changes"
+        message="Are you sure you want to save these changes to your store? This will update your store profile immediately."
       />
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
@@ -762,13 +779,13 @@ export const StoreSetup = () => {
                     <div
                       className={`
                         border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : validationErrors.aboutSections?.[section.id]?.image ? 'border-red-300' : 'border-gray-300'}
+                        ${section.imagePreview ? 'border-primary-300' : validationErrors.aboutSections?.[section.id]?.image ? 'border-re d-300' : 'border-gray-300'}
                         hover:border-primary-400 transition-colors duration-200
                         flex flex-col items-center justify-center
                         cursor-pointer
                       `}
                       onDragOver={handleDragOver}
-                      on Drop={(e) => handleSectionDrop(e, section.id)}
+                      onDrop={(e) => handleSectionDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
                         <div className="relative w-full">
