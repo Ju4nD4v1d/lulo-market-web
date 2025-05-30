@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Loader2, Upload, X } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { SuccessDialog } from './SuccessDialog';
 
 export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<{
     aboutSections: Array<{
@@ -63,7 +61,6 @@ export const StoreSetup = () => {
         // Handle form submission logic here
         setTimeout(() => {
           setSaving(false);
-          setShowSuccessDialog(true);
         }, 1500);
       }}>
         <FormSection title="About Sections">
@@ -174,11 +171,6 @@ export const StoreSetup = () => {
           </button>
         </div>
       </form>
-
-      <SuccessDialog
-        isOpen={showSuccessDialog}
-        onClose={() => setShowSuccessDialog(false)}
-      />
     </div>
   );
 };
