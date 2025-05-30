@@ -58,6 +58,12 @@ interface ValidationErrors {
   };
 }
 
+interface ValidationStatus {
+  passed: boolean;
+  message: string;
+  details: string[];
+}
+
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
@@ -67,10 +73,7 @@ export const StoreSetup = () => {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
-  const [validationStatus, setValidationStatus] = useState<{
-    passed: boolean;
-    message: string;
-  } | null>(null);
+  const [validationStatus, setValidationStatus] = useState<ValidationStatus | null>(null);
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
@@ -173,48 +176,56 @@ export const StoreSetup = () => {
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
+    const validationDetails: string[] = [];
     let firstErrorElement: HTMLElement | null = null;
 
-    // Validate store image
+    // Store image validation
     if (!storeImage.file && !storeImage.url) {
       errors.storeImage = 'Store image is required';
+      validationDetails.push('Store image is missing');
       firstErrorElement = firstErrorElement || storeImageRef.current;
     }
 
-    // Validate basic information
+    // Basic information validation
     if (!formData.name.trim()) {
       errors.name = 'Store name is required';
+      validationDetails.push('Store name is required');
       firstErrorElement = firstErrorElement || nameRef.current;
     }
 
     if (!formData.description.trim()) {
       errors.description = 'Store description is required';
+      validationDetails.push('Store description is required');
       firstErrorElement = firstErrorElement || descriptionRef.current;
     }
 
     if (!formData.address.trim()) {
       errors.address = 'Store address is required';
+      validationDetails.push('Store address is required');
       firstErrorElement = firstErrorElement || addressRef.current;
     }
 
     if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
       errors.phone = 'Invalid phone number format';
+      validationDetails.push('Phone number format is invalid');
       firstErrorElement = firstErrorElement || phoneRef.current;
     }
 
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
       errors.website = 'Invalid website URL format';
+      validationDetails.push('Website URL format is invalid');
       firstErrorElement = firstErrorElement || websiteRef.current;
     }
 
-    // Validate business hours
+    // Business hours validation
     const hasOpenDay = Object.values(formData.businessHours).some(day => !day.closed);
     if (!hasOpenDay) {
       errors.businessHours = 'At least one day must be open for business';
+      validationDetails.push('No business hours set (at least one day must be open)');
       firstErrorElement = firstErrorElement || businessHoursRef.current;
     }
 
-    // Validate about sections
+    // About sections validation
     errors.aboutSections = {};
     formData.aboutSections.forEach((section, index) => {
       if (section.title || section.description) {
@@ -222,14 +233,17 @@ export const StoreSetup = () => {
         
         if (!section.title.trim()) {
           sectionErrors.title = 'Section title is required';
+          validationDetails.push(`About section ${index + 1}: Title is required`);
           firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
         }
         if (!section.description.trim()) {
           sectionErrors.description = 'Section description is required';
+          validationDetails.push(`About section ${index + 1}: Description is required`);
           firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
         }
         if (!section.imageFile && !section.imageUrl && !section.imagePreview) {
           sectionErrors.image = 'Section image is required';
+          validationDetails.push(`About section ${index + 1}: Image is required`);
           firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
         }
 
@@ -246,7 +260,8 @@ export const StoreSetup = () => {
       passed,
       message: passed 
         ? 'All fields are valid! You can save your changes.'
-        : 'Please fix the validation errors before saving.'
+        : 'Please fix the following validation errors:',
+      details: validationDetails
     });
 
     // Focus and scroll to first error
@@ -882,17 +897,30 @@ export const StoreSetup = () => {
           </button>
 
           {validationStatus && (
-            <div 
-              className={`text-sm flex items-center ${
-                validationStatus.passed ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {validationStatus.passed ? (
-                <CheckCircle2 className="w-4 h-4 mr-1" />
-              ) : (
-                <AlertCircle className="w-4 h-4 mr-1" />
+            <div className={`
+              w-full max-w-md bg-white rounded-lg shadow-sm border
+              ${validationStatus.passed ? 'border-green-200' : 'border-red-200'}
+              p-4 mt-4
+            `}>
+              <div className={`
+                flex items-center mb-2
+                ${validationStatus.passed ? 'text-green-600' : 'text-red-600'}
+              `}>
+                {validationStatus.passed ? (
+                  <CheckCircle2 className="w-5 h-5 mr-2" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                )}
+                <span className="font-medium">{validationStatus.message}</span>
+              </div>
+              
+              {!validationStatus.passed && validationStatus.details.length > 0 && (
+                <ul className="ml-7 list-disc text-sm text-red-600 space-y-1">
+                  {validationStatus.details.map((detail, index) => (
+                    <li key={index}>{detail}</li>
+                  ))}
+                </ul>
               )}
-              {validationStatus.message}
             </div>
           )}
         </div>
