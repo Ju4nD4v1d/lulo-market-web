@@ -91,6 +91,31 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange,
 
   return (
     <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            value={value.address}
+            onChange={(e) => onChange({ ...value, address: e.target.value })}
+            placeholder="Enter store address"
+            className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
+              focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+              placeholder-gray-400 text-gray-900"
+          />
+        </div>
+        
+        {/* Debug coordinates display */}
+        <div className="flex gap-4 text-sm text-gray-500">
+          <div>
+            <span className="font-medium">Lat:</span> {value.coordinates.lat.toFixed(6)}
+          </div>
+          <div>
+            <span className="font-medium">Lng:</span> {value.coordinates.lng.toFixed(6)}
+          </div>
+        </div>
+      </div>
+
       <div className="flex space-x-2">
         <button
           type="button"
@@ -137,12 +162,6 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange,
           />
         )}
       </GoogleMap>
-
-      {value.coordinates.lat && (
-        <p className="text-sm text-gray-500">
-          Selected location: {value.address}
-        </p>
-      )}
     </div>
   );
 };
