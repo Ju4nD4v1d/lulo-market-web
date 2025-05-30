@@ -70,6 +70,7 @@ export const StoreSetup = () => {
   const [imageErrors, setImageErrors] = useState<{ [key: string]: string }>({});
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [touchedFields, setTouchedFields] = useState<TouchedFields>({});
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
     { id: '1', title: '', description: '' }
   ]);
@@ -127,6 +128,28 @@ export const StoreSetup = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (touchedFields[field]) {
       validateForm();
+    }
+  };
+
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const address = e.target.value;
+    handleChange('address', address);
+
+    if (address.length > 3) {
+      try {
+        const geocoder = new google.maps.Geocoder();
+        const result = await geocoder.geocode({ address });
+        
+        if (result.results[0]) {
+          const location = result.results[0].geometry.location;
+          setCoordinates({
+            lat: location.lat(),
+            lng: location.lng()
+          });
+        }
+      } catch (error) {
+        console.error('Geocoding error:', error);
+      }
     }
   };
 
@@ -298,17 +321,24 @@ export const StoreSetup = () => {
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                 Address
               </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
-                  onBlur={() => handleBlur('address')}
-                  className="w-full pl-10"
-                  placeholder="Enter your store address"
-                />
+              <div className="space-y-2">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    id="address"
+                    value={formData.address}
+                    onChange={handleAddressChange}
+                    onBlur={() => handleBlur('address')}
+                    className="w-full pl-10"
+                    placeholder="Enter your store address"
+                  />
+                </div>
+                {coordinates && (
+                  <div className="text-sm text-gray-500 pl-2">
+                    Latitude: {coordinates.lat.toFixed(6)}, Longitude: {coordinates.lng.toFixed(6)}
+                  </div>
+                )}
               </div>
             </div>
 
