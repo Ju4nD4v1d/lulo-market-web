@@ -12,7 +12,7 @@ import {
   Building2
 } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { collection, addDoc, GeoPoint, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -35,13 +35,13 @@ export const StoreSetup = () => {
     phone: '',
     website: '',
     businessHours: {
-      monday: { open: '09:00', close: '18:00', closed: false },
-      tuesday: { open: '09:00', close: '18:00', closed: false },
-      wednesday: { open: '09:00', close: '18:00', closed: false },
-      thursday: { open: '09:00', close: '18:00', closed: false },
-      friday: { open: '09:00', close: '18:00', closed: false },
-      saturday: { open: '10:00', close: '16:00', closed: false },
-      sunday: { open: '10:00', close: '16:00', closed: true }
+      Monday: { open: '09:00', close: '18:00', closed: false },
+      Tuesday: { open: '09:00', close: '18:00', closed: false },
+      Wednesday: { open: '09:00', close: '18:00', closed: false },
+      Thursday: { open: '09:00', close: '18:00', closed: false },
+      Friday: { open: '09:00', close: '18:00', closed: false },
+      Saturday: { open: '10:00', close: '16:00', closed: false },
+      Sunday: { open: '10:00', close: '16:00', closed: true }
     },
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
@@ -69,27 +69,10 @@ export const StoreSetup = () => {
           }
 
           // Set business hours
-          if (storeData.storeDeliverySchedule) {
-            const hours = { ...formData.businessHours };
-            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            
-            days.forEach(day => {
-              const schedule = storeData.storeDeliverySchedule.find((s: string) => 
-                s.toLowerCase().startsWith(day)
-              );
-
-              if (schedule) {
-                const [, time] = schedule.split(' ');
-                const [open, close] = time.split(' to ');
-                hours[day] = { open, close, closed: false };
-              } else {
-                hours[day] = { open: '09:00', close: '18:00', closed: true };
-              }
-            });
-
+          if (storeData.storeBusinessHours) {
             setFormData(prev => ({
               ...prev,
-              businessHours: hours,
+              businessHours: storeData.storeBusinessHours,
               name: storeData.name || '',
               description: storeData.description || '',
               address: storeData.address || '',
@@ -105,16 +88,6 @@ export const StoreSetup = () => {
 
     loadStoreData();
   }, [currentUser]);
-
-  const formatBusinessHours = () => {
-    const schedule: string[] = [];
-    Object.entries(formData.businessHours).forEach(([day, hours]) => {
-      if (!hours.closed) {
-        schedule.push(`${day.charAt(0).toUpperCase() + day.slice(1)} ${hours.open} to ${hours.close}`);
-      }
-    });
-    return schedule;
-  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -196,7 +169,7 @@ export const StoreSetup = () => {
         location: new GeoPoint(coordinates.lat, coordinates.lng),
         phone: formData.phone,
         website: formData.website,
-        storeDeliverySchedule: formatBusinessHours(),
+        storeBusinessHours: formData.businessHours,
         titleTabAboutFirst: formData.aboutSections[0]?.title || '',
         bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
         titleTabAboutSecond: formData.aboutSections[1]?.title || '',
@@ -218,7 +191,7 @@ export const StoreSetup = () => {
       } else {
         // Update existing store
         const storeDoc = querySnapshot.docs[0].ref;
-        await storeDoc.update(storeData);
+        await updateDoc(storeDoc, storeData);
       }
 
       setShowConfirmation(true);
@@ -469,7 +442,7 @@ export const StoreSetup = () => {
             {Object.entries(formData.businessHours).map(([day, hours]) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
-                  <span className="text-sm font-medium text-gray-700 capitalize">
+                  <span className="text-sm font-medium text-gray-700">
                     {day}
                   </span>
                 </div>
