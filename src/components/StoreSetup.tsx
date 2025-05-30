@@ -9,16 +9,11 @@ import {
   DollarSign,
   Upload,
   Clock,
-  CreditCard,
-  Truck,
-  ShoppingBag,
   Building2,
   BookOpen,
   Info as InfoIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
 interface FormErrors {
   [key: string]: string;
@@ -27,6 +22,8 @@ interface FormErrors {
 interface TouchedFields {
   [key: string]: boolean;
 }
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
 const validateImage = (file: File): string | null => {
   if (!file.type.startsWith('image/')) {
@@ -76,6 +73,7 @@ export const StoreSetup = () => {
   const [aboutUsSections, setAboutUsSections] = useState<AboutUsSection[]>([
     { id: '1', title: '', description: '' }
   ]);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -107,10 +105,6 @@ export const StoreSetup = () => {
 
   const validateForm = () => {
     const errors: FormErrors = {};
-    
-    if (!formData.name.trim()) {
-      errors.name = 'Store name is required';
-    }
     
     if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone)) {
       errors.phone = 'Please enter a valid phone number';
@@ -212,7 +206,6 @@ export const StoreSetup = () => {
     setImageErrors({});
     setSuccess(null);
     
-    // Mark all fields as touched on submit
     const allFields = ['name', 'phone', 'website', 'address'];
     setTouchedFields(
       allFields.reduce((acc, field) => ({ ...acc, [field]: true }), {})
@@ -224,7 +217,6 @@ export const StoreSetup = () => {
     }
 
     try {
-      // Placeholder for future implementation
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSuccess('Store information saved successfully');
     } catch (err) {
@@ -271,7 +263,7 @@ export const StoreSetup = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Store Name *
+                Store Name
               </label>
               <input
                 type="text"
@@ -279,16 +271,9 @@ export const StoreSetup = () => {
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 onBlur={() => handleBlur('name')}
-                className={`block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                  placeholder-gray-400 text-gray-900 ${
-                  shouldShowError('name') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
-                }`}
-                required
+                className="w-full"
+                placeholder="Enter your store name"
               />
-              {shouldShowError('name') && (
-                <p className="mt-2 text-sm text-red-600">{formErrors.name}</p>
-              )}
             </div>
 
             <div>
@@ -300,9 +285,8 @@ export const StoreSetup = () => {
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                  placeholder-gray-400 text-gray-900"
+                className="w-full"
+                placeholder="Describe your store"
               />
             </div>
           </div>
@@ -322,15 +306,9 @@ export const StoreSetup = () => {
                   value={formData.address}
                   onChange={(e) => handleChange('address', e.target.value)}
                   onBlur={() => handleBlur('address')}
-                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900 ${
-                    shouldShowError('address') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
-                  }`}
+                  className="w-full pl-10"
+                  placeholder="Enter your store address"
                 />
-                {shouldShowError('address') && (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.address}</p>
-                )}
               </div>
             </div>
 
@@ -346,11 +324,8 @@ export const StoreSetup = () => {
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
                   onBlur={() => handleBlur('phone')}
-                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900 ${
-                    shouldShowError('phone') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
-                  }`}
+                  className="w-full pl-10"
+                  placeholder="Enter your phone number"
                 />
                 {shouldShowError('phone') && (
                   <p className="mt-2 text-sm text-red-600">{formErrors.phone}</p>
@@ -370,11 +345,8 @@ export const StoreSetup = () => {
                   value={formData.website}
                   onChange={(e) => handleChange('website', e.target.value)}
                   onBlur={() => handleBlur('website')}
-                  className={`block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900 ${
-                    shouldShowError('website') ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''
-                  }`}
+                  className="w-full pl-10"
+                  placeholder="Enter your website URL"
                 />
                 {shouldShowError('website') && (
                   <p className="mt-2 text-sm text-red-600">{formErrors.website}</p>
@@ -404,10 +376,7 @@ export const StoreSetup = () => {
                         [day]: { ...hours, open: e.target.value }
                       }
                     })}
-                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg 
-                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                      text-gray-900 [color-scheme:light]
-                      disabled:bg-gray-100 disabled:text-gray-500"
+                    className="w-40"
                     disabled={hours.closed}
                   />
                   <span className="text-gray-500 w-6 text-center">to</span>
@@ -421,10 +390,7 @@ export const StoreSetup = () => {
                         [day]: { ...hours, close: e.target.value }
                       }
                     })}
-                    className="block w-40 px-4 py-2 border border-gray-300 rounded-lg 
-                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                      text-gray-900 [color-scheme:light]
-                      disabled:bg-gray-100 disabled:text-gray-500"
+                    className="w-40"
                     disabled={hours.closed}
                   />
                   <label className="inline-flex items-center ml-4">
@@ -438,217 +404,13 @@ export const StoreSetup = () => {
                           [day]: { ...hours, closed: e.target.checked }
                         }
                       })}
-                      className="rounded border-gray-300 
-                        text-primary-500 
-                        focus:ring-primary-500 focus:ring-offset-0
-                        checked:bg-primary-500 checked:hover:bg-primary-600
-                        transition-colors duration-200"
+                      className="rounded border-gray-300"
                     />
                     <span className="ml-2 text-sm text-gray-600">Closed</span>
                   </label>
                 </div>
               </div>
             ))}
-          </div>
-        </FormSection>
-
-        <FormSection title="Delivery & Payment" icon={Truck}>
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Delivery Options</h3>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.deliveryOptions.pickup}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryOptions: {
-                        ...formData.deliveryOptions,
-                        pickup: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Store Pickup</span>
-                    <span className="block text-sm text-gray-500">Customers pick up orders</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.deliveryOptions.delivery}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryOptions: {
-                        ...formData.deliveryOptions,
-                        delivery: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Local Delivery</span>
-                    <span className="block text-sm text-gray-500">Deliver to local area</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.deliveryOptions.shipping}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryOptions: {
-                        ...formData.deliveryOptions,
-                        shipping: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Shipping</span>
-                    <span className="block text-sm text-gray-500">Ship nationwide</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {formData.deliveryOptions.delivery && (
-              <div>
-                <label htmlFor="deliveryCost" className="block text-sm font-medium text-gray-700 mb-1">
-                  Delivery Cost
-                </label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="number"
-                    id="deliveryCost"
-                    value={formData.deliveryCostWithDiscount}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      deliveryCostWithDiscount: parseFloat(e.target.value)
-                    })}
-                    min="0"
-                    step="0.01"
-                    className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                      focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                      placeholder-gray-400 text-gray-900"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="minimumOrder" className="block text-sm font-medium text-gray-700 mb-1">
-                Minimum Order Amount
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="number"
-                  id="minimumOrder"
-                  value={formData.minimumOrder}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    minimumOrder: parseFloat(e.target.value)
-                  })}
-                  min="0"
-                  step="0.01"
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                    placeholder-gray-400 text-gray-900"
-                />
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Payment Methods</h3>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.paymentMethods.cash}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      paymentMethods: {
-                        ...formData.paymentMethods,
-                        cash: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Cash</span>
-                    <span className="block text-sm text-gray-500">Accept cash payments</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.paymentMethods.card}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      paymentMethods: {
-                        ...formData.paymentMethods,
-                        card: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Credit Card</span>
-                    <span className="block text-sm text-gray-500">Accept card payments</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary-500 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={formData.paymentMethods.transfer}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      paymentMethods: {
-                        ...formData.paymentMethods,
-                        transfer: e.target.checked
-                      }
-                    })}
-                    className="rounded border-gray-300 
-                      text-primary-500 
-                      focus:ring-primary-500 focus:ring-offset-0
-                      checked:bg-primary-500 checked:hover:bg-primary-600
-                      transition-colors duration-200"
-                  />
-                  <div className="ml-3">
-                    <span className="block text-sm font-medium text-gray-900">Bank Transfer</span>
-                    <span className="block text-sm text-gray-500">Accept bank transfers</span>
-                  </div>
-                </label>
-              </div>
-            </div>
           </div>
         </FormSection>
 
@@ -700,9 +462,7 @@ export const StoreSetup = () => {
                       onChange={(e) => setAboutUsSections(prev => prev.map(s => 
                         s.id === section.id ? { ...s, title: e.target.value } : s
                       ))}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
+                      className="w-full"
                       placeholder="Enter a title for this section"
                     />
                   </div>
@@ -718,9 +478,7 @@ export const StoreSetup = () => {
                         s.id === section.id ? { ...s, description: e.target.value } : s
                       ))}
                       rows={4}
-                      className="block w-full px-4 py-2 border border-gray-300 rounded-lg 
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                        placeholder-gray-400 text-gray-900"
+                      className="w-full"
                       placeholder="Tell your story..."
                     />
                   </div>
@@ -738,8 +496,7 @@ export const StoreSetup = () => {
                         cursor-pointer
                       `}
                       onDragOver={handleDragOver}
-                      onD
-rop={(e) => handleDrop(e, section.id)}
+                      onDrop={(e) => handleDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
                         <div className="space-y-4 w-full">
