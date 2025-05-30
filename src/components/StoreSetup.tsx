@@ -218,6 +218,12 @@ export const StoreSetup = () => {
             }
           });
 
+          if (storeData.storeImage) {
+            setStoreImage({
+              preview: storeData.storeImage
+            });
+          }
+
           setFormData({
             name: storeData.name || '',
             description: storeData.details || '',
@@ -229,17 +235,20 @@ export const StoreSetup = () => {
               { 
                 id: '1', 
                 title: storeData.titleTabAboutFirst || '', 
-                description: storeData.bodyTabAboutFirst || '' 
+                description: storeData.bodyTabAboutFirst || '',
+                imagePreview: storeData.imageTabAboutFirst
               },
               { 
                 id: '2', 
                 title: storeData.titleTabAboutSecond || '', 
-                description: storeData.bodyTabAboutSecond || '' 
+                description: storeData.bodyTabAboutSecond || '',
+                imagePreview: storeData.imageTabAboutSecond
               },
               { 
                 id: '3', 
                 title: storeData.titleTabAboutThird || '', 
-                description: storeData.bodyTabAboutThird || '' 
+                description: storeData.bodyTabAboutThird || '',
+                imagePreview: storeData.imageTabAboutThird
               }
             ]
           });
@@ -831,62 +840,4 @@ export const StoreSetup = () => {
                       onChange={(e) => setFormData(prev => ({
                         ...prev,
                         aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, description: e.target.value } : s
-                        )
-                      }))}
-                      rows={4}
-                      className="w-full"
-                      placeholder="Tell your story..."
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        
-        </FormSection>
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className={`
-              inline-flex items-center px-6 py-3 rounded-lg text-white
-              ${saving
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700 transform transition-all duration-200 hover:scale-105'}
-              shadow-lg hover:shadow-xl
-            `}
-          >
-            {saving ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3">
-                </div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <Store className="w-5 h-5 mr-2" />
-                Save Store
-              </>
-            )}
-          </button>
-        </div>
-      </form>
-
-      <SuccessDialog 
-        isOpen={showSuccessDialog} 
-        onClose={() => setShowSuccessDialog(false)} 
-      />
-
-      {Object.entries(uploadProgress).map(([path, progress]) => (
-        <div key={path} className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Uploading: {Math.round(progress)}%</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+                          s.id === section.i
