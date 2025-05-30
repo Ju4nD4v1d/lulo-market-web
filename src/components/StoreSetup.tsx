@@ -21,6 +21,10 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
+  const [storeImage, setStoreImage] = useState<{
+    file?: File;
+    preview?: string;
+  }>({});
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -41,6 +45,39 @@ export const StoreSetup = () => {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+  };
+
+  const handleStoreDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleStoreImageValidation(file);
+  };
+
+  const handleStoreImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleStoreImageValidation(file);
+    }
+  };
+
+  const handleStoreImageValidation = (file: File) => {
+    if (file.size > 1024 * 1024) {
+      setImageErrors(prev => ({
+        ...prev,
+        storeImage: 'File size must be less than 1MB'
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setStoreImage({
+        file,
+        preview: e.target?.result as string
+      });
+    };
+    reader.readAsDataURL(file);
+    setImageErrors(prev => ({ ...prev, storeImage: '' }));
   };
 
   const handleDrop = (e: React.DragEvent, sectionId: string) => {
@@ -91,6 +128,12 @@ export const StoreSetup = () => {
 
     setSaving(true);
     try {
+      let storeImageUrl;
+      if (storeImage.file) {
+        const imagePath = `stores/${currentUser.uid}/store-image/${storeImage.file.name}`;
+        storeImageUrl = await uploadImage(storeImage.file, imagePath);
+      }
+
       // Upload images and get URLs
       const sectionPromises = formData.aboutSections.map(async (section) => {
         if (section.image) {
@@ -117,6 +160,7 @@ export const StoreSetup = () => {
         website: formData.website,
         businessHours: formData.businessHours,
         aboutSections: sectionsWithUrls,
+        storeImageUrl,
         ownerId: currentUser.uid,
         createdAt: new Date(),
       };
@@ -160,6 +204,66 @@ export const StoreSetup = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="Basic Information" icon={Store}>
           <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Store Image
+              </label>
+              <div
+                className={`
+                  border-2 border-dashed rounded-lg p-8
+                  ${storeImage.preview ? 'border-primary-300' : imageErrors.storeImage ? 'border-red-300' : 'border-gray-300'}
+                  hover:border-primary-400 transition-colors duration-200
+                  flex flex-col items-center justify-center
+                  cursor-pointer
+                `}
+                onDragOver={handleDragOver}
+                onDrop={handleStoreDrop}
+              >
+                {storeImage.preview ? (
+                  <div className="space-y-4 w-full">
+                    <img
+                      src={storeImage.preview}
+                      alt="Store preview"
+                      className="max-h-48 mx-auto rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setStoreImage({})}
+                      className="text-sm text-red-600 hover:text-red-700 block w-full text-center"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
+                          <span>Upload a file</span>
+                          <input
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleStoreImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        PNG, JPG, GIF up to 1MB
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {imageErrors.storeImage && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {imageErrors.storeImage}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Store Name
