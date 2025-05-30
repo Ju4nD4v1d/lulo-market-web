@@ -36,7 +36,7 @@ export const StoreSetup = () => {
     address: '',
     phone: '',
     website: '',
-    storeDeliverySchedule: {
+    storeBusinessHours: {
       Sunday: { open: '', close: '', closed: true },
       Monday: { open: '07:00', close: '19:00', closed: false },
       Tuesday: { open: '07:00', close: '19:00', closed: false },
@@ -52,7 +52,6 @@ export const StoreSetup = () => {
     ]
   });
 
-  // Load existing store data
   useEffect(() => {
     const loadStoreData = async () => {
       if (!currentUser) return;
@@ -73,7 +72,6 @@ export const StoreSetup = () => {
             }));
           }
 
-          // Map About Us sections
           const aboutSections = [
             {
               id: '1',
@@ -100,7 +98,7 @@ export const StoreSetup = () => {
 
           setFormData(prev => ({
             ...prev,
-            storeDeliverySchedule: storeData.storeDeliverySchedule || prev.storeDeliverySchedule,
+            storeBusinessHours: storeData.storeBusinessHours || prev.storeBusinessHours,
             name: storeData.name || '',
             description: storeData.description || '',
             address: storeData.address || '',
@@ -179,13 +177,11 @@ export const StoreSetup = () => {
     setError(null);
 
     try {
-      // Upload store image if exists
       let storeImageUrl = storeImage.url;
       if (storeImage.file) {
         storeImageUrl = await uploadStoreImage();
       }
 
-      // Upload about section images and get their URLs
       const aboutSectionPromises = formData.aboutSections.map(async (section, index) => {
         if (section.image) {
           const imageUrl = await uploadAboutImage(section.image, index);
@@ -196,7 +192,6 @@ export const StoreSetup = () => {
 
       const updatedAboutSections = await Promise.all(aboutSectionPromises);
 
-      // Geocode the address
       const geocoder = new google.maps.Geocoder();
       const geocodeResult = await geocoder.geocode({ address: formData.address });
       
@@ -217,7 +212,7 @@ export const StoreSetup = () => {
         location: new GeoPoint(coordinates.lat, coordinates.lng),
         phone: formData.phone,
         website: formData.website,
-        storeDeliverySchedule: formData.storeDeliverySchedule,
+        storeBusinessHours: formData.storeBusinessHours,
         titleTabAboutFirst: updatedAboutSections[0]?.title || '',
         bodyTabAboutFirst: updatedAboutSections[0]?.description || '',
         imageTabAboutFirst: updatedAboutSections[0]?.imageUrl || updatedAboutSections[0]?.imagePreview || '',
@@ -232,7 +227,6 @@ export const StoreSetup = () => {
         storeImage: storeImageUrl
       };
 
-      // Check if store already exists
       const storesRef = collection(db, 'stores');
       const q = query(storesRef, where('ownerId', '==', currentUser.uid));
       const querySnapshot = await getDocs(q);
@@ -240,7 +234,6 @@ export const StoreSetup = () => {
       if (querySnapshot.empty) {
         await addDoc(collection(db, 'stores'), storeData);
       } else {
-        // Update existing store
         const storeDoc = querySnapshot.docs[0].ref;
         await updateDoc(storeDoc, storeData);
       }
@@ -298,15 +291,15 @@ export const StoreSetup = () => {
   };
 
   const handleSetAllHours = (open: string, close: string, closed: boolean) => {
-    const updatedSchedule = { ...formData.storeDeliverySchedule };
+    const updatedSchedule = { ...formData.storeBusinessHours };
     Object.keys(updatedSchedule).forEach(day => {
-      if (day !== 'Sunday') { // Keep Sunday as is
+      if (day !== 'Sunday') {
         updatedSchedule[day] = { open, close, closed };
       }
     });
     setFormData(prev => ({
       ...prev,
-      storeDeliverySchedule: updatedSchedule
+      storeBusinessHours: updatedSchedule
     }));
   };
 
@@ -389,43 +382,43 @@ export const StoreSetup = () => {
                       <div className="relative">
                         <input
                           type="time"
-                          value={formData.storeDeliverySchedule[day].open}
+                          value={formData.storeBusinessHours[day].open}
                           onChange={(e) => setFormData({
                             ...formData,
-                            storeDeliverySchedule: {
-                              ...formData.storeDeliverySchedule,
-                              [day]: { ...formData.storeDeliverySchedule[day], open: e.target.value }
+                            storeBusinessHours: {
+                              ...formData.storeBusinessHours,
+                              [day]: { ...formData.storeBusinessHours[day], open: e.target.value }
                             }
                           })}
                           className="w-full"
-                          disabled={formData.storeDeliverySchedule[day].closed}
+                          disabled={formData.storeBusinessHours[day].closed}
                         />
                       </div>
                       <div className="relative">
                         <input
                           type="time"
-                          value={formData.storeDeliverySchedule[day].close}
+                          value={formData.storeBusinessHours[day].close}
                           onChange={(e) => setFormData({
                             ...formData,
-                            storeDeliverySchedule: {
-                              ...formData.storeDeliverySchedule,
-                              [day]: { ...formData.storeDeliverySchedule[day], close: e.target.value }
+                            storeBusinessHours: {
+                              ...formData.storeBusinessHours,
+                              [day]: { ...formData.storeBusinessHours[day], close: e.target.value }
                             }
                           })}
                           className="w-full"
-                          disabled={formData.storeDeliverySchedule[day].closed}
+                          disabled={formData.storeBusinessHours[day].closed}
                         />
                       </div>
                     </div>
                     <label className="inline-flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.storeDeliverySchedule[day].closed}
+                        checked={formData.storeBusinessHours[day].closed}
                         onChange={(e) => setFormData({
                           ...formData,
-                          storeDeliverySchedule: {
-                            ...formData.storeDeliverySchedule,
-                            [day]: { ...formData.storeDeliverySchedule[day], closed: e.target.checked }
+                          storeBusinessHours: {
+                            ...formData.storeBusinessHours,
+                            [day]: { ...formData.storeBusinessHours[day], closed: e.target.checked }
                           }
                         })}
                         className="rounded border-gray-300"
