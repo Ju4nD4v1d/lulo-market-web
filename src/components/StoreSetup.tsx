@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Store, 
   Upload,
@@ -12,8 +12,9 @@ import {
   Building2
 } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { collection, addDoc, GeoPoint } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { collection, addDoc, GeoPoint, getDocs, query, where } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
 export const StoreSetup = () => {
@@ -25,6 +26,7 @@ export const StoreSetup = () => {
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
+    url?: string;
   }>({});
   const [formData, setFormData] = useState({
     name: '',
@@ -43,6 +45,66 @@ export const StoreSetup = () => {
     },
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
+
+  // Load existing store data
+  useEffect(() => {
+    const loadStoreData = async () => {
+      if (!currentUser) return;
+
+      try {
+        const storesRef = collection(db, 'stores');
+        const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const storeData = querySnapshot.docs[0].data();
+          
+          // Set store image if exists
+          if (storeData.storeImage) {
+            setStoreImage(prev => ({
+              ...prev,
+              preview: storeData.storeImage,
+              url: storeData.storeImage
+            }));
+          }
+
+          // Set business hours
+          if (storeData.storeDeliverySchedule) {
+            const hours = { ...formData.businessHours };
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            days.forEach(day => {
+              const schedule = storeData.storeDeliverySchedule.find((s: string) => 
+                s.toLowerCase().startsWith(day)
+              );
+
+              if (schedule) {
+                const [, time] = schedule.split(' ');
+                const [open, close] = time.split(' to ');
+                hours[day] = { open, close, closed: false };
+              } else {
+                hours[day] = { open: '09:00', close: '18:00', closed: true };
+              }
+            });
+
+            setFormData(prev => ({
+              ...prev,
+              businessHours: hours,
+              name: storeData.name || '',
+              description: storeData.description || '',
+              address: storeData.address || '',
+              phone: storeData.phone || '',
+              website: storeData.website || ''
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error loading store data:', err);
+      }
+    };
+
+    loadStoreData();
+  }, [currentUser]);
 
   const formatBusinessHours = () => {
     const schedule: string[] = [];
@@ -91,6 +153,14 @@ export const StoreSetup = () => {
     setImageErrors(prev => ({ ...prev, storeImage: '' }));
   };
 
+  const uploadStoreImage = async (): Promise<string | null> => {
+    if (!storeImage.file || !currentUser) return null;
+
+    const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
+    await uploadBytes(storageRef, storeImage.file);
+    return getDownloadURL(storageRef);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
@@ -99,6 +169,12 @@ export const StoreSetup = () => {
     setError(null);
 
     try {
+      // Upload store image if exists
+      let storeImageUrl = storeImage.url;
+      if (storeImage.file) {
+        storeImageUrl = await uploadStoreImage();
+      }
+
       // Geocode the address
       const geocoder = new google.maps.Geocoder();
       const geocodeResult = await geocoder.geocode({ address: formData.address });
@@ -115,7 +191,7 @@ export const StoreSetup = () => {
 
       const storeData = {
         name: formData.name,
-        details: formData.description,
+        description: formData.description,
         address: formData.address,
         location: new GeoPoint(coordinates.lat, coordinates.lng),
         phone: formData.phone,
@@ -129,9 +205,22 @@ export const StoreSetup = () => {
         bodyTabAboutThird: formData.aboutSections[2]?.description || '',
         ownerId: currentUser.uid,
         createdAt: new Date(),
+        storeImage: storeImageUrl
       };
 
-      await addDoc(collection(db, 'stores'), storeData);
+      // Check if store already exists
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        await addDoc(collection(db, 'stores'), storeData);
+      } else {
+        // Update existing store
+        const storeDoc = querySnapshot.docs[0].ref;
+        await storeDoc.update(storeData);
+      }
+
       setShowConfirmation(true);
     } catch (error) {
       console.error('Error saving store:', error);
