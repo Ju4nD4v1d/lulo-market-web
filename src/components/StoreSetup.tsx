@@ -21,11 +21,11 @@ import { SaveProgressModal } from './SaveProgressModal';
 
 const defaultBusinessHours = {
   Sunday: { open: "09:00", close: "18:00", closed: true },
-  Monday: { open: "09:00", close: "18:00", closed: true },
-  Tuesday: { open: "09:00", close: "18:00", closed: true },
-  Wednesday: { open: "09:00", close: "18:00", closed: true },
-  Thursday: { open: "09:00", close: "18:00", closed: true },
-  Friday: { open: "09:00", close: "18:00", closed: true },
+  Monday: { open: "09:00", close: "18:00", closed: false },
+  Tuesday: { open: "09:00", close: "18:00", closed: false },
+  Wednesday: { open: "09:00", close: "18:00", closed: false },
+  Thursday: { open: "09:00", close: "18:00", closed: false },
+  Friday: { open: "09:00", close: "18:00", closed: false },
   Saturday: { open: "09:00", close: "18:00", closed: true }
 };
 
@@ -76,10 +76,15 @@ export const StoreSetup = () => {
     phone: '',
     website: '',
     businessHours: defaultBusinessHours,
-    aboutSections: [{ id: '1', title: '', description: '' }]
+    aboutSections: [
+      { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+      { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+      { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
+    ]
   });
 
   // Add refs for form fields
+  const storeImageRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -88,6 +93,7 @@ export const StoreSetup = () => {
   const businessHoursRef = useRef<HTMLDivElement>(null);
   const aboutSectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Load existing store data
   useEffect(() => {
     const loadStoreData = async () => {
       if (!currentUser) return;
@@ -100,6 +106,7 @@ export const StoreSetup = () => {
         if (!querySnapshot.empty) {
           const storeData = querySnapshot.docs[0].data();
           
+          // Set store image if exists
           if (storeData.storeImage) {
             setStoreImage(prev => ({
               ...prev,
@@ -108,38 +115,38 @@ export const StoreSetup = () => {
             }));
           }
 
+          // Map About Us sections from Firestore fields
           const aboutSections = [
             {
               id: '1',
               title: storeData.titleTabAboutFirst || '',
               description: storeData.bodyTabAboutFirst || '',
-              imagePreview: storeData.imageTabAboutFirst || undefined
-            }
-          ];
-
-          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
-            aboutSections.push({
+              imageUrl: storeData.imageTabAboutFirst || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutFirst || ''
+            },
+            {
               id: '2',
               title: storeData.titleTabAboutSecond || '',
               description: storeData.bodyTabAboutSecond || '',
-              imagePreview: storeData.imageTabAboutSecond || undefined
-            });
-          }
-
-          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
-            aboutSections.push({
+              imageUrl: storeData.imageTabAboutSecond || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutSecond || ''
+            },
+            {
               id: '3',
               title: storeData.titleTabAboutThird || '',
               description: storeData.bodyTabAboutThird || '',
-              imagePreview: storeData.imageTabAboutThird || undefined
-            });
-          }
+              imageUrl: storeData.imageTabAboutThird || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutThird || ''
+            }
+          ];
 
-          const businessHours = storeData.storeBusinessHours || defaultBusinessHours;
-
+          // Set form data with all fields
           setFormData(prev => ({
             ...prev,
-            businessHours,
+            businessHours: storeData.storeBusinessHours || prev.businessHours,
             name: storeData.name || '',
             description: storeData.description || '',
             address: storeData.address || '',
@@ -150,6 +157,7 @@ export const StoreSetup = () => {
         }
       } catch (err) {
         console.error('Error loading store data:', err);
+        setError('Failed to load store data');
       }
     };
 
@@ -159,6 +167,12 @@ export const StoreSetup = () => {
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
     let firstErrorElement: HTMLElement | null = null;
+
+    // Validate store image
+    if (!storeImage.file && !storeImage.url) {
+      errors.storeImage = 'Store image is required';
+      firstErrorElement = firstErrorElement || storeImageRef.current;
+    }
 
     // Validate basic information
     if (!formData.name.trim()) {
@@ -196,19 +210,25 @@ export const StoreSetup = () => {
     // Validate about sections
     errors.aboutSections = {};
     formData.aboutSections.forEach((section, index) => {
-      const sectionErrors: { title?: string; description?: string } = {};
-      
-      if (!section.title.trim()) {
-        sectionErrors.title = 'Section title is required';
-        firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
-      }
-      if (!section.description.trim()) {
-        sectionErrors.description = 'Section description is required';
-        firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
-      }
+      if (section.title || section.description) {
+        const sectionErrors: { title?: string; description?: string; image?: string } = {};
+        
+        if (!section.title.trim()) {
+          sectionErrors.title = 'Section title is required';
+          firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
+        }
+        if (!section.description.trim()) {
+          sectionErrors.description = 'Section description is required';
+          firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
+        }
+        if (!section.imageFile && !section.imageUrl && !section.imagePreview) {
+          sectionErrors.image = 'Section image is required';
+          firstErrorElement = firstErrorElement || aboutSectionRefs.current[index];
+        }
 
-      if (Object.keys(sectionErrors).length > 0) {
-        errors.aboutSections[section.id] = sectionErrors;
+        if (Object.keys(sectionErrors).length > 0) {
+          errors.aboutSections[section.id] = sectionErrors;
+        }
       }
     });
 
@@ -221,7 +241,105 @@ export const StoreSetup = () => {
       return false;
     }
 
-    return true;
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setSaving(true);
+    setSaveStep('saving');
+    setError(null);
+
+    try {
+      // Geocode the address
+      const geocoder = new google.maps.Geocoder();
+      const geocodeResult = await geocoder.geocode({ address: formData.address });
+      
+      if (!geocodeResult.results[0]) {
+        throw new Error('Invalid address. Please enter a valid address.');
+      }
+
+      const location = geocodeResult.results[0].geometry.location;
+      const coordinates = new GeoPoint(location.lat(), location.lng());
+
+      // Upload store image
+      setSaveStep('uploading');
+      let storeImageUrl = storeImage.url;
+      if (storeImage.file) {
+        const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
+        await uploadBytes(storageRef, storeImage.file);
+        storeImageUrl = await getDownloadURL(storageRef);
+      }
+
+      // Upload about section images
+      const aboutSectionImages = await Promise.all(
+        formData.aboutSections.map(async (section, index) => {
+          if (section.imageFile) {
+            const storageRef = ref(storage, `stores/${currentUser.uid}/about${index + 1}.png`);
+            await uploadBytes(storageRef, section.imageFile);
+            return getDownloadURL(storageRef);
+          }
+          return section.imageUrl || '';
+        })
+      );
+
+      setSaveStep('finalizing');
+
+      const storeData = {
+        name: formData.name,
+        description: formData.description,
+        address: formData.address,
+        location: coordinates,
+        phone: formData.phone,
+        website: formData.website,
+        storeBusinessHours: formData.businessHours,
+        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
+        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        imageTabAboutFirst: aboutSectionImages[0] || '',
+        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
+        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        imageTabAboutSecond: aboutSectionImages[1] || '',
+        titleTabAboutThird: formData.aboutSections[2]?.title || '',
+        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
+        imageTabAboutThird: aboutSectionImages[2] || '',
+        ownerId: currentUser.uid,
+        updatedAt: new Date(),
+        storeImage: storeImageUrl
+      };
+
+      // Check if store already exists
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        await addDoc(collection(db, 'stores'), {
+          ...storeData,
+          createdAt: new Date()
+        });
+      } else {
+        // Update existing store
+        const storeDoc = querySnapshot.docs[0].ref;
+        await updateDoc(storeDoc, storeData);
+      }
+
+      setSaveStep('complete');
+      setShowConfirmation(true);
+    } catch (error) {
+      console.error('Error saving store:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save store information');
+      setSaving(false);
+    }
+  };
+
+  const handleConfirmation = () => {
+    window.location.hash = '#dashboard/products';
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -261,159 +379,20 @@ export const StoreSetup = () => {
     setImageErrors(prev => ({ ...prev, storeImage: '' }));
   };
 
-  const uploadStoreImage = async (storeId: string): Promise<string | null> => {
-    if (!storeImage.file || !currentUser) return null;
-
-    const storageRef = ref(storage, `stores/${storeId}/storeImage.png`);
-    await uploadBytes(storageRef, storeImage.file);
-    return getDownloadURL(storageRef);
-  };
-
-  const uploadSectionImage = async (storeId: string, section: any, index: number): Promise<string | null> => {
-    if (!section.image) return null;
-
-    const storageRef = ref(storage, `stores/${storeId}/about_section_${index + 1}.png`);
-    await uploadBytes(storageRef, section.image);
-    return getDownloadURL(storageRef);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setValidationErrors({});
-
-    if (!validateForm()) {
-      setError('Please fix the validation errors before saving');
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      setSaveStep('saving');
-
-      // Geocode the address
-      const geocoder = new google.maps.Geocoder();
-      let geocodeResult;
-      
-      try {
-        geocodeResult = await geocoder.geocode({ address: formData.address });
-        
-        if (!geocodeResult.results[0]) {
-          throw new Error('Invalid address');
-        }
-      } catch (error) {
-        setError('Failed to validate address. Please enter a valid address.');
-        setSaving(false);
-        return;
-      }
-
-      const location = geocodeResult.results[0].geometry.location;
-      const coordinates = {
-        lat: location.lat(),
-        lng: location.lng()
-      };
-
-      // Check if store already exists
-      const storesRef = collection(db, 'stores');
-      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const querySnapshot = await getDocs(q);
-
-      let storeId: string;
-      let storeDoc;
-
-      if (querySnapshot.empty) {
-        // Create new store
-        const docRef = await addDoc(collection(db, 'stores'), {
-          ownerId: currentUser.uid,
-          createdAt: new Date()
-        });
-        storeId = docRef.id;
-        storeDoc = docRef;
-      } else {
-        storeDoc = querySnapshot.docs[0].ref;
-        storeId = querySnapshot.docs[0].id;
-      }
-
-      setSaveStep('uploading');
-
-      // Upload store image
-      let storeImageUrl = storeImage.url;
-      if (storeImage.file) {
-        try {
-          storeImageUrl = await uploadStoreImage(storeId);
-        } catch (error) {
-          setError('Failed to upload store image. Please try again.');
-          setSaving(false);
-          return;
-        }
-      }
-
-      // Upload section images
-      let sectionImageUrls;
-      try {
-        const sectionImagePromises = formData.aboutSections.map((section, index) => 
-          uploadSectionImage(storeId, section, index)
-        );
-        sectionImageUrls = await Promise.all(sectionImagePromises);
-      } catch (error) {
-        setError('Failed to upload section images. Please try again.');
-        setSaving(false);
-        return;
-      }
-
-      setSaveStep('finalizing');
-
-      const storeData = {
-        name: formData.name,
-        description: formData.description,
-        address: formData.address,
-        location: new GeoPoint(coordinates.lat, coordinates.lng),
-        phone: formData.phone,
-        website: formData.website,
-        storeBusinessHours: formData.businessHours,
-        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
-        imageTabAboutFirst: sectionImageUrls[0] || formData.aboutSections[0]?.imagePreview || '',
-        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
-        imageTabAboutSecond: sectionImageUrls[1] || formData.aboutSections[1]?.imagePreview || '',
-        titleTabAboutThird: formData.aboutSections[2]?.title || '',
-        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
-        imageTabAboutThird: sectionImageUrls[2] || formData.aboutSections[2]?.imagePreview || '',
-        storeImage: storeImageUrl,
-        updatedAt: new Date()
-      };
-
-      await updateDoc(storeDoc, storeData);
-
-      setSaveStep('complete');
-      setShowConfirmation(true);
-    } catch (error) {
-      console.error('Error saving store:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save store information');
-      setSaving(false);
-    }
-  };
-
-  const handleConfirmation = () => {
-    window.location.hash = '#dashboard/products';
-  };
-
-  const handleDrop = (e: React.DragEvent, sectionId: string) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleImageValidation(file, sectionId);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
+  const handleSectionImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageValidation(file, sectionId);
+      handleSectionImageValidation(file, sectionId);
     }
   };
 
-  const handleImageValidation = (file: File, sectionId: string) => {
+  const handleSectionDrop = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleSectionImageValidation(file, sectionId);
+  };
+
+  const handleSectionImageValidation = (file: File, sectionId: string) => {
     if (file.size > 1024 * 1024) {
       setImageErrors(prev => ({
         ...prev,
@@ -426,25 +405,19 @@ export const StoreSetup = () => {
     reader.onload = (e) => {
       setFormData(prev => ({
         ...prev,
-        aboutSections: prev.aboutSections.map(s =>
-          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
+        aboutSections: prev.aboutSections.map(section =>
+          section.id === sectionId
+            ? {
+                ...section,
+                imageFile: file,
+                imagePreview: e.target?.result as string
+              }
+            : section
         )
       }));
     };
     reader.readAsDataURL(file);
     setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-  };
-
-  const addSection = () => {
-    if (formData.aboutSections.length < 3) {
-      setFormData(prev => ({
-        ...prev,
-        aboutSections: [
-          ...prev.aboutSections,
-          { id: String(prev.aboutSections.length + 1), title: '', description: '' }
-        ]
-      }));
-    }
   };
 
   return (
@@ -477,14 +450,14 @@ export const StoreSetup = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="Basic Information" icon={Store}>
           <div className="space-y-6">
-            <div>
+            <div ref={storeImageRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Store Image
               </label>
               <div
                 className={`
                   border-2 border-dashed rounded-lg p-8
-                  ${storeImage.preview ? 'border-primary-300' : imageErrors.storeImage ? 'border-red-300' : 'border-gray-300'}
+                  ${storeImage.preview ? 'border-primary-300' : validationErrors.storeImage ? 'border-red-300' : 'border-gray-300'}
                   hover:border-primary-400 transition-colors duration-200
                   flex flex-col items-center justify-center
                   cursor-pointer
@@ -529,17 +502,13 @@ export const StoreSetup = () => {
                     </div>
                   </div>
                 )}
-                {imageErrors.storeImage && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {imageErrors.storeImage}
+                {validationErrors.storeImage && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {validationErrors.storeImage}
                   </p>
                 )}
               </div>
-              {validationErrors.storeImage && (
-                <p className="mt-2 text-sm text-red-600">
-                  {validationErrors.storeImage}
-                </p>
-              )}
             </div>
 
             <div>
@@ -551,11 +520,12 @@ export const StoreSetup = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className={`w-full ${validationErrors.name ? 'border-red-300' : ''}`}
+                className={`w-full ${validationErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Enter your store name"
               />
               {validationErrors.name && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {validationErrors.name}
                 </p>
               )}
@@ -570,11 +540,12 @@ export const StoreSetup = () => {
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
-                className={`w-full ${validationErrors.description ? 'border-red-300' : ''}`}
+                className={`w-full ${validationErrors.description ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Describe your store"
               />
               {validationErrors.description && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {validationErrors.description}
                 </p>
               )}
@@ -595,12 +566,13 @@ export const StoreSetup = () => {
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                  className={`w-full pl-10 ${validationErrors.address ? 'border-red-300' : ''}`}
+                  className={`w-full pl-10 ${validationErrors.address ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Enter your store address"
                 />
               </div>
               {validationErrors.address && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {validationErrors.address}
                 </p>
               )}
@@ -617,12 +589,13 @@ export const StoreSetup = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className={`w-full pl-10 ${validationErrors.phone ? 'border-red-300' : ''}`}
+                  className={`w-full pl-10 ${validationErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Enter your phone number"
                 />
               </div>
               {validationErrors.phone && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {validationErrors.phone}
                 </p>
               )}
@@ -639,12 +612,13 @@ export const StoreSetup = () => {
                   type="url"
                   value={formData.website}
                   onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                  className={`w-full pl-10 ${validationErrors.website ? 'border-red-300' : ''}`}
+                  className={`w-full pl-10 ${validationErrors.website ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Enter your website URL"
                 />
               </div>
               {validationErrors.website && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {validationErrors.website}
                 </p>
               )}
@@ -654,11 +628,6 @@ export const StoreSetup = () => {
 
         <FormSection title="Business Hours" icon={Clock}>
           <div ref={businessHoursRef} className="space-y-4">
-            {validationErrors.businessHours && (
-              <div className="p-4 bg-red-50 rounded-lg text-red-700 mb-4">
-                {validationErrors.businessHours}
-              </div>
-            )}
             {daysOrder.map((day) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
@@ -702,11 +671,7 @@ export const StoreSetup = () => {
                         ...formData,
                         businessHours: {
                           ...formData.businessHours,
-                          [day]: {
-                            open: e.target.checked ? "09:00" : "09:00",
-                            close: e.target.checked ? "18:00" : "18:00",
-                            closed: e.target.checked
-                          }
+                          [day]: { ...formData.businessHours[day], closed: e.target.checked }
                         }
                       })}
                       className="rounded border-gray-300"
@@ -716,10 +681,16 @@ export const StoreSetup = () => {
                 </div>
               </div>
             ))}
+            {validationErrors.businessHours && (
+              <p className="mt-2 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                {validationErrors.businessHours}
+              </p>
+            )}
           </div>
         </FormSection>
 
-        <FormSection title="About Us" icon={Store}>
+        <FormSection title="About Us" icon={Building2}>
           <div className="space-y-8">
             <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
               <p className="text-sm text-primary-800">
@@ -749,11 +720,12 @@ export const StoreSetup = () => {
                           s.id === section.id ? { ...s, title: e.target.value } : s
                         )
                       }))}
-                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.title ? 'border-red-300' : ''}`}
+                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.title ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="Enter a title for this section"
                     />
                     {validationErrors.aboutSections?.[section.id]?.title && (
-                      <p className="mt-2 text-sm text-red-600">
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
                         {validationErrors.aboutSections[section.id].title}
                       </p>
                     )}
@@ -772,11 +744,12 @@ export const StoreSetup = () => {
                         )
                       }))}
                       rows={4}
-                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.description ? 'border-red-300' : ''}`}
+                      className={`w-full ${validationErrors.aboutSections?.[section.id]?.description ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="Tell your story..."
                     />
                     {validationErrors.aboutSections?.[section.id]?.description && (
-                      <p className="mt-2 text-sm text-red-600">
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
                         {validationErrors.aboutSections[section.id].description}
                       </p>
                     )}
@@ -789,13 +762,13 @@ export const StoreSetup = () => {
                     <div
                       className={`
                         border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
+                        ${section.imagePreview ? 'border-primary-300' : validationErrors.aboutSections?.[section.id]?.image ? 'border-red-300' : 'border-gray-300'}
                         hover:border-primary-400 transition-colors duration-200
                         flex flex-col items-center justify-center
                         cursor-pointer
                       `}
                       onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, section.id)}
+                      on Drop={(e) => handleSectionDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
                         <div className="relative w-full">
@@ -809,7 +782,7 @@ export const StoreSetup = () => {
                             onClick={() => setFormData(prev => ({
                               ...prev,
                               aboutSections: prev.aboutSections.map(s =>
-                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                                s.id === section.id ? { ...s, imageFile: null, imagePreview: '', imageUrl: '' } : s
                               )
                             }))}
                             className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
@@ -828,7 +801,7 @@ export const StoreSetup = () => {
                                   type="file"
                                   className="sr-only"
                                   accept="image/*"
-                                  onChange={(e) => handleImageChange(e, section.id)}
+                                  onChange={(e) => handleSectionImageChange(e, section.id)}
                                 />
                               </label>
                               <p className="pl-1">or drag and drop</p>
@@ -839,9 +812,10 @@ export const StoreSetup = () => {
                           </div>
                         </div>
                       )}
-                      {imageErrors[section.id] && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {imageErrors[section.id]}
+                      {validationErrors.aboutSections?.[section.id]?.image && (
+                        <p className="mt-2 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="w-4 h-4 mr-1" />
+                          {validationErrors.aboutSections[section.id].image}
                         </p>
                       )}
                     </div>
@@ -849,16 +823,6 @@ export const StoreSetup = () => {
                 </div>
               </div>
             ))}
-
-            {formData.aboutSections.length < 3 && (
-              <button
-                type="button"
-                onClick={addSection}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                + Add Another Section
-              </button>
-            )}
           </div>
         </FormSection>
 
