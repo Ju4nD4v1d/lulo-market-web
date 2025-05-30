@@ -4,7 +4,11 @@ import {
   Upload,
   X,
   InfoIcon,
-  Loader2
+  Loader2,
+  MapPin,
+  Phone,
+  Globe,
+  Clock
 } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -17,19 +21,21 @@ export const StoreSetup = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    aboutSections: Array<{
-      id: string;
-      title: string;
-      description: string;
-      image?: File;
-      imagePreview?: string;
-    }>;
-  }>({
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
+    address: '',
+    phone: '',
+    website: '',
+    businessHours: {
+      monday: { open: '09:00', close: '18:00', closed: false },
+      tuesday: { open: '09:00', close: '18:00', closed: false },
+      wednesday: { open: '09:00', close: '18:00', closed: false },
+      thursday: { open: '09:00', close: '18:00', closed: false },
+      friday: { open: '09:00', close: '18:00', closed: false },
+      saturday: { open: '10:00', close: '16:00', closed: false },
+      sunday: { open: '10:00', close: '16:00', closed: true }
+    },
     aboutSections: [{ id: '1', title: '', description: '' }]
   });
 
@@ -106,6 +112,10 @@ export const StoreSetup = () => {
       const storeData = {
         name: formData.name,
         description: formData.description,
+        address: formData.address,
+        phone: formData.phone,
+        website: formData.website,
+        businessHours: formData.businessHours,
         aboutSections: sectionsWithUrls,
         ownerId: currentUser.uid,
         createdAt: new Date(),
@@ -177,6 +187,118 @@ export const StoreSetup = () => {
                 required
               />
             </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Contact Information" icon={Phone}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your store address"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Website
+              </label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                  className="w-full pl-10"
+                  placeholder="Enter your website URL"
+                />
+              </div>
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Business Hours" icon={Clock}>
+          <div className="space-y-4">
+            {Object.entries(formData.businessHours).map(([day, hours]) => (
+              <div key={day} className="flex items-center space-x-4">
+                <div className="w-28">
+                  <span className="text-sm font-medium text-gray-700 capitalize">
+                    {day}
+                  </span>
+                </div>
+                <div className="flex-1 flex items-center space-x-4">
+                  <input
+                    type="time"
+                    value={hours.open}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      businessHours: {
+                        ...formData.businessHours,
+                        [day]: { ...hours, open: e.target.value }
+                      }
+                    })}
+                    className="w-40"
+                    disabled={hours.closed}
+                  />
+                  <span className="text-gray-500">to</span>
+                  <input
+                    type="time"
+                    value={hours.close}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      businessHours: {
+                        ...formData.businessHours,
+                        [day]: { ...hours, close: e.target.value }
+                      }
+                    })}
+                    className="w-40"
+                    disabled={hours.closed}
+                  />
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={hours.closed}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        businessHours: {
+                          ...formData.businessHours,
+                          [day]: { ...hours, closed: e.target.checked }
+                        }
+                      })}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Closed</span>
+                  </label>
+                </div>
+              </div>
+            ))}
           </div>
         </FormSection>
 
