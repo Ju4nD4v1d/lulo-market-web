@@ -11,7 +11,8 @@ import {
   DollarSign,
   Tag,
   Boxes,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface Product {
@@ -25,12 +26,20 @@ interface Product {
   status: 'active' | 'draft' | 'outOfStock';
 }
 
+interface ProductImage {
+  file: File;
+  preview: string;
+}
+
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (product: Partial<Product>) => void;
   product?: Product;
 }
+
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
   const [formData, setFormData] = useState<Partial<Product>>(product || {
@@ -42,7 +51,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     status: 'active',
     images: []
   });
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -56,11 +67,61 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     setDragActive(false);
   };
 
+  const validateAndProcessFiles = (files: FileList | null) => {
+    if (!files) return;
+
+    const newImages: ProductImage[] = [];
+    let errorMessage = '';
+
+    Array.from(files).forEach(file => {
+      if (productImages.length + newImages.length >= MAX_IMAGES) {
+        errorMessage = `Maximum ${MAX_IMAGES} images allowed`;
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        errorMessage = 'One or more images exceed 1MB size limit';
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        errorMessage = 'Only image files are allowed';
+        return;
+      }
+
+      newImages.push({
+        file,
+        preview: URL.createObjectURL(file)
+      });
+    });
+
+    if (newImages.length > 0) {
+      setProductImages(prev => [...prev, ...newImages]);
+      setError('');
+    } else if (errorMessage) {
+      setError(errorMessage);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    // Handle file drop logic here
+    validateAndProcessFiles(e.dataTransfer.files);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    validateAndProcessFiles(e.target.files);
+  };
+
+  const removeImage = (index: number) => {
+    setProductImages(prev => {
+      const newImages = [...prev];
+      URL.revokeObjectURL(newImages[index].preview);
+      newImages.splice(index, 1);
+      return newImages;
+    });
+    setError('');
   };
 
   if (!isOpen) return null;
@@ -84,30 +145,61 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           <form className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Images
+                Product Images (Up to 5)
               </label>
-              <div
-                className={`
-                  border-2 border-dashed rounded-lg p-8
-                  ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-                  hover:border-primary-400 transition-colors duration-200
-                  text-center cursor-pointer
-                `}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="mt-4 flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                    <span>Upload files</span>
-                    <input type="file" className="sr-only" multiple accept="image/*" />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
+              {error && (
+                <div className="mb-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {error}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  PNG, JPG, GIF up to 5MB
-                </p>
+              )}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                {productImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image.preview}
+                      alt={`Product ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 
+                        rounded-full text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {productImages.length < MAX_IMAGES && (
+                  <div
+                    className={`
+                      border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center
+                      ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
+                      hover:border-primary-400 transition-colors duration-200 cursor-pointer
+                    `}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                    <div className="text-center">
+                      <label className="cursor-pointer">
+                        <span className="text-sm text-primary-600 hover:text-primary-500">Upload</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          multiple
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Max 1MB per image
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
