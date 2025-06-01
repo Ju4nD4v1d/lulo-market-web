@@ -13,12 +13,14 @@ import {
   Boxes,
   AlertCircle,
   Image as ImageIcon,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react';
 import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { ProductDetails } from './ProductDetails';
 
 interface Product {
   id: string;
@@ -66,10 +68,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Load existing images if editing a product
     if (product?.images) {
       const loadedImages = product.images.map(url => ({
-        file: null as any, // We don't have the file object for existing images
+        file: null as any,
         preview: url
       }));
       setProductImages(loadedImages);
@@ -138,7 +139,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const removeImage = (index: number) => {
     setProductImages(prev => {
       const newImages = [...prev];
-      if (newImages[index].file) { // Only revoke if it's a new image
+      if (newImages[index].file) {
         URL.revokeObjectURL(newImages[index].preview);
       }
       newImages.splice(index, 1);
@@ -153,16 +154,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     setError('');
 
     try {
-      // Upload images first
       const uploadedImageUrls = await Promise.all(
         productImages.map(async (image, index) => {
           if (image.file) {
-            // For new images, upload to Firebase Storage
             const imageRef = ref(storage, `stores/${storeId}/products/${Date.now()}_${index}`);
             await uploadBytes(imageRef, image.file);
             return getDownloadURL(imageRef);
           }
-          // For existing images, keep the URL
           return image.preview;
         })
       );
@@ -175,11 +173,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
       };
 
       if (product?.id) {
-        // Update existing product
         const productRef = doc(db, 'products', product.id);
         await updateDoc(productRef, productData);
       } else {
-        // Create new product
         await addDoc(collection(db, 'products'), {
           ...productData,
           createdAt: new Date()
@@ -275,34 +271,32 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="block w-full"
-                  required
-                />
-              </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="block w-full"
+                required
+              />
+            </div>
 
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
-                </label>
-                <input
-                  type="text"
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="block w-full"
-                  required
-                />
-              </div>
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category *
+              </label>
+              <input
+                type="text"
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="block w-full"
+                required
+              />
             </div>
 
             <div>
@@ -376,7 +370,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4 pt-4">
+            <div className="flex justify-end space-x-4">
               <button
                 type="button"
                 onClick={onClose}
@@ -419,13 +413,13 @@ export const ProductManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [storeId, setStoreId] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const loadStoreAndProducts = async () => {
       if (!currentUser) return;
 
       try {
-        // First get the store ID
         const storesRef = collection(db, 'stores');
         const storeQuery = query(storesRef, where('ownerId', '==', currentUser.uid));
         const storeSnapshot = await getDocs(storeQuery);
@@ -434,7 +428,6 @@ export const ProductManagement = () => {
           const store = storeSnapshot.docs[0];
           setStoreId(store.id);
 
-          // Then load products for this store
           const productsRef = collection(db, 'products');
           const productsQuery = query(productsRef, where('storeId', '==', store.id));
           const productsSnapshot = await getDocs(productsQuery);
@@ -466,10 +459,8 @@ export const ProductManagement = () => {
   });
 
   const handleSaveProduct = async (productData: Partial<Product>) => {
-    // Product saving is now handled in the modal
     setIsModalOpen(false);
     
-    // Refresh products list
     if (currentUser && storeId) {
       const productsRef = collection(db, 'products');
       const productsQuery = query(productsRef, where('storeId', '==', storeId));
@@ -492,9 +483,17 @@ export const ProductManagement = () => {
     );
   }
 
+  if (selectedProduct) {
+    return (
+      <ProductDetails
+        product={selectedProduct}
+        onBack={() => setSelectedProduct(null)}
+      />
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
@@ -510,7 +509,6 @@ export const ProductManagement = () => {
         </button>
       </div>
 
-      {/* Filters and Search */}
       <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -558,7 +556,6 @@ export const ProductManagement = () => {
         </div>
       </div>
 
-      {/* Products List */}
       {products.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
           <div className="max-w-md mx-auto">
@@ -593,19 +590,18 @@ export const ProductManagement = () => {
               )}
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-primary-600">
                     ${product.price.toFixed(2)}
                   </span>
-                  <span className={`
-                    px-2 py-1 rounded-full text-xs font-medium
-                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                      'bg-red-100 text-red-800'}
-                  `}>
-                    {product.status}
-                  </span>
+                  <button
+                    onClick={() => setSelectedProduct(product)}
+                    className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
+                  >
+                    <Eye className="w-5 h-5 mr-1" />
+                    View Details
+                  </button>
                 </div>
               </div>
             </div>
@@ -613,7 +609,6 @@ export const ProductManagement = () => {
         </div>
       )}
 
-      {/* Add/Edit Product Modal */}
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
