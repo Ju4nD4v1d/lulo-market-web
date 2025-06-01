@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Package, 
   Plus, 
@@ -12,8 +12,13 @@ import {
   Tag,
   Boxes,
   AlertCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react';
+import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
 
 interface Product {
   id: string;
@@ -24,6 +29,9 @@ interface Product {
   stock: number;
   images: string[];
   status: 'active' | 'draft' | 'outOfStock';
+  storeId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface ProductImage {
@@ -36,12 +44,13 @@ interface ProductModalProps {
   onClose: () => void;
   onSave: (product: Partial<Product>) => void;
   product?: Product;
+  storeId: string;
 }
 
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
-const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
+const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product, storeId }) => {
   const [formData, setFormData] = useState<Partial<Product>>(product || {
     name: '',
     description: '',
@@ -54,18 +63,18 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
+  useEffect(() => {
+    // Load existing images if editing a product
+    if (product?.images) {
+      const loadedImages = product.images.map(url => ({
+        file: null as any, // We don't have the file object for existing images
+        preview: url
+      }));
+      setProductImages(loadedImages);
+    }
+  }, [product]);
 
   const validateAndProcessFiles = (files: FileList | null) => {
     if (!files) return;
@@ -103,6 +112,18 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -117,11 +138,62 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const removeImage = (index: number) => {
     setProductImages(prev => {
       const newImages = [...prev];
-      URL.revokeObjectURL(newImages[index].preview);
+      if (newImages[index].file) { // Only revoke if it's a new image
+        URL.revokeObjectURL(newImages[index].preview);
+      }
       newImages.splice(index, 1);
       return newImages;
     });
     setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setError('');
+
+    try {
+      // Upload images first
+      const uploadedImageUrls = await Promise.all(
+        productImages.map(async (image, index) => {
+          if (image.file) {
+            // For new images, upload to Firebase Storage
+            const imageRef = ref(storage, `stores/${storeId}/products/${Date.now()}_${index}`);
+            await uploadBytes(imageRef, image.file);
+            return getDownloadURL(imageRef);
+          }
+          // For existing images, keep the URL
+          return image.preview;
+        })
+      );
+
+      const productData = {
+        ...formData,
+        images: uploadedImageUrls,
+        storeId,
+        updatedAt: new Date()
+      };
+
+      if (product?.id) {
+        // Update existing product
+        const productRef = doc(db, 'products', product.id);
+        await updateDoc(productRef, productData);
+      } else {
+        // Create new product
+        await addDoc(collection(db, 'products'), {
+          ...productData,
+          createdAt: new Date()
+        });
+      }
+
+      onSave(productData);
+      onClose();
+    } catch (err) {
+      console.error('Error saving product:', err);
+      setError('Failed to save product. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -141,8 +213,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           </button>
         </div>
 
-        <div className="p-6">
-          <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Product Images (Up to 5)
@@ -309,31 +381,82 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                disabled={isSaving}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                disabled={isSaving}
+                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 
+                  transition-colors flex items-center space-x-2"
               >
-                {product ? 'Update Product' : 'Add Product'}
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{product ? 'Update Product' : 'Add Product'}</span>
+                  </>
+                )}
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
 export const ProductManagement = () => {
+  const { currentUser } = useAuth();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [storeId, setStoreId] = useState<string>('');
 
-  const categories = ['all', 'food', 'drinks', 'snacks', 'desserts'];
+  useEffect(() => {
+    const loadStoreAndProducts = async () => {
+      if (!currentUser) return;
+
+      try {
+        // First get the store ID
+        const storesRef = collection(db, 'stores');
+        const storeQuery = query(storesRef, where('ownerId', '==', currentUser.uid));
+        const storeSnapshot = await getDocs(storeQuery);
+        
+        if (!storeSnapshot.empty) {
+          const store = storeSnapshot.docs[0];
+          setStoreId(store.id);
+
+          // Then load products for this store
+          const productsRef = collection(db, 'products');
+          const productsQuery = query(productsRef, where('storeId', '==', store.id));
+          const productsSnapshot = await getDocs(productsQuery);
+          
+          const loadedProducts = productsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as Product[];
+          
+          setProducts(loadedProducts);
+        }
+      } catch (error) {
+        console.error('Error loading store and products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStoreAndProducts();
+  }, [currentUser]);
+
+  const categories = ['all', ...new Set(products.map(product => product.category))];
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -342,10 +465,32 @@ export const ProductManagement = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleSaveProduct = (product: Partial<Product>) => {
-    // Handle save logic here
+  const handleSaveProduct = async (productData: Partial<Product>) => {
+    // Product saving is now handled in the modal
     setIsModalOpen(false);
+    
+    // Refresh products list
+    if (currentUser && storeId) {
+      const productsRef = collection(db, 'products');
+      const productsQuery = query(productsRef, where('storeId', '==', storeId));
+      const productsSnapshot = await getDocs(productsQuery);
+      
+      const updatedProducts = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+      
+      setProducts(updatedProducts);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -434,7 +579,37 @@ export const ProductManagement = () => {
         </div>
       ) : (
         <div className={viewMode === 'grid' ? 'grid grid-cols-3 gap-6' : 'space-y-4'}>
-          {/* Product items would go here */}
+          {filteredProducts.map(product => (
+            <div
+              key={product.id}
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+            >
+              {product.images?.[0] && (
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-primary-600">
+                    ${product.price.toFixed(2)}
+                  </span>
+                  <span className={`
+                    px-2 py-1 rounded-full text-xs font-medium
+                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                      'bg-red-100 text-red-800'}
+                  `}>
+                    {product.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -443,6 +618,7 @@ export const ProductManagement = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProduct}
+        storeId={storeId}
       />
     </div>
   );
