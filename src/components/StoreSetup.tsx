@@ -16,13 +16,36 @@ import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } f
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { SaveProgressModal } from './SaveProgressModal';
+import { ConfirmDialog } from './ConfirmDialog';
+
+const defaultBusinessHours = {
+  Sunday: { open: "09:00", close: "18:00", closed: true },
+  Monday: { open: "09:00", close: "18:00", closed: false },
+  Tuesday: { open: "09:00", close: "18:00", closed: false },
+  Wednesday: { open: "09:00", close: "18:00", closed: false },
+  Thursday: { open: "09:00", close: "18:00", closed: false },
+  Friday: { open: "09:00", close: "18:00", closed: false },
+  Saturday: { open: "09:00", close: "18:00", closed: true }
+};
+
+const daysOrder = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday'
+];
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
@@ -34,16 +57,12 @@ export const StoreSetup = () => {
     address: '',
     phone: '',
     website: '',
-    businessHours: {
-      Monday: { open: '09:00', close: '18:00', closed: false },
-      Tuesday: { open: '09:00', close: '18:00', closed: false },
-      Wednesday: { open: '09:00', close: '18:00', closed: false },
-      Thursday: { open: '09:00', close: '18:00', closed: false },
-      Friday: { open: '09:00', close: '18:00', closed: false },
-      Saturday: { open: '10:00', close: '16:00', closed: false },
-      Sunday: { open: '10:00', close: '16:00', closed: true }
-    },
-    aboutSections: [{ id: '1', title: '', description: '' }]
+    businessHours: defaultBusinessHours,
+    aboutSections: [
+      { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+      { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+      { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
+    ]
   });
 
   // Load existing store data
@@ -73,25 +92,28 @@ export const StoreSetup = () => {
             {
               id: '1',
               title: storeData.titleTabAboutFirst || '',
-              description: storeData.bodyTabAboutFirst || ''
-            }
-          ];
-
-          if (storeData.titleTabAboutSecond || storeData.bodyTabAboutSecond) {
-            aboutSections.push({
+              description: storeData.bodyTabAboutFirst || '',
+              imageUrl: storeData.imageTabAboutFirst || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutFirst || ''
+            },
+            {
               id: '2',
               title: storeData.titleTabAboutSecond || '',
-              description: storeData.bodyTabAboutSecond || ''
-            });
-          }
-
-          if (storeData.titleTabAboutThird || storeData.bodyTabAboutThird) {
-            aboutSections.push({
+              description: storeData.bodyTabAboutSecond || '',
+              imageUrl: storeData.imageTabAboutSecond || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutSecond || ''
+            },
+            {
               id: '3',
               title: storeData.titleTabAboutThird || '',
-              description: storeData.bodyTabAboutThird || ''
-            });
-          }
+              description: storeData.bodyTabAboutThird || '',
+              imageUrl: storeData.imageTabAboutThird || '',
+              imageFile: null,
+              imagePreview: storeData.imageTabAboutThird || ''
+            }
+          ];
 
           // Set form data with all fields
           setFormData(prev => ({
@@ -107,11 +129,113 @@ export const StoreSetup = () => {
         }
       } catch (err) {
         console.error('Error loading store data:', err);
+        setError('Failed to load store data');
       }
     };
 
     loadStoreData();
   }, [currentUser]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSave = async () => {
+    if (!currentUser) return;
+    
+    setShowConfirmDialog(false);
+    setSaving(true);
+    setSaveStep('saving');
+    setError(null);
+
+    try {
+      // Geocode the address if provided
+      let coordinates = new GeoPoint(0, 0);
+      if (formData.address.trim()) {
+        const geocoder = new google.maps.Geocoder();
+        const geocodeResult = await geocoder.geocode({ address: formData.address });
+        
+        if (geocodeResult.results[0]) {
+          const location = geocodeResult.results[0].geometry.location;
+          coordinates = new GeoPoint(location.lat(), location.lng());
+        }
+      }
+
+      // Upload store image
+      setSaveStep('uploading');
+      let storeImageUrl = storeImage.url;
+      if (storeImage.file) {
+        const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
+        await uploadBytes(storageRef, storeImage.file);
+        storeImageUrl = await getDownloadURL(storageRef);
+      }
+
+      // Upload about section images
+      const aboutSectionImages = await Promise.all(
+        formData.aboutSections.map(async (section, index) => {
+          if (section.imageFile) {
+            const storageRef = ref(storage, `stores/${currentUser.uid}/about${index + 1}.png`);
+            await uploadBytes(storageRef, section.imageFile);
+            return getDownloadURL(storageRef);
+          }
+          return section.imageUrl || '';
+        })
+      );
+
+      setSaveStep('finalizing');
+
+      const storeData = {
+        name: formData.name,
+        description: formData.description,
+        address: formData.address,
+        location: coordinates,
+        phone: formData.phone,
+        website: formData.website,
+        storeBusinessHours: formData.businessHours,
+        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
+        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        imageTabAboutFirst: aboutSectionImages[0] || '',
+        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
+        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        imageTabAboutSecond: aboutSectionImages[1] || '',
+        titleTabAboutThird: formData.aboutSections[2]?.title || '',
+        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
+        imageTabAboutThird: aboutSectionImages[2] || '',
+        ownerId: currentUser.uid,
+        updatedAt: new Date(),
+        storeImage: storeImageUrl
+      };
+
+      // Check if store already exists
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        await addDoc(collection(db, 'stores'), {
+          ...storeData,
+          createdAt: new Date()
+        });
+      } else {
+        // Update existing store
+        const storeDoc = querySnapshot.docs[0].ref;
+        await updateDoc(storeDoc, storeData);
+      }
+
+      setSaveStep('complete');
+      setShowConfirmation(true);
+    } catch (error) {
+      console.error('Error saving store:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save store information');
+      setSaving(false);
+    }
+  };
+
+  const handleConfirmation = () => {
+    window.location.hash = '#dashboard/products';
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -131,14 +255,6 @@ export const StoreSetup = () => {
   };
 
   const handleStoreImageValidation = (file: File) => {
-    if (file.size > 1024 * 1024) {
-      setImageErrors(prev => ({
-        ...prev,
-        storeImage: 'File size must be less than 1MB'
-      }));
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = (e) => {
       setStoreImage({
@@ -147,158 +263,55 @@ export const StoreSetup = () => {
       });
     };
     reader.readAsDataURL(file);
-    setImageErrors(prev => ({ ...prev, storeImage: '' }));
   };
 
-  const uploadStoreImage = async (): Promise<string | null> => {
-    if (!storeImage.file || !currentUser) return null;
-
-    const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
-    await uploadBytes(storageRef, storeImage.file);
-    return getDownloadURL(storageRef);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return;
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      // Upload store image if exists
-      let storeImageUrl = storeImage.url;
-      if (storeImage.file) {
-        storeImageUrl = await uploadStoreImage();
-      }
-
-      // Geocode the address
-      const geocoder = new google.maps.Geocoder();
-      const geocodeResult = await geocoder.geocode({ address: formData.address });
-      
-      if (!geocodeResult.results[0]) {
-        throw new Error('Invalid address. Please enter a valid address.');
-      }
-
-      const location = geocodeResult.results[0].geometry.location;
-      const coordinates = {
-        lat: location.lat(),
-        lng: location.lng()
-      };
-
-      const storeData = {
-        name: formData.name,
-        description: formData.description,
-        address: formData.address,
-        location: new GeoPoint(coordinates.lat, coordinates.lng),
-        phone: formData.phone,
-        website: formData.website,
-        storeBusinessHours: formData.businessHours,
-        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
-        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
-        titleTabAboutThird: formData.aboutSections[2]?.title || '',
-        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
-        ownerId: currentUser.uid,
-        createdAt: new Date(),
-        storeImage: storeImageUrl
-      };
-
-      // Check if store already exists
-      const storesRef = collection(db, 'stores');
-      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await addDoc(collection(db, 'stores'), storeData);
-      } else {
-        // Update existing store
-        const storeDoc = querySnapshot.docs[0].ref;
-        await updateDoc(storeDoc, storeData);
-      }
-
-      setShowConfirmation(true);
-    } catch (error) {
-      console.error('Error saving store:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save store information');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent, sectionId: string) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleImageValidation(file, sectionId);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
+  const handleSectionImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageValidation(file, sectionId);
+      handleSectionImageValidation(file, sectionId);
     }
   };
 
-  const handleImageValidation = (file: File, sectionId: string) => {
-    if (file.size > 1024 * 1024) {
-      setImageErrors(prev => ({
-        ...prev,
-        [sectionId]: 'File size must be less than 1MB'
-      }));
-      return;
-    }
+  const handleSectionDrop = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleSectionImageValidation(file, sectionId);
+  };
 
+  const handleSectionImageValidation = (file: File, sectionId: string) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       setFormData(prev => ({
         ...prev,
-        aboutSections: prev.aboutSections.map(s =>
-          s.id === sectionId ? { ...s, image: file, imagePreview: e.target?.result as string } : s
+        aboutSections: prev.aboutSections.map(section =>
+          section.id === sectionId
+            ? {
+                ...section,
+                imageFile: file,
+                imagePreview: e.target?.result as string
+              }
+            : section
         )
       }));
     };
     reader.readAsDataURL(file);
-    setImageErrors(prev => ({ ...prev, [sectionId]: '' }));
-  };
-
-  const addSection = () => {
-    if (formData.aboutSections.length < 3) {
-      setFormData(prev => ({
-        ...prev,
-        aboutSections: [
-          ...prev.aboutSections,
-          { id: String(prev.aboutSections.length + 1), title: '', description: '' }
-        ]
-      }));
-    }
-  };
-
-  const handleConfirmation = () => {
-    window.location.hash = '#dashboard/products';
   };
 
   return (
     <div className="max-w-4xl mx-auto">
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Store Created Successfully!
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Your store has been created and saved. You can now start adding products to your store.
-            </p>
-            <button
-              onClick={handleConfirmation}
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
-                hover:bg-primary-700 transition-colors"
-            >
-              Continue to Products
-            </button>
-          </div>
-        </div>
-      )}
+      <SaveProgressModal
+        isOpen={saving}
+        currentStep={saveStep}
+        onComplete={handleConfirmation}
+      />
+
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onConfirm={handleConfirmSave}
+        onCancel={() => setShowConfirmDialog(false)}
+        title="Save Store Changes"
+        message="Are you sure you want to save these changes to your store? This will update your store profile immediately."
+      />
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
         <div className="flex items-center space-x-4">
@@ -326,13 +339,9 @@ export const StoreSetup = () => {
                 Store Image
               </label>
               <div
-                className={`
-                  border-2 border-dashed rounded-lg p-8
-                  ${storeImage.preview ? 'border-primary-300' : imageErrors.storeImage ? 'border-red-300' : 'border-gray-300'}
+                className="border-2 border-dashed rounded-lg p-8 border-gray-300
                   hover:border-primary-400 transition-colors duration-200
-                  flex flex-col items-center justify-center
-                  cursor-pointer
-                `}
+                  flex flex-col items-center justify-center cursor-pointer"
                 onDragOver={handleDragOver}
                 onDrop={handleStoreDrop}
               >
@@ -372,11 +381,6 @@ export const StoreSetup = () => {
                       </p>
                     </div>
                   </div>
-                )}
-                {imageErrors.storeImage && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {imageErrors.storeImage}
-                  </p>
                 )}
               </div>
             </div>
@@ -463,7 +467,7 @@ export const StoreSetup = () => {
 
         <FormSection title="Business Hours" icon={Clock}>
           <div className="space-y-4">
-            {Object.entries(formData.businessHours).map(([day, hours]) => (
+            {daysOrder.map((day) => (
               <div key={day} className="flex items-center space-x-4">
                 <div className="w-28">
                   <span className="text-sm font-medium text-gray-700">
@@ -473,40 +477,40 @@ export const StoreSetup = () => {
                 <div className="flex-1 flex items-center space-x-4">
                   <input
                     type="time"
-                    value={hours.open}
+                    value={formData.businessHours[day].open}
                     onChange={(e) => setFormData({
                       ...formData,
                       businessHours: {
                         ...formData.businessHours,
-                        [day]: { ...hours, open: e.target.value }
+                        [day]: { ...formData.businessHours[day], open: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={hours.closed}
+                    disabled={formData.businessHours[day].closed}
                   />
                   <span className="text-gray-500">to</span>
                   <input
                     type="time"
-                    value={hours.close}
+                    value={formData.businessHours[day].close}
                     onChange={(e) => setFormData({
                       ...formData,
                       businessHours: {
                         ...formData.businessHours,
-                        [day]: { ...hours, close: e.target.value }
+                        [day]: { ...formData.businessHours[day], close: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={hours.closed}
+                    disabled={formData.businessHours[day].closed}
                   />
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      checked={hours.closed}
+                      checked={formData.businessHours[day].closed}
                       onChange={(e) => setFormData({
                         ...formData,
                         businessHours: {
                           ...formData.businessHours,
-                          [day]: { ...hours, closed: e.target.checked }
+                          [day]: { ...formData.businessHours[day], closed: e.target.checked }
                         }
                       })}
                       className="rounded border-gray-300"
@@ -519,7 +523,7 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        <FormSection title="About Us" icon={Store}>
+        <FormSection title="About Us" icon={Building2}>
           <div className="space-y-8">
             <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
               <p className="text-sm text-primary-800">
@@ -530,7 +534,10 @@ export const StoreSetup = () => {
             </div>
 
             {formData.aboutSections.map((section) => (
-              <div key={section.id} className="relative bg-gray-50 rounded-lg p-6">
+              <div
+                key={section.id}
+                className="relative bg-gray-50 rounded-lg p-6"
+              >
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -573,15 +580,11 @@ export const StoreSetup = () => {
                       Image
                     </label>
                     <div
-                      className={`
-                        border-2 border-dashed rounded-lg p-8
-                        ${section.imagePreview ? 'border-primary-300' : imageErrors[section.id] ? 'border-red-300' : 'border-gray-300'}
+                      className="border-2 border-dashed rounded-lg p-8 border-gray-300
                         hover:border-primary-400 transition-colors duration-200
-                        flex flex-col items-center justify-center
-                        cursor-pointer
-                      `}
+                        flex flex-col items-center justify-center cursor-pointer"
                       onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, section.id)}
+                      onDrop={(e) => handleSectionDrop(e, section.id)}
                     >
                       {section.imagePreview ? (
                         <div className="relative w-full">
@@ -595,7 +598,7 @@ export const StoreSetup = () => {
                             onClick={() => setFormData(prev => ({
                               ...prev,
                               aboutSections: prev.aboutSections.map(s =>
-                                s.id === section.id ? { ...s, image: undefined, imagePreview: undefined } : s
+                                s.id === section.id ? { ...s, imageFile: null, imagePreview: '', imageUrl: '' } : s
                               )
                             }))}
                             className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
@@ -614,7 +617,7 @@ export const StoreSetup = () => {
                                   type="file"
                                   className="sr-only"
                                   accept="image/*"
-                                  onChange={(e) => handleImageChange(e, section.id)}
+                                  onChange={(e) => handleSectionImageChange(e, section.id)}
                                 />
                               </label>
                               <p className="pl-1">or drag and drop</p>
@@ -625,26 +628,11 @@ export const StoreSetup = () => {
                           </div>
                         </div>
                       )}
-                      {imageErrors[section.id] && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {imageErrors[section.id]}
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
               </div>
             ))}
-
-            {formData.aboutSections.length < 3 && (
-              <button
-                type="button"
-                onClick={addSection}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                + Add Another Section
-              </button>
-            )}
           </div>
         </FormSection>
 
