@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Edit } from 'lucide-react';
 
 interface ProductDetailsProps {
   product: {
@@ -19,7 +19,7 @@ interface ProductDetailsProps {
   onDelete: () => void;
 }
 
-export const ProductDetails = ({ product, onBack, onEdit, onDelete }: ProductDetailsProps) => {
+export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps) => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -30,24 +30,14 @@ export const ProductDetails = ({ product, onBack, onEdit, onDelete }: ProductDet
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Products
         </button>
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={onEdit}
-            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
-              border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Edit className="w-4 h-4" />
-            <span>Edit</span>
-          </button>
-          <button
-            onClick={onDelete}
-            className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-white
-              border border-red-600 rounded-lg hover:bg-red-600 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
-          </button>
-        </div>
+        <button
+          onClick={onEdit}
+          className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
+            border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <Edit className="w-4 h-4" />
+          <span>Edit</span>
+        </button>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">

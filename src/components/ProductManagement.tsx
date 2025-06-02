@@ -56,7 +56,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product, storeId }) => {
-  const [formData, setFormData] = useState<Partial<Product>>(product || {
+  const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
     price: 0,
@@ -71,12 +71,33 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (product?.images) {
-      const loadedImages = product.images.map(url => ({
+    if (product) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: product.category,
+        stock: product.stock,
+        status: product.status,
+        images: product.images
+      });
+
+      const existingImages = product.images.map(url => ({
         file: null as any,
         preview: url
       }));
-      setProductImages(loadedImages);
+      setProductImages(existingImages);
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        stock: 0,
+        status: 'active',
+        images: []
+      });
+      setProductImages([]);
     }
   }, [product]);
 
@@ -495,21 +516,23 @@ export const ProductManagement = () => {
 
   const handleDeleteProduct = async (product: Product) => {
     try {
-      // Delete product images from storage
       await Promise.all(product.images.map(async (imageUrl) => {
         const imageRef = ref(storage, imageUrl);
         await deleteObject(imageRef);
       }));
 
-      // Delete product document
       await deleteDoc(doc(db, 'products', product.id));
 
-      // Update local state
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setDeleteConfirmProduct(null);
     } catch (error) {
       console.error('Error deleting product:', error);
     }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -671,10 +694,7 @@ export const ProductManagement = () => {
                       <Eye className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setIsModalOpen(true);
-                      }}
+                      onClick={() => handleEditProduct(product)}
                       className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
                     >
                       <Edit className="w-5 h-5" />
@@ -693,7 +713,6 @@ export const ProductManagement = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteConfirmProduct && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
