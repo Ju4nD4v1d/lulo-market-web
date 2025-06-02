@@ -93,6 +93,8 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
       setRemovedImages([]);
       setExistingImages(finalImages);
 
+      // Navigate back after successful save
+      onBack();
     } catch (err) {
       console.error('Error saving product:', err);
       setError('Failed to save changes. Please try again.');
@@ -102,18 +104,9 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      category: product.category,
-      stock: product.stock,
-      status: product.status
-    });
-    setExistingImages(product.images);
-    setNewImages([]);
-    setRemovedImages([]);
-    setError('');
+    // Clean up any object URLs created for new images
+    newImages.forEach(image => URL.revokeObjectURL(image.preview));
+    onBack();
   };
 
   const validateAndProcessFiles = (files: FileList | null) => {
