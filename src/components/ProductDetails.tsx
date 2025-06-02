@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X, Upload, Trash2, ImageIcon, Loader2 } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X, Upload, Trash2, ImageIcon, Loader2, CheckCircle2 } from 'lucide-react';
+import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 
@@ -25,6 +25,8 @@ interface ProductDetailsProps {
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
+type SaveStatus = 'idle' | 'saving' | 'uploading' | 'updating' | 'success';
+
 export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
   const [formData, setFormData] = useState({
     name: product.name,
@@ -35,14 +37,13 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
     status: product.status
   });
 
-  // Separate state for managing images
   const [existingImages, setExistingImages] = useState<string[]>(product.images);
   const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]);
   const [removedImages, setRemovedImages] = useState<string[]>([]);
   
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -54,10 +55,11 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
 
   const handleSave = async () => {
     try {
-      setIsSaving(true);
+      setSaveStatus('saving');
       setError('');
 
-      // Delete removed images from storage
+      // Delete removed images
+      setSaveStatus('uploading');
       await Promise.all(
         removedImages.map(async (imageUrl) => {
           const imageRef = ref(storage, imageUrl);
@@ -81,6 +83,7 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
       ];
 
       // Update product in Firestore
+      setSaveStatus('updating');
       const productRef = doc(db, 'products', product.id);
       await updateDoc(productRef, {
         ...formData,
@@ -88,18 +91,22 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
         updatedAt: new Date()
       });
 
+      setSaveStatus('success');
+
       // Reset image states
       setNewImages([]);
       setRemovedImages([]);
       setExistingImages(finalImages);
 
-      // Navigate back after successful save
-      onBack();
+      // Wait for animation
+      setTimeout(() => {
+        onBack();
+      }, 1000);
+
     } catch (err) {
       console.error('Error saving product:', err);
       setError('Failed to save changes. Please try again.');
-    } finally {
-      setIsSaving(false);
+      setSaveStatus('idle');
     }
   };
 
@@ -182,11 +189,50 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
     setError('');
   };
 
-  // Combine existing and new images for display
   const allImages = [
     ...existingImages.map(url => ({ url, isExisting: true })),
     ...newImages.map(({ preview }) => ({ url: preview, isExisting: false }))
   ];
+
+  const getSaveButtonContent = () => {
+    switch (saveStatus) {
+      case 'saving':
+        return (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Preparing changes...</span>
+          </>
+        );
+      case 'uploading':
+        return (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Uploading images...</span>
+          </>
+        );
+      case 'updating':
+        return (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Updating product...</span>
+          </>
+        );
+      case 'success':
+        return (
+          <>
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Saved successfully!</span>
+          </>
+        );
+      default:
+        return (
+          <>
+            <Save className="w-4 h-4" />
+            <span>Save Changes</span>
+          </>
+        );
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -194,6 +240,7 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
         <button
           onClick={onBack}
           className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          disabled={saveStatus !== 'idle'}
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Products
@@ -201,7 +248,7 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
         <div className="flex space-x-3">
           <button
             onClick={handleCancel}
-            disabled={isSaving}
+            disabled={saveStatus !== 'idle'}
             className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
               border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed"
@@ -211,22 +258,17 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
           </button>
           <button
             onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center space-x-2 px-4 py-2 text-white bg-primary-600
-              rounded-lg hover:bg-primary-700 transition-colors
-              disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={saveStatus !== 'idle'}
+            className={`
+              flex items-center space-x-2 px-4 py-2 text-white
+              rounded-lg transition-all duration-200
+              ${saveStatus === 'success' 
+                ? 'bg-green-500' 
+                : 'bg-primary-600 hover:bg-primary-700'}
+              disabled:opacity-50 disabled:cursor-not-allowed
+            `}
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Save Changes</span>
-              </>
-            )}
+            {getSaveButtonContent()}
           </button>
         </div>
       </div>
