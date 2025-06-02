@@ -16,7 +16,6 @@ interface ProductDetailsProps {
   };
   onBack: () => void;
   onEdit: () => void;
-  onDelete: () => void;
 }
 
 export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps) => {
