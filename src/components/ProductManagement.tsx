@@ -15,7 +15,6 @@ import {
   Image as ImageIcon,
   Loader2,
   Eye,
-  Edit,
   Trash2,
   AlertTriangle
 } from 'lucide-react';
@@ -530,11 +529,6 @@ export const ProductManagement = () => {
     }
   };
 
-  const handleEditProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -692,12 +686,6 @@ export const ProductManagement = () => {
                       className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
                     >
                       <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleEditProduct(product)}
-                      className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
-                    >
-                      <Edit className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setDeleteConfirmProduct(product)}
