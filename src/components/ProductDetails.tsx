@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock } from 'lucide-react';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Edit, Trash2 } from 'lucide-react';
 
 interface ProductDetailsProps {
   product: {
@@ -15,12 +15,13 @@ interface ProductDetailsProps {
     updatedAt: Date;
   };
   onBack: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
+export const ProductDetails = ({ product, onBack, onEdit, onDelete }: ProductDetailsProps) => {
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={onBack}
@@ -29,43 +30,77 @@ export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Products
         </button>
-        <div className={`
-          px-3 py-1.5 rounded-full text-sm font-medium
-          ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-            product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-            'bg-red-100 text-red-800'}
-        `}>
-          {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onEdit}
+            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
+              border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Edit className="w-4 h-4" />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={onDelete}
+            className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-white
+              border border-red-600 rounded-lg hover:bg-red-600 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete</span>
+          </button>
         </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        {/* Image Gallery */}
         <div className="grid grid-cols-4 gap-4 p-6 bg-gray-50 border-b border-gray-200">
-          {product.images.map((image, index) => (
-            <div
-              key={index}
-              className={`relative rounded-lg overflow-hidden ${index === 0 ? 'col-span-2 row-span-2' : ''}`}
-            >
-              <img
-                src={image}
-                alt={`${product.name} - Image ${index + 1}`}
-                className="w-full h-full object-cover"
-                style={{ aspectRatio: '1 / 1' }}
-              />
-            </div>
-          ))}
+          {product.images.length > 0 ?
+            product.images.map((image, index) => (
+              <div
+                key={index}
+                className={`
+                  relative rounded-lg overflow-hidden
+                  ${index === 0 ? 'col-span-2 row-span-2' : ''}
+                  group cursor-pointer
+                `}
+              >
+                <img
+                  src={image}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  style={{ aspectRatio: '1 / 1' }}
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {index === 0 && (
+                  <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    Main Image
+                  </span>
+                )}
+              </div>
+            )) : (
+              <div className="col-span-4 aspect-video flex items-center justify-center bg-gray-100">
+                <Package className="w-12 h-12 text-gray-400" />
+              </div>
+            )
+          }
         </div>
 
-        {/* Product Information */}
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{product.name}</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
+            <div className={`
+              px-3 py-1.5 rounded-full text-sm font-medium
+              ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                'bg-red-100 text-red-800'}
+            `}>
+              {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+            </div>
+          </div>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Description</h2>
-                <p className="text-gray-600">{product.description}</p>
+                <p className="text-gray-600">{product.description || 'No description provided.'}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

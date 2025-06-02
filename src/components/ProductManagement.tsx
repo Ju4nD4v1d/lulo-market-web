@@ -14,7 +14,10 @@ import {
   AlertCircle,
   Image as ImageIcon,
   Loader2,
-  Eye
+  Eye,
+  Edit,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -195,9 +198,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-semibold text-gray-900">
             {product ? 'Edit Product' : 'Add New Product'}
           </h2>
@@ -213,45 +216,56 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Images (Up to 5)
+                Product Images
+                <span className="text-sm text-gray-500 font-normal ml-2">
+                  (Up to {MAX_IMAGES} images, max 1MB each)
+                </span>
               </label>
               {error && (
-                <div className="mb-2 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="w-4 h-4 mr-1" />
+                <div className="mb-2 text-sm text-red-600 flex items-center bg-red-50 p-2 rounded">
+                  <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
                   {error}
                 </div>
               )}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                 {productImages.map((image, index) => (
-                  <div key={index} className="relative group">
+                  <div key={index} className="relative group aspect-square">
                     <img
                       src={image.preview}
                       alt={`Product ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg"
+                      className="w-full h-full object-cover rounded-lg"
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 
-                        rounded-full text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {index === 0 && (
+                      <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        Main Image
+                      </span>
+                    )}
                   </div>
                 ))}
                 {productImages.length < MAX_IMAGES && (
                   <div
                     className={`
-                      border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center
+                      aspect-square border-2 border-dashed rounded-lg
+                      flex flex-col items-center justify-center
                       ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
                       hover:border-primary-400 transition-colors duration-200 cursor-pointer
+                      group
                     `}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
-                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <div className="text-center">
+                    <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-primary-500 transition-colors" />
+                    <div className="text-center mt-2">
                       <label className="cursor-pointer">
                         <span className="text-sm text-primary-600 hover:text-primary-500">Upload</span>
                         <input
@@ -263,7 +277,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                         />
                       </label>
                       <p className="text-xs text-gray-500 mt-1">
-                        Max 1MB per image
+                        or drag and drop
                       </p>
                     </div>
                   </div>
@@ -271,32 +285,34 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               </div>
             </div>
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Product Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full"
-                required
-              />
-            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="block w-full"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
-              </label>
-              <input
-                type="text"
-                id="category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="block w-full"
-                required
-              />
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
+                </label>
+                <input
+                  type="text"
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="block w-full"
+                  required
+                />
+              </div>
             </div>
 
             <div>
@@ -309,10 +325,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="block w-full"
+                placeholder="Describe your product..."
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
                   Price *
@@ -370,11 +387,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end space-x-4 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
                 disabled={isSaving}
               >
                 Cancel
@@ -383,7 +400,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 type="submit"
                 disabled={isSaving}
                 className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 
-                  transition-colors flex items-center space-x-2"
+                  transition-colors flex items-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>
@@ -414,6 +431,7 @@ export const ProductManagement = () => {
   const [loading, setLoading] = useState(true);
   const [storeId, setStoreId] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const loadStoreAndProducts = async () => {
@@ -475,6 +493,25 @@ export const ProductManagement = () => {
     }
   };
 
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      // Delete product images from storage
+      await Promise.all(product.images.map(async (imageUrl) => {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef);
+      }));
+
+      // Delete product document
+      await deleteDoc(doc(db, 'products', product.id));
+
+      // Update local state
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+      setDeleteConfirmProduct(null);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -488,6 +525,11 @@ export const ProductManagement = () => {
       <ProductDetails
         product={selectedProduct}
         onBack={() => setSelectedProduct(null)}
+        onEdit={() => {
+          setSelectedProduct(null);
+          setIsModalOpen(true);
+        }}
+        onDelete={() => setDeleteConfirmProduct(selectedProduct)}
       />
     );
   }
@@ -510,8 +552,8 @@ export const ProductManagement = () => {
       </div>
 
       <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -519,8 +561,7 @@ export const ProductManagement = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="pl-10 pr-4 py-2 w-full md:w-auto"
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -528,8 +569,7 @@ export const ProductManagement = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full md:w-auto"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -539,7 +579,7 @@ export const ProductManagement = () => {
               </select>
             </div>
           </div>
-          <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
+          <div className="flex items-center justify-end space-x-2 border border-gray-200 rounded-lg p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded ${viewMode === 'grid' ? 'bg-gray-100' : ''}`}
@@ -575,33 +615,77 @@ export const ProductManagement = () => {
           </div>
         </div>
       ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-3 gap-6' : 'space-y-4'}>
+        <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
           {filteredProducts.map(product => (
             <div
               key={product.id}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+              className={`
+                bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all
+                ${viewMode === 'list' ? 'flex' : ''}
+              `}
             >
-              {product.images?.[0] && (
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-                <div className="flex items-center justify-between">
+              <div className={`relative ${viewMode === 'list' ? 'w-48' : ''}`}>
+                {product.images?.[0] ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2">
+                  <div className={`
+                    px-2 py-1 rounded-full text-xs font-medium
+                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                      'bg-red-100 text-red-800'}
+                  `}>
+                    {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                  </div>
+                </div>
+              </div>
+              <div className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-2">{product.category}</p>
+                  </div>
                   <span className="text-lg font-bold text-primary-600">
                     ${product.price.toFixed(2)}
                   </span>
-                  <button
-                    onClick={() => setSelectedProduct(product)}
-                    className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
-                  >
-                    <Eye className="w-5 h-5 mr-1" />
-                    View Details
-                  </button>
+                </div>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <Boxes className="w-4 h-4" />
+                    <span>{product.stock} in stock</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setSelectedProduct(product)}
+                      className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setIsModalOpen(true);
+                      }}
+                      className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirmProduct(product)}
+                      className="flex items-center text-gray-600 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -609,10 +693,46 @@ export const ProductManagement = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmProduct && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-start space-x-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Delete Product
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to delete "{deleteConfirmProduct.name}"? This action cannot be undone.
+                </p>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => setDeleteConfirmProduct(null)}
+                    className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProduct(deleteConfirmProduct)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Delete Product
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProduct}
+        product={selectedProduct || undefined}
         storeId={storeId}
       />
     </div>
