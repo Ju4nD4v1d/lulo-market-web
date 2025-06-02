@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Package, 
   Plus, 
@@ -65,6 +65,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const [error, setError] = useState('');
   const [uploadError, setUploadError] = useState('');
   const { currentUser } = useAuth();
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (product) {
@@ -75,19 +76,43 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!dragActive) {
+      setDragActive(true);
+      if (dropZoneRef.current) {
+        dropZoneRef.current.style.transform = 'scale(1.02)';
+      }
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragActive(true);
+    if (dropZoneRef.current) {
+      dropZoneRef.current.style.transform = 'scale(1.02)';
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
+    
+    // Only deactivate if we're leaving the dropzone (not its children)
+    if (e.currentTarget === e.target) {
+      setDragActive(false);
+      if (dropZoneRef.current) {
+        dropZoneRef.current.style.transform = 'scale(1)';
+      }
+    }
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    if (dropZoneRef.current) {
+      dropZoneRef.current.style.transform = 'scale(1)';
+    }
 
     const files = Array.from(e.dataTransfer.files);
     await handleFiles(files);
@@ -200,7 +225,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
@@ -227,14 +252,18 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               Product Images ({(formData.images?.length || 0)}/{MAX_IMAGES})
             </label>
             <div
+              ref={dropZoneRef}
               className={`
-                border-2 border-dashed rounded-lg p-8
-                ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-                hover:border-primary-400 transition-colors duration-200
-                text-center cursor-pointer
-                ${(formData.images?.length || 0) >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : ''}
+                relative border-2 border-dashed rounded-lg p-8
+                ${dragActive 
+                  ? 'border-primary-500 bg-primary-50 ring-4 ring-primary-500/20' 
+                  : 'border-gray-300'
+                }
+                transition-all duration-300 ease-in-out
+                ${(formData.images?.length || 0) >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}
               onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
@@ -242,17 +271,26 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 {formData.images && formData.images.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {formData.images.map((url, index) => (
-                      <div key={url} className="relative aspect-square group">
+                      <div 
+                        key={url} 
+                        className="relative aspect-square group rounded-lg overflow-hidden
+                          transform transition-transform duration-300 hover:scale-105"
+                      >
                         <img
                           src={url}
                           alt={`Product ${index + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg" />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 
+                          transition-opacity duration-300" 
+                        />
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(url, index)}
-                          className="absolute top-2 right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          className="absolute top-2 right-2 p-2 bg-red-100 hover:bg-red-200 
+                            rounded-full text-red-600 transition-all duration-300 
+                            opacity-0 group-hover:opacity-100 transform translate-y-2 
+                            group-hover:translate-y-0"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -261,33 +299,49 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   </div>
                 ) : (
                   <>
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600 justify-center">
-                      <label className={`
-                        relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500
-                        ${(formData.images?.length || 0) >= MAX_IMAGES ? 'pointer-events-none' : ''}
-                      `}>
-                        <span>Upload files</span>
-                        <input
-                          type="file"
-                          className="sr-only"
-                          multiple
-                          accept="image/*"
-                          onChange={handleFileInput}
-                          disabled={(formData.images?.length || 0) >= MAX_IMAGES}
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
+                    <div className={`
+                      transform transition-all duration-300
+                      ${dragActive ? 'scale-110' : 'scale-100'}
+                    `}>
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <label className={`
+                            relative cursor-pointer rounded-md font-medium text-primary-600 
+                            hover:text-primary-500 transition-colors
+                            ${(formData.images?.length || 0) >= MAX_IMAGES ? 'pointer-events-none' : ''}
+                          `}>
+                            <span>Upload files</span>
+                            <input
+                              type="file"
+                              className="sr-only"
+                              multiple
+                              accept="image/*"
+                              onChange={handleFileInput}
+                              disabled={(formData.images?.length || 0) >= MAX_IMAGES}
+                            />
+                          </label>
+                          <p className="pl-1">or drag and drop</p>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          PNG, JPG, GIF up to 5MB each
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF up to 5MB each
-                    </p>
                   </>
                 )}
 
                 {uploadError && (
-                  <div className="mt-2 text-sm text-red-600">
+                  <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
                     {uploadError}
+                  </div>
+                )}
+
+                {dragActive && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-primary-500/10 backdrop-blur-sm rounded-lg">
+                    <div className="text-primary-600 font-medium">
+                      Drop images here
+                    </div>
                   </div>
                 )}
               </div>
