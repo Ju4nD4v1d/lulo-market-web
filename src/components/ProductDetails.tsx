@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Edit } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X } from 'lucide-react';
 
 interface ProductDetailsProps {
   product: {
@@ -19,6 +19,39 @@ interface ProductDetailsProps {
 }
 
 export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps) => {
+  const [formData, setFormData] = useState({
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    category: product.category,
+    stock: product.stock,
+    status: product.status
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'price' || name === 'stock' ? Number(value) : value
+    }));
+  };
+
+  const handleSave = () => {
+    // Here you would typically save the changes to your database
+    console.log('Saving changes:', formData);
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      stock: product.stock,
+      status: product.status
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -29,14 +62,24 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Products
         </button>
-        <button
-          onClick={onEdit}
-          className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
-            border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <Edit className="w-4 h-4" />
-          <span>Edit</span>
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={handleCancel}
+            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
+              border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <X className="w-4 h-4" />
+            <span>Cancel</span>
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex items-center space-x-2 px-4 py-2 text-white bg-primary-600
+              rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Save className="w-4 h-4" />
+            <span>Save Changes</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -53,7 +96,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
               >
                 <img
                   src={image}
-                  alt={`${product.name} - Image ${index + 1}`}
+                  alt={`${formData.name} - Image ${index + 1}`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   style={{ aspectRatio: '1 / 1' }}
                 />
@@ -74,22 +117,42 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
 
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
-            <div className={`
-              px-3 py-1.5 rounded-full text-sm font-medium
-              ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-                product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                'bg-red-100 text-red-800'}
-            `}>
-              {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-            </div>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="text-2xl font-bold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-primary-500 px-1"
+            />
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className={`
+                px-3 py-1.5 rounded-full text-sm font-medium
+                ${formData.status === 'active' ? 'bg-green-100 text-green-800' :
+                  formData.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                  'bg-red-100 text-red-800'}
+              `}
+            >
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="outOfStock">Out of Stock</option>
+            </select>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Description</h2>
-                <p className="text-gray-600">{product.description || 'No description provided.'}</p>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={4}
+                  className="w-full p-2 border rounded-lg"
+                  placeholder="Add a description..."
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -99,9 +162,15 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Price</p>
-                    <p className="font-semibold text-gray-900">
-                      ${product.price.toFixed(2)}
-                    </p>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleChange}
+                      min="0"
+                      step="0.01"
+                      className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-primary-500 px-1"
+                    />
                   </div>
                 </div>
 
@@ -111,7 +180,13 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Category</p>
-                    <p className="font-semibold text-gray-900">{product.category}</p>
+                    <input
+                      type="text"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-primary-500 px-1"
+                    />
                   </div>
                 </div>
 
@@ -121,7 +196,14 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Stock</p>
-                    <p className="font-semibold text-gray-900">{product.stock} units</p>
+                    <input
+                      type="number"
+                      name="stock"
+                      value={formData.stock}
+                      onChange={handleChange}
+                      min="0"
+                      className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-primary-500 px-1"
+                    />
                   </div>
                 </div>
 
@@ -158,11 +240,11 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                   <span className="text-gray-600">Status</span>
                   <span className={`
                     px-2 py-1 rounded-full text-sm font-medium
-                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                    ${formData.status === 'active' ? 'bg-green-100 text-green-800' :
+                      formData.status === 'draft' ? 'bg-gray-100 text-gray-800' :
                       'bg-red-100 text-red-800'}
                   `}>
-                    {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                    {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
