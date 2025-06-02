@@ -47,6 +47,9 @@ interface ProductModalProps {
   product?: Product;
 }
 
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
   const [formData, setFormData] = useState<Partial<Product>>(product || {
     name: '',
@@ -60,6 +63,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   const [dragActive, setDragActive] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [uploadError, setUploadError] = useState('');
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -94,9 +98,40 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     await handleFiles(files);
   };
 
+  const validateFile = (file: File): string | null => {
+    if (!file.type.startsWith('image/')) {
+      return 'Only image files are allowed';
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return 'File size must be less than 5MB';
+    }
+    return null;
+  };
+
   const handleFiles = async (files: File[]) => {
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    if (imageFiles.length === 0) return;
+    setUploadError('');
+    const currentImages = formData.images || [];
+    const remainingSlots = MAX_IMAGES - currentImages.length;
+
+    if (remainingSlots <= 0) {
+      setUploadError(`Maximum ${MAX_IMAGES} images allowed`);
+      return;
+    }
+
+    const imageFiles = files.slice(0, remainingSlots);
+    const validationErrors: string[] = [];
+
+    for (const file of imageFiles) {
+      const error = validateFile(file);
+      if (error) {
+        validationErrors.push(`${file.name}: ${error}`);
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      setUploadError(validationErrors.join('\n'));
+      return;
+    }
 
     try {
       const uploadPromises = imageFiles.map(async (file) => {
@@ -108,11 +143,29 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
       const urls = await Promise.all(uploadPromises);
       setFormData(prev => ({
         ...prev,
-        images: [...(prev.images || []), ...urls]
+        images: [...currentImages, ...urls]
       }));
     } catch (error) {
       console.error('Error uploading images:', error);
-      setError('Failed to upload images. Please try again.');
+      setUploadError('Failed to upload images. Please try again.');
+    }
+  };
+
+  const handleRemoveImage = async (urlToRemove: string, index: number) => {
+    try {
+      // Only attempt to delete from storage if it's a Firebase Storage URL
+      if (urlToRemove.includes('firebasestorage.googleapis.com')) {
+        const imageRef = ref(storage, urlToRemove);
+        await deleteObject(imageRef);
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images?.filter((_, i) => i !== index)
+      }));
+    } catch (error) {
+      console.error('Error removing image:', error);
+      setError('Failed to remove image. Please try again.');
     }
   };
 
@@ -171,7 +224,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product Images
+              Product Images ({(formData.images?.length || 0)}/{MAX_IMAGES})
             </label>
             <div
               className={`
@@ -179,6 +232,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
                 hover:border-primary-400 transition-colors duration-200
                 text-center cursor-pointer
+                ${(formData.images?.length || 0) >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : ''}
               `}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -188,19 +242,17 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 {formData.images && formData.images.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {formData.images.map((url, index) => (
-                      <div key={url} className="relative aspect-square">
+                      <div key={url} className="relative aspect-square group">
                         <img
                           src={url}
                           alt={`Product ${index + 1}`}
                           className="w-full h-full object-cover rounded-lg"
                         />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg" />
                         <button
                           type="button"
-                          onClick={() => setFormData(prev => ({
-                            ...prev,
-                            images: prev.images?.filter(img => img !== url)
-                          }))}
-                          className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
+                          onClick={() => handleRemoveImage(url, index)}
+                          className="absolute top-2 right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -211,7 +263,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   <>
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                     <div className="flex text-sm text-gray-600 justify-center">
-                      <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
+                      <label className={`
+                        relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500
+                        ${(formData.images?.length || 0) >= MAX_IMAGES ? 'pointer-events-none' : ''}
+                      `}>
                         <span>Upload files</span>
                         <input
                           type="file"
@@ -219,14 +274,21 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                           multiple
                           accept="image/*"
                           onChange={handleFileInput}
+                          disabled={(formData.images?.length || 0) >= MAX_IMAGES}
                         />
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
                     <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF up to 5MB
+                      PNG, JPG, GIF up to 5MB each
                     </p>
                   </>
+                )}
+
+                {uploadError && (
+                  <div className="mt-2 text-sm text-red-600">
+                    {uploadError}
+                  </div>
                 )}
               </div>
             </div>
