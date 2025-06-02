@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X, Upload, Trash2, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X, Upload, Trash2, ImageIcon, Loader2 } from 'lucide-react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
 
 interface ProductDetailsProps {
   product: {
@@ -13,6 +16,7 @@ interface ProductDetailsProps {
     images: string[];
     createdAt: Date;
     updatedAt: Date;
+    storeId: string;
   };
   onBack: () => void;
   onEdit: () => void;
@@ -21,18 +25,24 @@ interface ProductDetailsProps {
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
-export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps) => {
+export const ProductDetails = ({ product, onBack }: ProductDetailsProps) => {
   const [formData, setFormData] = useState({
     name: product.name,
     description: product.description,
     price: product.price,
     category: product.category,
     stock: product.stock,
-    status: product.status,
-    images: [...product.images]
+    status: product.status
   });
+
+  // Separate state for managing images
+  const [existingImages, setExistingImages] = useState<string[]>(product.images);
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
+  
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -42,9 +52,53 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
     }));
   };
 
-  const handleSave = () => {
-    // Here you would typically save the changes to your database
-    console.log('Saving changes:', formData);
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      setError('');
+
+      // Delete removed images from storage
+      await Promise.all(
+        removedImages.map(async (imageUrl) => {
+          const imageRef = ref(storage, imageUrl);
+          await deleteObject(imageRef);
+        })
+      );
+
+      // Upload new images
+      const uploadedImageUrls = await Promise.all(
+        newImages.map(async ({ file }) => {
+          const imageRef = ref(storage, `stores/${product.storeId}/products/${Date.now()}_${file.name}`);
+          await uploadBytes(imageRef, file);
+          return getDownloadURL(imageRef);
+        })
+      );
+
+      // Combine existing and new image URLs
+      const finalImages = [
+        ...existingImages.filter(url => !removedImages.includes(url)),
+        ...uploadedImageUrls
+      ];
+
+      // Update product in Firestore
+      const productRef = doc(db, 'products', product.id);
+      await updateDoc(productRef, {
+        ...formData,
+        images: finalImages,
+        updatedAt: new Date()
+      });
+
+      // Reset image states
+      setNewImages([]);
+      setRemovedImages([]);
+      setExistingImages(finalImages);
+
+    } catch (err) {
+      console.error('Error saving product:', err);
+      setError('Failed to save changes. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -54,20 +108,23 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
       price: product.price,
       category: product.category,
       stock: product.stock,
-      status: product.status,
-      images: [...product.images]
+      status: product.status
     });
+    setExistingImages(product.images);
+    setNewImages([]);
+    setRemovedImages([]);
     setError('');
   };
 
   const validateAndProcessFiles = (files: FileList | null) => {
     if (!files) return;
 
-    const newImages: string[] = [];
+    const totalImages = existingImages.length + newImages.length;
+    const newFiles: { file: File; preview: string }[] = [];
     let errorMessage = '';
 
     Array.from(files).forEach(file => {
-      if (formData.images.length + newImages.length >= MAX_IMAGES) {
+      if (totalImages + newFiles.length >= MAX_IMAGES) {
         errorMessage = `Maximum ${MAX_IMAGES} images allowed`;
         return;
       }
@@ -82,15 +139,14 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
         return;
       }
 
-      const imageUrl = URL.createObjectURL(file);
-      newImages.push(imageUrl);
+      newFiles.push({
+        file,
+        preview: URL.createObjectURL(file)
+      });
     });
 
-    if (newImages.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, ...newImages]
-      }));
+    if (newFiles.length > 0) {
+      setNewImages(prev => [...prev, ...newFiles]);
       setError('');
     } else if (errorMessage) {
       setError(errorMessage);
@@ -120,13 +176,24 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
     validateAndProcessFiles(e.target.files);
   };
 
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+  const removeImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      const imageUrl = existingImages[index];
+      setRemovedImages(prev => [...prev, imageUrl]);
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const imageToRemove = newImages[index];
+      URL.revokeObjectURL(imageToRemove.preview);
+      setNewImages(prev => prev.filter((_, i) => i !== index));
+    }
     setError('');
   };
+
+  // Combine existing and new images for display
+  const allImages = [
+    ...existingImages.map(url => ({ url, isExisting: true })),
+    ...newImages.map(({ preview }) => ({ url: preview, isExisting: false }))
+  ];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -141,19 +208,32 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
         <div className="flex space-x-3">
           <button
             onClick={handleCancel}
+            disabled={isSaving}
             className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 
-              border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors
+              disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
           </button>
           <button
             onClick={handleSave}
+            disabled={isSaving}
             className="flex items-center space-x-2 px-4 py-2 text-white bg-primary-600
-              rounded-lg hover:bg-primary-700 transition-colors"
+              rounded-lg hover:bg-primary-700 transition-colors
+              disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save className="w-4 h-4" />
-            <span>Save Changes</span>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -168,7 +248,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
           )}
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {formData.images.map((image, index) => (
+            {allImages.map((image, index) => (
               <div
                 key={index}
                 className={`
@@ -178,7 +258,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                 `}
               >
                 <img
-                  src={image}
+                  src={image.url}
                   alt={`${formData.name} - Image ${index + 1}`}
                   className="w-full h-full object-cover"
                   style={{ aspectRatio: '1 / 1' }}
@@ -186,7 +266,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity 
                   flex items-center justify-center">
                   <button
-                    onClick={() => removeImage(index)}
+                    onClick={() => removeImage(index, image.isExisting)}
                     className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -200,7 +280,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
               </div>
             ))}
             
-            {formData.images.length < MAX_IMAGES && (
+            {allImages.length < MAX_IMAGES && (
               <div
                 className={`
                   aspect-square border-2 border-dashed rounded-lg
@@ -368,7 +448,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Images</span>
-                  <span className="text-gray-900">{formData.images.length}</span>
+                  <span className="text-gray-900">{allImages.length}</span>
                 </div>
               </div>
             </div>
