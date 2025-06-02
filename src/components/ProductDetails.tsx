@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X } from 'lucide-react';
+import { ArrowLeft, Package, DollarSign, Tag, Box, Clock, Save, X, Upload, Trash2, ImageIcon } from 'lucide-react';
 
 interface ProductDetailsProps {
   product: {
@@ -18,6 +18,9 @@ interface ProductDetailsProps {
   onEdit: () => void;
 }
 
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+
 export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps) => {
   const [formData, setFormData] = useState({
     name: product.name,
@@ -25,8 +28,11 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
     price: product.price,
     category: product.category,
     stock: product.stock,
-    status: product.status
+    status: product.status,
+    images: [...product.images]
   });
+  const [error, setError] = useState('');
+  const [dragActive, setDragActive] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -48,8 +54,78 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
       price: product.price,
       category: product.category,
       stock: product.stock,
-      status: product.status
+      status: product.status,
+      images: [...product.images]
     });
+    setError('');
+  };
+
+  const validateAndProcessFiles = (files: FileList | null) => {
+    if (!files) return;
+
+    const newImages: string[] = [];
+    let errorMessage = '';
+
+    Array.from(files).forEach(file => {
+      if (formData.images.length + newImages.length >= MAX_IMAGES) {
+        errorMessage = `Maximum ${MAX_IMAGES} images allowed`;
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        errorMessage = 'One or more images exceed 1MB size limit';
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        errorMessage = 'Only image files are allowed';
+        return;
+      }
+
+      const imageUrl = URL.createObjectURL(file);
+      newImages.push(imageUrl);
+    });
+
+    if (newImages.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...newImages]
+      }));
+      setError('');
+    } else if (errorMessage) {
+      setError(errorMessage);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    validateAndProcessFiles(e.dataTransfer.files);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    validateAndProcessFiles(e.target.files);
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+    setError('');
   };
 
   return (
@@ -83,36 +159,79 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="grid grid-cols-4 gap-4 p-6 bg-gray-50 border-b border-gray-200">
-          {product.images.length > 0 ?
-            product.images.map((image, index) => (
+        <div className="p-6 bg-gray-50 border-b border-gray-200">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 rounded-lg text-red-600 text-sm flex items-center">
+              <X className="w-4 h-4 mr-2" />
+              {error}
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {formData.images.map((image, index) => (
               <div
                 key={index}
                 className={`
                   relative rounded-lg overflow-hidden
                   ${index === 0 ? 'col-span-2 row-span-2' : ''}
-                  group cursor-pointer
+                  group
                 `}
               >
                 <img
                   src={image}
                   alt={`${formData.name} - Image ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="w-full h-full object-cover"
                   style={{ aspectRatio: '1 / 1' }}
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity 
+                  flex items-center justify-center">
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
                 {index === 0 && (
                   <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                     Main Image
                   </span>
                 )}
               </div>
-            )) : (
-              <div className="col-span-4 aspect-video flex items-center justify-center bg-gray-100">
-                <Package className="w-12 h-12 text-gray-400" />
+            ))}
+            
+            {formData.images.length < MAX_IMAGES && (
+              <div
+                className={`
+                  aspect-square border-2 border-dashed rounded-lg
+                  flex flex-col items-center justify-center cursor-pointer
+                  ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
+                  hover:border-primary-400 transition-colors duration-200
+                  group
+                `}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-primary-500 transition-colors" />
+                <div className="text-center mt-2">
+                  <label className="cursor-pointer">
+                    <span className="text-sm text-primary-600 hover:text-primary-500">Upload</span>
+                    <input
+                      type="file"
+                      className="sr-only"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    or drag and drop
+                  </p>
+                </div>
               </div>
-            )
-          }
+            )}
+          </div>
         </div>
 
         <div className="p-6">
@@ -249,7 +368,7 @@ export const ProductDetails = ({ product, onBack, onEdit }: ProductDetailsProps)
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Images</span>
-                  <span className="text-gray-900">{product.images.length}</span>
+                  <span className="text-gray-900">{formData.images.length}</span>
                 </div>
               </div>
             </div>
