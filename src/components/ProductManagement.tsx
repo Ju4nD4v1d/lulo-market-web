@@ -83,11 +83,21 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
     if (imageFiles.length === 0) return;
 
+    const currentImagesCount = formData.images?.length || 0;
+    const remainingSlots = 5 - currentImagesCount;
+
+    if (remainingSlots <= 0) {
+      setError('Maximum of 5 images allowed');
+      return;
+    }
+
+    const filesToUpload = imageFiles.slice(0, remainingSlots);
+
     setIsLoading(true);
     setError('');
 
     try {
-      const uploadPromises = imageFiles.map(async (file) => {
+      const uploadPromises = filesToUpload.map(async (file) => {
         const storageRef = ref(storage, `products/${currentUser?.uid}/${Date.now()}_${file.name}`);
         await uploadBytes(storageRef, file);
         return getDownloadURL(storageRef);
@@ -99,6 +109,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         ...prev,
         images: [...(prev.images || []), ...imageUrls]
       }));
+
+      if (imageFiles.length > remainingSlots) {
+        setError(`Only ${remainingSlots} image${remainingSlots === 1 ? '' : 's'} uploaded. Maximum limit reached.`);
+      }
     } catch (err) {
       setError('Failed to upload images. Please try again.');
       console.error('Error uploading images:', err);
@@ -112,6 +126,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
       ...prev,
       images: prev.images?.filter((_, i) => i !== index)
     }));
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,14 +172,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product Images
+              Product Images (Maximum 5)
             </label>
             <div
               className={`
                 relative border-2 border-dashed rounded-lg p-8
                 ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-                hover:border-primary-400 transition-colors duration-200
-                text-center cursor-pointer
+                ${(formData.images?.length || 0) >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary-400'}
+                transition-colors duration-200
+                text-center
               `}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -175,6 +191,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
                   <p className="mt-2 text-sm text-gray-600">Uploading images...</p>
                 </div>
+              ) : (formData.images?.length || 0) >= 5 ? (
+                <div className="text-center text-gray-500">
+                  <p>Maximum number of images reached (5)</p>
+                </div>
               ) : (
                 <>
                   <input
@@ -184,25 +204,33 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     className="hidden"
                     onChange={handleFileInput}
                     id="file-upload"
+                    disabled={(formData.images?.length || 0) >= 5}
                   />
                   <label
                     htmlFor="file-upload"
-                    className="w-full h-full flex flex-col items-center"
+                    className={`w-full h-full flex flex-col items-center ${(formData.images?.length || 0) >= 5 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-600">
                       Drag and drop your images here, or click to select files
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      PNG, JPG, GIF up to 5MB
+                      PNG, JPG, GIF up to 5MB ({5 - (formData.images?.length || 0)} remaining)
                     </p>
                   </label>
                 </>
               )}
             </div>
 
+            {error && (
+              <p className="mt-2 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                {error}
+              </p>
+            )}
+
             {formData.images && formData.images.length > 0 && (
-              <div className="mt-4 grid grid-cols-4 gap-4">
+              <div className="mt-4 grid grid-cols-5 gap-4">
                 {formData.images.map((image, index) => (
                   <div key={index} className="relative group">
                     <img
@@ -422,14 +450,12 @@ export const ProductManagement = () => {
 
     try {
       if (productData.id) {
-        // Update existing product
         const productRef = doc(db, 'products', productData.id);
         await updateDoc(productRef, productData);
         setProducts(prev => prev.map(p => 
           p.id === productData.id ? { ...p, ...productData } as Product : p
         ));
       } else {
-        // Add new product
         const docRef = await addDoc(collection(db, 'products'), {
           ...productData,
           createdAt: new Date()
