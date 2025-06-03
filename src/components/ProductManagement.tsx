@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Package, 
   Plus, 
@@ -14,6 +14,10 @@ import {
   Loader2
 } from 'lucide-react';
 import { ProductDetails } from './ProductDetails';
+import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
 
 interface Product {
   id: string;
@@ -24,16 +28,18 @@ interface Product {
   stock: number;
   images: string[];
   status: 'active' | 'draft' | 'outOfStock';
+  ownerId: string;
 }
 
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (product: Partial<Product>) => void;
+  onSave: (product: Partial<Product>) => Promise<void>;
   product?: Product;
 }
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
+  const { currentUser } = useAuth();
   const [formData, setFormData] = useState<Partial<Product>>(product || {
     name: '',
     description: '',
@@ -45,6 +51,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   });
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -72,21 +79,32 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     handleFiles(files);
   };
 
-  const handleFiles = (files: File[]) => {
+  const handleFiles = async (files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
     if (imageFiles.length === 0) return;
 
     setIsLoading(true);
+    setError('');
 
-    // Simulate image upload delay
-    setTimeout(() => {
-      const newImages = imageFiles.map(file => URL.createObjectURL(file));
+    try {
+      const uploadPromises = imageFiles.map(async (file) => {
+        const storageRef = ref(storage, `products/${currentUser?.uid}/${Date.now()}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        return getDownloadURL(storageRef);
+      });
+
+      const imageUrls = await Promise.all(uploadPromises);
+      
       setFormData(prev => ({
         ...prev,
-        images: [...(prev.images || []), ...newImages]
+        images: [...(prev.images || []), ...imageUrls]
       }));
+    } catch (err) {
+      setError('Failed to upload images. Please try again.');
+      console.error('Error uploading images:', err);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -94,6 +112,22 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
       ...prev,
       images: prev.images?.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    try {
+      await onSave({
+        ...formData,
+        ownerId: currentUser.uid
+      });
+      onClose();
+    } catch (err) {
+      setError('Failed to save product. Please try again.');
+      console.error('Error saving product:', err);
+    }
   };
 
   if (!isOpen) return null;
@@ -113,206 +147,212 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           </button>
         </div>
 
-        <div className="p-6">
-          <form className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Images
-              </label>
-              <div
-                className={`
-                  relative border-2 border-dashed rounded-lg p-8
-                  ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-                  hover:border-primary-400 transition-colors duration-200
-                  text-center cursor-pointer
-                `}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                {isLoading ? (
-                  <div className="flex flex-col items-center">
-                    <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-                    <p className="mt-2 text-sm text-gray-600">Uploading images...</p>
-                  </div>
-                ) : (
-                  <>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileInput}
-                      id="file-upload"
-                    />
-                    <label
-                      htmlFor="file-upload"
-                      className="w-full h-full flex flex-col items-center"
-                    >
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <p className="mt-2 text-sm text-gray-600">
-                        Drag and drop your images here, or click to select files
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        PNG, JPG, GIF up to 5MB
-                      </p>
-                    </label>
-                  </>
-                )}
-              </div>
+        {error && (
+          <div className="mx-6 mt-4 p-4 bg-red-50 rounded-lg text-red-700 flex items-center">
+            <AlertCircle className="w-5 h-5 mr-2" />
+            {error}
+          </div>
+        )}
 
-              {formData.images && formData.images.length > 0 && (
-                <div className="mt-4 grid grid-cols-4 gap-4">
-                  {formData.images.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1
-                          text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Product Images
+            </label>
+            <div
+              className={`
+                relative border-2 border-dashed rounded-lg p-8
+                ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
+                hover:border-primary-400 transition-colors duration-200
+                text-center cursor-pointer
+              `}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {isLoading ? (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                  <p className="mt-2 text-sm text-gray-600">Uploading images...</p>
                 </div>
+              ) : (
+                <>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileInput}
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="w-full h-full flex flex-col items-center"
+                  >
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <p className="mt-2 text-sm text-gray-600">
+                      Drag and drop your images here, or click to select files
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      PNG, JPG, GIF up to 5MB
+                    </p>
+                  </label>
+                </>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="block w-full"
-                  required
-                />
+            {formData.images && formData.images.length > 0 && (
+              <div className="mt-4 grid grid-cols-4 gap-4">
+                {formData.images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1
+                        text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
+            )}
+          </div>
 
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
-                </label>
-                <select
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="block w-full"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  <option value="hot">Hot</option>
-                  <option value="frozen">Frozen</option>
-                  <option value="baked">Baked</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-2 gap-6">
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name *
               </label>
-              <textarea
-                id="description"
-                rows={4}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              <input
+                type="text"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="block w-full"
+                required
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Price *
-                </label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="number"
-                    id="price"
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                    className="block w-full pl-10"
-                    required
-                  />
-                </div>
-              </div>
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category *
+              </label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="block w-full"
+                required
+              >
+                <option value="">Select a category</option>
+                <option value="hot">Hot</option>
+                <option value="frozen">Frozen</option>
+                <option value="baked">Baked</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
 
-              <div>
-                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock *
-                </label>
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              id="description"
+              rows={4}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="block w-full"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+                Price *
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="number"
-                  id="stock"
+                  id="price"
                   min="0"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                  className="block w-full"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  className="block w-full pl-10"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
+              <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
+                Stock *
               </label>
-              <div className="flex space-x-4">
-                {['active', 'draft', 'outOfStock'].map((status) => (
-                  <label key={status} className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      value={status}
-                      checked={formData.status === status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      className="form-radio text-primary-600 focus:ring-primary-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700 capitalize">
-                      {status === 'outOfStock' ? 'Out of Stock' : status}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <input
+                type="number"
+                id="stock"
+                min="0"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                className="block w-full"
+                required
+              />
             </div>
+          </div>
 
-            <div className="flex justify-end space-x-4 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                {product ? 'Update Product' : 'Add Product'}
-              </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <div className="flex space-x-4">
+              {['active', 'draft', 'outOfStock'].map((status) => (
+                <label key={status} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    value={status}
+                    checked={formData.status === status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    className="form-radio text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 capitalize">
+                    {status === 'outOfStock' ? 'Out of Stock' : status}
+                  </span>
+                </label>
+              ))}
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="flex justify-end space-x-4 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              {product ? 'Update Product' : 'Add Product'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
 export const ProductManagement = () => {
+  const { currentUser } = useAuth();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -320,6 +360,8 @@ export const ProductManagement = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const categories = [
     { id: 'hot', label: 'Hot' },
@@ -328,12 +370,37 @@ export const ProductManagement = () => {
     { id: 'other', label: 'Other' }
   ];
 
+  useEffect(() => {
+    if (!currentUser) return;
+    loadProducts();
+  }, [currentUser]);
+
+  const loadProducts = async () => {
+    if (!currentUser) return;
+    
+    try {
+      setIsLoading(true);
+      const productsRef = collection(db, 'products');
+      const snapshot = await getDocs(productsRef);
+      const productsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+      
+      setProducts(productsData.filter(product => product.ownerId === currentUser.uid));
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setError('Failed to load products. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => {
       if (prev.includes(category)) {
         return prev.filter(c => c !== category);
       } else {
-        // If trying to select 'hot' when 'frozen' is selected, or vice versa
         if ((category === 'hot' && prev.includes('frozen')) ||
             (category === 'frozen' && prev.includes('hot'))) {
           return prev;
@@ -350,9 +417,33 @@ export const ProductManagement = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleSaveProduct = (product: Partial<Product>) => {
-    // Handle save logic here
-    setIsModalOpen(false);
+  const handleSaveProduct = async (productData: Partial<Product>) => {
+    if (!currentUser) return;
+
+    try {
+      if (productData.id) {
+        // Update existing product
+        const productRef = doc(db, 'products', productData.id);
+        await updateDoc(productRef, productData);
+        setProducts(prev => prev.map(p => 
+          p.id === productData.id ? { ...p, ...productData } as Product : p
+        ));
+      } else {
+        // Add new product
+        const docRef = await addDoc(collection(db, 'products'), {
+          ...productData,
+          createdAt: new Date()
+        });
+        const newProduct = {
+          id: docRef.id,
+          ...productData
+        } as Product;
+        setProducts(prev => [...prev, newProduct]);
+      }
+    } catch (err) {
+      console.error('Error saving product:', err);
+      throw new Error('Failed to save product');
+    }
   };
 
   const handleProductClick = (product: Product) => {
@@ -375,14 +466,16 @@ export const ProductManagement = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-1">Manage your store's products</p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setSelectedProduct(null);
+            setIsModalOpen(true);
+          }}
           className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
             hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md"
         >
@@ -391,7 +484,6 @@ export const ProductManagement = () => {
         </button>
       </div>
 
-      {/* Filters and Search */}
       <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -448,8 +540,16 @@ export const ProductManagement = () => {
         </div>
       </div>
 
-      {/* Products List */}
-      {products.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 rounded-xl p-4 text-red-700 flex items-center">
+          <AlertCircle className="w-5 h-5 mr-2" />
+          {error}
+        </div>
+      ) : products.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
           <div className="max-w-md mx-auto">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -469,11 +569,53 @@ export const ProductManagement = () => {
         </div>
       ) : (
         <div className={viewMode === 'grid' ? 'grid grid-cols-3 gap-6' : 'space-y-4'}>
-          {/* Product items would go here */}
+          {filteredProducts.map(product => (
+            <div
+              key={product.id}
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => handleProductClick(product)}
+            >
+              <div className="aspect-square relative">
+                {product.images && product.images[0] ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <Package className="w-12 h-12 text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2">
+                  <span className={`
+                    px-2 py-1 rounded-full text-sm font-medium
+                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                      'bg-red-100 text-red-800'}
+                  `}>
+                    {product.status}
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {product.name}
+                </h3>
+                <div className="flex items-center justify-between">
+                  <span className="text-primary-600 font-bold">
+                    ${product.price.toFixed(2)}
+                  </span>
+                  <span className="text-gray-500 text-sm">
+                    Stock: {product.stock}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Add/Edit Product Modal */}
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
