@@ -31,6 +31,16 @@ interface Product {
   ownerId: string;
 }
 
+const defaultFormData = {
+  name: '',
+  description: '',
+  price: 0,
+  category: '',
+  stock: 0,
+  status: 'active' as const,
+  images: []
+};
+
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,18 +50,17 @@ interface ProductModalProps {
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
   const { currentUser } = useAuth();
-  const [formData, setFormData] = useState<Partial<Product>>(product || {
-    name: '',
-    description: '',
-    price: 0,
-    category: '',
-    stock: 0,
-    status: 'active',
-    images: []
-  });
+  const [formData, setFormData] = useState<Partial<Product>>(defaultFormData);
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(product || defaultFormData);
+      setError('');
+    }
+  }, [isOpen, product]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
