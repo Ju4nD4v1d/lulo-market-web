@@ -3,7 +3,6 @@ import {
   Package, 
   Plus, 
   Search, 
-  Filter,
   Grid,
   List,
   X,
@@ -11,8 +10,10 @@ import {
   DollarSign,
   Tag,
   Boxes,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
+import { ProductDetails } from './ProductDetails';
 
 interface Product {
   id: string;
@@ -43,11 +44,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     images: []
   });
   const [dragActive, setDragActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(true);
+    if (!dragActive) setDragActive(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -60,7 +62,38 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    // Handle file drop logic here
+
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    handleFiles(files);
+  };
+
+  const handleFiles = (files: File[]) => {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    if (imageFiles.length === 0) return;
+
+    setIsLoading(true);
+
+    // Simulate image upload delay
+    setTimeout(() => {
+      const newImages = imageFiles.map(file => URL.createObjectURL(file));
+      setFormData(prev => ({
+        ...prev,
+        images: [...(prev.images || []), ...newImages]
+      }));
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images?.filter((_, i) => i !== index)
+    }));
   };
 
   if (!isOpen) return null;
@@ -88,7 +121,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               </label>
               <div
                 className={`
-                  border-2 border-dashed rounded-lg p-8
+                  relative border-2 border-dashed rounded-lg p-8
                   ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
                   hover:border-primary-400 transition-colors duration-200
                   text-center cursor-pointer
@@ -97,18 +130,58 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="mt-4 flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                    <span>Upload files</span>
-                    <input type="file" className="sr-only" multiple accept="image/*" />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  PNG, JPG, GIF up to 5MB
-                </p>
+                {isLoading ? (
+                  <div className="flex flex-col items-center">
+                    <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                    <p className="mt-2 text-sm text-gray-600">Uploading images...</p>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileInput}
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="w-full h-full flex flex-col items-center"
+                    >
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-600">
+                        Drag and drop your images here, or click to select files
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        PNG, JPG, GIF up to 5MB
+                      </p>
+                    </label>
+                  </>
+                )}
               </div>
+
+              {formData.images && formData.images.length > 0 && (
+                <div className="mt-4 grid grid-cols-4 gap-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-100 rounded-full p-1
+                          text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-6">
@@ -130,14 +203,19 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                   Category *
                 </label>
-                <input
-                  type="text"
+                <select
                   id="category"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="block w-full"
                   required
-                />
+                >
+                  <option value="">Select a category</option>
+                  <option value="hot">Hot</option>
+                  <option value="frozen">Frozen</option>
+                  <option value="baked">Baked</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
             </div>
 
@@ -239,14 +317,36 @@ export const ProductManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isViewingDetails, setIsViewingDetails] = useState(false);
 
-  const categories = ['all', 'food', 'drinks', 'snacks', 'desserts'];
+  const categories = [
+    { id: 'hot', label: 'Hot' },
+    { id: 'frozen', label: 'Frozen' },
+    { id: 'baked', label: 'Baked' },
+    { id: 'other', label: 'Other' }
+  ];
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category);
+      } else {
+        // If trying to select 'hot' when 'frozen' is selected, or vice versa
+        if ((category === 'hot' && prev.includes('frozen')) ||
+            (category === 'frozen' && prev.includes('hot'))) {
+          return prev;
+        }
+        return [...prev, category];
+      }
+    });
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
     return matchesSearch && matchesCategory;
   });
 
@@ -254,6 +354,24 @@ export const ProductManagement = () => {
     // Handle save logic here
     setIsModalOpen(false);
   };
+
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsViewingDetails(true);
+  };
+
+  if (isViewingDetails && selectedProduct) {
+    return (
+      <ProductDetails
+        product={selectedProduct}
+        onBack={() => setIsViewingDetails(false)}
+        onEdit={() => {
+          setIsViewingDetails(false);
+          setIsModalOpen(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -288,20 +406,29 @@ export const ProductManagement = () => {
                   focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Filter className="text-gray-400 w-5 h-5" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
+            <div className="flex gap-2">
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => toggleCategory(category.id)}
+                  disabled={
+                    (category.id === 'hot' && selectedCategories.includes('frozen')) ||
+                    (category.id === 'frozen' && selectedCategories.includes('hot'))
+                  }
+                  className={`
+                    px-4 py-2 rounded-full text-sm font-medium transition-all
+                    ${selectedCategories.includes(category.id)
+                      ? 'bg-primary-100 text-primary-800 ring-2 ring-primary-500'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+                    ${((category.id === 'hot' && selectedCategories.includes('frozen')) ||
+                       (category.id === 'frozen' && selectedCategories.includes('hot')))
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''}
+                  `}
+                >
+                  {category.label}
+                </button>
+              ))}
             </div>
           </div>
           <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
@@ -351,6 +478,7 @@ export const ProductManagement = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProduct}
+        product={selectedProduct || undefined}
       />
     </div>
   );
