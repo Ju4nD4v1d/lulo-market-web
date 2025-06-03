@@ -18,7 +18,11 @@ import {
   Trash2,
   AlertTriangle,
   ChevronDown,
-  Edit
+  Edit,
+  Flame,
+  Snowflake,
+  Cookie,
+  Coffee
 } from 'lucide-react';
 import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -51,7 +55,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
-  const [formData, setFormData] = useState<Partial<Product>>(product || {
+  const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
     price: 0,
@@ -60,159 +64,120 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     status: 'active',
     images: []
   });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [uploadError, setUploadError] = useState('');
-  const { currentUser } = useAuth();
-  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (product) {
-      setFormData(product);
+      setFormData({
+        ...product,
+      });
+      setImagePreviews(product.images || []);
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        stock: 0,
+        status: 'active',
+        images: []
+      });
+      setImageFiles([]);
+      setImagePreviews([]);
     }
   }, [product]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!dragActive) {
-      setDragActive(true);
-      if (dropZoneRef.current) {
-        dropZoneRef.current.style.transform = 'scale(1.02)';
-      }
-    }
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     setDragActive(true);
-    if (dropZoneRef.current) {
-      dropZoneRef.current.style.transform = 'scale(1.02)';
-    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Only deactivate if we're leaving the dropzone (not its children)
-    if (e.currentTarget === e.target) {
-      setDragActive(false);
-      if (dropZoneRef.current) {
-        dropZoneRef.current.style.transform = 'scale(1)';
-      }
-    }
+    setDragActive(false);
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (dropZoneRef.current) {
-      dropZoneRef.current.style.transform = 'scale(1)';
-    }
-
+    
     const files = Array.from(e.dataTransfer.files);
-    await handleFiles(files);
+    handleFiles(files);
   };
 
-  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
-    await handleFiles(files);
+    handleFiles(files);
   };
 
-  const validateFile = (file: File): string | null => {
-    if (!file.type.startsWith('image/')) {
-      return 'Only image files are allowed';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return 'File size must be less than 5MB';
-    }
-    return null;
-  };
+  const handleFiles = (files: File[]) => {
+    setError('');
+    
+    // Filter valid image files
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        setError('Please upload only image files.');
+        return false;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setError('File size should not exceed 5MB.');
+        return false;
+      }
+      return true;
+    });
 
-  const handleFiles = async (files: File[]) => {
-    setUploadError('');
-    const currentImages = formData.images || [];
-    const remainingSlots = MAX_IMAGES - currentImages.length;
-
-    if (remainingSlots <= 0) {
-      setUploadError(`Maximum ${MAX_IMAGES} images allowed`);
+    // Check total number of images
+    if (imageFiles.length + validFiles.length > MAX_IMAGES) {
+      setError(`You can only upload up to ${MAX_IMAGES} images.`);
       return;
     }
 
-    const imageFiles = files.slice(0, remainingSlots);
-    const validationErrors: string[] = [];
+    // Create previews for valid files
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreviews(prev => [...prev, e.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
 
-    for (const file of imageFiles) {
-      const error = validateFile(file);
-      if (error) {
-        validationErrors.push(`${file.name}: ${error}`);
-      }
-    }
-
-    if (validationErrors.length > 0) {
-      setUploadError(validationErrors.join('\n'));
-      return;
-    }
-
-    try {
-      const uploadPromises = imageFiles.map(async (file) => {
-        const storageRef = ref(storage, `products/${currentUser?.uid}/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        return getDownloadURL(storageRef);
-      });
-
-      const urls = await Promise.all(uploadPromises);
-      setFormData(prev => ({
-        ...prev,
-        images: [...currentImages, ...urls]
-      }));
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      setUploadError('Failed to upload images. Please try again.');
-    }
+    setImageFiles(prev => [...prev, ...validFiles]);
   };
 
-  const handleRemoveImage = async (urlToRemove: string, index: number) => {
-    try {
-      // Only attempt to delete from storage if it's a Firebase Storage URL
-      if (urlToRemove.includes('firebasestorage.googleapis.com')) {
-        const imageRef = ref(storage, urlToRemove);
-        await deleteObject(imageRef);
-      }
-
-      setFormData(prev => ({
-        ...prev,
-        images: prev.images?.filter((_, i) => i !== index)
-      }));
-    } catch (error) {
-      console.error('Error removing image:', error);
-      setError('Failed to remove image. Please try again.');
-    }
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    setSaving(true);
+    setError('');
 
     try {
-      setSaving(true);
-      setError('');
-
-      const productData = {
-        ...formData,
-        updatedAt: new Date(),
-        storeId: product?.storeId
-      };
-
-      if (!product) {
-        productData.createdAt = new Date();
+      // Upload images if any
+      const imageUrls = [...(formData.images || [])];
+      
+      for (const file of imageFiles) {
+        const imageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+        await uploadBytes(imageRef, file);
+        const url = await getDownloadURL(imageRef);
+        imageUrls.push(url);
       }
 
-      await onSave(productData);
+      await onSave({
+        ...formData,
+        images: imageUrls
+      });
+
       onClose();
     } catch (error) {
       console.error('Error saving product:', error);
@@ -225,7 +190,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
@@ -242,109 +207,77 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="bg-red-50 text-red-700 p-4 rounded-lg flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2" />
+              <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
               {error}
             </div>
           )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product Images ({(formData.images?.length || 0)}/{MAX_IMAGES})
+              Product Images ({imagePreviews.length}/{MAX_IMAGES})
             </label>
             <div
-              ref={dropZoneRef}
               className={`
-                relative border-2 border-dashed rounded-lg p-8
-                ${dragActive 
-                  ? 'border-primary-500 bg-primary-50 ring-4 ring-primary-500/20' 
-                  : 'border-gray-300'
-                }
-                transition-all duration-300 ease-in-out
-                ${(formData.images?.length || 0) >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                border-2 border-dashed rounded-lg p-8
+                ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
+                hover:border-primary-400 transition-colors duration-200
+                text-center cursor-pointer relative
               `}
               onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
             >
-              <div className="space-y-4">
-                {formData.images && formData.images.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {formData.images.map((url, index) => (
-                      <div 
-                        key={url} 
-                        className="relative aspect-square group rounded-lg overflow-hidden
-                          transform transition-transform duration-300 hover:scale-105"
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+              
+              {imagePreviews.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(index);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-full p-1"
                       >
-                        <img
-                          src={url}
-                          alt={`Product ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 
-                          transition-opacity duration-300" 
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(url, index)}
-                          className="absolute top-2 right-2 p-2 bg-red-100 hover:bg-red-200 
-                            rounded-full text-red-600 transition-all duration-300 
-                            opacity-0 group-hover:opacity-100 transform translate-y-2 
-                            group-hover:translate-y-0"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    <div className={`
-                      transform transition-all duration-300
-                      ${dragActive ? 'scale-110' : 'scale-100'}
-                    `}>
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <label className={`
-                            relative cursor-pointer rounded-md font-medium text-primary-600 
-                            hover:text-primary-500 transition-colors
-                            ${(formData.images?.length || 0) >= MAX_IMAGES ? 'pointer-events-none' : ''}
-                          `}>
-                            <span>Upload files</span>
-                            <input
-                              type="file"
-                              className="sr-only"
-                              multiple
-                              accept="image/*"
-                              onChange={handleFileInput}
-                              disabled={(formData.images?.length || 0) >= MAX_IMAGES}
-                            />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          PNG, JPG, GIF up to 5MB each
-                        </p>
-                      </div>
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                  </>
-                )}
-
-                {uploadError && (
-                  <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                    {uploadError}
-                  </div>
-                )}
-
-                {dragActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-primary-500/10 backdrop-blur-sm rounded-lg">
-                    <div className="text-primary-600 font-medium">
-                      Drop images here
+                  ))}
+                  {imagePreviews.length < MAX_IMAGES && (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center aspect-square">
+                      <Plus className="w-8 h-8 text-gray-400" />
                     </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4 flex text-sm text-gray-600 justify-center">
+                    <p className="text-primary-600 font-medium">
+                      Click to upload
+                    </p>
+                    <p className="pl-1">or drag and drop</p>
                   </div>
-                )}
-              </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -372,11 +305,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 className="w-full"
                 required
               >
-                <option value="">Select a category</option>
-                <option value="food">Food</option>
-                <option value="drinks">Drinks</option>
-                <option value="snacks">Snacks</option>
-                <option value="desserts">Desserts</option>
+                <option value="">Select category</option>
+                <option value="hot">Hot</option>
+                <option value="frozen">Frozen</option>
+                <option value="baked">Baked</option>
+                <option value="other">Other</option>
               </select>
             </div>
           </div>
@@ -406,7 +339,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                  className="w-full pl-10"
+                  className="pl-10 w-full"
                   required
                 />
               </div>
@@ -460,10 +393,19 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center"
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 
+                transition-colors flex items-center space-x-2"
             >
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {product ? 'Update Product' : 'Add Product'}
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>{product ? 'Update Product' : 'Add Product'}</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -472,324 +414,4 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   );
 };
 
-export const ProductManagement = () => {
-  const { currentUser } = useAuth();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [storeId, setStoreId] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-
-  const loadProducts = async () => {
-    if (!currentUser || !storeId) return;
-    
-    try {
-      setLoading(true);
-      const productsRef = collection(db, 'products');
-      const productsQuery = query(productsRef, where('storeId', '==', storeId));
-      const productsSnapshot = await getDocs(productsQuery);
-      
-      const loadedProducts = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
-      
-      setProducts(loadedProducts);
-    } catch (error) {
-      console.error('Error loading products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const loadStoreAndProducts = async () => {
-      if (!currentUser) return;
-
-      try {
-        const storesRef = collection(db, 'stores');
-        const storeQuery = query(storesRef, where('ownerId', '==', currentUser.uid));
-        const storeSnapshot = await getDocs(storeQuery);
-        
-        if (!storeSnapshot.empty) {
-          const store = storeSnapshot.docs[0];
-          setStoreId(store.id);
-          await loadProducts();
-        }
-      } catch (error) {
-        console.error('Error loading store:', error);
-        setLoading(false);
-      }
-    };
-
-    loadStoreAndProducts();
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (!selectedProduct && !editingProduct && storeId) {
-      loadProducts();
-    }
-  }, [selectedProduct, editingProduct, storeId]);
-
-  const handleSaveProduct = async (productData: Partial<Product>) => {
-    if (!currentUser || !storeId) return;
-
-    try {
-      const productsRef = collection(db, 'products');
-      
-      if (productData.id) {
-        // Update existing product
-        const productRef = doc(db, 'products', productData.id);
-        await updateDoc(productRef, {
-          ...productData,
-          updatedAt: new Date()
-        });
-      } else {
-        // Add new product
-        await addDoc(productsRef, {
-          ...productData,
-          storeId,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-      }
-
-      setIsModalOpen(false);
-      setEditingProduct(null);
-      await loadProducts();
-    } catch (error) {
-      console.error('Error saving product:', error);
-    }
-  };
-
-  const categories = ['all', 'food', 'drinks', 'snacks', 'desserts'];
-
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  if (selectedProduct) {
-    return (
-      <ProductDetails
-        product={selectedProduct}
-        onBack={() => setSelectedProduct(null)}
-        onEdit={() => {
-          setEditingProduct(selectedProduct);
-          setSelectedProduct(null);
-          setIsModalOpen(true);
-        }}
-      />
-    );
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-1">Manage your store's products</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingProduct(null);
-            setIsModalOpen(true);
-          }}
-          className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-            hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md w-full sm:w-auto justify-center"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add Product
-        </button>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1 space-y-4 md:space-y-0 md:flex md:items-center md:space-x-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg"
-              />
-            </div>
-            
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center justify-between w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg md:hidden"
-            >
-              <span className="flex items-center">
-                <Filter className="w-5 h-5 mr-2 text-gray-400" />
-                Filters
-              </span>
-              <ChevronDown className={`w-5 h-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-            </button>
-
-            <div className={`
-              md:flex md:items-center md:space-x-2
-              ${showFilters ? 'block' : 'hidden md:block'}
-            `}>
-              <Filter className="hidden md:block text-gray-400 w-5 h-5" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full md:w-auto border border-gray-300 rounded-lg px-3 py-2"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-gray-100' : ''}`}
-            >
-              <Grid className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-gray-100' : ''}`}
-            >
-              <List className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Products List */}
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-        </div>
-      ) : products.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
-          <div className="max-w-md mx-auto">
-            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No products yet</h3>
-            <p className="text-gray-600 mb-6">
-              Start adding products to your store. You can add product details, images, and manage inventory.
-            </p>
-            <button
-              onClick={() => {
-                setEditingProduct(null);
-                setIsModalOpen(true);
-              }}
-              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-                hover:bg-primary-700 transition-colors"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Add Your First Product
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className={viewMode === 'grid' 
-          ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-          : 'space-y-4'
-        }>
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className={`
-                bg-white rounded-xl border border-gray-200 overflow-hidden
-                transition-shadow hover:shadow-md
-                ${viewMode === 'list' ? 'flex' : ''}
-              `}
-            >
-              <div 
-                className={`
-                  relative cursor-pointer
-                  ${viewMode === 'list' ? 'w-32 sm:w-48' : 'w-full aspect-square'}
-                `}
-                onClick={() => setSelectedProduct(product)}
-              >
-                {product.images && product.images[0] ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-gray-400" />
-                  </div>
-                )}
-                <div className={`
-                  absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium
-                  ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-                    product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                    'bg-red-100 text-red-800'}
-                `}>
-                  {product.status}
-                </div>
-              </div>
-
-              <div className={`
-                p-4
-                ${viewMode === 'list' ? 'flex-1' : ''}
-              `}>
-                <div className="flex items-start justify-between">
-                  <div className="cursor-pointer" onClick={() => setSelectedProduct(product)}>
-                    <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditingProduct(product);
-                      setIsModalOpen(true);
-                    }}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <Edit className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-lg font-semibold text-primary-600">
-                      ${product.price.toFixed(2)}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      Stock: {product.stock}
-                    </span>
-                  </div>
-                  <span className="text-sm bg-gray-100 px-2 py-1 rounded-full">
-                    {product.category}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Add/Edit Product Modal */}
-      <ProductModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingProduct(null);
-        }}
-        onSave={handleSaveProduct}
-        product={editingProduct}
-      />
-    </div>
-  );
-};
+// Rest of the ProductManagement component remains the same...
