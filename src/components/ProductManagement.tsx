@@ -607,45 +607,114 @@ export const ProductManagement = () => {
           {filteredProducts.map(product => (
             <div
               key={product.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => handleProductClick(product)}
+              className={`
+                bg-white border border-gray-200 overflow-hidden hover:shadow-lg transition-all cursor-pointer
+                ${viewMode === 'grid' 
+                  ? 'rounded-xl'
+                  : 'rounded-lg flex items-center p-4 space-x-4'}
+              `}
             >
-              <div className="aspect-square relative">
-                {product.images && product.images[0] ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <Package className="w-12 h-12 text-gray-400" />
+              {viewMode === 'grid' ? (
+                <>
+                  <div className="aspect-square relative">
+                    {product.images && product.images[0] ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <Package className="w-12 h-12 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2">
+                      <span className={`
+                        px-2 py-1 rounded-full text-sm font-medium
+                        ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                          product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'}
+                      `}>
+                        {product.status}
+                      </span>
+                    </div>
                   </div>
-                )}
-                <div className="absolute top-2 right-2">
-                  <span className={`
-                    px-2 py-1 rounded-full text-sm font-medium
-                    ${product.status === 'active' ? 'bg-green-100 text-green-800' :
-                      product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                      'bg-red-100 text-red-800'}
-                  `}>
-                    {product.status}
-                  </span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {product.name}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-primary-600 font-bold">
-                    ${product.price.toFixed(2)}
-                  </span>
-                  <span className="text-gray-500 text-sm">
-                    Stock: {product.stock}
-                  </span>
-                </div>
-              </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-primary-600 font-bold">
+                        ${product.price.toFixed(2)}
+                      </span>
+                      <span className="text-gray-500 text-sm">
+                        Stock: {product.stock}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-24 h-24 flex-shrink-0 relative rounded-lg overflow-hidden">
+                    {product.images && product.images[0] ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <Package className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                    {product.images && product.images.length > 1 && (
+                      <div className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-full">
+                        +{product.images.length - 1}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate pr-4">
+                        {product.name}
+                      </h3>
+                      <span className={`
+                        px-2 py-1 rounded-full text-sm font-medium flex-shrink-0
+                        ${product.status === 'active' ? 'bg-green-100 text-green-800' :
+                          product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'}
+                      `}>
+                        {product.status}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 text-sm line-clamp-2 mb-2">
+                      {product.description || 'No description available'}
+                    </p>
+                    
+                    <div className="flex items-center space-x-4 text-sm">
+                      <div className="flex items-center">
+                        <Tag className="w-4 h-4 text-gray-400 mr-1" />
+                        <span className="text-gray-600">{product.category}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <DollarSign className="w-4 h-4 text-primary-600 mr-1" />
+                        <span className="font-semibold text-primary-600">
+                          ${product.price.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Boxes className="w-4 h-4 text-gray-400 mr-1" />
+                        <span className="text-gray-600">
+                          {product.stock} in stock
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
