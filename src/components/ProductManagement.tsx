@@ -11,7 +11,11 @@ import {
   Tag,
   Boxes,
   AlertCircle,
-  Loader2
+  Loader2,
+  Flame,
+  Snowflake,
+  Cookie,
+  Package2
 } from 'lucide-react';
 import { ProductDetails } from './ProductDetails';
 import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
@@ -401,10 +405,10 @@ export const ProductManagement = () => {
   const [error, setError] = useState('');
 
   const categories = [
-    { id: 'hot', label: 'Hot' },
-    { id: 'frozen', label: 'Frozen' },
-    { id: 'baked', label: 'Baked' },
-    { id: 'other', label: 'Other' }
+    { id: 'hot', label: 'Hot', icon: Flame },
+    { id: 'frozen', label: 'Frozen', icon: Snowflake },
+    { id: 'baked', label: 'Baked', icon: Cookie },
+    { id: 'other', label: 'Other', icon: Package2 }
   ];
 
   useEffect(() => {
@@ -534,28 +538,33 @@ export const ProductManagement = () => {
               />
             </div>
             <div className="flex gap-2">
-              {categories.map(category => (
-                <button
-                  key={category.id}
-                  onClick={() => toggleCategory(category.id)}
-                  disabled={
-                    (category.id === 'hot' && selectedCategories.includes('frozen')) ||
-                    (category.id === 'frozen' && selectedCategories.includes('hot'))
-                  }
-                  className={`
-                    px-4 py-2 rounded-full text-sm font-medium transition-all
-                    ${selectedCategories.includes(category.id)
-                      ? 'bg-primary-100 text-primary-800 ring-2 ring-primary-500'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-                    ${((category.id === 'hot' && selectedCategories.includes('frozen')) ||
-                       (category.id === 'frozen' && selectedCategories.includes('hot')))
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''}
-                  `}
-                >
-                  {category.label}
-                </button>
-              ))}
+              {categories.map(category => {
+                const Icon = category.icon;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => toggleCategory(category.id)}
+                    disabled={
+                      (category.id === 'hot' && selectedCategories.includes('frozen')) ||
+                      (category.id === 'frozen' && selectedCategories.includes('hot'))
+                    }
+                    className={`
+                      px-4 py-2 rounded-full text-sm font-medium transition-all
+                      flex items-center space-x-2
+                      ${selectedCategories.includes(category.id)
+                        ? 'bg-primary-100 text-primary-800 ring-2 ring-primary-500'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+                      ${((category.id === 'hot' && selectedCategories.includes('frozen')) ||
+                         (category.id === 'frozen' && selectedCategories.includes('hot')))
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''}
+                    `}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{category.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
