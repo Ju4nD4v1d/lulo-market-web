@@ -414,4 +414,491 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   );
 };
 
-// Rest of the ProductManagement component remains the same...
+export const ProductManagement: React.FC = () => {
+  const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedProductDetails, setSelectedProductDetails] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [user]);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const productsRef = collection(db, 'products');
+      const q = query(productsRef, where('storeId', '==', user?.uid));
+      const querySnapshot = await getDocs(q);
+      
+      const fetchedProducts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+
+      setProducts(fetchedProducts);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveProduct = async (productData: Partial<Product>) => {
+    try {
+      if (selectedProduct) {
+        // Update existing product
+        const productRef = doc(db, 'products', selectedProduct.id);
+        await updateDoc(productRef, {
+          ...productData,
+          updatedAt: new Date()
+        });
+      } else {
+        // Add new product
+        await addDoc(collection(db, 'products'), {
+          ...productData,
+          storeId: user?.uid,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+      
+      fetchProducts();
+      setIsModalOpen(false);
+      setSelectedProduct(undefined);
+    } catch (err) {
+      console.error('Error saving product:', err);
+      throw err;
+    }
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      // Delete product images from storage
+      for (const imageUrl of product.images) {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef);
+      }
+
+      // Delete product document
+      await deleteDoc(doc(db, 'products', product.id));
+      
+      fetchProducts();
+      setShowDeleteConfirm(false);
+      setProductToDelete(null);
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError('Failed to delete product. Please try again.');
+    }
+  };
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !categoryFilter || product.category === categoryFilter;
+    const matchesStatus = !statusFilter || product.status === statusFilter;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'hot':
+        return <Flame className="w-5 h-5" />;
+      case 'frozen':
+        return <Snowflake className="w-5 h-5" />;
+      case 'baked':
+        return <Cookie className="w-5 h-5" />;
+      default:
+        return <Coffee className="w-5 h-5" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'outOfStock':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
+          <Package className="w-6 h-6 mr-2" />
+          Products
+        </h1>
+        <button
+          onClick={() => {
+            setSelectedProduct(undefined);
+            setIsModalOpen(true);
+          }}
+          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
+            hover:bg-primary-700 transition-colors"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Add Product
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-lg flex items-center">
+          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+          {error}
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="pl-8 pr-8 appearance-none"
+                >
+                  <option value="">All Categories</option>
+                  <option value="hot">Hot</option>
+                  <option value="frozen">Frozen</option>
+                  <option value="baked">Baked</option>
+                  <option value="other">Other</option>
+                </select>
+                <Filter className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="pl-8 pr-8 appearance-none"
+                >
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                  <option value="outOfStock">Out of Stock</option>
+                </select>
+                <Tag className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              </div>
+
+              <div className="flex items-center border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                >
+                  <Grid className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="p-8 text-center">
+            <Boxes className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No products</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Get started by creating a new product.
+            </p>
+            <div className="mt-6">
+              <button
+                onClick={() => {
+                  setSelectedProduct(undefined);
+                  setIsModalOpen(true);
+                }}
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
+                  hover:bg-primary-700 transition-colors"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Product
+              </button>
+            </div>
+          </div>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="aspect-square relative bg-gray-100">
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedProductDetails(product);
+                        setShowDetails(true);
+                      }}
+                      className="p-1 bg-white rounded-full shadow hover:bg-gray-50"
+                    >
+                      <Eye className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setIsModalOpen(true);
+                      }}
+                      className="p-1 bg-white rounded-full shadow hover:bg-gray-50"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProductToDelete(product);
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="p-1 bg-white rounded-full shadow hover:bg-gray-50"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      {product.name}
+                    </h3>
+                    <span className="flex items-center text-gray-600">
+                      {getCategoryIcon(product.category)}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                    {product.description || 'No description'}
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-gray-900">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
+                      {product.status === 'outOfStock' ? 'Out of Stock' : product.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Stock
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0">
+                          {product.images && product.images.length > 0 ? (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                              <ImageIcon className="w-5 h-5 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {product.name}
+                          </div>
+                          <div className="text-sm text-gray-500 line-clamp-1">
+                            {product.description || 'No description'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {getCategoryIcon(product.category)}
+                        <span className="ml-2 text-sm text-gray-900 capitalize">
+                          {product.category}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">${product.price.toFixed(2)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{product.stock}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(product.status)}`}>
+                        {product.status === 'outOfStock' ? 'Out of Stock' : product.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => {
+                            setSelectedProductDetails(product);
+                            setShowDetails(true);
+                          }}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setIsModalOpen(true);
+                          }}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setProductToDelete(product);
+                            setShowDeleteConfirm(true);
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <ProductModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedProduct(undefined);
+        }}
+        onSave={handleSaveProduct}
+        product={selectedProduct}
+      />
+
+      {showDeleteConfirm && productToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Delete Product
+              </h3>
+            </div>
+            <p className="text-gray-500 mb-4">
+              Are you sure you want to delete "{productToDelete.name}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setProductToDelete(null);
+                }}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteProduct(productToDelete)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDetails && selectedProductDetails && (
+        <ProductDetails
+          product={selectedProductDetails}
+          onClose={() => {
+            setShowDetails(false);
+            setSelectedProductDetails(null);
+          }}
+        />
+      )}
+    </div>
+  );
+};
