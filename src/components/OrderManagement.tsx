@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -147,14 +147,26 @@ export const OrderManagement = () => {
   };
 
   const loadOrderDetails = async (orderId: string) => {
+    if (!orderId) {
+      console.error('Invalid orderId');
+      return;
+    }
+
     if (orders.find(o => o.id === orderId)?.items) return; // Already loaded
 
     setLoadingDetails(prev => ({ ...prev, [orderId]: true }));
     try {
-      const orderDetailsRef = collection(db, 'orders', orderId, 'orderDetails');
+      const orderRef = doc(db, 'orders', orderId);
+      const orderDetailsRef = collection(orderRef, 'orderDetails');
       const snapshot = await getDocs(orderDetailsRef);
       
+      if (snapshot.empty) {
+        console.log(`No order details found for order ${orderId}`);
+        return;
+      }
+
       const items = snapshot.docs.map(doc => ({
+        id: doc.id,
         ...doc.data()
       })) as OrderItem[];
 
@@ -164,7 +176,7 @@ export const OrderManagement = () => {
           : order
       ));
     } catch (err) {
-      console.error('Error loading order details:', err);
+      console.error(`Error loading order details for order ${orderId}:`, err);
       setError(`Failed to load details for order ${orderId}`);
     } finally {
       setLoadingDetails(prev => ({ ...prev, [orderId]: false }));
@@ -323,11 +335,11 @@ export const OrderManagement = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">GST</span>
-                          <span className="text-gray-900">${order.gstTotal.toFixed(2)}</span>
+                          <span className="text-gray-900">${order.gstTotal?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">PST</span>
-                          <span className="text-gray-900">${order.pstTotal.toFixed(2)}</span>
+                          <span className="text-gray-900">${order.pstTotal?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">Platform Fee</span>
