@@ -12,9 +12,11 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface OrderItem {
   productName: string;
@@ -35,6 +37,7 @@ interface Order {
   deliveryAddress: string;
   deliverySchedule: string;
   storeName: string;
+  storeId: string;
   subtotal: number;
   gstTotal: number;
   pstTotal: number;
@@ -54,13 +57,8 @@ const statusColors = {
   orderDelivered: 'bg-green-100 text-green-800'
 };
 
-const statusLabels = {
-  created: 'Created',
-  headingToStore: 'In Progress',
-  orderDelivered: 'Delivered'
-};
-
 const OrderTimeline = ({ order }: { order: Order }) => {
+  const { t } = useLanguage();
   const timelineSteps = [
     { time: order.createdDate, label: 'Order Created', icon: Package },
     { time: order.headingToStoreTime, label: 'Heading to Store', icon: Truck },
@@ -108,6 +106,8 @@ const OrderTimeline = ({ order }: { order: Order }) => {
 };
 
 export const OrderManagement = () => {
+  const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -115,16 +115,50 @@ export const OrderManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [loadingDetails, setLoadingDetails] = useState<{ [key: string]: boolean }>({});
+  const [storeId, setStoreId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    if (!currentUser) return;
+    fetchStoreId();
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (storeId) {
+      loadOrders();
+    }
+  }, [storeId]);
+
+  const fetchStoreId = async () => {
+    try {
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser?.uid));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        setError(t('orders.noStoreError'));
+        setLoading(false);
+        return;
+      }
+
+      setStoreId(snapshot.docs[0].id);
+    } catch (err) {
+      console.error('Error fetching store:', err);
+      setError(t('orders.storeError'));
+      setLoading(false);
+    }
+  };
 
   const loadOrders = async () => {
+    if (!storeId) return;
+
     try {
       setLoading(true);
       const ordersRef = collection(db, 'orders');
-      const q = query(ordersRef, orderBy('createdDate', 'desc'));
+      const q = query(
+        ordersRef,
+        where('storeId', '==', storeId),
+        orderBy('createdDate', 'desc')
+      );
       const snapshot = await getDocs(q);
       
       const ordersData = snapshot.docs.map(doc => ({
@@ -140,19 +174,15 @@ export const OrderManagement = () => {
       setOrders(ordersData);
     } catch (err) {
       console.error('Error loading orders:', err);
-      setError('Failed to load orders. Please try again.');
+      setError(t('orders.loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const loadOrderDetails = async (orderId: string) => {
-    if (!orderId) {
-      console.error('Invalid orderId');
-      return;
-    }
-
-    if (orders.find(o => o.id === orderId)?.items) return; // Already loaded
+    if (!orderId) return;
+    if (orders.find(o => o.id === orderId)?.items) return;
 
     setLoadingDetails(prev => ({ ...prev, [orderId]: true }));
     try {
@@ -160,10 +190,7 @@ export const OrderManagement = () => {
       const orderDetailsRef = collection(orderRef, 'orderDetails');
       const snapshot = await getDocs(orderDetailsRef);
       
-      if (snapshot.empty) {
-        console.log(`No order details found for order ${orderId}`);
-        return;
-      }
+      if (snapshot.empty) return;
 
       const items = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -177,7 +204,7 @@ export const OrderManagement = () => {
       ));
     } catch (err) {
       console.error(`Error loading order details for order ${orderId}:`, err);
-      setError(`Failed to load details for order ${orderId}`);
+      setError(t('orders.detailsError'));
     } finally {
       setLoadingDetails(prev => ({ ...prev, [orderId]: false }));
     }
@@ -231,13 +258,13 @@ export const OrderManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('orders.title')}</h1>
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search orders..."
+              placeholder={t('orders.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
@@ -245,7 +272,7 @@ export const OrderManagement = () => {
           </div>
           <div className="flex items-center space-x-2">
             <Filter className="text-gray-400 w-5 h-5" />
-            {Object.entries(statusLabels).map(([status, label]) => (
+            {Object.entries(statusColors).map(([status]) => (
               <button
                 key={status}
                 onClick={() => toggleStatusFilter(status)}
@@ -256,7 +283,7 @@ export const OrderManagement = () => {
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
                 `}
               >
-                {label}
+                {t(`orders.status.${status === 'headingToStore' ? 'inProgress' : status === 'orderDelivered' ? 'delivered' : 'created'}`)}
               </button>
             ))}
           </div>
@@ -266,8 +293,8 @@ export const OrderManagement = () => {
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
           <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders yet</h3>
-          <p className="text-gray-500">Orders will appear here once customers start purchasing.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('orders.noOrders')}</h3>
+          <p className="text-gray-500">{t('orders.noOrdersDesc')}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm divide-y divide-gray-200">
@@ -283,18 +310,18 @@ export const OrderManagement = () => {
                       px-2.5 py-0.5 rounded-full text-sm font-medium
                       ${statusColors[order.status]}
                     `}>
-                      {statusLabels[order.status]}
+                      {t(`orders.status.${order.status === 'headingToStore' ? 'inProgress' : order.status === 'orderDelivered' ? 'delivered' : 'created'}`)}
                     </span>
                   </div>
                   
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500">Customer</p>
+                      <p className="text-gray-500">{t('orders.customer')}</p>
                       <p className="font-medium text-gray-900">{order.userName}</p>
                       <p className="text-gray-600">{order.userPhoneNumber}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Delivery</p>
+                      <p className="text-gray-500">{t('orders.delivery')}</p>
                       <p className="font-medium text-gray-900">{order.deliveryAddress}</p>
                       <p className="text-gray-600">{order.deliverySchedule}</p>
                     </div>
@@ -310,9 +337,9 @@ export const OrderManagement = () => {
                     className="mt-2 flex items-center text-sm text-gray-600 hover:text-gray-900"
                   >
                     {expandedOrder === order.id ? (
-                      <>Hide Details <ChevronDown className="w-4 h-4 ml-1" /></>
+                      <>{t('orders.hideDetails')} <ChevronDown className="w-4 h-4 ml-1" /></>
                     ) : (
-                      <>View Details <ChevronRight className="w-4 h-4 ml-1" /></>
+                      <>{t('orders.viewDetails')} <ChevronRight className="w-4 h-4 ml-1" /></>
                     )}
                   </button>
                 </div>
@@ -322,15 +349,15 @@ export const OrderManagement = () => {
                 <div className="mt-6 grid grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-4">Order Timeline</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-4">{t('orders.orderTimeline')}</h4>
                       <OrderTimeline order={order} />
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-4">Order Summary</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-4">{t('orders.orderSummary')}</h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Subtotal</span>
+                          <span className="text-gray-500">{t('orders.subtotal')}</span>
                           <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
@@ -346,7 +373,7 @@ export const OrderManagement = () => {
                           <span className="text-gray-900">${order.platformFee.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
-                          <span className="text-gray-900">Total</span>
+                          <span className="text-gray-900">{t('orders.total')}</span>
                           <span className="text-gray-900">${order.totalOrderPrice.toFixed(2)}</span>
                         </div>
                       </div>
@@ -354,7 +381,7 @@ export const OrderManagement = () => {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-4">Order Items</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-4">{t('orders.orderItems')}</h4>
                     {loadingDetails[order.id] ? (
                       <div className="flex items-center justify-center h-32">
                         <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
@@ -365,14 +392,14 @@ export const OrderManagement = () => {
                           <div key={index} className="flex items-start justify-between">
                             <div>
                               <p className="font-medium text-gray-900">{item.productName}</p>
-                              <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                              <p className="text-sm text-gray-500">{t('orders.quantity')}: {item.quantity}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-900">
                                 ${item.subtotal.toFixed(2)}
                               </p>
                               <p className="text-xs text-gray-500">
-                                ${item.price.toFixed(2)} each
+                                ${item.price.toFixed(2)} {t('orders.each')}
                               </p>
                             </div>
                           </div>
@@ -380,7 +407,7 @@ export const OrderManagement = () => {
                       </div>
                     ) : (
                       <div className="text-center text-gray-500">
-                        Failed to load order items
+                        {t('orders.detailsError')}
                       </div>
                     )}
                   </div>
