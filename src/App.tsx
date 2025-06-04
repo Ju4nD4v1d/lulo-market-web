@@ -10,6 +10,7 @@ import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
 import { LanguageProvider } from './context/LanguageContext';
+import { initializeMockData } from './utils/mockData';
 
 function App() {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
@@ -20,6 +21,10 @@ function App() {
     };
 
     window.addEventListener('hashchange', handleHashChange);
+    
+    // Initialize mock data
+    initializeMockData().catch(console.error);
+    
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
