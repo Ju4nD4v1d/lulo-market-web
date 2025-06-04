@@ -33,6 +33,8 @@ interface Product {
   images: string[];
   status: 'active' | 'draft' | 'outOfStock';
   ownerId: string;
+  pstPercentage?: number;
+  gstPercentage?: number;
 }
 
 const defaultFormData = {
@@ -42,7 +44,9 @@ const defaultFormData = {
   category: '',
   stock: 0,
   status: 'active' as const,
-  images: []
+  images: [],
+  pstPercentage: 0,
+  gstPercentage: 0
 };
 
 interface ProductModalProps {
@@ -346,6 +350,52 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 className="block w-full"
                 required
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="pstPercentage" className="block text-sm font-medium text-gray-700 mb-1">
+                PST %
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="pstPercentage"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={formData.pstPercentage}
+                  onChange={(e) => setFormData({ ...formData, pstPercentage: parseFloat(e.target.value) })}
+                  className="block w-full pr-8"
+                  placeholder="0.00"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  %
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="gstPercentage" className="block text-sm font-medium text-gray-700 mb-1">
+                GST %
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="gstPercentage"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={formData.gstPercentage}
+                  onChange={(e) => setFormData({ ...formData, gstPercentage: parseFloat(e.target.value) })}
+                  className="block w-full pr-8"
+                  placeholder="0.00"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  %
+                </span>
+              </div>
             </div>
           </div>
 

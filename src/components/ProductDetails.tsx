@@ -10,6 +10,8 @@ interface Product {
   stock: number;
   status: 'active' | 'draft' | 'outOfStock';
   images: string[];
+  pstPercentage?: number;
+  gstPercentage?: number;
 }
 
 interface ProductDetailsProps {
@@ -19,6 +21,10 @@ interface ProductDetailsProps {
 }
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack, onEdit }) => {
+  const totalTaxPercentage = (product.pstPercentage || 0) + (product.gstPercentage || 0);
+  const taxAmount = (product.price * totalTaxPercentage) / 100;
+  const totalPrice = product.price + taxAmount;
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
@@ -93,12 +99,42 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Price</span>
+              <span className="text-gray-600">Base Price</span>
               <span className="text-2xl font-bold text-primary-600">
                 ${product.price.toFixed(2)}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+            
+            {(product.pstPercentage || product.gstPercentage) && (
+              <>
+                {product.pstPercentage > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">PST ({product.pstPercentage}%)</span>
+                    <span className="text-gray-900">
+                      ${((product.price * product.pstPercentage) / 100).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                
+                {product.gstPercentage > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">GST ({product.gstPercentage}%)</span>
+                    <span className="text-gray-900">
+                      ${((product.price * product.gstPercentage) / 100).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <span className="text-gray-800 font-medium">Total Price (with tax)</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ${totalPrice.toFixed(2)}
+                  </span>
+                </div>
+              </>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <span className="text-gray-600">Stock</span>
               <span className="text-lg font-semibold text-gray-900">
                 {product.stock} units
