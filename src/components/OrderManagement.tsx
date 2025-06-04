@@ -45,7 +45,7 @@ interface Order {
   pickupCompletedTime?: Date;
   headingToDestinationTime?: Date;
   orderDeliveredTime?: Date;
-  items: OrderItem[];
+  items?: OrderItem[];
 }
 
 const statusColors = {
@@ -114,6 +114,7 @@ export const OrderManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     loadOrders();
@@ -142,6 +143,40 @@ export const OrderManagement = () => {
       setError('Failed to load orders. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadOrderDetails = async (orderId: string) => {
+    if (orders.find(o => o.id === orderId)?.items) return; // Already loaded
+
+    setLoadingDetails(prev => ({ ...prev, [orderId]: true }));
+    try {
+      const orderDetailsRef = collection(db, 'orders', orderId, 'orderDetails');
+      const snapshot = await getDocs(orderDetailsRef);
+      
+      const items = snapshot.docs.map(doc => ({
+        ...doc.data()
+      })) as OrderItem[];
+
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, items } 
+          : order
+      ));
+    } catch (err) {
+      console.error('Error loading order details:', err);
+      setError(`Failed to load details for order ${orderId}`);
+    } finally {
+      setLoadingDetails(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const handleExpandOrder = async (orderId: string) => {
+    if (expandedOrder === orderId) {
+      setExpandedOrder(null);
+    } else {
+      setExpandedOrder(orderId);
+      await loadOrderDetails(orderId);
     }
   };
 
@@ -259,7 +294,7 @@ export const OrderManagement = () => {
                     ${order.totalOrderPrice.toFixed(2)}
                   </p>
                   <button
-                    onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                    onClick={() => handleExpandOrder(order.id)}
                     className="mt-2 flex items-center text-sm text-gray-600 hover:text-gray-900"
                   >
                     {expandedOrder === order.id ? (
@@ -308,24 +343,34 @@ export const OrderManagement = () => {
 
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-4">Order Items</h4>
-                    <div className="space-y-4">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="flex items-start justify-between">
-                          <div>
-                            <p className="font-medium text-gray-900">{item.productName}</p>
-                            <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    {loadingDetails[order.id] ? (
+                      <div className="flex items-center justify-center h-32">
+                        <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+                      </div>
+                    ) : order.items ? (
+                      <div className="space-y-4">
+                        {order.items.map((item, index) => (
+                          <div key={index} className="flex items-start justify-between">
+                            <div>
+                              <p className="font-medium text-gray-900">{item.productName}</p>
+                              <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-medium text-gray-900">
+                                ${item.subtotal.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                ${item.price.toFixed(2)} each
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-medium text-gray-900">
-                              ${item.subtotal.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              ${item.price.toFixed(2)} each
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        Failed to load order items
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
