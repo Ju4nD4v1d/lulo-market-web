@@ -123,7 +123,96 @@ export const translations: Translations = {
       'created': 'Created',
       'inProgress': 'In Progress',
       'delivered': 'Delivered'
-    }
+    },
+
+    // Hero Section
+    'hero.tagline': 'Your marketplace awaits',
+    'hero.title': 'Welcome to LuloCart',
+    'hero.subtitle': 'The easiest way to shop and sell latino products',
+    'hero.marketplaceText': 'Explore our marketplace to discover amazing items',
+    'hero.shopperCta': 'Shop Now',
+    'hero.businessCta': 'Sell with Us',
+
+    // Business Section
+    'business.badge': 'For Sellers',
+    'business.title': 'Grow Your Business',
+    'business.subtitle': 'Reach more customers and manage orders easily',
+    'business.benefits.setup': 'Quick to set up your online store',
+    'business.benefits.discover': 'Get discovered by shoppers',
+    'business.benefits.delivery': 'Deliver products reliably',
+    'business.cta': 'Get Started',
+
+    // Shoppers Section
+    'shoppers.title': 'For Shoppers',
+    'shoppers.subtitle': 'Find your favorite latino products',
+    'shoppers.description': 'Shop from trusted local businesses',
+    'shoppers.feature1.title': 'Easy Ordering',
+    'shoppers.feature1.desc': 'Place orders in just a few clicks',
+    'shoppers.feature2.title': 'Fast Delivery',
+    'shoppers.feature2.desc': 'Get items delivered to your door',
+    'shoppers.feature3.title': 'Community Support',
+    'shoppers.feature3.desc': 'Support local latino businesses',
+    'shoppers.appStore': 'App Store',
+    'shoppers.googlePlay': 'Google Play',
+
+    // About Section
+    'about.title': 'About Us',
+    'about.mission': 'Our Mission',
+    'about.missionText': 'Connecting latino businesses with shoppers',
+    'about.community': 'Community First',
+    'about.communityText': 'Building a strong network of entrepreneurs',
+
+    // Footer
+    'footer.tagline': 'Connecting communities through commerce',
+    'footer.business': 'Business',
+    'footer.createAccount': 'Create Account',
+    'footer.sellerDashboard': 'Seller Dashboard',
+    'footer.sellerResources': 'Seller Resources',
+    'footer.successStories': 'Success Stories',
+    'footer.shopper': 'Shopper',
+    'footer.downloadApp': 'Download App',
+    'footer.browseStores': 'Browse Stores',
+    'footer.deliveryAreas': 'Delivery Areas',
+    'footer.faqs': 'FAQs',
+    'footer.about': 'About',
+    'footer.ourStory': 'Our Story',
+    'footer.careers': 'Careers',
+    'footer.contact': 'Contact',
+    'footer.copyright': `© ${COMPANY_NAME} All rights reserved`,
+    'footer.terms': 'Terms',
+    'footer.privacy': 'Privacy',
+
+    // Language
+    'language.toggle': 'Español',
+
+    // Authentication
+    'auth.welcomeHero': 'Welcome to',
+    'auth.welcomeSubtitle': 'Join our community',
+    'auth.welcomeMessage': 'Start selling with',
+    'auth.subtitle': 'Create your account or log in',
+    'auth.login': 'Login',
+    'auth.register': 'Register',
+    'auth.backToHome': 'Back to Home',
+    'auth.email': 'Email',
+    'auth.emailPlaceholder': 'Enter your email',
+    'auth.password': 'Password',
+    'auth.passwordPlaceholder': 'Enter your password',
+    'auth.rememberMe': 'Remember Me',
+    'auth.forgotPassword': 'Forgot Password?',
+    'auth.loginButton': 'Login',
+    'auth.registerButton': 'Register',
+    'auth.loading': 'Loading...',
+    'auth.trustMessage': 'Trusted by thousands of businesses',
+    'auth.registrationSuccess': 'Registration successful',
+
+    // Testimonials
+    'testimonials.title': 'What Our Users Say',
+    'testimonial1.quote': 'Amazing service and support!',
+    'testimonial1.author': 'Juan Perez',
+    'testimonial2.quote': 'The best marketplace experience',
+    'testimonial2.author': 'Ana Gomez',
+    'testimonial3.quote': 'Highly recommend LuloCart',
+    'testimonial3.author': 'Luis Martinez'
   },
   es: {
     // Navigation
@@ -237,6 +326,95 @@ export const translations: Translations = {
       'created': 'Creado',
       'inProgress': 'En Progreso',
       'delivered': 'Entregado'
-    }
+    },
+
+    // Sección Hero
+    'hero.tagline': 'Tu mercado te espera',
+    'hero.title': 'Bienvenido a LuloCart',
+    'hero.subtitle': 'La forma más fácil de comprar y vender productos latinos',
+    'hero.marketplaceText': 'Explora nuestro mercado y descubre productos increíbles',
+    'hero.shopperCta': 'Comprar ahora',
+    'hero.businessCta': 'Vende con nosotros',
+
+    // Sección de Negocios
+    'business.badge': 'Para Vendedores',
+    'business.title': 'Haz crecer tu negocio',
+    'business.subtitle': 'Llega a más clientes y gestiona pedidos fácilmente',
+    'business.benefits.setup': 'Configura tu tienda en minutos',
+    'business.benefits.discover': 'Sé descubierto por compradores',
+    'business.benefits.delivery': 'Entrega productos de forma confiable',
+    'business.cta': 'Comenzar',
+
+    // Sección de Compradores
+    'shoppers.title': 'Para Compradores',
+    'shoppers.subtitle': 'Encuentra tus productos latinos favoritos',
+    'shoppers.description': 'Compra a negocios locales de confianza',
+    'shoppers.feature1.title': 'Compra Fácil',
+    'shoppers.feature1.desc': 'Haz pedidos en pocos clics',
+    'shoppers.feature2.title': 'Envío Rápido',
+    'shoppers.feature2.desc': 'Recibe tus artículos en la puerta',
+    'shoppers.feature3.title': 'Apoyo Comunitario',
+    'shoppers.feature3.desc': 'Apoya negocios latinos locales',
+    'shoppers.appStore': 'App Store',
+    'shoppers.googlePlay': 'Google Play',
+
+    // Sección Sobre Nosotros
+    'about.title': 'Sobre Nosotros',
+    'about.mission': 'Nuestra Misión',
+    'about.missionText': 'Conectando negocios latinos con compradores',
+    'about.community': 'Comunidad Primero',
+    'about.communityText': 'Construyendo una red fuerte de emprendedores',
+
+    // Pie de página
+    'footer.tagline': 'Conectando comunidades a través del comercio',
+    'footer.business': 'Negocios',
+    'footer.createAccount': 'Crear Cuenta',
+    'footer.sellerDashboard': 'Panel del Vendedor',
+    'footer.sellerResources': 'Recursos para Vendedores',
+    'footer.successStories': 'Historias de Éxito',
+    'footer.shopper': 'Comprador',
+    'footer.downloadApp': 'Descargar App',
+    'footer.browseStores': 'Explorar Tiendas',
+    'footer.deliveryAreas': 'Áreas de Entrega',
+    'footer.faqs': 'Preguntas Frecuentes',
+    'footer.about': 'Acerca de',
+    'footer.ourStory': 'Nuestra Historia',
+    'footer.careers': 'Empleos',
+    'footer.contact': 'Contacto',
+    'footer.copyright': `© ${COMPANY_NAME} Todos los derechos reservados`,
+    'footer.terms': 'Términos',
+    'footer.privacy': 'Privacidad',
+
+    // Lenguaje
+    'language.toggle': 'English',
+
+    // Autenticación
+    'auth.welcomeHero': 'Bienvenido a',
+    'auth.welcomeSubtitle': 'Únete a nuestra comunidad',
+    'auth.welcomeMessage': 'Comienza a vender con',
+    'auth.subtitle': 'Crea tu cuenta o inicia sesión',
+    'auth.login': 'Iniciar Sesión',
+    'auth.register': 'Registrarse',
+    'auth.backToHome': 'Volver al Inicio',
+    'auth.email': 'Correo',
+    'auth.emailPlaceholder': 'Ingresa tu correo',
+    'auth.password': 'Contraseña',
+    'auth.passwordPlaceholder': 'Ingresa tu contraseña',
+    'auth.rememberMe': 'Recuérdame',
+    'auth.forgotPassword': '¿Olvidaste tu contraseña?',
+    'auth.loginButton': 'Iniciar Sesión',
+    'auth.registerButton': 'Registrarse',
+    'auth.loading': 'Cargando...',
+    'auth.trustMessage': 'Con la confianza de miles de negocios',
+    'auth.registrationSuccess': 'Registro exitoso',
+
+    // Testimonios
+    'testimonials.title': 'Lo que dicen nuestros usuarios',
+    'testimonial1.quote': '¡Servicio y soporte increíbles!',
+    'testimonial1.author': 'Juan Pérez',
+    'testimonial2.quote': 'La mejor experiencia de mercado',
+    'testimonial2.author': 'Ana Gómez',
+    'testimonial3.quote': 'Recomiendo mucho LuloCart',
+    'testimonial3.author': 'Luis Martínez'
   }
 };

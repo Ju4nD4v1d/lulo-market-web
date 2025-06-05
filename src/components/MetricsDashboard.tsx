@@ -31,7 +31,7 @@ const mockData = {
   ]
 };
 
-const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: any; trend?: string }) => (
+const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: React.ElementType; trend?: string }) => (
   <div className="bg-white rounded-xl p-6 border border-gray-200">
     <div className="flex items-start justify-between">
       <div>

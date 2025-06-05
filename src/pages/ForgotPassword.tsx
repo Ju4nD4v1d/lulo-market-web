@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
-import { COMPANY_NAME } from '../config/company';
+
 
 export const ForgotPassword = () => {
-  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');

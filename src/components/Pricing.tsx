@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { ContactForm } from './ContactForm';
 
 export const Pricing = () => {
   const { t } = useLanguage();
   const [showContactForm, setShowContactForm] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium' | null>(null);
   const [isYearly, setIsYearly] = useState(false);
 
-  const handlePlanClick = (plan: 'basic' | 'premium') => {
-    setSelectedPlan(plan);
+  const handlePlanClick = () => {
     setShowContactForm(true);
   };
 
   if (showContactForm) {
-    return <ContactForm onBack={() => setShowContactForm(false)} plan={selectedPlan} />;
+    return <ContactForm onBack={() => setShowContactForm(false)} />;
   }
 
   return (

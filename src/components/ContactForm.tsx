@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Send, CheckCircle2, Building2, Mail, Phone, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Building2, Mail, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface ContactFormProps {
   onBack: () => void;
-  plan: 'basic' | 'premium' | null;
 }
 
-export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
+export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
