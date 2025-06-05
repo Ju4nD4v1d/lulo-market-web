@@ -9,6 +9,7 @@ import { Footer } from './components/Footer';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
+import { Pricing } from './components/Pricing';
 import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
               <Hero />
               <BusinessOwners />
               <Shoppers />
+              <Pricing />
               <Testimonials />
               <About />
             </main>

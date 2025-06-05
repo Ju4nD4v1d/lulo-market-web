@@ -18,7 +18,7 @@ export const Header = () => {
       }
 
       // Update active section based on scroll position
-      const sections = ['home', 'businesses', 'shoppers', 'about'];
+      const sections = ['home', 'businesses', 'shoppers', 'pricing', 'about'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -99,6 +99,7 @@ export const Header = () => {
               <NavLink href="#">{t('nav.home')}</NavLink>
               <NavLink href="#businesses">{t('nav.forBusinesses')}</NavLink>
               <NavLink href="#shoppers">{t('nav.forShoppers')}</NavLink>
+              <NavLink href="#pricing">{t('nav.prices')}</NavLink>
               <NavLink href="#about">{t('nav.about')}</NavLink>
               <button 
                 onClick={toggleLanguage}
@@ -154,7 +155,7 @@ export const Header = () => {
         `}
       >
         <nav className="flex flex-col items-center space-y-8 p-4">
-          {['home', 'businesses', 'shoppers', 'about'].map((section) => (
+          {['home', 'businesses', 'shoppers', 'pricing', 'about'].map((section) => (
             <a 
               key={section}
               href={`#${section === 'home' ? '' : section}`}
@@ -167,7 +168,7 @@ export const Header = () => {
               onClick={() => setIsOpen(false)}
             >
               <span className="relative">
-                {t(`nav.${section === 'home' ? 'home' : section === 'businesses' ? 'forBusinesses' : section === 'shoppers' ? 'forShoppers' : 'about'}`)}
+                {t(`nav.${section === 'home' ? 'home' : section === 'businesses' ? 'forBusinesses' : section === 'shoppers' ? 'forShoppers' : section === 'pricing' ? 'prices' : 'about'}`)}
                 <span className={`
                   absolute -bottom-1 left-0 w-full h-0.5
                   bg-primary-400 origin-left
