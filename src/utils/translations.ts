@@ -23,26 +23,41 @@ export const translations: Translations = {
     // Pricing Section
     'pricing.title': 'Choose Your Plan',
     'pricing.subtitle': 'Start growing your business with our flexible plans',
+    'pricing.monthly': 'Monthly',
+    'pricing.yearly': 'Yearly',
+    'pricing.savePercent': 'Save 20%',
+    'pricing.recommended': 'Recommended',
     'pricing.basic.title': 'Basic Plan',
-    'pricing.basic.price': '$29',
+    'pricing.basic.monthlyPrice': '$29',
+    'pricing.basic.yearlyPrice': '$279',
+    'pricing.monthly.period': '/mo',
+    'pricing.yearly.period': '/yr',
     'pricing.basic.period': '/month',
     'pricing.basic.description': 'Perfect for small businesses starting their journey',
     'pricing.basic.features': [
       'List up to 50 products',
       'Basic analytics',
       'Standard support',
-      'Mobile app access'
+      'Mobile app access',
+      'Basic store customization',
+      'Email notifications'
     ],
     'pricing.premium.title': 'Premium Plan',
-    'pricing.premium.price': '$79',
+    'pricing.premium.monthlyPrice': '$79',
+    'pricing.premium.yearlyPrice': '$759',
     'pricing.premium.period': '/month',
     'pricing.premium.description': 'For growing businesses ready to scale',
     'pricing.premium.features': [
       'Unlimited products',
       'Advanced analytics',
-      'Priority support',
-      'Marketing tools',
-      'Custom branding'
+      'Priority 24/7 support',
+      'Featured store placement',
+      'Custom branding',
+      'Marketing campaigns in mobile app',
+      'AI product validator',
+      'SEO optimization tools',
+      'Social media integration',
+      'Inventory forecasting'
     ],
     'pricing.contactUs': 'For more details, we\'d love to get in touch with you',
     'pricing.getStarted': 'Get Started',
@@ -58,9 +73,7 @@ export const translations: Translations = {
     'contact.back': 'Back to Plans',
     'contact.success': 'Thanks for your interest! We\'ll reach out to you soon.',
     'contact.error.name': 'Please enter your name',
-    'contact.error.email': 'Please enter a valid email',
-
-    // ... (rest of existing English translations)
+    'contact.error.email': 'Please enter a valid email'
   },
   es: {
     // Navigation
@@ -74,26 +87,41 @@ export const translations: Translations = {
     // Pricing Section
     'pricing.title': 'Elige tu Plan',
     'pricing.subtitle': 'Comienza a hacer crecer tu negocio con nuestros planes flexibles',
+    'pricing.monthly': 'Mensual',
+    'pricing.yearly': 'Anual',
+    'pricing.savePercent': 'Ahorra 20%',
+    'pricing.recommended': 'Recomendado',
     'pricing.basic.title': 'Plan Básico',
-    'pricing.basic.price': '$29',
+    'pricing.basic.monthlyPrice': '$29',
+    'pricing.basic.yearlyPrice': '$279',
+    'pricing.monthly.period': '/mes',
+    'pricing.yearly.period': '/año',
     'pricing.basic.period': '/mes',
     'pricing.basic.description': 'Perfecto para pequeños negocios comenzando su viaje',
     'pricing.basic.features': [
       'Lista hasta 50 productos',
       'Análisis básico',
       'Soporte estándar',
-      'Acceso a app móvil'
+      'Acceso a app móvil',
+      'Personalización básica de tienda',
+      'Notificaciones por email'
     ],
     'pricing.premium.title': 'Plan Premium',
-    'pricing.premium.price': '$79',
+    'pricing.premium.monthlyPrice': '$79',
+    'pricing.premium.yearlyPrice': '$759',
     'pricing.premium.period': '/mes',
     'pricing.premium.description': 'Para negocios en crecimiento listos para escalar',
     'pricing.premium.features': [
       'Productos ilimitados',
       'Análisis avanzado',
-      'Soporte prioritario',
-      'Herramientas de marketing',
-      'Marca personalizada'
+      'Soporte prioritario 24/7',
+      'Ubicación destacada de tienda',
+      'Marca personalizada',
+      'Campañas de marketing en app móvil',
+      'Validador AI de productos',
+      'Herramientas de optimización SEO',
+      'Integración con redes sociales',
+      'Pronóstico de inventario'
     ],
     'pricing.contactUs': 'Para más detalles, nos encantaría ponernos en contacto contigo',
     'pricing.getStarted': 'Comenzar',
@@ -109,8 +137,6 @@ export const translations: Translations = {
     'contact.back': 'Volver a Planes',
     'contact.success': '¡Gracias por tu interés! Nos pondremos en contacto contigo pronto.',
     'contact.error.name': 'Por favor ingresa tu nombre',
-    'contact.error.email': 'Por favor ingresa un correo válido',
-
-    // ... (rest of existing Spanish translations)
+    'contact.error.email': 'Por favor ingresa un correo válido'
   }
 };
