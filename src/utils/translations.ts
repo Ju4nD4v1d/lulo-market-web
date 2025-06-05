@@ -60,7 +60,7 @@ export const translations: Translations = {
       'Inventory forecasting'
     ],
     'pricing.contactUs': 'For more details, we\'d love to get in touch with you',
-    'pricing.getStarted': 'Get Started',
+    'pricing.getStarted': 'Request a Demo',
 
     // Contact Form
     'contact.title': 'You\'re Very Close!',
@@ -73,7 +73,33 @@ export const translations: Translations = {
     'contact.back': 'Back to Plans',
     'contact.success': 'Thanks for your interest! We\'ll reach out to you soon.',
     'contact.error.name': 'Please enter your name',
-    'contact.error.email': 'Please enter a valid email'
+    'contact.error.email': 'Please enter a valid email',
+
+    // Orders Section
+    'orders.title': 'Orders',
+    'orders.search': 'Search orders...',
+    'orders.noOrders': 'No orders yet',
+    'orders.noOrdersDesc': 'Orders will appear here once customers start purchasing.',
+    'orders.customer': 'Customer',
+    'orders.delivery': 'Delivery',
+    'orders.hideDetails': 'Hide Details',
+    'orders.viewDetails': 'View Details',
+    'orders.orderTimeline': 'Order Timeline',
+    'orders.orderSummary': 'Order Summary',
+    'orders.subtotal': 'Subtotal',
+    'orders.total': 'Total',
+    'orders.orderItems': 'Order Items',
+    'orders.quantity': 'Quantity',
+    'orders.each': 'each',
+    'orders.detailsError': 'Failed to load order items',
+    'orders.loadError': 'Failed to load orders. Please try again.',
+    'orders.noStoreError': 'No store found. Please set up your store first.',
+    'orders.storeError': 'Failed to fetch store information.',
+    'orders.status': {
+      'created': 'Created',
+      'inProgress': 'In Progress',
+      'delivered': 'Delivered'
+    }
   },
   es: {
     // Navigation
@@ -124,7 +150,7 @@ export const translations: Translations = {
       'Pronóstico de inventario'
     ],
     'pricing.contactUs': 'Para más detalles, nos encantaría ponernos en contacto contigo',
-    'pricing.getStarted': 'Comenzar',
+    'pricing.getStarted': 'Solicitar Demo',
 
     // Contact Form
     'contact.title': '¡Estás Muy Cerca!',
@@ -137,6 +163,32 @@ export const translations: Translations = {
     'contact.back': 'Volver a Planes',
     'contact.success': '¡Gracias por tu interés! Nos pondremos en contacto contigo pronto.',
     'contact.error.name': 'Por favor ingresa tu nombre',
-    'contact.error.email': 'Por favor ingresa un correo válido'
+    'contact.error.email': 'Por favor ingresa un correo válido',
+
+    // Orders Section
+    'orders.title': 'Pedidos',
+    'orders.search': 'Buscar pedidos...',
+    'orders.noOrders': 'No hay pedidos aún',
+    'orders.noOrdersDesc': 'Los pedidos aparecerán aquí cuando los clientes empiecen a comprar.',
+    'orders.customer': 'Cliente',
+    'orders.delivery': 'Entrega',
+    'orders.hideDetails': 'Ocultar Detalles',
+    'orders.viewDetails': 'Ver Detalles',
+    'orders.orderTimeline': 'Línea de Tiempo',
+    'orders.orderSummary': 'Resumen del Pedido',
+    'orders.subtotal': 'Subtotal',
+    'orders.total': 'Total',
+    'orders.orderItems': 'Artículos',
+    'orders.quantity': 'Cantidad',
+    'orders.each': 'c/u',
+    'orders.detailsError': 'Error al cargar los detalles del pedido',
+    'orders.loadError': 'Error al cargar los pedidos. Por favor intenta de nuevo.',
+    'orders.noStoreError': 'No se encontró tienda. Por favor configura tu tienda primero.',
+    'orders.storeError': 'Error al obtener información de la tienda.',
+    'orders.status': {
+      'created': 'Creado',
+      'inProgress': 'En Progreso',
+      'delivered': 'Entregado'
+    }
   }
 };
