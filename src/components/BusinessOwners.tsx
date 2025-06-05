@@ -127,7 +127,7 @@ export const BusinessOwners = () => {
                   {feature.description}
                 </p>
                 <a 
-                  href="#" 
+                  href="#pricing" 
                   className="inline-flex items-center text-white hover:text-primary-400 font-medium transition-colors"
                 >
                   Learn More
@@ -140,7 +140,7 @@ export const BusinessOwners = () => {
         
         <div className="text-center transform transition-all duration-700 delay-400 translate-y-12 opacity-0">
           <a 
-            href="#" 
+            href="#pricing" 
             className="
               inline-flex items-center justify-center
               px-8 py-4 rounded-xl
