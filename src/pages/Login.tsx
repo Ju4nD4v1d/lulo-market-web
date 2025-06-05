@@ -38,7 +38,7 @@ export const Login = () => {
         setSuccess(t('auth.registrationSuccess'));
         window.location.hash = '#dashboard';
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getAuthErrorMessage(err, locale));
     } finally {
       setIsLoading(false);

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Store, MapPin, Truck, ArrowRight, Users, TrendingUp } from 'lucide-react';
+import { Store, ArrowRight, Users, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const BusinessOwners = () => {

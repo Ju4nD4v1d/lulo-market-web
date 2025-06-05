@@ -410,7 +410,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     type="radio"
                     value={status}
                     checked={formData.status === status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Product['status'] })}
                     className="form-radio text-primary-600 focus:ring-primary-500"
                   />
                   <span className="ml-2 text-sm text-gray-700 capitalize">

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShoppingCart, 
-  Clock, 
-  Package, 
-  Truck, 
+  ShoppingCart,
+  Package,
+  Truck,
   CheckCircle2,
   Search,
   Filter,
@@ -12,7 +11,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { collection, query, where, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
@@ -58,7 +57,6 @@ const statusColors = {
 };
 
 const OrderTimeline = ({ order }: { order: Order }) => {
-  const { t } = useLanguage();
   const timelineSteps = [
     { time: order.createdDate, label: 'Order Created', icon: Package },
     { time: order.headingToStoreTime, label: 'Heading to Store', icon: Truck },

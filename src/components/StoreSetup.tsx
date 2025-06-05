@@ -12,7 +12,7 @@ import {
   Building2
 } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { collection, addDoc, GeoPoint, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, GeoPoint, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -43,7 +43,6 @@ export const StoreSetup = () => {
   const { currentUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [storeImage, setStoreImage] = useState<{
@@ -225,7 +224,6 @@ export const StoreSetup = () => {
       }
 
       setSaveStep('complete');
-      setShowConfirmation(true);
     } catch (error) {
       console.error('Error saving store:', error);
       setError(error instanceof Error ? error.message : 'Failed to save store information');
