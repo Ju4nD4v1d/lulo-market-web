@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { ContactForm } from './ContactForm';
 
@@ -7,6 +7,7 @@ export const Pricing = () => {
   const { t } = useLanguage();
   const [showContactForm, setShowContactForm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium' | null>(null);
+  const [isYearly, setIsYearly] = useState(false);
 
   const handlePlanClick = (plan: 'basic' | 'premium') => {
     setSelectedPlan(plan);
@@ -27,6 +28,32 @@ export const Pricing = () => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             {t('pricing.subtitle')}
           </p>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center mt-8 space-x-4">
+            <span className={`text-sm ${!isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+              {t('pricing.monthly')}
+            </span>
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-gray-200"
+              role="switch"
+              aria-checked={isYearly}
+            >
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  isYearly ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <span className={`text-sm ${isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+              {t('pricing.yearly')}
+              <span className="ml-1.5 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                {t('pricing.savePercent')}
+              </span>
+            </span>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -38,10 +65,10 @@ export const Pricing = () => {
               </h3>
               <div className="flex items-baseline mb-4">
                 <span className="text-4xl font-bold text-primary-600">
-                  {t('pricing.basic.price')}
+                  {isYearly ? t('pricing.basic.yearlyPrice') : t('pricing.basic.monthlyPrice')}
                 </span>
                 <span className="text-gray-500 ml-2">
-                  {t('pricing.basic.period')}
+                  {isYearly ? t('pricing.yearly.period') : t('pricing.monthly.period')}
                 </span>
               </div>
               <p className="text-gray-600">
@@ -74,7 +101,7 @@ export const Pricing = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300
             relative overflow-hidden">
             <div className="absolute top-4 right-4 bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
-              Popular
+              {t('pricing.recommended')}
             </div>
 
             <div className="mb-8">
@@ -83,10 +110,10 @@ export const Pricing = () => {
               </h3>
               <div className="flex items-baseline mb-4">
                 <span className="text-4xl font-bold text-primary-600">
-                  {t('pricing.premium.price')}
+                  {isYearly ? t('pricing.premium.yearlyPrice') : t('pricing.premium.monthlyPrice')}
                 </span>
                 <span className="text-gray-500 ml-2">
-                  {t('pricing.premium.period')}
+                  {isYearly ? t('pricing.yearly.period') : t('pricing.monthly.period')}
                 </span>
               </div>
               <p className="text-gray-600">
