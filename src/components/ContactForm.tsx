@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Send, CheckCircle2, Building2, Mail, Users, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle2, Building2, Mail, Phone, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface ContactFormProps {
@@ -12,15 +12,27 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     company: '',
-    employees: ''
+    contactPreference: ''
   });
-  const [errors, setErrors] = useState({ name: '', email: '', company: '', employees: '' });
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    contactPreference: ''
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
 
   const validateForm = () => {
-    const newErrors = { name: '', email: '', company: '', employees: '' };
+    const newErrors = {
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      contactPreference: ''
+    };
     let isValid = true;
 
     if (!formData.name.trim()) {
@@ -38,8 +50,13 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
       isValid = false;
     }
 
-    if (!formData.employees.trim()) {
-      newErrors.employees = t('contact.error.employees');
+    if (!formData.contactPreference) {
+      newErrors.contactPreference = t('contact.error.contactPreference');
+      isValid = false;
+    }
+
+    if (formData.contactPreference === 'phone' && !formData.phone.trim()) {
+      newErrors.phone = t('contact.error.phone');
       isValid = false;
     }
 
@@ -121,7 +138,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
               <div className="space-y-6">
                 <div className="flex items-start">
                   <div className="bg-white/10 p-3 rounded-lg">
-                    <Users className="w-6 h-6" />
+                    <Building2 className="w-6 h-6" />
                   </div>
                   <div className="ml-4">
                     <h3 className="font-semibold mb-1">{t('contact.benefit1.title')}</h3>
@@ -131,7 +148,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
 
                 <div className="flex items-start">
                   <div className="bg-white/10 p-3 rounded-lg">
-                    <Building2 className="w-6 h-6" />
+                    <Mail className="w-6 h-6" />
                   </div>
                   <div className="ml-4">
                     <h3 className="font-semibold mb-1">{t('contact.benefit2.title')}</h3>
@@ -201,6 +218,25 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
                   </div>
 
                   <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                      {t('contact.phone')}
+                    </label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder={t('contact.phonePlaceholder')}
+                      className={`mt-1 block w-full rounded-lg ${
+                        errors.phone ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                    />
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                    )}
+                  </div>
+
+                  <div>
                     <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                       {t('contact.company')}
                     </label>
@@ -220,25 +256,33 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack, plan }) => {
                   </div>
 
                   <div>
-                    <label htmlFor="employees" className="block text-sm font-medium text-gray-700">
-                      {t('contact.employees')}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('contact.contactPreference')}
                     </label>
-                    <select
-                      id="employees"
-                      value={formData.employees}
-                      onChange={(e) => handleInputChange('employees', e.target.value)}
-                      className={`mt-1 block w-full rounded-lg ${
-                        errors.employees ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    >
-                      <option value="">{t('contact.employeesPlaceholder')}</option>
-                      <option value="1-10">1-10</option>
-                      <option value="11-50">11-50</option>
-                      <option value="51-200">51-200</option>
-                      <option value="201+">201+</option>
-                    </select>
-                    {errors.employees && (
-                      <p className="mt-1 text-sm text-red-600">{errors.employees}</p>
+                    <div className="flex space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="email"
+                          checked={formData.contactPreference === 'email'}
+                          onChange={(e) => handleInputChange('contactPreference', e.target.value)}
+                          className="form-radio text-primary-600"
+                        />
+                        <span className="ml-2">{t('contact.contactEmail')}</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="phone"
+                          checked={formData.contactPreference === 'phone'}
+                          onChange={(e) => handleInputChange('contactPreference', e.target.value)}
+                          className="form-radio text-primary-600"
+                        />
+                        <span className="ml-2">{t('contact.contactPhone')}</span>
+                      </label>
+                    </div>
+                    {errors.contactPreference && (
+                      <p className="mt-1 text-sm text-red-600">{errors.contactPreference}</p>
                     )}
                   </div>
 
