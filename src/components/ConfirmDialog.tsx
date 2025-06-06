@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface ConfirmDialogProps {
 }
 
 export const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, message }: ConfirmDialogProps) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -31,13 +33,13 @@ export const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, message }: C
                 onClick={onCancel}
                 className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
               >
-                Cancel
+                {t('dialog.cancel')}
               </button>
               <button
                 onClick={onConfirm}
                 className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
-                Confirm & Save
+                {t('dialog.confirmSave')}
               </button>
             </div>
           </div>

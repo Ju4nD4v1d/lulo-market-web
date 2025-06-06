@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SaveProgressModalProps {
   isOpen: boolean;
@@ -8,13 +9,14 @@ interface SaveProgressModalProps {
 }
 
 export const SaveProgressModal = ({ isOpen, currentStep, onComplete }: SaveProgressModalProps) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const steps = [
-    { id: 'saving', label: 'Saving store info...' },
-    { id: 'uploading', label: 'Uploading images...' },
-    { id: 'finalizing', label: 'Finalizing...' },
-    { id: 'complete', label: 'Store saved successfully!' }
+    { id: 'saving', label: t('store.saveProgress.savingInfo') },
+    { id: 'uploading', label: t('store.saveProgress.uploadingImages') },
+    { id: 'finalizing', label: t('store.saveProgress.finalizing') },
+    { id: 'complete', label: t('store.saveProgress.complete') }
   ];
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
@@ -27,17 +29,17 @@ export const SaveProgressModal = ({ isOpen, currentStep, onComplete }: SaveProgr
             <>
               <CheckCircle2 className="w-12 h-12 text-primary-500 mb-4 animate-scale" />
               <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
-                Store Created Successfully!
+                {t('store.saveProgress.createdTitle')}
               </h3>
               <p className="text-gray-600 mb-6 text-center">
-                Your store has been created and saved. You can now start adding products to your store.
+                {t('store.saveProgress.createdDesc')}
               </p>
               <button
                 onClick={onComplete}
                 className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
                   hover:bg-primary-700 transition-colors flex items-center justify-center"
               >
-                Continue to Products
+                {t('store.saveProgress.continue')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
             </>

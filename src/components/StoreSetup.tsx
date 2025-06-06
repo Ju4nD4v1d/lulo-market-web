@@ -16,6 +16,7 @@ import { collection, addDoc, GeoPoint, getDocs, query, where, updateDoc } from '
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { SaveProgressModal } from './SaveProgressModal';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -41,6 +42,7 @@ const daysOrder = [
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const [saving, setSaving] = useState(false);
   const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -307,8 +309,8 @@ export const StoreSetup = () => {
         isOpen={showConfirmDialog}
         onConfirm={handleConfirmSave}
         onCancel={() => setShowConfirmDialog(false)}
-        title="Save Store Changes"
-        message="Are you sure you want to save these changes to your store? This will update your store profile immediately."
+        title={t('store.setup.confirmTitle')}
+        message={t('store.setup.confirmMessage')}
       />
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
@@ -317,8 +319,8 @@ export const StoreSetup = () => {
             <Store className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Store Setup</h1>
-            <p className="text-gray-600 mt-1">Configure your store information and settings</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('store.setup.title')}</h1>
+            <p className="text-gray-600 mt-1">{t('store.setup.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -330,11 +332,11 @@ export const StoreSetup = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <FormSection title="Basic Information" icon={Store}>
+        <FormSection title={t('store.setup.basicInfo')} icon={Store}>
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Store Image
+                {t('store.setup.storeImage')}
               </label>
               <div
                 className="border-2 border-dashed rounded-lg p-8 border-gray-300
@@ -364,7 +366,7 @@ export const StoreSetup = () => {
                     <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
                       <div className="flex items-center">
                         <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                          <span>Upload a file</span>
+                          <span>{t('store.setup.uploadFile')}</span>
                           <input
                             type="file"
                             className="sr-only"
@@ -372,10 +374,10 @@ export const StoreSetup = () => {
                             onChange={handleStoreImageChange}
                           />
                         </label>
-                        <p className="pl-1">or drag and drop</p>
+                        <p className="pl-1">{t('store.setup.dragDrop')}</p>
                       </div>
                       <p className="text-xs text-gray-500 mt-2">
-                        PNG, JPG, GIF up to 1MB
+                        {t('store.setup.uploadHint')}
                       </p>
                     </div>
                   </div>
@@ -610,7 +612,7 @@ export const StoreSetup = () => {
                           <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
                             <div className="flex items-center">
                               <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                                <span>Upload a file</span>
+                                <span>{t('store.setup.uploadFile')}</span>
                                 <input
                                   type="file"
                                   className="sr-only"
@@ -618,10 +620,10 @@ export const StoreSetup = () => {
                                   onChange={(e) => handleSectionImageChange(e, section.id)}
                                 />
                               </label>
-                              <p className="pl-1">or drag and drop</p>
+                              <p className="pl-1">{t('store.setup.dragDrop')}</p>
                             </div>
                             <p className="text-xs text-gray-500 mt-2">
-                              PNG, JPG, GIF up to 1MB
+                              {t('store.setup.uploadHint')}
                             </p>
                           </div>
                         </div>
@@ -649,12 +651,12 @@ export const StoreSetup = () => {
             {saving ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Saving...
+                {t('store.setup.saving')}
               </>
             ) : (
               <>
                 <Store className="w-5 h-5 mr-2" />
-                Save Store
+                {t('store.setup.saveStore')}
               </>
             )}
           </button>

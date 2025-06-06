@@ -302,7 +302,7 @@ export const OrderManagement = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-4">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Order #{order.orderId}
+                      {t('orders.order')} #{order.orderId}
                     </h3>
                     <span className={`
                       px-2.5 py-0.5 rounded-full text-sm font-medium
@@ -359,15 +359,15 @@ export const OrderManagement = () => {
                           <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">GST</span>
+                          <span className="text-gray-500">{t('orders.gst')}</span>
                           <span className="text-gray-900">${order.gstTotal?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">PST</span>
+                          <span className="text-gray-500">{t('orders.pst')}</span>
                           <span className="text-gray-900">${order.pstTotal?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Platform Fee</span>
+                          <span className="text-gray-500">{t('orders.platformFee')}</span>
                           <span className="text-gray-900">${order.platformFee.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">

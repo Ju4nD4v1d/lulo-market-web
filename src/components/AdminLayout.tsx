@@ -10,6 +10,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { COMPANY_NAME } from '../config/company';
 
 interface AdminLayoutProps {
@@ -19,6 +20,7 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   const { currentUser, logout } = useAuth();
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -36,10 +38,10 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   };
 
   const menuItems = [
-    { id: 'store', label: 'Store', icon: Store, hash: '#dashboard' },
-    { id: 'products', label: 'Products', icon: Package, hash: '#dashboard/products' },
-    { id: 'metrics', label: 'Metrics', icon: BarChart3, hash: '#dashboard/metrics' },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart, hash: '#dashboard/orders' }
+    { id: 'store', label: t('admin.menu.store'), icon: Store, hash: '#dashboard' },
+    { id: 'products', label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products' },
+    { id: 'metrics', label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics' },
+    { id: 'orders', label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders' }
   ];
 
   return (
@@ -140,7 +142,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3'}
             `} />
             <span className={isCollapsed ? 'hidden' : 'block'}>
-              Logout
+              {t('admin.logout')}
             </span>
           </button>
         </div>

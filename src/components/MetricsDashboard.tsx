@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   BarChart, 
   Bar, 
@@ -52,31 +53,32 @@ const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: s
 );
 
 export const MetricsDashboard = () => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Revenue"
+          title={t('metrics.totalRevenue')}
           value="$9,876"
           icon={DollarSign}
           trend="+12.5% from last month"
         />
         <StatCard
-          title="Orders"
+          title={t('metrics.orders')}
           value="156"
           icon={ShoppingBag}
           trend="+8.2% from last month"
         />
         <StatCard
-          title="Products Sold"
+          title={t('metrics.productsSold')}
           value="892"
           icon={Package}
           trend="+15.3% from last month"
         />
         <StatCard
-          title="Active Customers"
+          title={t('metrics.activeCustomers')}
           value="432"
           icon={Users}
           trend="+5.7% from last month"
@@ -85,7 +87,7 @@ export const MetricsDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metrics.revenueTrend')}</h2>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={mockData.dailyRevenue}>
@@ -100,7 +102,7 @@ export const MetricsDashboard = () => {
         </div>
 
         <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Products</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metrics.topProducts')}</h2>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mockData.topProducts}>
