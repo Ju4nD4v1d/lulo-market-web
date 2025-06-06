@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Building2, Mail, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -27,6 +27,40 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  // Load Calendly widget after successful submission
+  useEffect(() => {
+    if (isSubmitted) {
+      // Add Calendly CSS
+      const link = document.createElement('link');
+      link.href = 'https://assets.calendly.com/assets/external/widget.css';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+
+      // Add Calendly script
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      script.onload = () => {
+        // Initialize Calendly badge widget
+        if (window.Calendly) {
+          window.Calendly.initBadgeWidget({
+            url: 'https://calendly.com/juandavidortegat/15min',
+            text: 'Schedule time with me',
+            color: '#c7e402',
+            textColor: '#ffffff'
+          });
+        }
+      };
+      document.head.appendChild(script);
+
+      // Cleanup function
+      return () => {
+        document.head.removeChild(link);
+        document.head.removeChild(script);
+      };
+    }
+  }, [isSubmitted]);
 
   const validateForm = () => {
     const newErrors = {
@@ -87,7 +121,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error saving lead:', error);
-      setSubmitError(t('contact.error.submission'));
+      setSubmitError('Failed to save your information. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,19 +140,22 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-32 h-32 bg-primary-100 rounded-full animate-pulse" />
             </div>
-            <CheckCircle2 className="relative w-32 h-32 text-primary-600 mx-auto animate-scale" />
+            <div className="relative text-6xl mb-4">🎉</div>
           </div>
           
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {t('contact.successTitle')}
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              You're almost there!
             </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              {t('contact.successMessage')}
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              Please book a time to chat so we can help you impact your community with your wonderful products!
             </p>
-            <p className="text-gray-500">
-              {t('contact.successDetail')}
-            </p>
+            
+            <div className="bg-primary-50 rounded-lg p-6 mb-8">
+              <p className="text-primary-800 font-medium">
+                📅 Click the "Schedule time with me" button that will appear to book your consultation call
+              </p>
+            </div>
           </div>
 
           <button
@@ -332,7 +369,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                     {isSubmitting ? (
                       <>
                         <span className="animate-spin mr-2">⌛</span>
-                        {t('contact.submitting')}
+                        Submitting...
                       </>
                     ) : (
                       <>
