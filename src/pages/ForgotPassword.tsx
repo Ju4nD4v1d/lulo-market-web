@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess('If an account exists with this email, you will receive password reset instructions.');
+    setSuccess(t('forgot.success'));
   };
 
   return (
@@ -25,10 +27,10 @@ export const ForgotPassword = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-primary-600/70" />
           <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
             <h2 className="text-4xl font-bold mb-4 font-heading">
-              Reset Your Password
+              {t('forgot.heroTitle')}
             </h2>
             <p className="text-lg text-white/90">
-              We'll help you get back to your account
+              {t('forgot.heroSubtitle')}
             </p>
           </div>
         </div>
@@ -40,17 +42,17 @@ export const ForgotPassword = () => {
           className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft size={20} />
-          <span>Back to Login</span>
+          <span>{t('forgot.back')}</span>
         </a>
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
           <div className="w-full max-w-md">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
-                Forgot your password?
+                {t('forgot.title')}
               </h1>
               <p className="text-gray-600">
-                Enter your email address and we'll send you instructions to reset your password.
+                {t('forgot.description')}
               </p>
             </div>
 
@@ -71,7 +73,7 @@ export const ForgotPassword = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                  {t('forgot.email')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -83,7 +85,7 @@ export const ForgotPassword = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
-                    placeholder="Enter your email address"
+                    placeholder={t('forgot.emailPlaceholder')}
                   />
                 </div>
               </div>
@@ -95,11 +97,11 @@ export const ForgotPassword = () => {
                   focus:ring-primary-500 font-medium transition-all duration-200
                   transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                Send Reset Instructions
+                {t('forgot.submit')}
               </button>
 
               <p className="text-center text-sm text-gray-600 mt-4">
-                Remember your password? <a href="#login" className="text-primary-600 hover:text-primary-700 font-medium">Sign in</a>
+                {t('forgot.remember')} <a href="#login" className="text-primary-600 hover:text-primary-700 font-medium">{t('forgot.signIn')}</a>
               </p>
             </form>
           </div>

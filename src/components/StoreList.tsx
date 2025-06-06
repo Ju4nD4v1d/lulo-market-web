@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Store, MapPin, Phone } from 'lucide-react';
@@ -15,6 +16,7 @@ export const StoreList = () => {
   const [stores, setStores] = useState<StoreData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -55,12 +57,12 @@ export const StoreList = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">Available Stores</h2>
+      <h2 className="text-3xl font-bold text-gray-900 mb-8">{t('storeList.title')}</h2>
       
       {stores.length === 0 ? (
         <div className="text-center p-8 bg-gray-50 rounded-lg">
           <Store className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No stores available at the moment.</p>
+          <p className="text-gray-600">{t('storeList.noStores')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

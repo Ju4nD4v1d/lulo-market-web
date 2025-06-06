@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Package, 
   Plus, 
@@ -58,6 +59,7 @@ interface ProductModalProps {
 
 const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<Partial<Product>>(defaultFormData);
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,7 +106,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     const remainingSlots = 5 - currentImagesCount;
 
     if (remainingSlots <= 0) {
-      setError('Maximum of 5 images allowed');
+      setError(t('products.maxImagesError'));
       return;
     }
 
@@ -131,7 +133,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         setError(`Only ${remainingSlots} image${remainingSlots === 1 ? '' : 's'} uploaded. Maximum limit reached.`);
       }
     } catch (err) {
-      setError('Failed to upload images. Please try again.');
+      setError(t('products.uploadError'));
       console.error('Error uploading images:', err);
     } finally {
       setIsLoading(false);
@@ -169,7 +171,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
-            {product ? 'Edit Product' : 'Add New Product'}
+            {product ? t('products.editModal') : t('products.addNew')}
           </h2>
           <button
             onClick={onClose}
@@ -189,7 +191,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product Images (Maximum 5)
+              {t('products.imagesLabel')}
             </label>
             <div
               className={`
@@ -206,11 +208,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               {isLoading ? (
                 <div className="flex flex-col items-center">
                   <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-                  <p className="mt-2 text-sm text-gray-600">Uploading images...</p>
+                  <p className="mt-2 text-sm text-gray-600">{t('store.saveProgress.uploadingImages')}</p>
                 </div>
               ) : (formData.images?.length || 0) >= 5 ? (
                 <div className="text-center text-gray-500">
-                  <p>Maximum number of images reached (5)</p>
+                  <p>{t('products.maxImages')}</p>
                 </div>
               ) : (
                 <>
@@ -229,10 +231,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   >
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-600">
-                      Drag and drop your images here, or click to select files
+                      {t('products.dragDrop')}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      PNG, JPG, GIF up to 5MB ({5 - (formData.images?.length || 0)} remaining)
+                      {t('products.uploadHint')} ({5 - (formData.images?.length || 0)} remaining)
                     </p>
                   </label>
                 </>
@@ -272,7 +274,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Product Name *
+                {t('products.name')}
               </label>
               <input
                 type="text"
@@ -286,7 +288,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
+                {t('products.category')}
               </label>
               <select
                 id="category"
@@ -295,18 +297,18 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 className="block w-full"
                 required
               >
-                <option value="">Select a category</option>
-                <option value="hot">Hot</option>
-                <option value="frozen">Frozen</option>
-                <option value="baked">Baked</option>
-                <option value="other">Other</option>
+                <option value="">{t('products.selectCategory')}</option>
+                <option value="hot">{t('products.category.hot')}</option>
+                <option value="frozen">{t('products.category.frozen')}</option>
+                <option value="baked">{t('products.category.baked')}</option>
+                <option value="other">{t('products.category.other')}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              {t('products.descriptionLabel')}
             </label>
             <textarea
               id="description"
@@ -320,7 +322,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                Price *
+                {t('products.price')}
               </label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -339,7 +341,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
             <div>
               <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
-                Stock *
+                {t('products.stockLabel')}
               </label>
               <input
                 type="number"
@@ -356,7 +358,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label htmlFor="pstPercentage" className="block text-sm font-medium text-gray-700 mb-1">
-                PST %
+                {t('products.pstPercentage')}
               </label>
               <div className="relative">
                 <input
@@ -378,7 +380,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
             <div>
               <label htmlFor="gstPercentage" className="block text-sm font-medium text-gray-700 mb-1">
-                GST %
+                {t('products.gstPercentage')}
               </label>
               <div className="relative">
                 <input
@@ -401,7 +403,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              {t('products.status')}
             </label>
             <div className="flex space-x-4">
               {['active', 'draft', 'outOfStock'].map((status) => (
@@ -414,7 +416,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     className="form-radio text-primary-600 focus:ring-primary-500"
                   />
                   <span className="ml-2 text-sm text-gray-700 capitalize">
-                    {status === 'outOfStock' ? 'Out of Stock' : status}
+                    {status === 'outOfStock'
+                      ? t('products.status.outOfStock')
+                      : t(`products.status.${status}`)}
                   </span>
                 </label>
               ))}
@@ -427,13 +431,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
               onClick={onClose}
               className="px-4 py-2 text-gray-700 hover:text-gray-900"
             >
-              Cancel
+              {t('dialog.cancel')}
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
-              {product ? 'Update Product' : 'Add Product'}
+              {product ? t('products.update') : t('products.add')}
             </button>
           </div>
         </form>
@@ -444,6 +448,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
 export const ProductManagement = () => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -455,10 +460,10 @@ export const ProductManagement = () => {
   const [error, setError] = useState('');
 
   const categories = [
-    { id: 'hot', label: 'Hot', icon: Flame },
-    { id: 'frozen', label: 'Frozen', icon: Snowflake },
-    { id: 'baked', label: 'Baked', icon: Cookie },
-    { id: 'other', label: 'Other', icon: Package2 }
+    { id: 'hot', label: t('products.category.hot'), icon: Flame },
+    { id: 'frozen', label: t('products.category.frozen'), icon: Snowflake },
+    { id: 'baked', label: t('products.category.baked'), icon: Cookie },
+    { id: 'other', label: t('products.category.other'), icon: Package2 }
   ];
 
   useEffect(() => {
@@ -557,8 +562,8 @@ export const ProductManagement = () => {
     <div className="max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-1">Manage your store's products</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('products.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('products.subtitle')}</p>
         </div>
         <button
           onClick={() => {
@@ -569,7 +574,7 @@ export const ProductManagement = () => {
             hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Add Product
+          {t('products.add')}
         </button>
       </div>
 
@@ -580,7 +585,7 @@ export const ProductManagement = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t('products.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
@@ -647,9 +652,9 @@ export const ProductManagement = () => {
         <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
           <div className="max-w-md mx-auto">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No products yet</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('products.noProducts')}</h3>
             <p className="text-gray-600 mb-6">
-              Start adding products to your store. You can add product details, images, and manage inventory.
+              {t('products.noProductsDesc')}
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -657,7 +662,7 @@ export const ProductManagement = () => {
                 hover:bg-primary-700 transition-colors"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Add Your First Product
+              {t('products.addFirst')}
             </button>
           </div>
         </div>
