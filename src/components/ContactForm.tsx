@@ -46,7 +46,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
         if (window.Calendly) {
           window.Calendly.initBadgeWidget({
             url: 'https://calendly.com/juandavidortegat/15min',
-            text: 'Schedule time with me',
+            text: 'Schedule 15 min demo',
             color: '#c7e402',
             textColor: '#ffffff'
           });
@@ -145,15 +145,15 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
           
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              You're almost there!
+              {t('contact.successTitle')}
             </h2>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Please book a time to chat so we can help you impact your community with your wonderful products!
+              {t('contact.successMessage')}
             </p>
             
             <div className="bg-primary-50 rounded-lg p-6 mb-8">
               <p className="text-primary-800 font-medium">
-                📅 Click the "Schedule time with me" button that will appear to book your consultation call
+                📅 {t('contact.successNote')}
               </p>
             </div>
           </div>
