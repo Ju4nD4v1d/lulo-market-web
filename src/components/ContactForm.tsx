@@ -46,7 +46,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
         if (window.Calendly) {
           window.Calendly.initBadgeWidget({
             url: 'https://calendly.com/juandavidortegat/15min',
-            text: 'Schedule 15 min demo',
+            text: t('contact.calendlyButton'),
             color: '#c7e402',
             textColor: '#ffffff'
           });
@@ -60,7 +60,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
         document.head.removeChild(script);
       };
     }
-  }, [isSubmitted]);
+  }, [isSubmitted, t]);
 
   const validateForm = () => {
     const newErrors = {
