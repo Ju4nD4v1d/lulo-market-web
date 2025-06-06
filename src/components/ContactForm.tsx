@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowLeft, CheckCircle2, Building2, Mail, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 interface ContactFormProps {
   onBack: () => void;
@@ -9,43 +11,45 @@ interface ContactFormProps {
 export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
+    fullName: '',
+    businessEmail: '',
+    phoneNumber: '',
+    businessName: '',
     contactPreference: ''
   });
   const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
+    fullName: '',
+    businessEmail: '',
+    phoneNumber: '',
+    businessName: '',
     contactPreference: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const validateForm = () => {
     const newErrors = {
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
+      fullName: '',
+      businessEmail: '',
+      phoneNumber: '',
+      businessName: '',
       contactPreference: ''
     };
     let isValid = true;
 
-    if (!formData.name.trim()) {
-      newErrors.name = t('contact.error.name');
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = t('contact.error.name');
       isValid = false;
     }
 
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = t('contact.error.email');
+    if (!formData.businessEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.businessEmail)) {
+      newErrors.businessEmail = t('contact.error.email');
       isValid = false;
     }
 
-    if (!formData.company.trim()) {
-      newErrors.company = t('contact.error.company');
+    if (!formData.businessName.trim()) {
+      newErrors.businessName = t('contact.error.company');
       isValid = false;
     }
 
@@ -54,8 +58,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
       isValid = false;
     }
 
-    if (formData.contactPreference === 'phone' && !formData.phone.trim()) {
-      newErrors.phone = t('contact.error.phone');
+    if (formData.contactPreference === 'phone' && !formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = t('contact.error.phone');
       isValid = false;
     }
 
@@ -63,10 +67,29 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      await addDoc(collection(db, 'potentialLeads'), {
+        fullName: formData.fullName,
+        businessEmail: formData.businessEmail,
+        phoneNumber: formData.phoneNumber || null,
+        businessName: formData.businessName,
+        preferredContactMethod: formData.contactPreference,
+        submittedAt: serverTimestamp()
+      });
+
       setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error saving lead:', error);
+      setSubmitError(t('contact.error.submission'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,80 +200,90 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                   {t('contact.formSubtitle')}
                 </p>
 
+                {submitError && (
+                  <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-600">
+                    {submitError}
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                       {t('contact.name')}
                     </label>
                     <input
-                      id="name"
+                      id="fullName"
                       type="text"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
                       placeholder={t('contact.namePlaceholder')}
                       className={`mt-1 block w-full rounded-lg ${
-                        errors.name ? 'border-red-300' : 'border-gray-300'
+                        errors.fullName ? 'border-red-300' : 'border-gray-300'
                       }`}
+                      disabled={isSubmitting}
                     />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                    {errors.fullName && (
+                      <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="businessEmail" className="block text-sm font-medium text-gray-700">
                       {t('contact.email')}
                     </label>
                     <input
-                      id="email"
+                      id="businessEmail"
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      value={formData.businessEmail}
+                      onChange={(e) => handleInputChange('businessEmail', e.target.value)}
                       placeholder={t('contact.emailPlaceholder')}
                       className={`mt-1 block w-full rounded-lg ${
-                        errors.email ? 'border-red-300' : 'border-gray-300'
+                        errors.businessEmail ? 'border-red-300' : 'border-gray-300'
                       }`}
+                      disabled={isSubmitting}
                     />
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                    {errors.businessEmail && (
+                      <p className="mt-1 text-sm text-red-600">{errors.businessEmail}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
                       {t('contact.phone')}
                     </label>
                     <input
-                      id="phone"
+                      id="phoneNumber"
                       type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      value={formData.phoneNumber}
+                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                       placeholder={t('contact.phonePlaceholder')}
                       className={`mt-1 block w-full rounded-lg ${
-                        errors.phone ? 'border-red-300' : 'border-gray-300'
+                        errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
                       }`}
+                      disabled={isSubmitting}
                     />
-                    {errors.phone && (
-                      <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                    {errors.phoneNumber && (
+                      <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
                       {t('contact.company')}
                     </label>
                     <input
-                      id="company"
+                      id="businessName"
                       type="text"
-                      value={formData.company}
-                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      value={formData.businessName}
+                      onChange={(e) => handleInputChange('businessName', e.target.value)}
                       placeholder={t('contact.companyPlaceholder')}
                       className={`mt-1 block w-full rounded-lg ${
-                        errors.company ? 'border-red-300' : 'border-gray-300'
+                        errors.businessName ? 'border-red-300' : 'border-gray-300'
                       }`}
+                      disabled={isSubmitting}
                     />
-                    {errors.company && (
-                      <p className="mt-1 text-sm text-red-600">{errors.company}</p>
+                    {errors.businessName && (
+                      <p className="mt-1 text-sm text-red-600">{errors.businessName}</p>
                     )}
                   </div>
 
@@ -266,6 +299,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                           checked={formData.contactPreference === 'email'}
                           onChange={(e) => handleInputChange('contactPreference', e.target.value)}
                           className="form-radio text-primary-600"
+                          disabled={isSubmitting}
                         />
                         <span className="ml-2">{t('contact.contactEmail')}</span>
                       </label>
@@ -276,6 +310,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                           checked={formData.contactPreference === 'phone'}
                           onChange={(e) => handleInputChange('contactPreference', e.target.value)}
                           className="form-radio text-primary-600"
+                          disabled={isSubmitting}
                         />
                         <span className="ml-2">{t('contact.contactPhone')}</span>
                       </label>
@@ -287,13 +322,24 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
 
                   <button
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl
                       hover:bg-primary-700 transition-all duration-200 transform
                       hover:scale-[1.02] active:scale-[0.98] font-medium
-                      flex items-center justify-center"
+                      flex items-center justify-center
+                      disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t('contact.submit')}
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {isSubmitting ? (
+                      <>
+                        <span className="animate-spin mr-2">⌛</span>
+                        {t('contact.submitting')}
+                      </>
+                    ) : (
+                      <>
+                        {t('contact.submit')}
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
                   </button>
                 </form>
               </div>
