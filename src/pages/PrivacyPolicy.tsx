@@ -1,7 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Shield, Eye, Cookie, Database, Lock, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { COMPANY_NAME } from '../config/company';
 
 export const PrivacyPolicy = () => {
   const { t } = useLanguage();
@@ -56,13 +55,10 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    At {COMPANY_NAME}, we are committed to protecting your privacy and ensuring the security 
-                    of your personal information. This Privacy Policy explains how we collect, use, disclose, 
-                    and safeguard your information when you use our platform and services.
+                    {t('legal.privacy.introduction.content1')}
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    By using {COMPANY_NAME}, you consent to the data practices described in this policy. 
-                    We encourage you to review this policy periodically as we may update it from time to time.
+                    {t('legal.privacy.introduction.content2')}
                   </p>
                 </div>
               </section>
@@ -77,36 +73,36 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    We collect information you provide directly to us, such as:
+                    {t('legal.privacy.dataCollection.intro')}
                   </p>
                   
                   <div className="space-y-4">
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.personal.title')}</h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        <li>• Name, email address, and phone number</li>
-                        <li>• Business information and address</li>
-                        <li>• Payment and billing information</li>
-                        <li>• Profile photos and business images</li>
+                        <li>• {t('legal.privacy.dataCollection.personal.item1')}</li>
+                        <li>• {t('legal.privacy.dataCollection.personal.item2')}</li>
+                        <li>• {t('legal.privacy.dataCollection.personal.item3')}</li>
+                        <li>• {t('legal.privacy.dataCollection.personal.item4')}</li>
                       </ul>
                     </div>
                     
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Usage Information</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.usage.title')}</h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        <li>• Device information and IP address</li>
-                        <li>• Browser type and operating system</li>
-                        <li>• Pages visited and time spent on our platform</li>
-                        <li>• Search queries and interaction data</li>
+                        <li>• {t('legal.privacy.dataCollection.usage.item1')}</li>
+                        <li>• {t('legal.privacy.dataCollection.usage.item2')}</li>
+                        <li>• {t('legal.privacy.dataCollection.usage.item3')}</li>
+                        <li>• {t('legal.privacy.dataCollection.usage.item4')}</li>
                       </ul>
                     </div>
                     
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Location Information</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.location.title')}</h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        <li>• Business location for store listings</li>
-                        <li>• Delivery addresses for order fulfillment</li>
-                        <li>• General location data for service optimization</li>
+                        <li>• {t('legal.privacy.dataCollection.location.item1')}</li>
+                        <li>• {t('legal.privacy.dataCollection.location.item2')}</li>
+                        <li>• {t('legal.privacy.dataCollection.location.item3')}</li>
                       </ul>
                     </div>
                   </div>
@@ -123,32 +119,32 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    We use the information we collect to:
+                    {t('legal.privacy.dataUsage.intro')}
                   </p>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Provide, maintain, and improve our platform and services
+                      {t('legal.privacy.dataUsage.item1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Process transactions and send related information
+                      {t('legal.privacy.dataUsage.item2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Send administrative information and updates
+                      {t('legal.privacy.dataUsage.item3')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Personalize your experience and provide relevant content
+                      {t('legal.privacy.dataUsage.item4')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Analyze usage patterns to improve our services
+                      {t('legal.privacy.dataUsage.item5')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Detect, prevent, and address fraud and security issues
+                      {t('legal.privacy.dataUsage.item6')}
                     </li>
                   </ul>
                 </div>
@@ -164,37 +160,32 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    We use cookies and similar tracking technologies to enhance your experience on our platform. 
-                    Cookies help us remember your preferences, analyze site traffic, and provide personalized content.
+                    {t('legal.privacy.cookies.intro')}
                   </p>
                   
                   <div className="mt-4 space-y-3">
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 flex-shrink-0"></div>
                       <div>
-                        <span className="font-medium text-gray-900">Essential Cookies:</span>
-                        <span className="text-gray-700"> Required for basic platform functionality</span>
+                        <span className="font-medium text-gray-900">{t('legal.privacy.cookies.essential')}</span>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 flex-shrink-0"></div>
                       <div>
-                        <span className="font-medium text-gray-900">Analytics Cookies:</span>
-                        <span className="text-gray-700"> Help us understand how users interact with our platform</span>
+                        <span className="font-medium text-gray-900">{t('legal.privacy.cookies.analytics')}</span>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 flex-shrink-0"></div>
                       <div>
-                        <span className="font-medium text-gray-900">Marketing Cookies:</span>
-                        <span className="text-gray-700"> Used to deliver relevant advertisements and content</span>
+                        <span className="font-medium text-gray-900">{t('legal.privacy.cookies.marketing')}</span>
                       </div>
                     </div>
                   </div>
                   
                   <p className="text-gray-700 leading-relaxed mt-4">
-                    You can control cookie preferences through your browser settings, though disabling certain 
-                    cookies may affect platform functionality.
+                    {t('legal.privacy.cookies.control')}
                   </p>
                 </div>
               </section>
@@ -209,35 +200,35 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    We work with trusted third-party service providers to enhance our platform:
+                    {t('legal.privacy.thirdParty.intro')}
                   </p>
                   
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Payment Processing</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.payment.title')}</h4>
                       <p className="text-gray-700 text-sm">
-                        Secure payment processing through certified payment providers
+                        {t('legal.privacy.thirdParty.payment.desc')}
                       </p>
                     </div>
                     
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Analytics Services</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.analytics.title')}</h4>
                       <p className="text-gray-700 text-sm">
-                        Google Analytics and similar services for usage insights
+                        {t('legal.privacy.thirdParty.analytics.desc')}
                       </p>
                     </div>
                     
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Cloud Storage</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.storage.title')}</h4>
                       <p className="text-gray-700 text-sm">
-                        Secure cloud storage for data backup and accessibility
+                        {t('legal.privacy.thirdParty.storage.desc')}
                       </p>
                     </div>
                     
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Communication Tools</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.communication.title')}</h4>
                       <p className="text-gray-700 text-sm">
-                        Email and messaging services for platform communications
+                        {t('legal.privacy.thirdParty.communication.desc')}
                       </p>
                     </div>
                   </div>
@@ -254,13 +245,10 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    We implement appropriate technical and organizational security measures to protect your 
-                    personal information against unauthorized access, alteration, disclosure, or destruction. 
-                    These measures include encryption, secure servers, and regular security assessments.
+                    {t('legal.privacy.security.content1')}
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    However, no method of transmission over the internet or electronic storage is 100% secure. 
-                    While we strive to protect your personal information, we cannot guarantee absolute security.
+                    {t('legal.privacy.security.content2')}
                   </p>
                 </div>
               </section>
@@ -275,28 +263,28 @@ export const PrivacyPolicy = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    You have certain rights regarding your personal information:
+                    {t('legal.privacy.rights.intro')}
                   </p>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Access and review your personal information
+                      {t('legal.privacy.rights.item1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Request correction of inaccurate information
+                      {t('legal.privacy.rights.item2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Request deletion of your personal information
+                      {t('legal.privacy.rights.item3')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Opt-out of marketing communications
+                      {t('legal.privacy.rights.item4')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Request data portability where applicable
+                      {t('legal.privacy.rights.item5')}
                     </li>
                   </ul>
                 </div>
@@ -308,12 +296,12 @@ export const PrivacyPolicy = () => {
                   {t('legal.contact.title')}
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  If you have any questions about this Privacy Policy or our data practices, please contact us at:
+                  {t('legal.contact.description')}
                 </p>
                 <div className="mt-4 space-y-2 text-gray-700">
-                  <p>Email: privacy@lulocart.com</p>
-                  <p>Address: [Your Business Address]</p>
-                  <p>Phone: [Your Phone Number]</p>
+                  <p>{t('legal.contact.email')}</p>
+                  <p>{t('legal.contact.address')}</p>
+                  <p>{t('legal.contact.phone')}</p>
                 </div>
               </section>
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Shield, FileText, Users, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { COMPANY_NAME } from '../config/company';
 
 export const TermsOfService = () => {
   const { t } = useLanguage();
@@ -56,13 +55,10 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    Welcome to {COMPANY_NAME}. These Terms of Service ("Terms") govern your use of our platform, 
-                    website, and services. By accessing or using {COMPANY_NAME}, you agree to be bound by these Terms. 
-                    If you disagree with any part of these terms, then you may not access the service.
+                    {t('legal.terms.introduction.content1')}
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    {COMPANY_NAME} is a marketplace platform that connects Latin American businesses with consumers, 
-                    facilitating the discovery and purchase of authentic products and services.
+                    {t('legal.terms.introduction.content2')}
                   </p>
                 </div>
               </section>
@@ -77,28 +73,28 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    As a user of {COMPANY_NAME}, you agree to:
+                    {t('legal.terms.userObligations.intro')}
                   </p>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Provide accurate, current, and complete information during registration
+                      {t('legal.terms.userObligations.item1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Maintain the security of your account credentials
+                      {t('legal.terms.userObligations.item2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Use the platform only for lawful purposes and in accordance with these Terms
+                      {t('legal.terms.userObligations.item3')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Respect the intellectual property rights of others
+                      {t('legal.terms.userObligations.item4')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Not engage in any activity that could harm or disrupt the platform
+                      {t('legal.terms.userObligations.item5')}
                     </li>
                   </ul>
                 </div>
@@ -114,14 +110,10 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    {COMPANY_NAME} provides a platform for businesses to list their products and services, 
-                    and for consumers to discover and purchase these offerings. We facilitate transactions 
-                    but are not directly involved in the actual exchange of goods or services between users.
+                    {t('legal.terms.platformUsage.content1')}
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    Businesses are responsible for the accuracy of their listings, product quality, 
-                    fulfillment, and customer service. Consumers are responsible for their purchasing 
-                    decisions and compliance with payment terms.
+                    {t('legal.terms.platformUsage.content2')}
                   </p>
                 </div>
               </section>
@@ -136,28 +128,28 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    The following activities are strictly prohibited on our platform:
+                    {t('legal.terms.prohibited.intro')}
                   </p>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Listing illegal, counterfeit, or harmful products
+                      {t('legal.terms.prohibited.item1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Engaging in fraudulent or deceptive practices
+                      {t('legal.terms.prohibited.item2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Violating intellectual property rights
+                      {t('legal.terms.prohibited.item3')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Harassment or discrimination against other users
+                      {t('legal.terms.prohibited.item4')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Attempting to circumvent platform security measures
+                      {t('legal.terms.prohibited.item5')}
                     </li>
                   </ul>
                 </div>
@@ -173,14 +165,10 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    {COMPANY_NAME} provides the platform "as is" and makes no warranties regarding the 
-                    availability, reliability, or suitability of the service. We are not liable for any 
-                    direct, indirect, incidental, or consequential damages arising from your use of the platform.
+                    {t('legal.terms.liability.content1')}
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    Our liability is limited to the maximum extent permitted by law. We do not guarantee 
-                    the quality, safety, or legality of products listed by businesses, nor do we guarantee 
-                    the accuracy of user-generated content.
+                    {t('legal.terms.liability.content2')}
                   </p>
                 </div>
               </section>
@@ -195,9 +183,7 @@ export const TermsOfService = () => {
                 </h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    We reserve the right to modify these Terms at any time. We will notify users of 
-                    significant changes via email or through prominent notices on our platform. 
-                    Continued use of {COMPANY_NAME} after changes constitutes acceptance of the new Terms.
+                    {t('legal.terms.changes.content')}
                   </p>
                 </div>
               </section>
@@ -208,12 +194,12 @@ export const TermsOfService = () => {
                   {t('legal.contact.title')}
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  If you have any questions about these Terms of Service, please contact us at:
+                  {t('legal.contact.description')}
                 </p>
                 <div className="mt-4 space-y-2 text-gray-700">
-                  <p>Email: legal@lulocart.com</p>
-                  <p>Address: [Your Business Address]</p>
-                  <p>Phone: [Your Phone Number]</p>
+                  <p>{t('legal.contact.email')}</p>
+                  <p>{t('legal.contact.address')}</p>
+                  <p>{t('legal.contact.phone')}</p>
                 </div>
               </section>
 
