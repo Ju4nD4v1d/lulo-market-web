@@ -330,16 +330,7 @@ export const translations: Translations = {
     'auth.registerButton': 'Register',
     'auth.loading': 'Loading...',
     'auth.trustMessage': 'Trusted by thousands of businesses',
-    'auth.registrationSuccess': 'Registration successful',
-
-    // Testimonials
-    'testimonials.title': 'What Our Users Say',
-    'testimonial1.quote': 'Amazing service and support!',
-    'testimonial1.author': 'Juan Perez',
-    'testimonial2.quote': 'The best marketplace experience',
-    'testimonial2.author': 'Ana Gomez',
-    'testimonial3.quote': 'Highly recommend LuloCart',
-    'testimonial3.author': 'Luis Martinez'
+    'auth.registrationSuccess': 'Registration successful'
   },
   es: {
     // Navigation
@@ -660,15 +651,6 @@ export const translations: Translations = {
     'auth.registerButton': 'Registrarse',
     'auth.loading': 'Cargando...',
     'auth.trustMessage': 'Con la confianza de miles de negocios',
-    'auth.registrationSuccess': 'Registro exitoso',
-
-    // Testimonios
-    'testimonials.title': 'Lo que dicen nuestros usuarios',
-    'testimonial1.quote': '¡Servicio y soporte increíbles!',
-    'testimonial1.author': 'Juan Pérez',
-    'testimonial2.quote': 'La mejor experiencia de mercado',
-    'testimonial2.author': 'Ana Gómez',
-    'testimonial3.quote': 'Recomiendo mucho LuloCart',
-    'testimonial3.author': 'Luis Martínez'
+    'auth.registrationSuccess': 'Registro exitoso'
   }
 };
