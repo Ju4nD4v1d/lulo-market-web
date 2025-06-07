@@ -252,6 +252,32 @@ export const translations: Translations = {
     'forgot.signIn': 'Sign in',
     'forgot.success': 'If an account exists with this email, you will receive password reset instructions.',
 
+    // Legal Pages
+    'legal.backToHome': 'Back to Home',
+    'legal.lastUpdated': 'Last updated',
+    'legal.contact.title': 'Contact Us',
+    
+    // Terms of Service
+    'legal.terms.title': 'Terms of Service',
+    'legal.terms.subtitle': 'Please read these terms carefully before using our platform',
+    'legal.terms.introduction.title': 'Introduction',
+    'legal.terms.userObligations.title': 'User Obligations',
+    'legal.terms.platformUsage.title': 'Platform Usage',
+    'legal.terms.prohibited.title': 'Prohibited Activities',
+    'legal.terms.liability.title': 'Limitation of Liability',
+    'legal.terms.changes.title': 'Changes to Terms',
+    
+    // Privacy Policy
+    'legal.privacy.title': 'Privacy Policy',
+    'legal.privacy.subtitle': 'Your privacy is important to us. Learn how we protect and use your information.',
+    'legal.privacy.introduction.title': 'Introduction',
+    'legal.privacy.dataCollection.title': 'Information We Collect',
+    'legal.privacy.dataUsage.title': 'How We Use Your Information',
+    'legal.privacy.cookies.title': 'Cookies and Tracking Technologies',
+    'legal.privacy.thirdParty.title': 'Third-Party Services',
+    'legal.privacy.security.title': 'Data Security',
+    'legal.privacy.rights.title': 'Your Rights',
+
     // Hero Section
     'hero.tagline': 'Your marketplace awaits',
     'hero.title': 'Welcome to LuloCart',
@@ -572,6 +598,32 @@ export const translations: Translations = {
     'forgot.remember': '¿Recordaste tu contraseña?',
     'forgot.signIn': 'Inicia Sesión',
     'forgot.success': 'Si existe una cuenta con este correo, recibirás instrucciones para restablecer la contraseña.',
+
+    // Legal Pages
+    'legal.backToHome': 'Volver al Inicio',
+    'legal.lastUpdated': 'Última actualización',
+    'legal.contact.title': 'Contáctanos',
+    
+    // Terms of Service
+    'legal.terms.title': 'Términos de Servicio',
+    'legal.terms.subtitle': 'Por favor lee estos términos cuidadosamente antes de usar nuestra plataforma',
+    'legal.terms.introduction.title': 'Introducción',
+    'legal.terms.userObligations.title': 'Obligaciones del Usuario',
+    'legal.terms.platformUsage.title': 'Uso de la Plataforma',
+    'legal.terms.prohibited.title': 'Actividades Prohibidas',
+    'legal.terms.liability.title': 'Limitación de Responsabilidad',
+    'legal.terms.changes.title': 'Cambios a los Términos',
+    
+    // Privacy Policy
+    'legal.privacy.title': 'Política de Privacidad',
+    'legal.privacy.subtitle': 'Tu privacidad es importante para nosotros. Aprende cómo protegemos y usamos tu información.',
+    'legal.privacy.introduction.title': 'Introducción',
+    'legal.privacy.dataCollection.title': 'Información que Recopilamos',
+    'legal.privacy.dataUsage.title': 'Cómo Usamos tu Información',
+    'legal.privacy.cookies.title': 'Cookies y Tecnologías de Seguimiento',
+    'legal.privacy.thirdParty.title': 'Servicios de Terceros',
+    'legal.privacy.security.title': 'Seguridad de Datos',
+    'legal.privacy.rights.title': 'Tus Derechos',
 
     // Sección Hero
     'hero.tagline': 'Tu mercado te espera',

@@ -125,10 +125,10 @@ export const Footer = () => {
             {t('footer.copyright')}
           </p>
           <div className="flex space-x-6">
-            <a href="#" className="text-white/60 hover:text-white transition-colors text-sm">
+            <a href="#terms" className="text-white/60 hover:text-white transition-colors text-sm">
               {t('footer.terms')}
             </a>
-            <a href="#" className="text-white/60 hover:text-white transition-colors text-sm">
+            <a href="#privacy" className="text-white/60 hover:text-white transition-colors text-sm">
               {t('footer.privacy')}
             </a>
           </div>

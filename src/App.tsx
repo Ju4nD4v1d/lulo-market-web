@@ -8,6 +8,8 @@ import { Footer } from './components/Footer';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Pricing } from './components/Pricing';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -35,6 +37,10 @@ function App() {
         return <Login />;
       case '#forgot-password':
         return <ForgotPassword />;
+      case '#terms':
+        return <TermsOfService />;
+      case '#privacy':
+        return <PrivacyPolicy />;
       default:
         return (
           <>
