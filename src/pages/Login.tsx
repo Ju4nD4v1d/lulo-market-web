@@ -5,12 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
 import { getAuthErrorMessage } from '../utils/auth-errors';
 
-type AuthMode = 'login' | 'register';
-
 export const Login = () => {
   const { t, locale } = useLanguage();
-  const { login, register, currentUser } = useAuth();
-  const [mode, setMode] = useState<AuthMode>('login');
+  const { login, currentUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,14 +27,8 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      if (mode === 'login') {
-        await login(email, password);
-        window.location.hash = '#dashboard';
-      } else {
-        await register(email, password);
-        setSuccess(t('auth.registrationSuccess'));
-        window.location.hash = '#dashboard';
-      }
+      await login(email, password);
+      window.location.hash = '#dashboard';
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, locale));
     } finally {
@@ -79,34 +70,11 @@ export const Login = () => {
           <div className="w-full max-w-md">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
-                {t('auth.welcomeMessage')} {COMPANY_NAME}
+                {t('auth.login')} - {COMPANY_NAME}
               </h1>
               <p className="text-gray-600">
                 {t('auth.subtitle')}
               </p>
-            </div>
-
-            <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setMode('login')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all duration-200
-                  ${mode === 'login'
-                    ? 'bg-white text-primary-600 shadow-sm'
-                    : 'text-gray-600 hover:text-primary-600'
-                  }`}
-              >
-                {t('auth.login')}
-              </button>
-              <button
-                onClick={() => setMode('register')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all duration-200
-                  ${mode === 'register'
-                    ? 'bg-white text-primary-600 shadow-sm'
-                    : 'text-gray-600 hover:text-primary-600'
-                  }`}
-              >
-                {t('auth.register')}
-              </button>
             </div>
 
             {error && (
@@ -139,6 +107,7 @@ export const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
+                    required
                   />
                 </div>
               </div>
@@ -158,27 +127,26 @@ export const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
+                    required
                   />
                 </div>
               </div>
 
-              {mode === 'login' && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 border-gray-300 rounded"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                      {t('auth.rememberMe')}
-                    </label>
-                  </div>
-                  <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-                    {t('auth.forgotPassword')}
-                  </a>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 border-gray-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                    {t('auth.rememberMe')}
+                  </label>
                 </div>
-              )}
+                <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                  {t('auth.forgotPassword')}
+                </a>
+              </div>
 
               <button
                 type="submit"
@@ -189,7 +157,7 @@ export const Login = () => {
                   transform hover:scale-[1.02] active:scale-[0.98]
                   ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? t('auth.loading') : mode === 'login' ? t('auth.loginButton') : t('auth.registerButton')}
+                {isLoading ? t('auth.loading') : t('auth.loginButton')}
               </button>
 
               <p className="text-center text-sm text-gray-600 mt-4">
