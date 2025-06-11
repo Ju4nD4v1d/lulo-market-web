@@ -8,6 +8,7 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,10 @@ export const Header = () => {
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogoError = () => {
+    setLogoError(true);
   };
 
   const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
@@ -89,9 +94,18 @@ export const Header = () => {
         `}>
           <div className="px-6 flex justify-between items-center">
             <a href="#" className="flex items-center group">
-              <span className="text-2xl font-bold text-[#4B371C] transition-all duration-300 group-hover:text-primary-400">
-                {COMPANY_NAME}
-              </span>
+              {logoError ? (
+                <span className="text-2xl font-bold text-[#4B371C] transition-all duration-300 group-hover:text-primary-400">
+                  {COMPANY_NAME}
+                </span>
+              ) : (
+                <img 
+                  src="/logo_lulo.png" 
+                  alt={COMPANY_NAME}
+                  className="h-8 w-auto object-contain transition-all duration-300 group-hover:scale-105"
+                  onError={handleLogoError}
+                />
+              )}
             </a>
 
             {/* Desktop Navigation */}
