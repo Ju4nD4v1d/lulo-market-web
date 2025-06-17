@@ -16,6 +16,7 @@ import { db } from '../config/firebase';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 
 interface OrderItem {
   productName: string;
@@ -90,11 +91,11 @@ const OrderTimeline = ({ order }: { order: Order }) => {
               <p className={`text-sm font-medium ${step.time ? 'text-gray-900' : 'text-gray-500'}`}>
                 {step.label}
               </p>
-              {step.time && (
-                <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(step.time, { addSuffix: true })}
-                </p>
-              )}
+                {step.time && (
+                  <p className="text-xs text-gray-500">
+                    {formatDistanceToNow(step.time, { addSuffix: true })}
+                  </p>
+                )}
             </div>
           </div>
         );
@@ -287,6 +288,12 @@ export const OrderManagement = () => {
           </div>
         </div>
       </div>
+
+      {storeId && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TotalWeeklyRevenueCard storeId={storeId} />
+        </div>
+      )}
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
