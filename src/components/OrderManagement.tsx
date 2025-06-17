@@ -16,7 +16,6 @@ import { db } from '../config/firebase';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 
 interface OrderItem {
   productName: string;
@@ -289,11 +288,6 @@ export const OrderManagement = () => {
         </div>
       </div>
 
-      {storeId && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <TotalWeeklyRevenueCard storeId={storeId} />
-        </div>
-      )}
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
