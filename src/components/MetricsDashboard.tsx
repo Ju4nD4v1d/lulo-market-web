@@ -15,7 +15,7 @@ import { DollarSign, ShoppingBag, TrendingUp, Users, Package } from 'lucide-reac
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import TotalWeeklyRevenueCard from '@/components/TotalWeeklyRevenueCard';
+import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 
 const mockData = {
   dailyRevenue: [
