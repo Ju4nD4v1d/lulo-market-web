@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Building2, Mail, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';

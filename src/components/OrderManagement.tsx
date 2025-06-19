@@ -90,11 +90,11 @@ const OrderTimeline = ({ order }: { order: Order }) => {
               <p className={`text-sm font-medium ${step.time ? 'text-gray-900' : 'text-gray-500'}`}>
                 {step.label}
               </p>
-              {step.time && (
-                <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(step.time, { addSuffix: true })}
-                </p>
-              )}
+                {step.time && (
+                  <p className="text-xs text-gray-500">
+                    {formatDistanceToNow(step.time, { addSuffix: true })}
+                  </p>
+                )}
             </div>
           </div>
         );
@@ -287,6 +287,7 @@ export const OrderManagement = () => {
           </div>
         </div>
       </div>
+
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">

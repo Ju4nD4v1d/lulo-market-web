@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   BarChart, 
@@ -11,7 +11,11 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { DollarSign, ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
+import { ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
+import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 
 const mockData = {
   dailyRevenue: [
@@ -54,17 +58,28 @@ const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: s
 
 export const MetricsDashboard = () => {
   const { t } = useLanguage();
+  const { currentUser } = useAuth();
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStoreId = async () => {
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser?.uid));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setStoreId(snapshot.docs[0].id);
+      }
+    };
+
+    if (currentUser) {
+      fetchStoreId();
+    }
+  }, [currentUser]);
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title={t('metrics.totalRevenue')}
-          value="$9,876"
-          icon={DollarSign}
-          trend="+12.5% from last month"
-        />
         <StatCard
           title={t('metrics.orders')}
           value="156"
@@ -83,6 +98,7 @@ export const MetricsDashboard = () => {
           icon={Users}
           trend="+5.7% from last month"
         />
+        {storeId && <TotalWeeklyRevenueCard storeId={storeId} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
