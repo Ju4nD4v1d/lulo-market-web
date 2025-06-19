@@ -60,7 +60,7 @@ export const MetricsDashboard = () => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
-  const [granularity, setGranularity] = useState<'day' | 'week' | 'month'>('day');
+  const [granularity, setGranularity] = useState<'week' | 'month'>('week');
 
   useEffect(() => {
     const fetchStoreId = async () => {
@@ -78,7 +78,6 @@ export const MetricsDashboard = () => {
   }, [currentUser]);
 
   const granularityOptions = [
-    { id: 'day', label: 'Day' },
     { id: 'week', label: 'Week' },
     { id: 'month', label: 'Month' }
   ] as const;
