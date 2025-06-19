@@ -60,6 +60,7 @@ export const MetricsDashboard = () => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [granularity, setGranularity] = useState<'day' | 'week' | 'month'>('day');
 
   useEffect(() => {
     const fetchStoreId = async () => {
@@ -75,6 +76,13 @@ export const MetricsDashboard = () => {
       fetchStoreId();
     }
   }, [currentUser]);
+
+  const granularityOptions = [
+    { id: 'day', label: 'Day' },
+    { id: 'week', label: 'Week' },
+    { id: 'month', label: 'Month' }
+  ] as const;
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
@@ -103,7 +111,29 @@ export const MetricsDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metrics.revenueTrend')}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">{t('metrics.revenueTrend')}</h2>
+            
+            {/* Segmented Control */}
+            <div className="bg-gray-100 p-1 rounded-md">
+              {granularityOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setGranularity(option.id)}
+                  className={`
+                    px-3 py-1.5 text-sm font-medium rounded transition-all duration-200
+                    ${granularity === option.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                    }
+                  `}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={mockData.dailyRevenue}>
