@@ -11,7 +11,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { DollarSign, ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
+import { ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -80,12 +80,6 @@ export const MetricsDashboard = () => {
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title={t('metrics.totalRevenue')}
-          value="$9,876"
-          icon={DollarSign}
-          trend="+12.5% from last month"
-        />
         <StatCard
           title={t('metrics.orders')}
           value="156"
