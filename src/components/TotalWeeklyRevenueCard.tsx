@@ -60,17 +60,29 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200 flex items-center justify-center h-28">
-        <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="flex items-center justify-center h-16">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200 flex items-center text-red-600 space-x-2">
-        <AlertCircle className="w-5 h-5" />
-        <span>{error}</span>
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-gray-500 text-sm">Total Revenue This Week</p>
+            <div className="flex items-center text-red-600 space-x-2 mt-1">
+              <AlertCircle className="w-5 h-5" />
+              <span className="text-sm">{error}</span>
+            </div>
+          </div>
+          <div className="bg-primary-50 p-3 rounded-lg">
+            <DollarSign className="w-6 h-6 text-primary-600" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -80,8 +92,8 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm">Total Revenue This Week</p>
-          <h3 className="text-3xl font-bold text-gray-900 mt-1">{formatter.format(currentRevenue ?? 0)}</h3>
-          {trend != null && (
+          <h3 className="text-2xl font-bold text-gray-900 mt-1">{formatter.format(currentRevenue ?? 0)}</h3>
+          {trend != null ? (
             <p
               className={`${trend >= 0 ? 'text-green-600' : 'text-red-600'} text-sm mt-1 flex items-center`}
             >
@@ -92,6 +104,8 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
               )}
               {`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last week`}
             </p>
+          ) : (
+            <p className="text-sm mt-1 text-gray-400">–</p>
           )}
         </div>
         <div className="bg-primary-50 p-3 rounded-lg">
