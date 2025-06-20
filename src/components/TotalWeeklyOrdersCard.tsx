@@ -23,6 +23,7 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
     trend = ((currentOrders - previousOrders) / previousOrders) * 100;
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -33,6 +34,7 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -52,6 +54,43 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
     );
   }
 
+  // No data state
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-gray-500 text-sm">Total Orders This Week</p>
+            <h3 className="text-2xl font-bold text-gray-900 mt-1">0</h3>
+            <p className="text-sm mt-1 text-gray-500">No orders this week.</p>
+          </div>
+          <div className="bg-primary-50 p-3 rounded-lg">
+            <ShoppingBag className="w-6 h-6 text-primary-600" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Single data point state
+  if (data.length === 1) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-gray-500 text-sm">Total Orders This Week</p>
+            <h3 className="text-2xl font-bold text-gray-900 mt-1">{currentOrders}</h3>
+            <p className="text-sm text-gray-500 mt-1">Not enough data to show trend.</p>
+          </div>
+          <div className="bg-primary-50 p-3 rounded-lg">
+            <ShoppingBag className="w-6 h-6 text-primary-600" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal state with trend data
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="flex items-start justify-between">
@@ -70,7 +109,7 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
               {`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last week`}
             </p>
           ) : (
-            <p className="text-sm mt-1 text-gray-400">Not enough data to compare this week.</p>
+            <p className="text-sm text-gray-500 mt-1">Not enough data to show trend.</p>
           )}
         </div>
         <div className="bg-primary-50 p-3 rounded-lg">
