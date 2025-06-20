@@ -16,17 +16,9 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
+import { useRevenueTrend } from '../hooks/useRevenueTrend';
 
 const mockData = {
-  dailyRevenue: [
-    { name: 'Mon', value: 1200 },
-    { name: 'Tue', value: 900 },
-    { name: 'Wed', value: 1600 },
-    { name: 'Thu', value: 1400 },
-    { name: 'Fri', value: 2100 },
-    { name: 'Sat', value: 1800 },
-    { name: 'Sun', value: 1100 }
-  ],
   topProducts: [
     { name: 'Product A', sales: 45 },
     { name: 'Product B', sales: 38 },
@@ -61,6 +53,12 @@ export const MetricsDashboard = () => {
   const { currentUser } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [granularity, setGranularity] = useState<'week' | 'month'>('week');
+
+  // Use the new revenue trend hook
+  const { data: revenueTrendData, loading: revenueTrendLoading, error: revenueTrendError } = useRevenueTrend(
+    storeId || '',
+    granularity
+  );
 
   useEffect(() => {
     const fetchStoreId = async () => {
@@ -134,15 +132,41 @@ export const MetricsDashboard = () => {
           </div>
           
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={mockData.dailyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="#5A7302" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+            {revenueTrendLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              </div>
+            ) : revenueTrendError ? (
+              <div className="flex items-center justify-center h-full text-red-600">
+                <p>{revenueTrendError}</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="label" 
+                    tick={{ fontSize: 12 }}
+                    angle={granularity === 'month' ? -45 : 0}
+                    textAnchor={granularity === 'month' ? 'end' : 'middle'}
+                    height={granularity === 'month' ? 60 : 30}
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                    labelStyle={{ color: '#374151' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="#5A7302" 
+                    strokeWidth={2}
+                    dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
