@@ -11,7 +11,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
+import { ShoppingBag, TrendingUp, Users, Package, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -80,6 +80,79 @@ export const MetricsDashboard = () => {
     { id: 'month', label: 'Month' }
   ] as const;
 
+  const renderRevenueTrendContent = () => {
+    // Loading state
+    if (revenueTrendLoading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+        </div>
+      );
+    }
+
+    // Error state
+    if (revenueTrendError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-red-600">
+          <AlertCircle className="w-12 h-12 mb-3 text-red-400" />
+          <p className="text-sm font-medium">Could not load data</p>
+          <p className="text-xs text-red-500 mt-1">{revenueTrendError}</p>
+        </div>
+      );
+    }
+
+    // No data state
+    if (revenueTrendData.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <BarChart3 className="w-12 h-12 mb-3 text-gray-400" />
+          <p className="text-sm font-medium">No data available</p>
+          <p className="text-xs text-gray-400 mt-1">Revenue data will appear here once you start making sales</p>
+        </div>
+      );
+    }
+
+    // Chart with data
+    return (
+      <div className="h-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={revenueTrendData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="label" 
+              tick={{ fontSize: 12 }}
+              angle={granularity === 'month' ? -45 : 0}
+              textAnchor={granularity === 'month' ? 'end' : 'middle'}
+              height={granularity === 'month' ? 60 : 30}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip 
+              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+              labelStyle={{ color: '#374151' }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="value" 
+              stroke="#5A7302" 
+              strokeWidth={2}
+              dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+        
+        {/* Insufficient data helper text */}
+        {revenueTrendData.length === 1 && (
+          <div className="mt-2 text-center">
+            <p className="text-xs text-gray-500">
+              Not enough data to show trend. More data points will improve the visualization.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
@@ -131,42 +204,9 @@ export const MetricsDashboard = () => {
             </div>
           </div>
           
-          <div className="h-80">
-            {revenueTrendLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : revenueTrendError ? (
-              <div className="flex items-center justify-center h-full text-red-600">
-                <p>{revenueTrendError}</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="label" 
-                    tick={{ fontSize: 12 }}
-                    angle={granularity === 'month' ? -45 : 0}
-                    textAnchor={granularity === 'month' ? 'end' : 'middle'}
-                    height={granularity === 'month' ? 60 : 30}
-                  />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
-                    labelStyle={{ color: '#374151' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#5A7302" 
-                    strokeWidth={2}
-                    dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+          {/* Fixed height container that never shifts */}
+          <div className="h-80 relative">
+            {renderRevenueTrendContent()}
           </div>
         </div>
 
