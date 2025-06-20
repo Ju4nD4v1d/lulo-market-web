@@ -112,39 +112,44 @@ export const MetricsDashboard = () => {
       );
     }
 
-    // Chart with data
+    // Chart with data - adjust height based on whether we need helper text
+    const hasInsufficientData = revenueTrendData.length === 1;
+    const chartHeight = hasInsufficientData ? 'calc(100% - 2rem)' : '100%';
+
     return (
-      <div className="h-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={revenueTrendData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="label" 
-              tick={{ fontSize: 12 }}
-              angle={granularity === 'month' ? -45 : 0}
-              textAnchor={granularity === 'month' ? 'end' : 'middle'}
-              height={granularity === 'month' ? 60 : 30}
-            />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip 
-              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
-              labelStyle={{ color: '#374151' }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke="#5A7302" 
-              strokeWidth={2}
-              dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="h-full flex flex-col">
+        <div className="flex-1" style={{ height: chartHeight }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={revenueTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="label" 
+                tick={{ fontSize: 12 }}
+                angle={granularity === 'month' ? -45 : 0}
+                textAnchor={granularity === 'month' ? 'end' : 'middle'}
+                height={granularity === 'month' ? 60 : 30}
+              />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Tooltip 
+                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                labelStyle={{ color: '#374151' }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#5A7302" 
+                strokeWidth={2}
+                dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
         
-        {/* Insufficient data helper text */}
-        {revenueTrendData.length === 1 && (
-          <div className="mt-2 text-center">
-            <p className="text-xs text-gray-500">
+        {/* Insufficient data helper text - positioned at bottom with reserved space */}
+        {hasInsufficientData && (
+          <div className="h-8 flex items-center justify-center">
+            <p className="text-xs text-gray-500 text-center px-2">
               Not enough data to show trend. More data points will improve the visualization.
             </p>
           </div>
