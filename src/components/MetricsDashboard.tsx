@@ -16,6 +16,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
+import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import { useRevenueTrend } from '../hooks/useRevenueTrend';
 
 const mockData = {
@@ -164,12 +165,6 @@ export const MetricsDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title={t('metrics.orders')}
-          value="156"
-          icon={ShoppingBag}
-          trend="+8.2% from last month"
-        />
-        <StatCard
           title={t('metrics.productsSold')}
           value="892"
           icon={Package}
@@ -182,6 +177,7 @@ export const MetricsDashboard = () => {
           trend="+5.7% from last month"
         />
         {storeId && <TotalWeeklyRevenueCard storeId={storeId} />}
+        {storeId && <TotalWeeklyOrdersCard storeId={storeId} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
