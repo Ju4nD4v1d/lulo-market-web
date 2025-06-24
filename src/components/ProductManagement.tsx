@@ -19,7 +19,7 @@ import {
   Package2
 } from 'lucide-react';
 import { ProductDetails } from './ProductDetails';
-import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +34,7 @@ interface Product {
   images: string[];
   status: 'active' | 'draft' | 'outOfStock';
   ownerId: string;
+  storeId: string;
   pstPercentage?: number;
   gstPercentage?: number;
 }
@@ -55,9 +56,10 @@ interface ProductModalProps {
   onClose: () => void;
   onSave: (product: Partial<Product>) => Promise<void>;
   product?: Product;
+  storeId: string;
 }
 
-const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product }) => {
+const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, product, storeId }) => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
   const [formData, setFormData] = useState<Partial<Product>>(defaultFormData);
@@ -150,12 +152,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!currentUser || !storeId) return;
 
     try {
       await onSave({
         ...formData,
-        ownerId: currentUser.uid
+        ownerId: currentUser.uid,
+        storeId: storeId
       });
       onClose();
     } catch (err) {
@@ -458,6 +461,7 @@ export const ProductManagement = () => {
   const [isViewingDetails, setIsViewingDetails] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [storeId, setStoreId] = useState<string | null>(null);
 
   const categories = [
     { id: 'hot', label: t('products.category.hot'), icon: Flame },
@@ -468,22 +472,53 @@ export const ProductManagement = () => {
 
   useEffect(() => {
     if (!currentUser) return;
-    loadProducts();
+    fetchStoreId();
   }, [currentUser]);
 
-  const loadProducts = async () => {
+  useEffect(() => {
+    if (storeId) {
+      loadProducts();
+    }
+  }, [storeId]);
+
+  const fetchStoreId = async () => {
     if (!currentUser) return;
+    
+    try {
+      const storesRef = collection(db, 'stores');
+      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        setStoreId(snapshot.docs[0].id);
+      } else {
+        setError('No store found. Please set up your store first.');
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error('Error fetching store:', err);
+      setError('Failed to fetch store information.');
+      setIsLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    if (!storeId) return;
     
     try {
       setIsLoading(true);
       const productsRef = collection(db, 'products');
-      const snapshot = await getDocs(productsRef);
+      const q = query(
+        productsRef,
+        where('storeId', '==', storeId)
+      );
+      const snapshot = await getDocs(q);
       const productsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Product[];
       
-      setProducts(productsData.filter(product => product.ownerId === currentUser.uid));
+      setProducts(productsData);
     } catch (err) {
       console.error('Error loading products:', err);
       setError('Failed to load products. Please try again.');
@@ -514,7 +549,7 @@ export const ProductManagement = () => {
   });
 
   const handleSaveProduct = async (productData: Partial<Product>) => {
-    if (!currentUser) return;
+    if (!currentUser || !storeId) return;
 
     try {
       if (productData.id) {
@@ -526,11 +561,15 @@ export const ProductManagement = () => {
       } else {
         const docRef = await addDoc(collection(db, 'products'), {
           ...productData,
+          storeId: storeId,
+          ownerId: currentUser.uid,
           createdAt: new Date()
         });
         const newProduct = {
           id: docRef.id,
-          ...productData
+          ...productData,
+          storeId: storeId,
+          ownerId: currentUser.uid
         } as Product;
         setProducts(prev => [...prev, newProduct]);
       }
@@ -570,8 +609,10 @@ export const ProductManagement = () => {
             setSelectedProduct(null);
             setIsModalOpen(true);
           }}
+          disabled={!storeId}
           className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-            hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md"
+            hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md
+            disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-5 h-5 mr-2" />
           {t('products.add')}
@@ -658,8 +699,9 @@ export const ProductManagement = () => {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
+              disabled={!storeId}
               className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-                hover:bg-primary-700 transition-colors"
+                hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-5 h-5 mr-2" />
               {t('products.addFirst')}
@@ -784,12 +826,15 @@ export const ProductManagement = () => {
         </div>
       )}
 
-      <ProductModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveProduct}
-        product={selectedProduct || undefined}
-      />
+      {storeId && (
+        <ProductModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveProduct}
+          product={selectedProduct || undefined}
+          storeId={storeId}
+        />
+      )}
     </div>
   );
 };
