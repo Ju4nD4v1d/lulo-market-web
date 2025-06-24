@@ -11,11 +11,13 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { ShoppingBag, TrendingUp, Users, Package, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
+import { Users, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
+import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
+import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
 import { useRevenueTrend } from '../hooks/useRevenueTrend';
 
 const mockData = {
@@ -36,7 +38,6 @@ const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: s
         <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
         {trend && (
           <p className="text-green-600 text-sm mt-1">
-            <TrendingUp className="w-4 h-4 inline mr-1" />
             {trend}
           </p>
         )}
@@ -163,18 +164,7 @@ export const MetricsDashboard = () => {
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title={t('metrics.orders')}
-          value="156"
-          icon={ShoppingBag}
-          trend="+8.2% from last month"
-        />
-        <StatCard
-          title={t('metrics.productsSold')}
-          value="892"
-          icon={Package}
-          trend="+15.3% from last month"
-        />
+        {storeId && <TotalWeeklyProductsCard storeId={storeId} />}
         <StatCard
           title={t('metrics.activeCustomers')}
           value="432"
@@ -182,6 +172,7 @@ export const MetricsDashboard = () => {
           trend="+5.7% from last month"
         />
         {storeId && <TotalWeeklyRevenueCard storeId={storeId} />}
+        {storeId && <TotalWeeklyOrdersCard storeId={storeId} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
