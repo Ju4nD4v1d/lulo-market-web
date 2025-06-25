@@ -9,7 +9,7 @@ interface TotalActiveCustomersCardProps {
 const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ storeId }) => {
   const { current, previous, loading, error } = useActiveCustomersTrend(storeId);
 
-  // Calculate trend percentage
+  // Calculate trend percentage when previous month exists and is non-zero
   let trend: number | null = null;
   if (previous !== null && previous !== 0) {
     trend = ((current - previous) / previous) * 100;
@@ -53,7 +53,11 @@ const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ sto
         <div>
           <p className="text-gray-500 text-sm">Active Customers</p>
           <h3 className="text-2xl font-bold text-gray-900 mt-1">{current.toLocaleString()}</h3>
-          {previous !== null && trend !== null ? (
+          {current === 0 ? (
+            <p className="text-sm text-gray-500 mt-1">No active customers yet.</p>
+          ) : previous === null ? (
+            <p className="text-sm text-gray-500 mt-1">Not enough data to compare this month.</p>
+          ) : trend !== null ? (
             <p
               className={`${
                 trend >= 0 ? 'text-green-600' : 'text-red-600'
@@ -66,11 +70,7 @@ const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ sto
               )}
               {`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last month`}
             </p>
-          ) : (
-            <p className="text-sm text-gray-500 mt-1">
-              No previous data to compare.
-            </p>
-          )}
+          ) : null}
         </div>
         <div className="bg-primary-50 p-3 rounded-lg">
           <User2 className="w-6 h-6 text-primary-600" />
