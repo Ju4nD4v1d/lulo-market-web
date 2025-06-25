@@ -11,51 +11,32 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { Users, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
+import { Loader2, AlertCircle, Info } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
+import TotalActiveCustomersCard from './TotalActiveCustomersCard';
 import { useRevenueTrend } from '../hooks/useRevenueTrend';
+import { loadTopProducts } from '../utils/loadTopProducts';
 
-const mockData = {
-  topProducts: [
-    { name: 'Product A', sales: 45 },
-    { name: 'Product B', sales: 38 },
-    { name: 'Product C', sales: 31 },
-    { name: 'Product D', sales: 25 },
-    { name: 'Product E', sales: 22 }
-  ]
-};
-
-const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: React.ElementType; trend?: string }) => (
-  <div className="bg-white rounded-xl p-6 border border-gray-200">
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">{title}</p>
-        <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
-        {trend && (
-          <p className="text-green-600 text-sm mt-1">
-            {trend}
-          </p>
-        )}
-      </div>
-      <div className="bg-primary-50 p-3 rounded-lg">
-        <Icon className="w-6 h-6 text-primary-600" />
-      </div>
-    </div>
-  </div>
-);
+interface TopProductData {
+  label: string;
+  value: number;
+}
 
 export const MetricsDashboard = () => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [granularity, setGranularity] = useState<'week' | 'month'>('week');
+  const [topProducts, setTopProducts] = useState<TopProductData[]>([]);
+  const [topProductsLoading, setTopProductsLoading] = useState(true);
+  const [topProductsError, setTopProductsError] = useState<string | null>(null);
 
-  // Use the new revenue trend hook
+  // Use the revenue trend hook
   const { data: revenueTrendData, loading: revenueTrendLoading, error: revenueTrendError } = useRevenueTrend(
     storeId || '',
     granularity
@@ -76,14 +57,98 @@ export const MetricsDashboard = () => {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      if (!storeId) return;
+
+      setTopProductsLoading(true);
+      setTopProductsError(null);
+
+      try {
+        const data = await loadTopProducts(storeId);
+        setTopProducts(data);
+      } catch (error) {
+        console.error('Error loading top products:', error);
+        setTopProductsError('Failed to load top products');
+      } finally {
+        setTopProductsLoading(false);
+      }
+    };
+
+    if (storeId) {
+      fetchTopProducts();
+    }
+  }, [storeId]);
+
   const granularityOptions = [
     { id: 'week', label: 'Week' },
     { id: 'month', label: 'Month' }
   ] as const;
 
+  const formatter = new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD'
+  });
+
   const renderRevenueTrendContent = () => {
-    // Loading state
     if (revenueTrendLoading) {
+      return (
+        <div className="flex items-center justify-center h-60">
+          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+        </div>
+      );
+    }
+
+    if (revenueTrendError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-60 text-red-600">
+          <AlertCircle className="w-12 h-12 mb-3 text-red-400" />
+          <p className="text-sm font-medium">Could not load data</p>
+          <p className="text-xs text-red-500 mt-1">{revenueTrendError}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative bg-white rounded-2xl shadow-sm p-6" style={{ height: 260 }}>
+        <ResponsiveContainer>
+          <LineChart data={revenueTrendData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 12 }}
+              angle={granularity === 'month' ? -45 : 0}
+              textAnchor={granularity === 'month' ? 'end' : 'middle'}
+              height={granularity === 'month' ? 60 : 30}
+            />
+            <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatter.format(Number(v))} />
+            <Tooltip
+              formatter={(value: number) => [formatter.format(value), 'Revenue']}
+              labelStyle={{ color: '#374151' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#5A7302"
+              strokeWidth={2}
+              dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+        {revenueTrendData.length < 2 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/75">
+            <Info className="w-6 h-6 text-gray-400 mb-2" />
+            <p className="text-gray-500 text-sm">More data coming soon!</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderTopProductsContent = () => {
+    // Loading state
+    if (topProductsLoading) {
       return (
         <div className="flex items-center justify-center h-full">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
@@ -92,69 +157,52 @@ export const MetricsDashboard = () => {
     }
 
     // Error state
-    if (revenueTrendError) {
+    if (topProductsError) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-red-600">
           <AlertCircle className="w-12 h-12 mb-3 text-red-400" />
           <p className="text-sm font-medium">Could not load data</p>
-          <p className="text-xs text-red-500 mt-1">{revenueTrendError}</p>
+          <p className="text-xs text-red-500 mt-1">{topProductsError}</p>
         </div>
       );
     }
 
     // No data state
-    if (revenueTrendData.length === 0) {
+    if (topProducts.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-gray-500">
-          <BarChart3 className="w-12 h-12 mb-3 text-gray-400" />
-          <p className="text-sm font-medium">No data available</p>
-          <p className="text-xs text-gray-400 mt-1">Revenue data will appear here once you start making sales</p>
+        <div className="h-48 flex flex-col items-center justify-center text-gray-400">
+          <Info className="w-6 h-6 mb-1" />
+          <p className="text-sm">No sales data yet.</p>
         </div>
       );
     }
 
-    // Chart with data - adjust height based on whether we need helper text
-    const hasInsufficientData = revenueTrendData.length === 1;
-    const chartHeight = hasInsufficientData ? 'calc(100% - 2rem)' : '100%';
-
+    // Chart with data
     return (
-      <div className="h-full flex flex-col">
-        <div className="flex-1" style={{ height: chartHeight }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={revenueTrendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="label" 
-                tick={{ fontSize: 12 }}
-                angle={granularity === 'month' ? -45 : 0}
-                textAnchor={granularity === 'month' ? 'end' : 'middle'}
-                height={granularity === 'month' ? 60 : 30}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
-                formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
-                labelStyle={{ color: '#374151' }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#5A7302" 
-                strokeWidth={2}
-                dot={{ fill: '#5A7302', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#5A7302', strokeWidth: 2 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        
-        {/* Insufficient data helper text - positioned at bottom with reserved space */}
-        {hasInsufficientData && (
-          <div className="h-8 flex items-center justify-center">
-            <p className="text-xs text-gray-500 text-center px-2">
-              Not enough data to show trend. More data points will improve the visualization.
-            </p>
-          </div>
-        )}
+      <div className="h-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={topProducts}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              interval={0}
+              height={60}
+            />
+            <YAxis tick={{ fontSize: 12 }} label={{ value: 'Units Sold', angle: -90, position: 'insideLeft' }} />
+            <Tooltip
+              formatter={(value: number) => [value, 'Units Sold']}
+              labelStyle={{ color: '#374151' }}
+            />
+            <Bar
+              dataKey="value"
+              fill="#C7E402"
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     );
   };
@@ -165,59 +213,40 @@ export const MetricsDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {storeId && <TotalWeeklyProductsCard storeId={storeId} />}
-        <StatCard
-          title={t('metrics.activeCustomers')}
-          value="432"
-          icon={Users}
-          trend="+5.7% from last month"
-        />
+        {storeId && <TotalActiveCustomersCard storeId={storeId} />}
         {storeId && <TotalWeeklyRevenueCard storeId={storeId} />}
         {storeId && <TotalWeeklyOrdersCard storeId={storeId} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">{t('metrics.revenueTrend')}</h2>
-            
-            {/* Segmented Control */}
-            <div className="bg-gray-100 p-1 rounded-md">
+
+            {/* Toggle */}
+            <div className="flex items-center space-x-2">
               {granularityOptions.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => setGranularity(option.id)}
-                  className={`
-                    px-3 py-1.5 text-sm font-medium rounded transition-all duration-200
-                    ${granularity === option.id
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                    }
-                  `}
+                  className={`px-4 py-1 rounded-full text-sm font-medium cursor-pointer ${
+                    granularity === option.id
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
           </div>
-          
-          {/* Fixed height container that never shifts */}
-          <div className="h-80 relative">
-            {renderRevenueTrendContent()}
-          </div>
+          {renderRevenueTrendContent()}
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metrics.topProducts')}</h2>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockData.topProducts}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#C8E400" />
-              </BarChart>
-            </ResponsiveContainer>
+            {renderTopProductsContent()}
           </div>
         </div>
       </div>
