@@ -11,13 +11,14 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { Users, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
+import { Loader2, AlertCircle, BarChart3 } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
+import TotalActiveCustomersCard from './TotalActiveCustomersCard';
 import { useRevenueTrend } from '../hooks/useRevenueTrend';
 import { loadTopProducts } from '../utils/loadTopProducts';
 
@@ -25,25 +26,6 @@ interface TopProductData {
   label: string;
   value: number;
 }
-
-const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: React.ElementType; trend?: string }) => (
-  <div className="bg-white rounded-xl p-6 border border-gray-200">
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">{title}</p>
-        <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
-        {trend && (
-          <p className="text-green-600 text-sm mt-1">
-            {trend}
-          </p>
-        )}
-      </div>
-      <div className="bg-primary-50 p-3 rounded-lg">
-        <Icon className="w-6 h-6 text-primary-600" />
-      </div>
-    </div>
-  </div>
-);
 
 export const MetricsDashboard = () => {
   const { t } = useLanguage();
@@ -248,12 +230,7 @@ export const MetricsDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {storeId && <TotalWeeklyProductsCard storeId={storeId} />}
-        <StatCard
-          title={t('metrics.activeCustomers')}
-          value="432"
-          icon={Users}
-          trend="+5.7% from last month"
-        />
+        {storeId && <TotalActiveCustomersCard storeId={storeId} />}
         {storeId && <TotalWeeklyRevenueCard storeId={storeId} />}
         {storeId && <TotalWeeklyOrdersCard storeId={storeId} />}
       </div>
