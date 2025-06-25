@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { format, subMonths } from 'date-fns';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 interface UseActiveCustomersTrendReturn {
   current: number;
@@ -30,38 +32,26 @@ export function useActiveCustomersTrend(storeId: string): UseActiveCustomersTren
         // Compute month keys
         const now = new Date();
         const thisKey = format(now, 'yyyy-MM');
-        const prevMonth = subMonths(now, 1);
-        const prevKey = format(prevMonth, 'yyyy-MM');
+        const prevKey = format(subMonths(now, 1), 'yyyy-MM');
 
-        // TODO: Replace with actual Firestore calls
-        // const thisDocRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${thisKey}`);
-        // const prevDocRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${prevKey}`);
-        // const [thisDoc, prevDoc] = await Promise.all([
-        //   getDoc(thisDocRef),
-        //   getDoc(prevDocRef)
-        // ]);
+        const currentRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${thisKey}`);
+        const prevRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${prevKey}`);
 
-        // Stubbed data for testing
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+        const [currentSnap, prevSnap] = await Promise.all([
+          getDoc(currentRef),
+          getDoc(prevRef)
+        ]);
 
-        // Mock current month data
-        const currentActiveCustomers = Math.floor(Math.random() * 500) + 100; // 100-600 customers
-        
-        // Mock previous month data (sometimes null to test that case)
-        const hasPreviousData = Math.random() > 0.2; // 80% chance of having previous data
-        const previousActiveCustomers = hasPreviousData 
-          ? Math.floor(Math.random() * 400) + 80 // 80-480 customers
+        const currentActiveCustomers = currentSnap.exists()
+          ? (currentSnap.data().activeCustomers ?? 0)
+          : 0;
+
+        const previousActiveCustomers = prevSnap.exists()
+          ? (prevSnap.data().activeCustomers ?? 0)
           : null;
 
         setCurrent(currentActiveCustomers);
         setPrevious(previousActiveCustomers);
-
-        // Uncomment when implementing real Firestore calls:
-        // const currentData = thisDoc.exists() ? thisDoc.data() : null;
-        // const previousData = prevDoc.exists() ? prevDoc.data() : null;
-        // 
-        // setCurrent(currentData?.activeCustomers ?? 0);
-        // setPrevious(previousData?.activeCustomers ?? null);
 
       } catch (err) {
         console.error('Error fetching active customers trend:', err);
