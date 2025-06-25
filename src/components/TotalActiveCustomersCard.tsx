@@ -1,5 +1,12 @@
 import React from 'react';
-import { Loader2, AlertCircle, TrendingUp, TrendingDown, User2 } from 'lucide-react';
+import {
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  User2,
+  Info
+} from 'lucide-react';
 import { useActiveCustomersTrend } from '../hooks/useActiveCustomersTrend';
 
 interface TotalActiveCustomersCardProps {
@@ -18,7 +25,7 @@ const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ sto
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-center justify-center h-16">
           <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
         </div>
@@ -29,13 +36,13 @@ const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ sto
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Active Customers</p>
             <div className="flex items-center text-red-600 space-x-2 mt-1">
               <AlertCircle className="w-5 h-5" />
-              <span className="text-sm">Couldn't load customers.</span>
+              <span className="text-sm">Couldn't load data.</span>
             </div>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
@@ -48,15 +55,16 @@ const TotalActiveCustomersCard: React.FC<TotalActiveCustomersCardProps> = ({ sto
 
   // Normal state with data
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm">Active Customers</p>
           <h3 className="text-2xl font-bold text-gray-900 mt-1">{current.toLocaleString()}</h3>
-          {current === 0 ? (
-            <p className="text-sm text-gray-500 mt-1">No active customers yet.</p>
-          ) : previous === null ? (
-            <p className="text-sm text-gray-500 mt-1">Not enough data to compare this month.</p>
+          {current === 0 || previous === null ? (
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
+            </p>
           ) : trend !== null ? (
             <p
               className={`${

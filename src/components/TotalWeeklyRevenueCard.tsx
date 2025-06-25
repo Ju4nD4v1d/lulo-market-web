@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { DollarSign, TrendingUp, TrendingDown, Loader2, AlertCircle } from 'lucide-react';
+import {
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Loader2,
+  AlertCircle,
+  Info
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { db } from '../config/firebase';
 
@@ -52,7 +59,10 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
     fetchRevenue();
   }, [storeId]);
 
-  const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+  const formatter = new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD'
+  });
   const trend =
     previousRevenue != null && previousRevenue !== 0
       ? ((currentRevenue ?? 0) - previousRevenue) / previousRevenue * 100
@@ -60,7 +70,7 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-center justify-center h-16">
           <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
         </div>
@@ -70,13 +80,13 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Revenue This Week</p>
             <div className="flex items-center text-red-600 space-x-2 mt-1">
               <AlertCircle className="w-5 h-5" />
-              <span className="text-sm">{error}</span>
+              <span className="text-sm">Couldn't load data.</span>
             </div>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
@@ -88,7 +98,7 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm">Total Revenue This Week</p>
@@ -105,7 +115,10 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
               {`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last week`}
             </p>
           ) : (
-            <p className="text-sm mt-1 text-gray-400">–</p>
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
+            </p>
           )}
         </div>
         <div className="bg-primary-50 p-3 rounded-lg">
