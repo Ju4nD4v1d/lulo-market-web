@@ -19,16 +19,12 @@ import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
 import { useRevenueTrend } from '../hooks/useRevenueTrend';
+import { loadTopProducts } from '../utils/loadTopProducts';
 
-const mockData = {
-  topProducts: [
-    { name: 'Product A', sales: 45 },
-    { name: 'Product B', sales: 38 },
-    { name: 'Product C', sales: 31 },
-    { name: 'Product D', sales: 25 },
-    { name: 'Product E', sales: 22 }
-  ]
-};
+interface TopProductData {
+  label: string;
+  value: number;
+}
 
 const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: React.ElementType; trend?: string }) => (
   <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -54,8 +50,11 @@ export const MetricsDashboard = () => {
   const { currentUser } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [granularity, setGranularity] = useState<'week' | 'month'>('week');
+  const [topProducts, setTopProducts] = useState<TopProductData[]>([]);
+  const [topProductsLoading, setTopProductsLoading] = useState(true);
+  const [topProductsError, setTopProductsError] = useState<string | null>(null);
 
-  // Use the new revenue trend hook
+  // Use the revenue trend hook
   const { data: revenueTrendData, loading: revenueTrendLoading, error: revenueTrendError } = useRevenueTrend(
     storeId || '',
     granularity
@@ -75,6 +74,29 @@ export const MetricsDashboard = () => {
       fetchStoreId();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      if (!storeId) return;
+
+      setTopProductsLoading(true);
+      setTopProductsError(null);
+
+      try {
+        const data = await loadTopProducts(storeId);
+        setTopProducts(data);
+      } catch (error) {
+        console.error('Error loading top products:', error);
+        setTopProductsError('Failed to load top products');
+      } finally {
+        setTopProductsLoading(false);
+      }
+    };
+
+    if (storeId) {
+      fetchTopProducts();
+    }
+  }, [storeId]);
 
   const granularityOptions = [
     { id: 'week', label: 'Week' },
@@ -159,6 +181,67 @@ export const MetricsDashboard = () => {
     );
   };
 
+  const renderTopProductsContent = () => {
+    // Loading state
+    if (topProductsLoading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+        </div>
+      );
+    }
+
+    // Error state
+    if (topProductsError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-red-600">
+          <AlertCircle className="w-12 h-12 mb-3 text-red-400" />
+          <p className="text-sm font-medium">Could not load data</p>
+          <p className="text-xs text-red-500 mt-1">{topProductsError}</p>
+        </div>
+      );
+    }
+
+    // No data state
+    if (topProducts.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <BarChart3 className="w-12 h-12 mb-3 text-gray-400" />
+          <p className="text-sm font-medium">No sales data available</p>
+          <p className="text-xs text-gray-400 mt-1">Top products will appear here once you start making sales</p>
+        </div>
+      );
+    }
+
+    // Chart with data
+    return (
+      <div className="h-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={topProducts}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="label" 
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip 
+              formatter={(value: number) => [value, 'Units Sold']}
+              labelStyle={{ color: '#374151' }}
+            />
+            <Bar 
+              dataKey="value" 
+              fill="#C8E400" 
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">{t('metrics.title')}</h1>
@@ -209,15 +292,7 @@ export const MetricsDashboard = () => {
         <div className="bg-white rounded-xl p-6 border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metrics.topProducts')}</h2>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockData.topProducts}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#C8E400" />
-              </BarChart>
-            </ResponsiveContainer>
+            {renderTopProductsContent()}
           </div>
         </div>
       </div>
