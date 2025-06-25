@@ -1,5 +1,12 @@
 import React from 'react';
-import { Loader2, AlertCircle, TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react';
+import {
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  ShoppingBag,
+  Info
+} from 'lucide-react';
 import { useOrdersTrend } from '../hooks/useOrdersTrend';
 
 interface TotalWeeklyOrdersCardProps {
@@ -26,7 +33,7 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-center justify-center h-16">
           <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
         </div>
@@ -37,13 +44,13 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Orders This Week</p>
             <div className="flex items-center text-red-600 space-x-2 mt-1">
               <AlertCircle className="w-5 h-5" />
-              <span className="text-sm">Couldn't load orders.</span>
+              <span className="text-sm">Couldn't load data.</span>
             </div>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
@@ -57,12 +64,15 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
   // No data state
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Orders This Week</p>
             <h3 className="text-2xl font-bold text-gray-900 mt-1">0</h3>
-            <p className="text-sm mt-1 text-gray-500">No orders this week.</p>
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
+            </p>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
             <ShoppingBag className="w-6 h-6 text-primary-600" />
@@ -75,12 +85,15 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
   // Single data point state
   if (data.length === 1) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Orders This Week</p>
             <h3 className="text-2xl font-bold text-gray-900 mt-1">{currentOrders}</h3>
-            <p className="text-sm text-gray-500 mt-1">Not enough data to show trend.</p>
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
+            </p>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
             <ShoppingBag className="w-6 h-6 text-primary-600" />
@@ -92,7 +105,7 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
 
   // Normal state with trend data
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm">Total Orders This Week</p>
@@ -109,7 +122,10 @@ const TotalWeeklyOrdersCard: React.FC<TotalWeeklyOrdersCardProps> = ({ storeId }
               {`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last week`}
             </p>
           ) : (
-            <p className="text-sm text-gray-500 mt-1">Not enough data to show trend.</p>
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
+            </p>
           )}
         </div>
         <div className="bg-primary-50 p-3 rounded-lg">

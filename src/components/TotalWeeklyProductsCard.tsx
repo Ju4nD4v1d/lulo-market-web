@@ -1,5 +1,12 @@
 import React from 'react';
-import { Loader2, AlertCircle, TrendingUp, TrendingDown, Box } from 'lucide-react';
+import {
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Box,
+  Info
+} from 'lucide-react';
 import { useProductsTrend } from '../hooks/useProductsTrend';
 
 interface TotalWeeklyProductsCardProps {
@@ -26,7 +33,7 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-center justify-center h-16">
           <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
         </div>
@@ -37,13 +44,13 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm">Products Sold This Week</p>
             <div className="flex items-center text-red-600 space-x-2 mt-1">
               <AlertCircle className="w-5 h-5" />
-              <span className="text-sm">Couldn't load products.</span>
+              <span className="text-sm">Couldn't load data.</span>
             </div>
           </div>
           <div className="bg-primary-50 p-3 rounded-lg">
@@ -56,7 +63,7 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
 
   // Normal state with data
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm">Products Sold This Week</p>
@@ -77,8 +84,9 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
               {trend !== null ? `${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% from last week` : 'No change'}
             </p>
           ) : (
-            <p className="text-sm text-gray-500 mt-1">
-              Not enough data to compare this week.
+            <p className="text-gray-400 text-sm flex items-center space-x-2 mt-1">
+              <Info className="w-4 h-4" />
+              <span>More data coming soon!</span>
             </p>
           )}
         </div>
