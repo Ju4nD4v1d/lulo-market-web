@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, AlertCircle, CheckCircle2, ArrowLeft, User, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
@@ -7,9 +7,14 @@ import { getAuthErrorMessage } from '../utils/auth-errors';
 
 export const Login = () => {
   const { t, locale } = useLanguage();
-  const { login, currentUser } = useAuth();
+  const { login, register, currentUser } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,20 +25,73 @@ export const Login = () => {
     }
   }, [currentUser]);
 
+  const validateForm = () => {
+    if (!isLogin) {
+      if (!fullName.trim()) {
+        setError('Please enter your full name');
+        return false;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters long');
+        return false;
+      }
+    }
+    
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return false;
+    }
+    
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      window.location.hash = '#dashboard';
+      if (isLogin) {
+        await login(email, password);
+        window.location.hash = '#dashboard';
+      } else {
+        await register(email, password);
+        setSuccess('Account created successfully! You can now access your dashboard.');
+        // Auto-redirect after successful registration
+        setTimeout(() => {
+          window.location.hash = '#dashboard';
+        }, 1500);
+      }
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, locale));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setSuccess('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setFullName('');
   };
 
   return (
@@ -48,10 +106,13 @@ export const Login = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-primary-600/70" />
           <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
             <h2 className="text-4xl font-bold mb-4 font-heading">
-              {t('auth.welcomeHero')} {COMPANY_NAME}
+              {isLogin ? `${t('auth.welcomeHero')} ${COMPANY_NAME}` : `Join ${COMPANY_NAME} Today`}
             </h2>
             <p className="text-lg text-white/90">
-              {t('auth.welcomeSubtitle')}
+              {isLogin 
+                ? t('auth.welcomeSubtitle')
+                : 'Start your journey with us and connect with authentic Latin businesses in your community.'
+              }
             </p>
           </div>
         </div>
@@ -70,10 +131,13 @@ export const Login = () => {
           <div className="w-full max-w-md">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
-                {t('auth.login')} - {COMPANY_NAME}
+                {isLogin ? `${t('auth.login')} - ${COMPANY_NAME}` : `Create Account - ${COMPANY_NAME}`}
               </h1>
               <p className="text-gray-600">
-                {t('auth.subtitle')}
+                {isLogin 
+                  ? t('auth.subtitle')
+                  : 'Join our community of Latin entrepreneurs and start growing your business today.'
+                }
               </p>
             </div>
 
@@ -92,6 +156,28 @@ export const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {!isLogin && (
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-10 border border-gray-300 rounded-lg"
+                      placeholder="Enter your full name"
+                      required={!isLogin}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.email')}
@@ -107,6 +193,7 @@ export const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
+                    required
                   />
                 </div>
               </div>
@@ -121,30 +208,82 @@ export const Login = () => {
                   </div>
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 border border-gray-300 rounded-lg"
+                    className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
+                    required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
                 </div>
+                {!isLogin && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Password must be at least 6 characters long
+                  </p>
+                )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 border-gray-300 rounded"
-                  />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                    {t('auth.rememberMe')}
+              {!isLogin && (
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password
                   </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
+                      placeholder="Confirm your password"
+                      required={!isLogin}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-                  {t('auth.forgotPassword')}
-                </a>
-              </div>
+              )}
+
+              {isLogin && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                      {t('auth.rememberMe')}
+                    </label>
+                  </div>
+                  <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    {t('auth.forgotPassword')}
+                  </a>
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -155,11 +294,30 @@ export const Login = () => {
                   transform hover:scale-[1.02] active:scale-[0.98]
                   ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? t('auth.loading') : t('auth.loginButton')}
+                {isLoading 
+                  ? (isLogin ? t('auth.loading') : 'Creating Account...') 
+                  : (isLogin ? t('auth.loginButton') : 'Create Account')
+                }
               </button>
 
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={toggleMode}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  {isLogin 
+                    ? "Don't have an account? Create one" 
+                    : "Already have an account? Sign in"
+                  }
+                </button>
+              </div>
+
               <p className="text-center text-sm text-gray-600 mt-4">
-                {t('auth.trustMessage')}
+                {isLogin 
+                  ? t('auth.trustMessage')
+                  : 'By creating an account, you agree to our Terms of Service and Privacy Policy.'
+                }
               </p>
             </form>
           </div>
