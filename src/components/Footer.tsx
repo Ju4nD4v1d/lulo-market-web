@@ -8,6 +8,11 @@ export const Footer = () => {
   const { t, toggleLanguage } = useLanguage();
   const [showDeliveryMap, setShowDeliveryMap] = useState(false);
 
+  const handleCreateAccountClick = () => {
+    // Navigate to login page (default login mode)
+    window.location.hash = '#login';
+  };
+
   return (
     <>
       <footer className="bg-primary-500 text-white pt-16 pb-8">
@@ -47,12 +52,15 @@ export const Footer = () => {
               </h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-white/60 hover:text-white transition-colors">
+                  <button
+                    onClick={handleCreateAccountClick}
+                    className="text-white/60 hover:text-white transition-colors text-left"
+                  >
                     {t('footer.createAccount')}
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-white/60 hover:text-white transition-colors">
+                  <a href="#login" className="text-white/60 hover:text-white transition-colors">
                     {t('footer.sellerDashboard')}
                   </a>
                 </li>
