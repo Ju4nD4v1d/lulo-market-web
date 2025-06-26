@@ -257,6 +257,8 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
+                      clearMessages();
+                    }}
                     onBlur={() =>
                       setTouched((prev) => ({ ...prev, email: true }))
                     }
@@ -267,28 +269,8 @@ export const Login = () => {
                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                         : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
                     `}
-                    type={showPassword ? 'text' : 'password'}
-                    onBlur={() =>
-                      setTouched((prev) => ({ ...prev, password: true }))
-                    }
-                    className={`
-                      w-full pl-10 pr-10 rounded-lg
-                      border
-                      ${touched.password && (!isLogin ? !isValidPassword(password) : password === '')
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
-                    `}
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    onBlur={() =>
-                      setTouched((prev) => ({ ...prev, confirmPassword: true }))
-                    }
-                    className={`
-                      w-full pl-10 pr-10 rounded-lg
-                      border
-                      ${touched.confirmPassword && confirmPassword !== password
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
-                    `}
+                    placeholder={t('auth.emailPlaceholder')}
+                    required
                   />
                 </div>
               </div>
@@ -310,7 +292,16 @@ export const Login = () => {
                       setPassword(e.target.value);
                       clearMessages();
                     }}
-                    className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, password: true }))
+                    }
+                    className={`
+                      w-full pl-10 pr-10 rounded-lg
+                      border
+                      ${touched.password && (!isLogin ? !isValidPassword(password) : password === '')
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
+                    `}
                     placeholder={t('auth.passwordPlaceholder')}
                     required
                   />
@@ -350,7 +341,16 @@ export const Login = () => {
                       setConfirmPassword(e.target.value);
                       clearMessages();
                     }}
-                    className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, confirmPassword: true }))
+                    }
+                    className={`
+                      w-full pl-10 pr-10 rounded-lg
+                      border
+                      ${touched.confirmPassword && confirmPassword !== password
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
+                    `}
                     placeholder="Confirm your password"
                     required={!isLogin}
                   />
