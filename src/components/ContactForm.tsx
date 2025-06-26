@@ -123,8 +123,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
         phoneNumber: formData.phoneNumber || null,
         businessName: formData.businessName,
         preferredContactMethod: formData.contactPreference,
-        agreeToTerms: formData.agreeToTerms,
-        submittedAt: serverTimestamp()
+        submittedAt: serverTimestamp(),
+        privacyConsent: {
+          accepted: formData.agreeToTerms,
+          acceptedAt: serverTimestamp(),
+          version: 'v1.0'
+        }
       });
 
       setIsSubmitted(true);
