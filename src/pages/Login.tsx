@@ -233,16 +233,12 @@ export const Login = () => {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
-                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
-                    placeholder="Enter your full name"
-                    required={!isLogin}
                   />
                 </div>
               </div>
 
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.email')}
