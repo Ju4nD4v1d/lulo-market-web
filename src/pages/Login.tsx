@@ -25,6 +25,15 @@ export const Login = () => {
     }
   }, [currentUser]);
 
+  // Check URL parameters to determine initial mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+    const mode = urlParams.get('mode');
+    if (mode === 'register') {
+      setIsLogin(false);
+    }
+  }, []);
+
   const validateForm = () => {
     if (!isLogin) {
       if (!fullName.trim()) {
@@ -92,6 +101,12 @@ export const Login = () => {
     setPassword('');
     setConfirmPassword('');
     setFullName('');
+    // Update URL to reflect current mode
+    if (isLogin) {
+      window.location.hash = '#login?mode=register';
+    } else {
+      window.location.hash = '#login';
+    }
   };
 
   return (
@@ -256,7 +271,7 @@ export const Login = () => {
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                       ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        <Eye className="h-5 h-5 text-gray-400 hover:text-gray-600" />
                       )}
                     </button>
                   </div>
