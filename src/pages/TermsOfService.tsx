@@ -196,10 +196,8 @@ export const TermsOfService = () => {
                 <p className="text-gray-700 leading-relaxed">
                   {t('legal.contact.description')}
                 </p>
-                <div className="mt-4 space-y-2 text-gray-700">
+                <div className="mt-4 text-gray-700">
                   <p>{t('legal.contact.email')}</p>
-                  <p>{t('legal.contact.address')}</p>
-                  <p>{t('legal.contact.phone')}</p>
                 </div>
               </section>
 
