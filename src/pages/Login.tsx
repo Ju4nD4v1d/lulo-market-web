@@ -27,11 +27,25 @@ export const Login = () => {
 
   // Check URL parameters to determine initial mode
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-    const mode = urlParams.get('mode');
-    if (mode === 'register') {
-      setIsLogin(false);
-    }
+    const checkMode = () => {
+      const hash = window.location.hash;
+      if (hash.includes('mode=register')) {
+        setIsLogin(false);
+      } else {
+        setIsLogin(true);
+      }
+    };
+
+    // Check on mount
+    checkMode();
+
+    // Listen for hash changes
+    const handleHashChange = () => {
+      checkMode();
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const validateForm = () => {
@@ -94,8 +108,6 @@ export const Login = () => {
   };
 
   const toggleMode = () => {
-    const newIsLogin = !isLogin;
-    setIsLogin(newIsLogin);
     setError('');
     setSuccess('');
     setEmail('');
@@ -103,13 +115,14 @@ export const Login = () => {
     setConfirmPassword('');
     setFullName('');
     
-    // Update URL to reflect current mode
-    if (newIsLogin) {
-      // Switching to login mode
-      window.location.hash = '#login';
-    } else {
+    if (isLogin) {
       // Switching to registration mode
+      setIsLogin(false);
       window.location.hash = '#login?mode=register';
+    } else {
+      // Switching to login mode
+      setIsLogin(true);
+      window.location.hash = '#login';
     }
   };
 
@@ -191,6 +204,7 @@ export const Login = () => {
                       onChange={(e) => setFullName(e.target.value)}
                       className="w-full pl-10 border border-gray-300 rounded-lg"
                       placeholder="Enter your full name"
+                      required={!isLogin}
                     />
                   </div>
                 </div>
@@ -211,6 +225,7 @@ export const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
+                    required
                   />
                 </div>
               </div>
@@ -230,6 +245,7 @@ export const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
+                    required
                   />
                   <button
                     type="button"
@@ -266,6 +282,7 @@ export const Login = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                       placeholder="Confirm your password"
+                      required={!isLogin}
                     />
                     <button
                       type="button"
@@ -319,7 +336,7 @@ export const Login = () => {
                 <button
                   type="button"
                   onClick={toggleMode}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
                 >
                   {isLogin 
                     ? "Don't have an account? Create one" 
