@@ -121,7 +121,7 @@ export const Login = () => {
     }
   };
 
-  const clearForm = () => {
+  const clearMessages = () => {
     setError('');
     setSuccess('');
   };
@@ -233,7 +233,7 @@ export const Login = () => {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder="Enter your full name"
@@ -257,7 +257,7 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
@@ -281,7 +281,7 @@ export const Login = () => {
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
@@ -321,7 +321,7 @@ export const Login = () => {
                     value={confirmPassword}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder="Confirm your password"
