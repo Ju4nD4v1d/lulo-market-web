@@ -172,7 +172,6 @@ export const Login = () => {
                       onChange={(e) => setFullName(e.target.value)}
                       className="w-full pl-10 border border-gray-300 rounded-lg"
                       placeholder="Enter your full name"
-                      required={!isLogin}
                     />
                   </div>
                 </div>
@@ -193,7 +192,6 @@ export const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
-                    required
                   />
                 </div>
               </div>
@@ -213,7 +211,6 @@ export const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
-                    required
                   />
                   <button
                     type="button"
@@ -250,7 +247,6 @@ export const Login = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                       placeholder="Confirm your password"
-                      required={!isLogin}
                     />
                     <button
                       type="button"
