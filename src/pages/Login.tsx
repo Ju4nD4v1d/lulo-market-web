@@ -94,18 +94,22 @@ export const Login = () => {
   };
 
   const toggleMode = () => {
-    setIsLogin(!isLogin);
+    const newIsLogin = !isLogin;
+    setIsLogin(newIsLogin);
     setError('');
     setSuccess('');
     setEmail('');
     setPassword('');
     setConfirmPassword('');
     setFullName('');
+    
     // Update URL to reflect current mode
-    if (isLogin) {
-      window.location.hash = '#login?mode=register';
-    } else {
+    if (newIsLogin) {
+      // Switching to login mode
       window.location.hash = '#login';
+    } else {
+      // Switching to registration mode
+      window.location.hash = '#login?mode=register';
     }
   };
 
@@ -271,7 +275,7 @@ export const Login = () => {
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                       ) : (
-                        <Eye className="h-5 h-5 text-gray-400 hover:text-gray-600" />
+                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                       )}
                     </button>
                   </div>
