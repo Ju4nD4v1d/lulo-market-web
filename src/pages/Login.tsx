@@ -217,7 +217,7 @@ export const Login = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} noValidate className="space-y-6">
               {/* Full Name Field - Only for Registration */}
               <div className={`transition-all duration-300 ${isLogin ? 'hidden' : 'block'}`}>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
