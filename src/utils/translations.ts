@@ -99,6 +99,11 @@ export const translations: Translations = {
     'contact.error.company': 'Please enter your business name',
     'contact.error.contactPreference': 'Please select your preferred contact method',
     'contact.error.phone': 'Please enter a valid phone number to be contacted by phone',
+    'contact.error.agreeToTerms': 'You must agree to the Privacy Policy and Terms of Service to continue',
+    'contact.agreeToTerms.prefix': 'I agree to the',
+    'contact.agreeToTerms.privacy': 'Privacy Policy',
+    'contact.agreeToTerms.and': 'and',
+    'contact.agreeToTerms.terms': 'Terms of Service',
 
     // Orders Section
     'orders.title': 'Orders',
@@ -513,6 +518,11 @@ export const translations: Translations = {
     'contact.error.company': 'Por favor ingresa el nombre de tu negocio',
     'contact.error.contactPreference': 'Por favor selecciona tu método de contacto preferido',
     'contact.error.phone': 'Por favor ingresa un número de teléfono válido para ser contactado por teléfono',
+    'contact.error.agreeToTerms': 'Debes aceptar la Política de Privacidad y los Términos de Servicio para continuar',
+    'contact.agreeToTerms.prefix': 'Acepto la',
+    'contact.agreeToTerms.privacy': 'Política de Privacidad',
+    'contact.agreeToTerms.and': 'y los',
+    'contact.agreeToTerms.terms': 'Términos de Servicio',
 
     // Orders Section
     'orders.title': 'Pedidos',

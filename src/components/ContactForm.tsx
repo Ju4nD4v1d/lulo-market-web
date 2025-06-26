@@ -15,14 +15,16 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
     businessEmail: '',
     phoneNumber: '',
     businessName: '',
-    contactPreference: ''
+    contactPreference: '',
+    agreeToTerms: false
   });
   const [errors, setErrors] = useState({
     fullName: '',
     businessEmail: '',
     phoneNumber: '',
     businessName: '',
-    contactPreference: ''
+    contactPreference: '',
+    agreeToTerms: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +70,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
       businessEmail: '',
       phoneNumber: '',
       businessName: '',
-      contactPreference: ''
+      contactPreference: '',
+      agreeToTerms: ''
     };
     let isValid = true;
 
@@ -97,6 +100,11 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
       isValid = false;
     }
 
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = t('contact.error.agreeToTerms');
+      isValid = false;
+    }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -115,6 +123,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
         phoneNumber: formData.phoneNumber || null,
         businessName: formData.businessName,
         preferredContactMethod: formData.contactPreference,
+        agreeToTerms: formData.agreeToTerms,
         submittedAt: serverTimestamp()
       });
 
@@ -127,7 +136,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: '' }));
   };
@@ -354,6 +363,44 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                     </div>
                     {errors.contactPreference && (
                       <p className="mt-1 text-sm text-red-600">{errors.contactPreference}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="inline-flex items-start">
+                      <input
+                        type="checkbox"
+                        checked={formData.agreeToTerms}
+                        onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
+                        className={`mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500 ${
+                          errors.agreeToTerms ? 'border-red-300' : ''
+                        }`}
+                        disabled={isSubmitting}
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        {t('contact.agreeToTerms.prefix')}{' '}
+                        <a 
+                          href="#privacy" 
+                          className="text-primary-600 hover:text-primary-700 underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {t('contact.agreeToTerms.privacy')}
+                        </a>
+                        {' '}{t('contact.agreeToTerms.and')}{' '}
+                        <a 
+                          href="#terms" 
+                          className="text-primary-600 hover:text-primary-700 underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {t('contact.agreeToTerms.terms')}
+                        </a>
+                        .
+                      </span>
+                    </label>
+                    {errors.agreeToTerms && (
+                      <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>
                     )}
                   </div>
 
