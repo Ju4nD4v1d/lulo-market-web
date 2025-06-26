@@ -36,10 +36,8 @@ export const Login = () => {
       }
     };
 
-    // Check on mount
     checkMode();
 
-    // Listen for hash changes
     const handleHashChange = () => {
       checkMode();
     };
@@ -95,7 +93,6 @@ export const Login = () => {
       } else {
         await register(email, password);
         setSuccess('Account created successfully! You can now access your dashboard.');
-        // Auto-redirect after successful registration
         setTimeout(() => {
           window.location.hash = '#dashboard';
         }, 1500);
@@ -107,7 +104,8 @@ export const Login = () => {
     }
   };
 
-  const toggleMode = () => {
+  const switchTab = (loginMode: boolean) => {
+    setIsLogin(loginMode);
     setError('');
     setSuccess('');
     setEmail('');
@@ -115,15 +113,17 @@ export const Login = () => {
     setConfirmPassword('');
     setFullName('');
     
-    if (isLogin) {
-      // Switching to registration mode
-      setIsLogin(false);
-      window.location.hash = '#login?mode=register';
-    } else {
-      // Switching to login mode
-      setIsLogin(true);
+    // Update URL to reflect current mode
+    if (loginMode) {
       window.location.hash = '#login';
+    } else {
+      window.location.hash = '#login?mode=register';
     }
+  };
+
+  const clearForm = () => {
+    setError('');
+    setSuccess('');
   };
 
   return (
@@ -161,11 +161,41 @@ export const Login = () => {
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
           <div className="w-full max-w-md">
+            {/* Tab Header */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
-                {isLogin ? `${t('auth.login')} - ${COMPANY_NAME}` : `Create Account - ${COMPANY_NAME}`}
+              <h1 className="text-3xl font-bold text-gray-900 mb-6 font-heading text-center">
+                Welcome to {COMPANY_NAME}
               </h1>
-              <p className="text-gray-600">
+              
+              {/* Tab Navigation */}
+              <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+                <button
+                  onClick={() => switchTab(true)}
+                  className={`
+                    flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200
+                    ${isLogin 
+                      ? 'bg-white text-primary-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                    }
+                  `}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => switchTab(false)}
+                  className={`
+                    flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200
+                    ${!isLogin 
+                      ? 'bg-white text-primary-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                    }
+                  `}
+                >
+                  Create Account
+                </button>
+              </div>
+
+              <p className="text-gray-600 text-center">
                 {isLogin 
                   ? t('auth.subtitle')
                   : 'Join our community of Latin entrepreneurs and start growing your business today.'
@@ -188,28 +218,31 @@ export const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {!isLogin && (
-                <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="fullName"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-10 border border-gray-300 rounded-lg"
-                      placeholder="Enter your full name"
-                      required={!isLogin}
-                    />
+              {/* Full Name Field - Only for Registration */}
+              <div className={`transition-all duration-300 ${isLogin ? 'hidden' : 'block'}`}>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
                   </div>
+                  <input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      clearForm();
+                    }}
+                    className="w-full pl-10 border border-gray-300 rounded-lg"
+                    placeholder="Enter your full name"
+                    required={!isLogin}
+                  />
                 </div>
-              )}
+              </div>
 
+              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.email')}
@@ -222,7 +255,10 @@ export const Login = () => {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      clearForm();
+                    }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
                     required
@@ -230,6 +266,7 @@ export const Login = () => {
                 </div>
               </div>
 
+              {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.password')}
@@ -242,7 +279,10 @@ export const Login = () => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      clearForm();
+                    }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
                     required
@@ -266,39 +306,42 @@ export const Login = () => {
                 )}
               </div>
 
-              {!isLogin && (
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
-                      placeholder="Confirm your password"
-                      required={!isLogin}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      )}
-                    </button>
+              {/* Confirm Password Field - Only for Registration */}
+              <div className={`transition-all duration-300 ${isLogin ? 'hidden' : 'block'}`}>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
                   </div>
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      clearForm();
+                    }}
+                    className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
+                    placeholder="Confirm your password"
+                    required={!isLogin}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
                 </div>
-              )}
+              </div>
 
+              {/* Remember Me & Forgot Password - Only for Login */}
               {isLogin && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -317,6 +360,7 @@ export const Login = () => {
                 </div>
               )}
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -332,19 +376,7 @@ export const Login = () => {
                 }
               </button>
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={toggleMode}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
-                >
-                  {isLogin 
-                    ? "Don't have an account? Create one" 
-                    : "Already have an account? Sign in"
-                  }
-                </button>
-              </div>
-
+              {/* Trust Message */}
               <p className="text-center text-sm text-gray-600 mt-4">
                 {isLogin 
                   ? t('auth.trustMessage')
