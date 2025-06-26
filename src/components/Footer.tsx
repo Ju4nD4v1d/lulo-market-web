@@ -9,8 +9,8 @@ export const Footer = () => {
   const [showDeliveryMap, setShowDeliveryMap] = useState(false);
 
   const handleCreateAccountClick = () => {
-    // Navigate to login page with registration mode
-    window.location.hash = '#login?mode=register';
+    // Navigate to login page (default login mode)
+    window.location.hash = '#login';
   };
 
   return (
