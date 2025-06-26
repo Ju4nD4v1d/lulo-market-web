@@ -56,7 +56,7 @@ export const Pricing = () => {
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Basic Plan */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300">
+          <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
             <div className="mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 {t('pricing.basic.title')}
@@ -88,7 +88,7 @@ export const Pricing = () => {
               className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl
                 hover:bg-primary-700 transition-all duration-200 transform
                 hover:scale-[1.02] active:scale-[0.98] font-medium
-                flex items-center justify-center"
+                flex items-center justify-center mt-auto"
             >
               {t('pricing.getStarted')}
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -97,7 +97,7 @@ export const Pricing = () => {
 
           {/* Premium Plan */}
           <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300
-            relative overflow-hidden">
+            relative overflow-hidden flex flex-col">
             <div className="absolute top-4 right-4 bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
               {t('pricing.recommended')}
             </div>
@@ -133,7 +133,7 @@ export const Pricing = () => {
               className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl
                 hover:bg-primary-700 transition-all duration-200 transform
                 hover:scale-[1.02] active:scale-[0.98] font-medium
-                flex items-center justify-center"
+                flex items-center justify-center mt-auto"
             >
               {t('pricing.getStarted')}
               <ArrowRight className="w-5 h-5 ml-2" />
