@@ -16,7 +16,6 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [touched, setTouched] = useState<{ [field: string]: boolean }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -237,8 +236,10 @@ export const Login = () => {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
+                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
+                    placeholder="Enter your full name"
                   />
                 </div>
               </div>
@@ -261,7 +262,6 @@ export const Login = () => {
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
-                    required
                   />
                 </div>
               </div>
@@ -285,7 +285,6 @@ export const Login = () => {
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
-                    required
                   />
                   <button
                     type="button"
@@ -325,7 +324,6 @@ export const Login = () => {
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder="Confirm your password"
-                    required={!isLogin}
                   />
                   <button
                     type="button"
