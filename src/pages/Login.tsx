@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
 import { getAuthErrorMessage } from '../utils/auth-errors';
 
+const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+const isValidPassword = (password: string) => password.length >= 6;
+
 export const Login = () => {
   const { t, locale } = useLanguage();
   const { login, register, currentUser } = useAuth();
@@ -13,6 +16,7 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [touched, setTouched] = useState<{ [field: string]: boolean }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -253,11 +257,38 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      clearMessages();
-                    }}
-                    className="w-full pl-10 border border-gray-300 rounded-lg"
-                    placeholder={t('auth.emailPlaceholder')}
-                    required
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, email: true }))
+                    }
+                    className={`
+                      w-full pl-10 rounded-lg
+                      border
+                      ${touched.email && !isValidEmail(email)
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
+                    `}
+                    type={showPassword ? 'text' : 'password'}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, password: true }))
+                    }
+                    className={`
+                      w-full pl-10 pr-10 rounded-lg
+                      border
+                      ${touched.password && (!isLogin ? !isValidPassword(password) : password === '')
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
+                    `}
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, confirmPassword: true }))
+                    }
+                    className={`
+                      w-full pl-10 pr-10 rounded-lg
+                      border
+                      ${touched.confirmPassword && confirmPassword !== password
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'}
+                    `}
                   />
                 </div>
               </div>
