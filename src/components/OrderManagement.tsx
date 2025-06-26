@@ -116,6 +116,18 @@ export const OrderManagement = () => {
   const [loadingDetails, setLoadingDetails] = useState<{ [key: string]: boolean }>({});
   const [storeId, setStoreId] = useState<string | null>(null);
 
+  const calculateTotals = (items: OrderItem[]) => {
+    const subtotal = items.reduce(
+      (sum, it) => sum + (it.subtotal ?? (it.price ?? 0) * (it.quantity ?? 0)),
+      0
+    );
+    const gstTotal = items.reduce((sum, it) => sum + (it.gstTax ?? 0), 0);
+    const pstTotal = items.reduce((sum, it) => sum + (it.pstTax ?? 0), 0);
+    const platformFee = subtotal * 0.05;
+    const totalOrderPrice = subtotal + gstTotal + pstTotal + platformFee;
+    return { subtotal, gstTotal, pstTotal, platformFee, totalOrderPrice };
+  };
+
   useEffect(() => {
     if (!currentUser) return;
     fetchStoreId();
@@ -202,9 +214,11 @@ export const OrderManagement = () => {
         ...doc.data()
       })) as OrderItem[];
 
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, items } 
+      const totals = calculateTotals(items);
+
+      setOrders(prev => prev.map(order =>
+        order.id === orderId
+          ? { ...order, items, ...totals }
           : order
       ));
     } catch (err) {
