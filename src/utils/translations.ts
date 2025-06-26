@@ -258,8 +258,6 @@ export const translations: Translations = {
     'legal.contact.title': 'Contact Us',
     'legal.contact.description': 'If you have any questions about this policy, please contact us at:',
     'legal.contact.email': 'Email: legal@lulocart.com',
-    'legal.contact.address': 'Address: [Your Business Address]',
-    'legal.contact.phone': 'Phone: [Your Phone Number]',
     
     // Terms of Service
     'legal.terms.title': 'Terms of Service',
@@ -674,8 +672,6 @@ export const translations: Translations = {
     'legal.contact.title': 'Contáctanos',
     'legal.contact.description': 'Si tienes alguna pregunta sobre esta política, por favor contáctanos en:',
     'legal.contact.email': 'Correo: legal@lulocart.com',
-    'legal.contact.address': 'Dirección: [Tu Dirección Comercial]',
-    'legal.contact.phone': 'Teléfono: [Tu Número de Teléfono]',
     
     // Terms of Service
     'legal.terms.title': 'Términos de Servicio',
