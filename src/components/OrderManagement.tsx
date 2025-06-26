@@ -29,6 +29,7 @@ interface OrderItem {
 interface Order {
   id: string;
   orderId: string;
+  userId: string;
   userName: string;
   userPhoneNumber: string;
   createdDate: Date;
@@ -115,6 +116,18 @@ export const OrderManagement = () => {
   const [loadingDetails, setLoadingDetails] = useState<{ [key: string]: boolean }>({});
   const [storeId, setStoreId] = useState<string | null>(null);
 
+  const calculateTotals = (items: OrderItem[]) => {
+    const subtotal = items.reduce(
+      (sum, it) => sum + (it.subtotal ?? (it.price ?? 0) * (it.quantity ?? 0)),
+      0
+    );
+    const gstTotal = items.reduce((sum, it) => sum + (it.gstTax ?? 0), 0);
+    const pstTotal = items.reduce((sum, it) => sum + (it.pstTax ?? 0), 0);
+    const platformFee = subtotal * 0.05;
+    const totalOrderPrice = subtotal + gstTotal + pstTotal + platformFee;
+    return { subtotal, gstTotal, pstTotal, platformFee, totalOrderPrice };
+  };
+
   useEffect(() => {
     if (!currentUser) return;
     fetchStoreId();
@@ -157,9 +170,12 @@ export const OrderManagement = () => {
         where('storeId', '==', storeId),
         orderBy('createdDate', 'desc')
       );
-      const snapshot = await getDocs(q);
-      
-      const ordersData = snapshot.docs.map(doc => ({
+      const ordersSnap = await getDocs(q);
+      ordersSnap.forEach(doc => {
+        console.log('Order doc:', doc.id, doc.data());
+      });
+
+      const ordersData = ordersSnap.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         createdDate: doc.data().createdDate?.toDate(),
@@ -186,18 +202,23 @@ export const OrderManagement = () => {
     try {
       const orderRef = doc(db, 'orders', orderId);
       const orderDetailsRef = collection(orderRef, 'orderDetails');
-      const snapshot = await getDocs(orderDetailsRef);
-      
-      if (snapshot.empty) return;
+      const detailsSnap = await getDocs(orderDetailsRef);
+      detailsSnap.forEach(d => {
+        console.log('Detail:', d.id, d.data());
+      });
 
-      const items = snapshot.docs.map(doc => ({
+      if (detailsSnap.empty) return;
+
+      const items = detailsSnap.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as OrderItem[];
 
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, items } 
+      const totals = calculateTotals(items);
+
+      setOrders(prev => prev.map(order =>
+        order.id === orderId
+          ? { ...order, items, ...totals }
           : order
       ));
     } catch (err) {
@@ -305,6 +326,9 @@ export const OrderManagement = () => {
                     <h3 className="text-lg font-semibold text-gray-900">
                       {t('orders.order')} #{order.orderId}
                     </h3>
+                    <span className="text-sm text-gray-500">
+                      {order.createdDate?.toLocaleString()}
+                    </span>
                     <span className={`
                       px-2.5 py-0.5 rounded-full text-sm font-medium
                       ${statusColors[order.status]}
@@ -318,6 +342,7 @@ export const OrderManagement = () => {
                       <p className="text-gray-500">{t('orders.customer')}</p>
                       <p className="font-medium text-gray-900">{order.userName}</p>
                       <p className="text-gray-600">{order.userPhoneNumber}</p>
+                      <p className="text-gray-600">ID: {order.userId}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">{t('orders.delivery')}</p>
@@ -329,7 +354,7 @@ export const OrderManagement = () => {
 
                 <div className="ml-6 flex flex-col items-end">
                   <p className="text-2xl font-bold text-primary-600">
-                    ${order.totalOrderPrice.toFixed(2)}
+                    ${(order.totalOrderPrice ?? 0).toFixed(2)}
                   </p>
                   <button
                     onClick={() => handleExpandOrder(order.id)}
@@ -357,23 +382,23 @@ export const OrderManagement = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-500">{t('orders.subtotal')}</span>
-                          <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
+                          <span className="text-gray-900">${(order.subtotal ?? 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">{t('orders.gst')}</span>
-                          <span className="text-gray-900">${order.gstTotal?.toFixed(2) || '0.00'}</span>
+                          <span className="text-gray-900">${(order.gstTotal ?? 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">{t('orders.pst')}</span>
-                          <span className="text-gray-900">${order.pstTotal?.toFixed(2) || '0.00'}</span>
+                          <span className="text-gray-900">${(order.pstTotal ?? 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-500">{t('orders.platformFee')}</span>
-                          <span className="text-gray-900">${order.platformFee.toFixed(2)}</span>
+                          <span className="text-gray-900">${(order.platformFee ?? 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
                           <span className="text-gray-900">{t('orders.total')}</span>
-                          <span className="text-gray-900">${order.totalOrderPrice.toFixed(2)}</span>
+                          <span className="text-gray-900">${(order.totalOrderPrice ?? 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -392,13 +417,14 @@ export const OrderManagement = () => {
                             <div>
                               <p className="font-medium text-gray-900">{item.productName}</p>
                               <p className="text-sm text-gray-500">{t('orders.quantity')}: {item.quantity}</p>
+                              <p className="text-sm text-gray-500">GST: {(item.gstTax ?? 0).toFixed(2)} PST: {(item.pstTax ?? 0).toFixed(2)}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-900">
-                                ${item.subtotal.toFixed(2)}
+                                ${(item.subtotal ?? 0).toFixed(2)}
                               </p>
                               <p className="text-xs text-gray-500">
-                                ${item.price.toFixed(2)} {t('orders.each')}
+                                ${(item.price ?? 0).toFixed(2)} {t('orders.each')}
                               </p>
                             </div>
                           </div>
