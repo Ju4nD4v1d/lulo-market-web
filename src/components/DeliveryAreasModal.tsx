@@ -179,7 +179,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
                           <span className="text-xs font-medium text-primary-800">
                             ✓ Delivery Available
                           </span>
-                        div>
+                        </div>
                       </div>
                     </Popup>
                   </Marker>
