@@ -32,30 +32,35 @@ function App() {
     }
 
     // Then check other routes
-    switch (currentRoute) {
-      case '#login':
-        return <Login />;
-      case '#forgot-password':
-        return <ForgotPassword />;
-      case '#terms':
-        return <TermsOfService />;
-      case '#privacy':
-        return <PrivacyPolicy />;
-      default:
-        return (
-          <>
-            <Header />
-            <main>
-              <Hero />
-              <BusinessOwners />
-              <Shoppers />
-              <Pricing />
-              <About />
-            </main>
-            <Footer />
-          </>
-        );
+    if (currentRoute.startsWith('#login')) {
+      return <Login />;
     }
+
+    if (currentRoute.startsWith('#forgot-password')) {
+      return <ForgotPassword />;
+    }
+
+    if (currentRoute.startsWith('#terms')) {
+      return <TermsOfService />;
+    }
+
+    if (currentRoute.startsWith('#privacy')) {
+      return <PrivacyPolicy />;
+    }
+
+    return (
+      <>
+        <Header />
+        <main>
+          <Hero />
+          <BusinessOwners />
+          <Shoppers />
+          <Pricing />
+          <About />
+        </main>
+        <Footer />
+      </>
+    );
   };
 
   return (

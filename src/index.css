@@ -32,13 +32,6 @@
     @apply bg-gray-50 text-gray-500 cursor-not-allowed border-gray-200 hover:border-gray-200;
   }
 
-  /* Invalid state */
-  input:invalid,
-  textarea:invalid,
-  select:invalid {
-    @apply border-red-300 focus:border-red-500 focus:ring-red-500/20;
-  }
-
   /* Checkbox and radio styles */
   input[type="checkbox"],
   input[type="radio"] {

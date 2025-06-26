@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
 import { getAuthErrorMessage } from '../utils/auth-errors';
 
+const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+const isValidPassword = (password: string) => password.length >= 6;
+
 export const Login = () => {
   const { t, locale } = useLanguage();
   const { login, register, currentUser } = useAuth();
@@ -121,7 +124,7 @@ export const Login = () => {
     }
   };
 
-  const clearForm = () => {
+  const clearMessages = () => {
     setError('');
     setSuccess('');
   };
@@ -217,7 +220,7 @@ export const Login = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} noValidate className="space-y-6">
               {/* Full Name Field - Only for Registration */}
               <div className={`transition-all duration-300 ${isLogin ? 'hidden' : 'block'}`}>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -233,16 +236,14 @@ export const Login = () => {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder="Enter your full name"
-                    required={!isLogin}
                   />
                 </div>
               </div>
 
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('auth.email')}
@@ -257,11 +258,10 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.emailPlaceholder')}
-                    required
                   />
                 </div>
               </div>
@@ -281,11 +281,10 @@ export const Login = () => {
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder={t('auth.passwordPlaceholder')}
-                    required
                   />
                   <button
                     type="button"
@@ -321,11 +320,10 @@ export const Login = () => {
                     value={confirmPassword}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
-                      clearForm();
+                      clearMessages();
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
                     placeholder="Confirm your password"
-                    required={!isLogin}
                   />
                   <button
                     type="button"
