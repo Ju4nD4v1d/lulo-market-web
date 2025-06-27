@@ -95,6 +95,24 @@ export const StoreSetup = () => {
   const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
   const hasStore = storeData.name.trim() !== '';
 
+  const validateFields = (values: StoreData) => {
+    if (
+      !values.name.trim() ||
+      !values.description.trim() ||
+      !values.address.trim() ||
+      !values.phone.trim() ||
+      !values.website.trim()
+    ) {
+      return false;
+    }
+
+    if (values.aboutSections.some(section => !section.title.trim() || !section.description.trim())) {
+      return false;
+    }
+
+    return true;
+  };
+
   // Load existing store data
   useEffect(() => {
     const loadStoreData = async () => {
@@ -669,6 +687,10 @@ export const StoreSetup = () => {
                 shadow-lg hover:shadow-xl
               `}
               onClick={async () => {
+                if (!validateFields(draftValues)) {
+                  setError('Please fill in all required fields');
+                  return;
+                }
                 await saveStoreToFirestore(draftValues);
                 setStoreData(draftValues);
                 setIsEditing(false);
