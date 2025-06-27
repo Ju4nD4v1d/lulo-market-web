@@ -19,6 +19,7 @@ import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SaveProgressModal } from './SaveProgressModal';
+import { useStore } from '../context/StoreContext';
 
 interface BusinessHours {
   [day: string]: { open: string; close: string; closed: boolean };
@@ -93,6 +94,7 @@ export const StoreSetup = () => {
   const [storeData, setStoreData] = useState<StoreData>(initialStoreData);
   const [isEditing, setIsEditing] = useState(false);
   const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
+  const { setHasStore } = useStore();
   const hasStore = storeData.name.trim() !== '';
 
   const validateFields = (values: StoreData) => {
@@ -173,6 +175,10 @@ export const StoreSetup = () => {
           };
 
           setStoreData(loadedData);
+          setHasStore(true);
+        }
+        if (querySnapshot.empty) {
+          setHasStore(false);
         }
       } catch (err) {
         console.error('Error loading store data:', err);
@@ -693,6 +699,7 @@ export const StoreSetup = () => {
                 }
                 await saveStoreToFirestore(draftValues);
                 setStoreData(draftValues);
+                setHasStore(true);
                 setIsEditing(false);
               }}
             >
