@@ -5,8 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { COMPANY_NAME } from '../config/company';
 import { getAuthErrorMessage } from '../utils/auth-errors';
 
-const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-const isValidPassword = (password: string) => password.length >= 6;
 
 export const Login = () => {
   const { t, locale } = useLanguage();

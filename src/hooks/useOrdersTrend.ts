@@ -44,8 +44,11 @@ export function useOrdersTrend(storeId: string): UseOrdersTrendReturn {
           
           // Extract weekly order data and sort by week ascending
           const ordersData = weeklyArray
-            .filter((item: any) => typeof item.week === 'number' && typeof item.orders === 'number')
-            .map((item: any) => ({
+            .filter((item: unknown): item is { week: number; orders: number } => {
+              const i = item as { week?: number; orders?: number };
+              return typeof i.week === 'number' && typeof i.orders === 'number';
+            })
+            .map((item) => ({
               week: item.week,
               orders: item.orders
             }))

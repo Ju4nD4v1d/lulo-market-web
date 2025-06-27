@@ -44,8 +44,11 @@ export function useProductsTrend(storeId: string): UseProductsTrendReturn {
           
           // Extract weekly products sold data and sort by week ascending
           const productsData = weeklyArray
-            .filter((item: any) => typeof item.week === 'number' && typeof item.productsSold === 'number')
-            .map((item: any) => ({
+            .filter((item: unknown): item is { week: number; productsSold: number } => {
+              const i = item as { week?: number; productsSold?: number };
+              return typeof i.week === 'number' && typeof i.productsSold === 'number';
+            })
+            .map((item) => ({
               week: item.week,
               productsSold: item.productsSold
             }))

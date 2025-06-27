@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useStore } from '../context/StoreContext';
 import { COMPANY_NAME } from '../config/company';
 
 interface AdminLayoutProps {
@@ -21,6 +22,7 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   const { currentUser, logout } = useAuth();
   const { t } = useLanguage();
+  const { hasStore } = useStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -38,10 +40,10 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   };
 
   const menuItems = [
-    { id: 'store', label: t('admin.menu.store'), icon: Store, hash: '#dashboard' },
-    { id: 'products', label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products' },
-    { id: 'metrics', label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics' },
-    { id: 'orders', label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders' }
+    { id: 'store', label: t('admin.menu.store'), icon: Store, hash: '#dashboard', disabled: false },
+    { id: 'products', label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products', disabled: !hasStore },
+    { id: 'metrics', label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore },
+    { id: 'orders', label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore }
   ];
 
   return (
@@ -87,13 +89,16 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               <li key={item.id}>
                 <a
                   href={item.hash}
+                  onClick={item.disabled ? (e) => e.preventDefault() : undefined}
                   className={`
                     flex items-center rounded-lg
                     transition-all duration-200
                     ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-2'}
-                    ${currentPage === item.id 
-                      ? 'bg-primary-50 text-primary-600' 
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+                    ${item.disabled
+                      ? 'text-gray-400 cursor-not-allowed pointer-events-none'
+                      : currentPage === item.id
+                        ? 'bg-primary-50 text-primary-600'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                   `}
                   title={isCollapsed ? item.label : undefined}
                 >
