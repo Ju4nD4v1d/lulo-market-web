@@ -18,7 +18,30 @@ import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SaveProgressModal } from './SaveProgressModal';
-import { ConfirmDialog } from './ConfirmDialog';
+
+interface BusinessHours {
+  [day: string]: { open: string; close: string; closed: boolean };
+}
+
+interface AboutSection {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  imageFile: File | null;
+  imagePreview: string;
+}
+
+export interface StoreData {
+  name: string;
+  description: string;
+  address: string;
+  phone: string;
+  website: string;
+  businessHours: BusinessHours;
+  aboutSections: AboutSection[];
+  storeImage?: string;
+}
 
 const defaultBusinessHours = {
   Sunday: { open: "09:00", close: "18:00", closed: true },
@@ -28,6 +51,21 @@ const defaultBusinessHours = {
   Thursday: { open: "09:00", close: "18:00", closed: false },
   Friday: { open: "09:00", close: "18:00", closed: false },
   Saturday: { open: "09:00", close: "18:00", closed: true }
+};
+
+const initialStoreData: StoreData = {
+  name: '',
+  description: '',
+  address: '',
+  phone: '',
+  website: '',
+  businessHours: defaultBusinessHours,
+  aboutSections: [
+    { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+    { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
+    { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
+  ],
+  storeImage: ''
 };
 
 const daysOrder = [
@@ -45,26 +83,15 @@ export const StoreSetup = () => {
   const { t } = useLanguage();
   const [saving, setSaving] = useState(false);
   const [saveStep, setSaveStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete'>('saving');
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [storeImage, setStoreImage] = useState<{
     file?: File;
     preview?: string;
     url?: string;
   }>({});
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    address: '',
-    phone: '',
-    website: '',
-    businessHours: defaultBusinessHours,
-    aboutSections: [
-      { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
-      { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
-      { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
-    ]
-  });
+  const [storeData, setStoreData] = useState<StoreData>(initialStoreData);
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
 
   // Load existing store data
   useEffect(() => {
@@ -77,56 +104,55 @@ export const StoreSetup = () => {
         const querySnapshot = await getDocs(q);
         
         if (!querySnapshot.empty) {
-          const storeData = querySnapshot.docs[0].data();
-          
-          // Set store image if exists
-          if (storeData.storeImage) {
+          const data = querySnapshot.docs[0].data();
+
+          if (data.storeImage) {
             setStoreImage(prev => ({
               ...prev,
-              preview: storeData.storeImage,
-              url: storeData.storeImage
+              preview: data.storeImage,
+              url: data.storeImage
             }));
           }
 
-          // Map About Us sections from Firestore fields
           const aboutSections = [
             {
               id: '1',
-              title: storeData.titleTabAboutFirst || '',
-              description: storeData.bodyTabAboutFirst || '',
-              imageUrl: storeData.imageTabAboutFirst || '',
+              title: data.titleTabAboutFirst || '',
+              description: data.bodyTabAboutFirst || '',
+              imageUrl: data.imageTabAboutFirst || '',
               imageFile: null,
-              imagePreview: storeData.imageTabAboutFirst || ''
+              imagePreview: data.imageTabAboutFirst || ''
             },
             {
               id: '2',
-              title: storeData.titleTabAboutSecond || '',
-              description: storeData.bodyTabAboutSecond || '',
-              imageUrl: storeData.imageTabAboutSecond || '',
+              title: data.titleTabAboutSecond || '',
+              description: data.bodyTabAboutSecond || '',
+              imageUrl: data.imageTabAboutSecond || '',
               imageFile: null,
-              imagePreview: storeData.imageTabAboutSecond || ''
+              imagePreview: data.imageTabAboutSecond || ''
             },
             {
               id: '3',
-              title: storeData.titleTabAboutThird || '',
-              description: storeData.bodyTabAboutThird || '',
-              imageUrl: storeData.imageTabAboutThird || '',
+              title: data.titleTabAboutThird || '',
+              description: data.bodyTabAboutThird || '',
+              imageUrl: data.imageTabAboutThird || '',
               imageFile: null,
-              imagePreview: storeData.imageTabAboutThird || ''
+              imagePreview: data.imageTabAboutThird || ''
             }
           ];
 
-          // Set form data with all fields
-          setFormData(prev => ({
-            ...prev,
-            businessHours: storeData.storeBusinessHours || prev.businessHours,
-            name: storeData.name || '',
-            description: storeData.description || '',
-            address: storeData.address || '',
-            phone: storeData.phone || '',
-            website: storeData.website || '',
-            aboutSections
-          }));
+          const loadedData: StoreData = {
+            name: data.name || '',
+            description: data.description || '',
+            address: data.address || '',
+            phone: data.phone || '',
+            website: data.website || '',
+            businessHours: data.storeBusinessHours || defaultBusinessHours,
+            aboutSections,
+            storeImage: data.storeImage || ''
+          };
+
+          setStoreData(loadedData);
         }
       } catch (err) {
         console.error('Error loading store data:', err);
@@ -137,16 +163,15 @@ export const StoreSetup = () => {
     loadStoreData();
   }, [currentUser]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return;
-    setShowConfirmDialog(true);
-  };
+  useEffect(() => {
+    if (isEditing) {
+      setDraftValues(storeData);
+    }
+  }, [isEditing, storeData]);
 
-  const handleConfirmSave = async () => {
+  const saveStoreToFirestore = async (values: StoreData) => {
     if (!currentUser) return;
-    
-    setShowConfirmDialog(false);
+
     setSaving(true);
     setSaveStep('saving');
     setError(null);
@@ -154,9 +179,9 @@ export const StoreSetup = () => {
     try {
       // Geocode the address if provided
       let coordinates = new GeoPoint(0, 0);
-      if (formData.address.trim()) {
+      if (values.address.trim()) {
         const geocoder = new google.maps.Geocoder();
-        const geocodeResult = await geocoder.geocode({ address: formData.address });
+        const geocodeResult = await geocoder.geocode({ address: values.address });
         
         if (geocodeResult.results[0]) {
           const location = geocodeResult.results[0].geometry.location;
@@ -175,7 +200,7 @@ export const StoreSetup = () => {
 
       // Upload about section images
       const aboutSectionImages = await Promise.all(
-        formData.aboutSections.map(async (section, index) => {
+        values.aboutSections.map(async (section, index) => {
           if (section.imageFile) {
             const storageRef = ref(storage, `stores/${currentUser.uid}/about${index + 1}.png`);
             await uploadBytes(storageRef, section.imageFile);
@@ -188,21 +213,21 @@ export const StoreSetup = () => {
       setSaveStep('finalizing');
 
       const storeData = {
-        name: formData.name,
-        description: formData.description,
-        address: formData.address,
+        name: values.name,
+        description: values.description,
+        address: values.address,
         location: coordinates,
-        phone: formData.phone,
-        website: formData.website,
-        storeBusinessHours: formData.businessHours,
-        titleTabAboutFirst: formData.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: formData.aboutSections[0]?.description || '',
+        phone: values.phone,
+        website: values.website,
+        storeBusinessHours: values.businessHours,
+        titleTabAboutFirst: values.aboutSections[0]?.title || '',
+        bodyTabAboutFirst: values.aboutSections[0]?.description || '',
         imageTabAboutFirst: aboutSectionImages[0] || '',
-        titleTabAboutSecond: formData.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: formData.aboutSections[1]?.description || '',
+        titleTabAboutSecond: values.aboutSections[1]?.title || '',
+        bodyTabAboutSecond: values.aboutSections[1]?.description || '',
         imageTabAboutSecond: aboutSectionImages[1] || '',
-        titleTabAboutThird: formData.aboutSections[2]?.title || '',
-        bodyTabAboutThird: formData.aboutSections[2]?.description || '',
+        titleTabAboutThird: values.aboutSections[2]?.title || '',
+        bodyTabAboutThird: values.aboutSections[2]?.description || '',
         imageTabAboutThird: aboutSectionImages[2] || '',
         ownerId: currentUser.uid,
         updatedAt: new Date(),
@@ -281,7 +306,7 @@ export const StoreSetup = () => {
   const handleSectionImageValidation = (file: File, sectionId: string) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      setFormData(prev => ({
+      setDraftValues(prev => ({
         ...prev,
         aboutSections: prev.aboutSections.map(section =>
           section.id === sectionId
@@ -305,13 +330,6 @@ export const StoreSetup = () => {
         onComplete={handleConfirmation}
       />
 
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        onConfirm={handleConfirmSave}
-        onCancel={() => setShowConfirmDialog(false)}
-        title={t('store.setup.confirmTitle')}
-        message={t('store.setup.confirmMessage')}
-      />
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
         <div className="flex items-center space-x-4">
@@ -331,9 +349,10 @@ export const StoreSetup = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <FormSection title={t('store.setup.basicInfo')} icon={Store}>
-          <div className="space-y-6">
+      {isEditing ? (
+        <form className="space-y-6">
+          <FormSection title={t('store.setup.basicInfo')} icon={Store}>
+            <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {t('store.setup.storeImage')}
@@ -391,8 +410,8 @@ export const StoreSetup = () => {
               </label>
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                value={draftValues.name}
+                onChange={(e) => setDraftValues(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full"
                 placeholder="Enter your store name"
               />
@@ -403,8 +422,8 @@ export const StoreSetup = () => {
                 Store Description
               </label>
               <textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                value={draftValues.description}
+                onChange={(e) => setDraftValues(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
                 className="w-full"
                 placeholder="Describe your store"
@@ -423,8 +442,8 @@ export const StoreSetup = () => {
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                  value={draftValues.address}
+                  onChange={(e) => setDraftValues(prev => ({ ...prev, address: e.target.value }))}
                   className="w-full pl-10"
                   placeholder="Enter your store address"
                 />
@@ -439,8 +458,8 @@ export const StoreSetup = () => {
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  value={draftValues.phone}
+                  onChange={(e) => setDraftValues(prev => ({ ...prev, phone: e.target.value }))}
                   className="w-full pl-10"
                   placeholder="Enter your phone number"
                 />
@@ -455,8 +474,8 @@ export const StoreSetup = () => {
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="url"
-                  value={formData.website}
-                  onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                  value={draftValues.website}
+                  onChange={(e) => setDraftValues(prev => ({ ...prev, website: e.target.value }))}
                   className="w-full pl-10"
                   placeholder="Enter your website URL"
                 />
@@ -477,40 +496,40 @@ export const StoreSetup = () => {
                 <div className="flex-1 flex items-center space-x-4">
                   <input
                     type="time"
-                    value={formData.businessHours[day].open}
-                    onChange={(e) => setFormData({
-                      ...formData,
+                    value={draftValues.businessHours[day].open}
+                    onChange={(e) => setDraftValues({
+                      ...draftValues,
                       businessHours: {
-                        ...formData.businessHours,
-                        [day]: { ...formData.businessHours[day], open: e.target.value }
+                        ...draftValues.businessHours,
+                        [day]: { ...draftValues.businessHours[day], open: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={formData.businessHours[day].closed}
+                    disabled={draftValues.businessHours[day].closed}
                   />
                   <span className="text-gray-500">to</span>
                   <input
                     type="time"
-                    value={formData.businessHours[day].close}
-                    onChange={(e) => setFormData({
-                      ...formData,
+                    value={draftValues.businessHours[day].close}
+                    onChange={(e) => setDraftValues({
+                      ...draftValues,
                       businessHours: {
-                        ...formData.businessHours,
-                        [day]: { ...formData.businessHours[day], close: e.target.value }
+                        ...draftValues.businessHours,
+                        [day]: { ...draftValues.businessHours[day], close: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={formData.businessHours[day].closed}
+                    disabled={draftValues.businessHours[day].closed}
                   />
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      checked={formData.businessHours[day].closed}
-                      onChange={(e) => setFormData({
-                        ...formData,
+                      checked={draftValues.businessHours[day].closed}
+                      onChange={(e) => setDraftValues({
+                        ...draftValues,
                         businessHours: {
-                          ...formData.businessHours,
-                          [day]: { ...formData.businessHours[day], closed: e.target.checked }
+                          ...draftValues.businessHours,
+                          [day]: { ...draftValues.businessHours[day], closed: e.target.checked }
                         }
                       })}
                       className="rounded border-gray-300"
@@ -533,7 +552,7 @@ export const StoreSetup = () => {
               </p>
             </div>
 
-            {formData.aboutSections.map((section) => (
+            {draftValues.aboutSections.map((section) => (
               <div
                 key={section.id}
                 className="relative bg-gray-50 rounded-lg p-6"
@@ -546,7 +565,7 @@ export const StoreSetup = () => {
                     <input
                       type="text"
                       value={section.title}
-                      onChange={(e) => setFormData(prev => ({
+                      onChange={(e) => setDraftValues(prev => ({
                         ...prev,
                         aboutSections: prev.aboutSections.map(s =>
                           s.id === section.id ? { ...s, title: e.target.value } : s
@@ -563,7 +582,7 @@ export const StoreSetup = () => {
                     </label>
                     <textarea
                       value={section.description}
-                      onChange={(e) => setFormData(prev => ({
+                      onChange={(e) => setDraftValues(prev => ({
                         ...prev,
                         aboutSections: prev.aboutSections.map(s =>
                           s.id === section.id ? { ...s, description: e.target.value } : s
@@ -595,7 +614,7 @@ export const StoreSetup = () => {
                           />
                           <button
                             type="button"
-                            onClick={() => setFormData(prev => ({
+                            onClick={() => setDraftValues(prev => ({
                               ...prev,
                               aboutSections: prev.aboutSections.map(s =>
                                 s.id === section.id ? { ...s, imageFile: null, imagePreview: '', imageUrl: '' } : s
@@ -636,32 +655,73 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        <div className="flex justify-end">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              disabled={saving}
+              className={`
+                inline-flex items-center px-6 py-3 rounded-lg text-white
+                ${saving
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-primary-600 hover:bg-primary-700 transform transition-all duration-200 hover:scale-105'}
+                shadow-lg hover:shadow-xl
+              `}
+              onClick={async () => {
+                await saveStoreToFirestore(draftValues);
+                setStoreData(draftValues);
+                setIsEditing(false);
+              }}
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  {t('store.setup.saving')}
+                </>
+              ) : (
+                <>
+                  <Store className="w-5 h-5 mr-2" />
+                  {t('store.setup.saveStore')}
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              className="mt-6 ml-4 px-4 py-2 border border-gray-300 text-gray-700 rounded"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-4">
+          <div className="bg-white border rounded p-4">
+            <h4 className="font-medium text-gray-700">Store Name</h4>
+            <p className="text-gray-900">{storeData.name}</p>
+          </div>
+          <div className="bg-white border rounded p-4">
+            <h4 className="font-medium text-gray-700">Description</h4>
+            <p className="text-gray-900">{storeData.description}</p>
+          </div>
+          <div className="bg-white border rounded p-4">
+            <h4 className="font-medium text-gray-700">Address</h4>
+            <p className="text-gray-900">{storeData.address}</p>
+          </div>
+          <div className="bg-white border rounded p-4">
+            <h4 className="font-medium text-gray-700">Phone</h4>
+            <p className="text-gray-900">{storeData.phone}</p>
+          </div>
           <button
-            type="submit"
-            disabled={saving}
-            className={`
-              inline-flex items-center px-6 py-3 rounded-lg text-white
-              ${saving
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700 transform transition-all duration-200 hover:scale-105'}
-              shadow-lg hover:shadow-xl
-            `}
+            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded"
+            onClick={() => {
+              setDraftValues(storeData);
+              setIsEditing(true);
+            }}
           >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                {t('store.setup.saving')}
-              </>
-            ) : (
-              <>
-                <Store className="w-5 h-5 mr-2" />
-                {t('store.setup.saveStore')}
-              </>
-            )}
+            Edit Store
           </button>
         </div>
-      </form>
+      )}
     </div>
   );
 };
