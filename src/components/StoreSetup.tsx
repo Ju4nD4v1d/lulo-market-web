@@ -711,7 +711,11 @@ export const StoreSetup = () => {
             <button
               type="button"
               className="mt-6 ml-4 px-4 py-2 border border-gray-300 text-gray-700 rounded"
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setDraftValues(storeData);
+                setError(null);
+                setIsEditing(false);
+              }}
             >
               Cancel
             </button>
