@@ -9,7 +9,8 @@ import {
   Phone,
   Globe,
   Clock,
-  Building2
+  Building2,
+  Plus
 } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { collection, addDoc, GeoPoint, getDocs, query, where, updateDoc } from 'firebase/firestore';
@@ -92,6 +93,7 @@ export const StoreSetup = () => {
   const [storeData, setStoreData] = useState<StoreData>(initialStoreData);
   const [isEditing, setIsEditing] = useState(false);
   const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
+  const hasStore = storeData.name.trim() !== '';
 
   // Load existing store data
   useEffect(() => {
@@ -693,7 +695,7 @@ export const StoreSetup = () => {
             </button>
           </div>
         </form>
-      ) : (
+      ) : hasStore ? (
         <div className="space-y-4">
           <div className="bg-white border rounded p-4">
             <h4 className="font-medium text-gray-700">Store Name</h4>
@@ -720,6 +722,21 @@ export const StoreSetup = () => {
           >
             Edit Store
           </button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
+          <div className="max-w-md mx-auto">
+            <Store className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome!</h3>
+            <p className="text-gray-600 mb-6">Let's set up your store to start selling online.</p>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create Store
+            </button>
+          </div>
         </div>
       )}
     </div>
