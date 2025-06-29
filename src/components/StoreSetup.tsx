@@ -43,6 +43,7 @@ export interface StoreData {
   businessHours: BusinessHours;
   aboutSections: AboutSection[];
   storeImage?: string;
+  imageFiles?: string[];
 }
 
 const defaultBusinessHours = {
@@ -67,7 +68,8 @@ const initialStoreData: StoreData = {
     { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
     { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
   ],
-  storeImage: ''
+  storeImage: '',
+  imageFiles: []
 };
 
 const daysOrder = [
@@ -92,6 +94,7 @@ export const StoreSetup = () => {
     url?: string;
   }>({});
   const [storeData, setStoreData] = useState<StoreData>(initialStoreData);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
   const { setHasStore } = useStore();
@@ -171,7 +174,8 @@ export const StoreSetup = () => {
             website: data.website || '',
             businessHours: data.storeBusinessHours || defaultBusinessHours,
             aboutSections,
-            storeImage: data.storeImage || ''
+            storeImage: data.storeImage || '',
+            imageFiles: data.imageFiles || []
           };
 
           setStoreData(loadedData);
@@ -348,6 +352,22 @@ export const StoreSetup = () => {
     reader.readAsDataURL(file);
   };
 
+  const openLightboxAt = (index: number) => {
+    setLightboxIndex(index);
+  };
+
+  const closeLightbox = () => {
+    setLightboxIndex(null);
+  };
+
+  const aboutItems = storeData.aboutSections
+    .map(section => ({
+      title: section.title,
+      body: section.description,
+      imageUrl: section.imageUrl
+    }))
+    .filter(item => item.title || item.body || item.imageUrl);
+
   return (
     <div className="max-w-4xl mx-auto">
       <SaveProgressModal
@@ -355,6 +375,20 @@ export const StoreSetup = () => {
         currentStep={saveStep}
         onComplete={handleConfirmation}
       />
+
+      {lightboxIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={closeLightbox}
+          />
+          <img
+            src={storeData.imageFiles?.[lightboxIndex]}
+            alt={`Store image ${lightboxIndex + 1}`}
+            className="relative max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl"
+          />
+        </div>
+      )}
 
 
       <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
@@ -729,25 +763,114 @@ export const StoreSetup = () => {
           </div>
         </form>
       ) : hasStore ? (
-        <div className="space-y-4">
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Store Name</h4>
-            <p className="text-gray-900">{storeData.name}</p>
+        <div className="space-y-6">
+          {storeData.storeImage && (
+            <img
+              src={storeData.storeImage}
+              alt="Store"
+              className="w-32 h-32 object-cover rounded-full mx-auto mb-6"
+            />
+          )}
+
+          {storeData.imageFiles?.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+              {storeData.imageFiles.slice(0, 5).map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`Store image ${idx + 1}`}
+                  className="w-full h-32 object-cover rounded cursor-pointer"
+                  onClick={() => openLightboxAt(idx)}
+                />
+              ))}
+            </div>
+          )}
+
+          <section className="bg-gray-50 p-4 rounded-lg shadow-sm mb-6">
+            <div className="flex items-center mb-2">
+              <Store className="w-5 h-5 text-primary-600 mr-2" />
+              <h3 className="font-semibold text-primary-700">Basic Information</h3>
+            </div>
+            <div className="space-y-2">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Store Name</h4>
+                <p className="text-gray-900">{storeData.name}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Description</h4>
+                <p className="text-gray-900">{storeData.description}</p>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div className="flex items-center mb-2">
+                <Phone className="w-5 h-5 text-primary-600 mr-2" />
+                <h3 className="font-semibold text-primary-700">Contact Info</h3>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Address</h4>
+                  <p className="text-gray-900 break-words">{storeData.address}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Phone</h4>
+                  <p className="text-gray-900">{storeData.phone}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Website</h4>
+                  <p className="text-gray-900 break-words">{storeData.website}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div className="flex items-center mb-2">
+                <Clock className="w-5 h-5 text-primary-600 mr-2" />
+                <h3 className="font-semibold text-primary-700">Business Hours</h3>
+              </div>
+              <div className="space-y-2">
+                {daysOrder.map(day => (
+                  <div key={day} className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-700">{day}</span>
+                    {storeData.businessHours[day].closed ? (
+                      <span className="text-gray-900">Closed</span>
+                    ) : (
+                      <span className="text-gray-900">
+                        {storeData.businessHours[day].open} - {storeData.businessHours[day].close}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Description</h4>
-            <p className="text-gray-900">{storeData.description}</p>
-          </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Address</h4>
-            <p className="text-gray-900">{storeData.address}</p>
-          </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Phone</h4>
-            <p className="text-gray-900">{storeData.phone}</p>
-          </div>
+
+          <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <div className="flex items-center mb-2">
+              <Building2 className="w-5 h-5 text-primary-600 mr-2" />
+              <h3 className="font-semibold text-primary-700">About Us</h3>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4 mb-6 md:divide-x md:divide-gray-200">
+              {aboutItems.map((item, i) => (
+                <div key={i} className="flex-1 bg-gray-50 p-4 rounded-lg md:first:pl-0 md:pl-4">
+                  {item.imageUrl && (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-full mb-2 mx-auto"
+                    />
+                  )}
+                  <h4 className="font-medium text-gray-700">{item.title}</h4>
+                  <p className="text-gray-900 mt-1">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <button
-            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded"
+            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded w-full md:w-auto"
             onClick={() => {
               setDraftValues(storeData);
               setIsEditing(true);
