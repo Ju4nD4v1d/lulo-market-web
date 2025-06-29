@@ -729,25 +729,105 @@ export const StoreSetup = () => {
           </div>
         </form>
       ) : hasStore ? (
-        <div className="space-y-4">
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Store Name</h4>
-            <p className="text-gray-900">{storeData.name}</p>
+        <div className="space-y-6">
+          {storeData.storeImage && (
+            <img
+              src={storeData.storeImage}
+              alt="Store"
+              className="w-32 h-32 object-cover rounded-full mx-auto mb-6"
+            />
+          )}
+
+          <section className="bg-gray-50 p-4 rounded-lg shadow-sm mb-6">
+            <div className="flex items-center mb-2">
+              <Store className="w-5 h-5 text-primary-600 mr-2" />
+              <h3 className="font-semibold text-primary-700">Basic Information</h3>
+            </div>
+            <div className="space-y-2">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Store Name</h4>
+                <p className="text-gray-900">{storeData.name}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Description</h4>
+                <p className="text-gray-900">{storeData.description}</p>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div className="flex items-center mb-2">
+                <Phone className="w-5 h-5 text-primary-600 mr-2" />
+                <h3 className="font-semibold text-primary-700">Contact Info</h3>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Address</h4>
+                  <p className="text-gray-900 break-words">{storeData.address}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Phone</h4>
+                  <p className="text-gray-900">{storeData.phone}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Website</h4>
+                  <p className="text-gray-900 break-words">{storeData.website}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div className="flex items-center mb-2">
+                <Clock className="w-5 h-5 text-primary-600 mr-2" />
+                <h3 className="font-semibold text-primary-700">Business Hours</h3>
+              </div>
+              <div className="space-y-2">
+                {daysOrder.map(day => (
+                  <div key={day} className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-700">{day}</span>
+                    {storeData.businessHours[day].closed ? (
+                      <span className="text-gray-900">Closed</span>
+                    ) : (
+                      <span className="text-gray-900">
+                        {storeData.businessHours[day].open} - {storeData.businessHours[day].close}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Description</h4>
-            <p className="text-gray-900">{storeData.description}</p>
-          </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Address</h4>
-            <p className="text-gray-900">{storeData.address}</p>
-          </div>
-          <div className="bg-white border rounded p-4">
-            <h4 className="font-medium text-gray-700">Phone</h4>
-            <p className="text-gray-900">{storeData.phone}</p>
-          </div>
+
+          <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <div className="flex items-center mb-2">
+              <Building2 className="w-5 h-5 text-primary-600 mr-2" />
+              <h3 className="font-semibold text-primary-700">About Us</h3>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4 mb-6 md:divide-x md:divide-gray-200">
+              {storeData.aboutSections[0]?.title && (
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-gray-700">{storeData.aboutSections[0].title}</h4>
+                  <p className="text-gray-900 mt-1">{storeData.aboutSections[0].description}</p>
+                </div>
+              )}
+              {storeData.aboutSections[1]?.title && (
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg md:pl-4">
+                  <h4 className="font-medium text-gray-700">{storeData.aboutSections[1].title}</h4>
+                  <p className="text-gray-900 mt-1">{storeData.aboutSections[1].description}</p>
+                </div>
+              )}
+              {storeData.aboutSections[2]?.title && (
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg md:pl-4">
+                  <h4 className="font-medium text-gray-700">{storeData.aboutSections[2].title}</h4>
+                  <p className="text-gray-900 mt-1">{storeData.aboutSections[2].description}</p>
+                </div>
+              )}
+            </div>
+          </section>
+
           <button
-            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded"
+            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded w-full md:w-auto"
             onClick={() => {
               setDraftValues(storeData);
               setIsEditing(true);
