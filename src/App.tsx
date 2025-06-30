@@ -11,6 +11,8 @@ import { Dashboard } from './pages/Dashboard';
 import { TermsOfService } from './pages/TermsOfService';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Pricing } from './components/Pricing';
+import { ShopperDashboard } from './components/ShopperDashboard';
+import { StoreMenu } from './components/StoreMenu';
 import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
@@ -29,6 +31,16 @@ function App() {
     // Check for dashboard routes first
     if (currentRoute.startsWith('#dashboard')) {
       return <Dashboard />;
+    }
+
+    // Check for shopper dashboard routes
+    if (currentRoute.startsWith('#shopper-dashboard/')) {
+      const storeId = currentRoute.split('/')[1];
+      return <StoreMenu storeId={storeId} />;
+    }
+
+    if (currentRoute.startsWith('#shopper-dashboard')) {
+      return <ShopperDashboard />;
     }
 
     // Then check other routes

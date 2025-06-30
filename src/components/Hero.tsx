@@ -76,7 +76,7 @@ export const Hero = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
-                href="#shoppers"
+                href="#shopper-dashboard"
                 className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-[#4B371C] text-white font-semibold transition-all duration-300 transform hover:bg-[#5B472C] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] text-base"
               >
                 {t('hero.shopperCta')}
