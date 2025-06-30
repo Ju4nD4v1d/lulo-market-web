@@ -110,89 +110,102 @@ export const ShopperDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Discover Local Flavors</h1>
-              <p className="text-gray-600 text-sm">Authentic Latin cuisine delivered to you</p>
-            </div>
-            <button 
-              className="p-2 text-gray-600 hover:text-gray-900 lg:hidden"
-              aria-label="Filter options"
-            >
-              <Filter className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search for restaurants, dishes, or cuisines..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl 
-                focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                bg-gray-50 hover:bg-white transition-colors"
-            />
-          </div>
-
-          {/* Filter Pills */}
-          <div className="space-y-4">
-            {/* Countries */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Countries</h3>
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {countries.map((country) => (
-                  <button
-                    key={country.id}
-                    onClick={() => country.active && setSelectedCountry(country.id)}
-                    disabled={!country.active}
-                    className={`
-                      flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium
-                      transition-all duration-200 min-w-[44px] min-h-[44px]
-                      flex items-center justify-center
-                      ${country.active
-                        ? selectedCountry === country.id
-                          ? 'bg-primary-500 text-white shadow-md'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-primary-300 hover:bg-primary-50'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }
-                    `}
-                    aria-label={`Filter by ${country.name}${!country.active ? ' (coming soon)' : ''}`}
-                  >
-                    {country.name}
-                  </button>
-                ))}
+      {/* Premium Header */}
+      <div className="bg-white border border-gray-100 shadow-sm sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          {/* Header Content */}
+          <div className="space-y-2">
+            {/* Title Row */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h1 className="text-2xl font-semibold text-gray-900 leading-tight font-heading">
+                  Discover Local Flavors
+                </h1>
+                <p className="text-base text-gray-600 tracking-wide font-normal">
+                  Authentic Latin cuisine delivered to you
+                </p>
               </div>
+              <button 
+                className="p-2 text-gray-600 hover:text-gray-900 lg:hidden rounded-md hover:bg-gray-50 transition-colors"
+                aria-label="Filter options"
+              >
+                <Filter className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Food Types */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Food Types</h3>
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {foodTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => toggleFoodType(type.id)}
-                    className={`
-                      flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium
-                      transition-all duration-200 min-w-[44px] min-h-[44px]
-                      flex items-center justify-center gap-2
-                      ${selectedFoodTypes.includes(type.id)
-                        ? 'bg-primary-500 text-white shadow-md'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:border-primary-300 hover:bg-primary-50'
-                      }
-                    `}
-                    aria-label={`Filter by ${type.name}`}
-                  >
-                    <span>{type.icon}</span>
-                    <span>{type.name}</span>
-                  </button>
-                ))}
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search restaurants, dishes, or cuisines..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-10 pr-4 border border-gray-300 rounded-md 
+                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                  bg-white placeholder:text-gray-500 placeholder:font-medium text-sm
+                  transition-all duration-200 hover:border-gray-400"
+              />
+            </div>
+
+            {/* Filter Pills */}
+            <div className="space-y-2">
+              {/* Countries Row */}
+              <div className="flex flex-wrap gap-2 lg:gap-3">
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider py-2 pr-2">
+                  Countries
+                </span>
+                <div className="flex gap-2 flex-wrap">
+                  {countries.map((country) => (
+                    <button
+                      key={country.id}
+                      onClick={() => country.active && setSelectedCountry(country.id)}
+                      disabled={!country.active}
+                      className={`
+                        h-8 px-3 rounded-md text-sm font-medium
+                        transition-all duration-200 min-w-[44px]
+                        flex items-center justify-center
+                        ${country.active
+                          ? selectedCountry === country.id
+                            ? 'bg-primary-500 text-white'
+                            : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+                          : 'border border-gray-200 text-gray-400 cursor-not-allowed'
+                        }
+                      `}
+                      aria-label={`Filter by ${country.name}${!country.active ? ' (coming soon)' : ''}`}
+                    >
+                      {country.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Food Types Row */}
+              <div className="flex flex-wrap gap-2 lg:gap-3 opacity-0 animate-[fadeIn_0.5s_ease-out_0.2s_forwards]">
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider py-2 pr-2">
+                  Food Types
+                </span>
+                <div className="flex gap-2 flex-wrap">
+                  {foodTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => toggleFoodType(type.id)}
+                      className={`
+                        h-8 px-3 rounded-md text-sm font-medium
+                        transition-all duration-200 min-w-[44px]
+                        flex items-center justify-center gap-1.5
+                        ${selectedFoodTypes.includes(type.id)
+                          ? 'bg-primary-500 text-white'
+                          : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+                        }
+                      `}
+                      aria-label={`Filter by ${type.name}`}
+                    >
+                      <span className="text-xs">{type.icon}</span>
+                      <span className="hidden sm:inline">{type.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
