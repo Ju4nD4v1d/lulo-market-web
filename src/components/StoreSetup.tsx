@@ -37,6 +37,7 @@ interface AboutSection {
 export interface StoreData {
   name: string;
   description: string;
+  country: string;
   address: string;
   phone: string;
   website: string;
@@ -59,6 +60,7 @@ const defaultBusinessHours = {
 const initialStoreData: StoreData = {
   name: '',
   description: '',
+  country: '',
   address: '',
   phone: '',
   website: '',
@@ -104,6 +106,7 @@ export const StoreSetup = () => {
     if (
       !values.name.trim() ||
       !values.description.trim() ||
+      !values.country.trim() ||
       !values.address.trim() ||
       !values.phone.trim() ||
       !values.website.trim()
@@ -169,6 +172,7 @@ export const StoreSetup = () => {
           const loadedData: StoreData = {
             name: data.name || '',
             description: data.description || '',
+            country: data.country || '',
             address: data.address || '',
             phone: data.phone || '',
             website: data.website || '',
@@ -191,7 +195,7 @@ export const StoreSetup = () => {
     };
 
     loadStoreData();
-  }, [currentUser]);
+  }, [currentUser, setHasStore]);
 
   useEffect(() => {
     if (isEditing) {
@@ -245,6 +249,7 @@ export const StoreSetup = () => {
       const storeData = {
         name: values.name,
         description: values.description,
+        country: values.country,
         address: values.address,
         location: coordinates,
         phone: values.phone,
@@ -494,6 +499,32 @@ export const StoreSetup = () => {
 
         <FormSection title="Contact Information" icon={Phone}>
           <div className="space-y-4">
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+                Country *
+              </label>
+              <select
+                id="country"
+                name="country"
+                value={draftValues.country}
+                onChange={(e) => setDraftValues(prev => ({ ...prev, country: e.target.value }))}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="" disabled>Select a country</option>
+                <option>Colombia</option>
+                <option>Mexico</option>
+                <option>Argentina</option>
+                <option>Peru</option>
+                <option>Chile</option>
+                <option>Ecuador</option>
+                <option>Venezuela</option>
+                <option>Brazil</option>
+                <option>Uruguay</option>
+                <option>Paraguay</option>
+                <option>Bolivia</option>
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Address
@@ -810,6 +841,10 @@ export const StoreSetup = () => {
                 <h3 className="font-semibold text-primary-700">Contact Info</h3>
               </div>
               <div className="space-y-2">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Country</h4>
+                  <p className="text-gray-900 break-words">{storeData.country}</p>
+                </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-700">Address</h4>
                   <p className="text-gray-900 break-words">{storeData.address}</p>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Clock, Star, Filter } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
 
 interface Store {
   id: string;
@@ -77,7 +76,6 @@ const mockStores: Store[] = [
 ];
 
 export const ShopperDashboard = () => {
-  const { t } = useLanguage();
   const [selectedCountry, setSelectedCountry] = useState('colombia');
   const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');

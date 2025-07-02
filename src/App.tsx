@@ -35,8 +35,7 @@ function App() {
 
     // Check for shopper dashboard routes
     if (currentRoute.startsWith('#shopper-dashboard/')) {
-      const storeId = currentRoute.split('/')[1];
-      return <StoreMenu storeId={storeId} />;
+      return <StoreMenu />;
     }
 
     if (currentRoute.startsWith('#shopper-dashboard')) {
