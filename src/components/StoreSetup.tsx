@@ -494,11 +494,7 @@ export const StoreSetup = () => {
                 placeholder="Describe your store"
               />
             </div>
-          </div>
-        </FormSection>
 
-        <FormSection title="Contact Information" icon={Phone}>
-          <div className="space-y-4">
             <div>
               <label htmlFor="country" className="block text-sm font-medium text-gray-700">
                 Country *
@@ -525,6 +521,12 @@ export const StoreSetup = () => {
                 <option>Bolivia</option>
               </select>
             </div>
+
+          </div>
+        </FormSection>
+
+        <FormSection title="Contact Information" icon={Phone}>
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Address
@@ -831,6 +833,10 @@ export const StoreSetup = () => {
                 <h4 className="text-sm font-medium text-gray-700">Description</h4>
                 <p className="text-gray-900">{storeData.description}</p>
               </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Country</h4>
+                <p className="text-gray-900 break-words">{storeData.country}</p>
+              </div>
             </div>
           </section>
 
@@ -841,14 +847,10 @@ export const StoreSetup = () => {
                 <h3 className="font-semibold text-primary-700">Contact Info</h3>
               </div>
               <div className="space-y-2">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">Country</h4>
-                  <p className="text-gray-900 break-words">{storeData.country}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">Address</h4>
-                  <p className="text-gray-900 break-words">{storeData.address}</p>
-                </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Address</h4>
+                <p className="text-gray-900 break-words">{storeData.address}</p>
+              </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-700">Phone</h4>
                   <p className="text-gray-900">{storeData.phone}</p>
