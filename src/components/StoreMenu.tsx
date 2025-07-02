@@ -119,12 +119,8 @@ const mockMenuItems: MenuItem[] = [
   }
 ];
 
-interface StoreMenuProps {
-  storeId: string;
-}
-
-export const StoreMenu: React.FC<StoreMenuProps> = ({ storeId }) => {
-  const { t } = useLanguage();
+export const StoreMenu: React.FC = () => {
+  useLanguage();
   const [activeCategory, setActiveCategory] = useState('appetizers');
   const [cart, setCart] = useState<{ [key: string]: number }>({});
 
