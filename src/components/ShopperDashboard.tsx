@@ -73,7 +73,6 @@ export const ShopperDashboard = () => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
   const [selectedCountry, setSelectedCountry] = useState('colombia');
-  const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [stores, setStores] = useState<StoreData[]>([]);
   const [filteredStores, setFilteredStores] = useState<StoreData[]>([]);
@@ -82,6 +81,7 @@ export const ShopperDashboard = () => {
   const [showStoreDetail, setShowStoreDetail] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [locationStatus, setLocationStatus] = useState<'idle' | 'requesting' | 'granted' | 'denied'>('idle');
+  const [locationName, setLocationName] = useState<string>('');
   const [showCart, setShowCart] = useState(false);
 
   const countries = [
@@ -91,12 +91,6 @@ export const ShopperDashboard = () => {
     { id: 'mexico', name: t('shopper.filters.mexico'), active: false }
   ];
 
-  const foodTypes = [
-    { id: 'hot', name: t('shopper.filters.hotFood'), icon: '🔥' },
-    { id: 'frozen', name: t('shopper.filters.frozen'), icon: '❄️' },
-    { id: 'baked', name: t('shopper.filters.bakedGoods'), icon: '🥖' },
-    { id: 'other', name: t('shopper.filters.other'), icon: '🍽️' }
-  ];
 
   // Define filterStores function first
   const filterStores = useCallback(() => {
@@ -124,7 +118,7 @@ export const ShopperDashboard = () => {
   // Filter stores when search or filters change
   useEffect(() => {
     filterStores();
-  }, [stores, searchQuery, selectedCountry, selectedFoodTypes, filterStores]);
+  }, [stores, searchQuery, selectedCountry, filterStores]);
 
   const fetchStores = async () => {
     try {
@@ -146,13 +140,6 @@ export const ShopperDashboard = () => {
     }
   };
 
-  const toggleFoodType = (typeId: string) => {
-    setSelectedFoodTypes(prev => 
-      prev.includes(typeId) 
-        ? prev.filter(id => id !== typeId)
-        : [...prev, typeId]
-    );
-  };
 
   const handleStoreClick = (store: StoreData) => {
     setSelectedStore(store);
@@ -164,16 +151,37 @@ export const ShopperDashboard = () => {
     setSelectedStore(null);
   };
 
+  // Function to get city name from coordinates
+  const getCityName = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDrqIE1Zs8YVmaZUdrJgCaOiKIczdz5Hag`);
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const addressComponents = data.results[0].address_components;
+        const city = addressComponents.find((component: { types: string[]; long_name: string }) => 
+          component.types.includes('locality') || component.types.includes('administrative_area_level_1')
+        );
+        return city ? city.long_name : 'Unknown Location';
+      }
+    } catch (error) {
+      console.error('Error getting city name:', error);
+    }
+    return 'Unknown Location';
+  };
+
   // Function to request user location
   const requestLocation = () => {
     setLocationStatus('requesting');
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
+        async (position) => {
+          const coords = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
+          };
+          setUserLocation(coords);
+          const cityName = await getCityName(coords.lat, coords.lng);
+          setLocationName(cityName);
           setLocationStatus('granted');
         },
         (error) => {
@@ -242,7 +250,7 @@ export const ShopperDashboard = () => {
                     <img 
                       src="/logo_lulo.png" 
                       alt="Lulo Marketplace" 
-                      className="h-16 w-auto object-contain"
+                      className="h-20 w-auto object-contain"
                     />
                     <div>
                       <p className="text-lg text-gray-700 font-medium">
@@ -294,7 +302,7 @@ export const ShopperDashboard = () => {
                   <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-xl">
                     <MapPin className="w-4 h-4" />
                     <span className="font-medium">
-                      {userLocation ? t('shopper.header.location') : t('shopper.header.vancouver')}
+                      {locationName || t('shopper.header.vancouver')}
                     </span>
                   </div>
 
@@ -373,31 +381,6 @@ export const ShopperDashboard = () => {
                   </div>
                 </div>
 
-                {/* Food Types Row */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                    {t('shopper.filters.foodCategories')}
-                  </h3>
-                  <div className="flex gap-3 flex-wrap">
-                    {foodTypes.map((type) => (
-                      <button
-                        key={type.id}
-                        onClick={() => toggleFoodType(type.id)}
-                        className={`
-                          px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform flex items-center gap-2
-                          ${selectedFoodTypes.includes(type.id)
-                            ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg shadow-[#C8E400]/30 scale-105'
-                            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#C8E400] hover:shadow-lg hover:scale-105 shadow-md'
-                          }
-                        `}
-                        aria-label={`Filter by ${type.name}`}
-                      >
-                        <span className="text-lg">{type.icon}</span>
-                        <span>{type.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           </div>

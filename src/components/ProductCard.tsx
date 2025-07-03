@@ -14,7 +14,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
-  onAddToCart, 
+  onAddToCart: _onAddToCart, 
   onClick,
   showAddToCart = true,
   storeId,
