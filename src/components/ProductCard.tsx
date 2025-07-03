@@ -2,6 +2,7 @@ import React from 'react';
 import { Star, Clock, Users } from 'lucide-react';
 import { Product } from '../types/product';
 import { AddToCartButton } from './AddToCartButton';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ProductCardProps {
   product: Product;
@@ -14,12 +15,12 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
-  onAddToCart: _onAddToCart, 
   onClick,
   showAddToCart = true,
   storeId,
   storeName
 }) => {
+  const { t } = useLanguage();
   const handleClick = () => {
     if (onClick) {
       onClick(product);
@@ -28,10 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD'
-    }).format(price);
+    return `CAD $${price.toFixed(2)}`;
   };
 
   const getStatusBadge = () => {
@@ -57,14 +55,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] cursor-pointer ${
+      className={`bg-white rounded-lg md:rounded-xl shadow-md md:shadow-lg overflow-hidden transition-transform hover:scale-[1.01] md:hover:scale-[1.02] cursor-pointer ${
         isOutOfStock ? 'opacity-60' : ''
       }`}
       onClick={handleClick}
     >
       <div className="relative">
         {/* Product Image */}
-        <div className="w-full h-48 bg-gray-200 overflow-hidden">
+        <div className="w-full h-32 md:h-40 lg:h-48 bg-gray-200 overflow-hidden">
           {product.images && product.images.length > 0 ? (
             <img 
               src={product.images[0]} 
@@ -83,32 +81,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Popular Badge */}
         {product.isPopular && (
-          <span className="absolute top-2 right-2 bg-[#C8E400] text-gray-800 text-xs px-2 py-1 rounded">
-            Popular
+          <span className="absolute top-1 md:top-2 right-1 md:right-2 bg-[#C8E400] text-gray-800 text-xs px-2 py-1 rounded">
+            {t('product.popular')}
           </span>
         )}
       </div>
 
-      <div className="p-4">
+      <div className="p-3 md:p-4">
         {/* Product Info */}
-        <div className="mb-3">
-          <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
+        <div className="mb-2 md:mb-3">
+          <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 text-sm md:text-base">
             {product.name}
           </h3>
-          <p className="text-gray-600 text-sm line-clamp-2">
+          <p className="text-gray-600 text-xs md:text-sm line-clamp-2">
             {product.description}
           </p>
         </div>
 
         {/* Metadata Row */}
-        <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+        <div className="flex items-center gap-2 md:gap-3 text-xs text-gray-500 mb-2 md:mb-3 flex-wrap">
           {/* Rating */}
           {product.averageRating && (
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               <span>{product.averageRating.toFixed(1)}</span>
               {product.reviewCount && (
-                <span>({product.reviewCount})</span>
+                <span className="hidden md:inline">({product.reviewCount})</span>
               )}
             </div>
           )}
@@ -117,13 +115,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {product.preparationTime && (
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              <span>{product.preparationTime}</span>
+              <span className="truncate">{product.preparationTime}</span>
             </div>
           )}
 
           {/* Serving Size */}
           {product.servingSize && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 hidden md:flex">
               <Users className="w-3 h-3" />
               <span>{product.servingSize}</span>
             </div>
@@ -132,19 +130,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Allergens */}
         {product.allergens && product.allergens.length > 0 && (
-          <div className="mb-3">
+          <div className="mb-2 md:mb-3">
             <div className="flex flex-wrap gap-1">
-              {product.allergens.slice(0, 3).map((allergen) => (
+              {product.allergens.slice(0, 2).map((allergen) => (
                 <span 
                   key={allergen}
-                  className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded"
+                  className="text-xs bg-orange-100 text-orange-600 px-1.5 md:px-2 py-0.5 md:py-1 rounded"
                 >
                   {allergen}
                 </span>
               ))}
-              {product.allergens.length > 3 && (
+              {product.allergens.length > 2 && (
                 <span className="text-xs text-gray-500">
-                  +{product.allergens.length - 3} more
+                  +{product.allergens.length - 2} more
                 </span>
               )}
             </div>
@@ -154,12 +152,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Price and Add to Cart */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-lg font-bold text-gray-800">
+            <span className="text-base md:text-lg font-bold text-gray-800">
               {formatPrice(product.price)}
             </span>
             {product.stock > 0 && (
-              <span className="text-xs text-gray-500">
-                {product.stock} in stock
+              <span className="text-xs text-gray-500 hidden md:block">
+                {product.stock} {t('product.inStock')}
               </span>
             )}
           </div>
@@ -175,8 +173,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           )}
 
           {isOutOfStock && (
-            <span className="text-red-500 text-sm font-medium">
-              Unavailable
+            <span className="text-red-500 text-xs md:text-sm font-medium">
+              {t('product.unavailable')}
             </span>
           )}
         </div>

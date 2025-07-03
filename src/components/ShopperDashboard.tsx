@@ -8,10 +8,20 @@ import { useLanguage } from '../context/LanguageContext';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
-// Mock data for fallback when no real stores exist
+// Helper function to check if a store is new (created less than a month ago)
+const isStoreNew = (createdAt?: Date): boolean => {
+  if (!createdAt) return false;
+  const now = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(now.getMonth() - 1);
+  return createdAt > oneMonthAgo;
+};
+
+// Mock data for testing all badge scenarios
 const mockStores: StoreData[] = [
+  // TEST CASE 1: Old store WITH rating - Should show rating badge (4.8)
   {
-    id: 'mock-1',
+    id: 'test-old-with-rating',
     name: 'Sabor Colombiano',
     description: 'Authentic Colombian cuisine with traditional flavors and family recipes passed down through generations',
     storeImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&crop=center',
@@ -27,16 +37,17 @@ const mockStores: StoreData[] = [
     minimumOrder: 25,
     aboutUsSections: [],
     ownerId: 'mock-owner-1',
-    isVerified: true
+    isVerified: true,
+    createdAt: new Date('2024-01-15') // Old store (more than a month ago)
   },
+  // TEST CASE 2: New store WITHOUT rating - Should show "New" badge
   {
-    id: 'mock-2',
+    id: 'test-new-without-rating',
     name: 'Casa de Arepas',
     description: 'Venezuelan comfort food with fresh arepas made daily',
     storeImage: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center',
     imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center',
-    averageRating: 4.6,
-    totalReviews: 89,
+    totalReviews: 0,
     location: {
       address: '456 Oak Ave, Vancouver, BC',
       coordinates: { lat: 49.2845, lng: -123.1153 }
@@ -46,10 +57,12 @@ const mockStores: StoreData[] = [
     minimumOrder: 20,
     aboutUsSections: [],
     ownerId: 'mock-owner-2',
-    isVerified: false
+    isVerified: false,
+    createdAt: new Date() // New store (just created)
   },
+  // TEST CASE 3: New store WITH rating - Should show "New" badge (priority over rating)
   {
-    id: 'mock-3',
+    id: 'test-new-with-rating',
     name: 'Empanadas del Valle',
     description: 'Handcrafted empanadas with premium ingredients and bold flavors',
     storeImage: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop&crop=center',
@@ -65,7 +78,28 @@ const mockStores: StoreData[] = [
     minimumOrder: 30,
     aboutUsSections: [],
     ownerId: 'mock-owner-3',
-    isVerified: true
+    isVerified: true,
+    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) // New store (15 days ago) WITH rating
+  },
+  // TEST CASE 4: Old store WITHOUT rating - Should show NO badge
+  {
+    id: 'test-old-without-rating',
+    name: 'Mercado Latino',
+    description: 'Traditional Latin American grocery and prepared foods - established but still building reputation',
+    storeImage: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop&crop=center',
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop&crop=center',
+    totalReviews: 0,
+    location: {
+      address: '321 Cedar Rd, Vancouver, BC',
+      coordinates: { lat: 49.2611, lng: -123.1139 }
+    },
+    deliveryOptions: { delivery: true, pickup: true, shipping: false },
+    deliveryCostWithDiscount: 6.99,
+    minimumOrder: 35,
+    aboutUsSections: [],
+    ownerId: 'mock-owner-4',
+    isVerified: false,
+    createdAt: new Date('2024-05-01') // Old store (more than a month ago) WITHOUT rating
   }
 ];
 
@@ -125,10 +159,15 @@ export const ShopperDashboard = () => {
       setLoading(true);
       const storesCollection = collection(db, 'stores');
       const storesSnapshot = await getDocs(storesCollection);
-      const storesData = storesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as StoreData[];
+      const storesData = storesSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Convert Firebase Timestamp to JavaScript Date
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
+        };
+      }) as StoreData[];
       
       console.log('Firebase stores data:', storesData);
       
@@ -253,46 +292,42 @@ export const ShopperDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-      {/* Premium Marketplace Header */}
+      {/* Mobile-First Header */}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200/50">
         <div className="max-w-7xl mx-auto">
-          {/* Premium Header with Depth */}
-          <div className="px-6 py-6">
+          {/* Compact Header */}
+          <div className="px-3 md:px-6 py-3 md:py-4">
             {/* Header Content */}
-            <div className="space-y-6">
-              {/* Premium Title Row */}
+            <div className="space-y-3 md:space-y-4">
+              {/* Mobile Header Row */}
               <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src="/logo_lulo.png" 
-                      alt="Lulo Marketplace" 
-                      className="h-20 w-auto object-contain"
-                    />
-                    <div>
-                      <p className="text-lg text-gray-700 font-medium">
-                        {t('shopper.header.tagline')}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-2 md:gap-4">
+                  <img 
+                    src="/logo_lulo.png" 
+                    alt="Lulo Marketplace" 
+                    className="h-8 md:h-12 w-auto object-contain"
+                  />
+                  <div className="hidden md:block">
+                    <p className="text-sm md:text-lg text-gray-700 font-medium">
+                      {t('shopper.header.tagline')}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  {/* Language Switcher */}
+                <div className="flex items-center gap-1 md:gap-2">
+                  {/* Language Switcher - Mobile: Icon only */}
                   <button 
                     onClick={toggleLanguage}
-                    className="group relative text-gray-600 hover:text-[#C8E400] transition-all duration-300 p-2 rounded-xl hover:bg-gray-50"
+                    className="text-gray-600 hover:text-[#C8E400] transition-all duration-300 p-1.5 md:p-2 rounded-lg hover:bg-gray-50"
                   >
-                    <span className="flex items-center space-x-1">
-                      <Globe className="w-4 h-4" />
-                      <span className="text-sm font-medium">{t('language.toggle')}</span>
-                    </span>
+                    <Globe className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="sr-only md:not-sr-only md:ml-1 text-sm font-medium">{t('language.toggle')}</span>
                   </button>
 
-                  {/* Location Button */}
+                  {/* Location Button - Mobile: Icon only */}
                   <button
                     onClick={requestLocation}
                     disabled={locationStatus === 'requesting'}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-300 ${
                       locationStatus === 'granted' 
                         ? 'bg-green-100 text-green-700 border border-green-200' 
                         : locationStatus === 'denied'
@@ -301,11 +336,11 @@ export const ShopperDashboard = () => {
                     }`}
                   >
                     {locationStatus === 'requesting' ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
+                      <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-gray-400 border-t-transparent"></div>
                     ) : (
-                      <Navigation className="w-4 h-4" />
+                      <Navigation className="w-3 h-3 md:w-4 md:h-4" />
                     )}
-                    <span className="hidden sm:inline">
+                    <span className="hidden lg:inline">
                       {locationStatus === 'granted' 
                         ? t('shopper.header.locationActive')
                         : locationStatus === 'denied'
@@ -315,26 +350,16 @@ export const ShopperDashboard = () => {
                     </span>
                   </button>
 
-                  {/* Current Location Display */}
-                  <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-xl">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-medium">
-                      {locationName || t('shopper.header.vancouver')}
-                    </span>
-                  </div>
-
-                  <div className="w-px h-6 bg-gray-300"></div>
-
-                  {/* Cart Button */}
+                  {/* Cart Button - Mobile: Icon only */}
                   <button
                     onClick={() => setShowCart(true)}
-                    className="relative flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:border-[#C8E400] hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="relative flex items-center gap-1 md:gap-2 bg-white border border-gray-200 text-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg font-semibold hover:border-[#C8E400] hover:shadow-lg transition-all duration-300"
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    <span className="hidden sm:inline">{t('shopper.header.cart')}</span>
+                    <span className="hidden md:inline text-xs md:text-sm">{t('shopper.header.cart')}</span>
                     {cart.summary.itemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                        {cart.summary.itemCount > 99 ? '99+' : cart.summary.itemCount}
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                        {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
                       </span>
                     )}
                   </button>
@@ -342,47 +367,54 @@ export const ShopperDashboard = () => {
                   {/* Login Button */}
                   <button 
                     onClick={() => window.location.hash = '#login'}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="flex items-center gap-1 md:gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-xs md:text-sm"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('shopper.header.login')}</span>
-                    <span className="sm:hidden">{t('shopper.header.login')}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Premium Search Bar */}
+              {/* Mobile Location Display */}
+              <div className="md:hidden flex items-center gap-2 text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg">
+                <MapPin className="w-3 h-3" />
+                <span className="font-medium">
+                  {locationName || t('shopper.header.vancouver')}
+                </span>
+              </div>
+
+              {/* Mobile-First Search Bar */}
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Search className="w-5 h-5" />
+                <div className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Search className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <input
                   type="text"
                   placeholder={t('shopper.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-14 pl-12 pr-6 border-2 border-gray-200 rounded-2xl 
+                  className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 md:pr-6 border-2 border-gray-200 rounded-xl md:rounded-2xl 
                     focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
-                    bg-white shadow-lg shadow-gray-100/50 placeholder:text-gray-400 text-base
+                    bg-white shadow-lg shadow-gray-100/50 placeholder:text-gray-400 text-sm md:text-base
                     transition-all duration-300 hover:shadow-xl hover:shadow-gray-200/50"
                 />
               </div>
 
-              {/* Premium Filter Section */}
-              <div className="space-y-4">
+              {/* Mobile-First Filter Section */}
+              <div className="space-y-3">
                 {/* Countries Row */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                <div className="space-y-2">
+                  <h3 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide">
                     {t('shopper.filters.cuisinesByCountry')}
                   </h3>
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
                     {countries.map((country) => (
                       <button
                         key={country.id}
                         onClick={() => country.active && setSelectedCountry(country.id)}
                         disabled={!country.active}
                         className={`
-                          px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform
+                          px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl font-medium text-xs md:text-sm transition-all duration-300 transform
                           ${country.active
                             ? selectedCountry === country.id
                               ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg shadow-[#C8E400]/30 scale-105'
@@ -404,14 +436,14 @@ export const ShopperDashboard = () => {
         </div>
       </div>
 
-      {/* Premium Store Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="mb-10">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+      {/* Mobile-First Store Grid */}
+      <div className="max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-8">
+        <div className="mb-6 md:mb-8">
+          <div className="text-center space-y-2 md:space-y-3">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
               {t('shopper.featuredRestaurants')}
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               {t('shopper.featuredDescription')}
             </p>
           </div>
@@ -426,15 +458,15 @@ export const ShopperDashboard = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredStores.length > 0 ? (
               filteredStores.map((store) => (
                 <div
                   key={store.id}
                   onClick={() => handleStoreClick(store)}
-                  className="group bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden
-                    hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer
-                    focus:outline-none focus:ring-4 focus:ring-[#C8E400]/30 transform hover:scale-[1.02]"
+                  className="group bg-white rounded-2xl md:rounded-3xl shadow-lg md:shadow-xl border border-gray-100 overflow-hidden
+                    hover:shadow-xl md:hover:shadow-2xl hover:-translate-y-1 md:hover:-translate-y-2 transition-all duration-300 md:duration-500 cursor-pointer
+                    focus:outline-none focus:ring-4 focus:ring-[#C8E400]/30 transform hover:scale-[1.01] md:hover:scale-[1.02]"
                   tabIndex={0}
                   role="button"
                   aria-label={`View menu for ${store.name}`}
@@ -445,8 +477,8 @@ export const ShopperDashboard = () => {
                     }
                   }}
                 >
-                  {/* Premium Store Image */}
-                  <div className="relative h-56 overflow-hidden">
+                  {/* Mobile-First Store Image */}
+                  <div className="relative h-40 md:h-48 lg:h-56 overflow-hidden">
                     {(store.storeImage || store.imageUrl) ? (
                       <img
                         src={store.storeImage || store.imageUrl}
@@ -477,30 +509,43 @@ export const ShopperDashboard = () => {
                     
                     {/* Verification Badge */}
                     {store.isVerified && (
-                      <div className="absolute top-4 left-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs px-3 py-2 rounded-full shadow-lg font-semibold">
+                      <div className="absolute top-2 md:top-3 left-2 md:left-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs px-2 md:px-3 py-1 md:py-1.5 rounded-full shadow-lg font-semibold">
                         <div className="flex items-center gap-1">
                           <span>✓</span>
-                          <span>{t('shopper.verified')}</span>
+                          <span className="hidden md:inline">{t('shopper.verified')}</span>
                         </div>
                       </div>
                     )}
                     
-                    {/* Rating Badge */}
-                    <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg">
-                      <div className="flex items-center text-sm font-semibold">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
-                        <span className="text-gray-800">{store.averageRating?.toFixed(1) || 'New'}</span>
+                    {/* Badge Logic: New stores get "New" badge, rated stores get rating badge, old unrated stores get no badge */}
+                    {isStoreNew(store.createdAt) ? (
+                      /* New Badge for stores created less than a month ago */
+                      <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3 bg-[#C8E400] text-gray-800 rounded-full px-2 md:px-3 py-1 md:py-1.5 shadow-lg">
+                        <div className="flex items-center text-xs md:text-sm font-semibold">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 fill-current mr-1" />
+                          <span>{t('store.new')}</span>
+                        </div>
                       </div>
-                    </div>
+                    ) : store.averageRating ? (
+                      /* Rating Badge for stores with ratings */
+                      <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3 bg-white/95 backdrop-blur-sm rounded-full px-2 md:px-3 py-1 md:py-1.5 shadow-lg">
+                        <div className="flex items-center text-xs md:text-sm font-semibold">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-yellow-400 mr-1" />
+                          <span className="text-gray-800">
+                            {store.averageRating.toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null /* No badge for old stores without ratings */}
                   </div>
 
-                  {/* Premium Store Info */}
-                  <div className="p-6 space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-xl text-gray-900 leading-tight group-hover:text-[#C8E400] transition-colors duration-300">
+                  {/* Mobile-First Store Info */}
+                  <div className="p-3 md:p-4 lg:p-6 space-y-3 md:space-y-4">
+                    <div className="space-y-1 md:space-y-2">
+                      <h3 className="font-bold text-lg md:text-xl text-gray-900 leading-tight group-hover:text-[#C8E400] transition-colors duration-300">
                         {store.name}
                       </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                      <p className="text-gray-600 text-xs md:text-sm leading-relaxed line-clamp-2">
                         {store.description || 'Experience exceptional cuisine crafted with passion and premium ingredients'}
                       </p>
                     </div>
@@ -508,24 +553,24 @@ export const ShopperDashboard = () => {
                     {/* Location and Reviews */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-gray-500">
-                        <MapPin className="w-4 h-4 mr-2 text-[#C8E400]" />
-                        <span className="text-sm font-medium">{calculateDistance(store)}</span>
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-[#C8E400]" />
+                        <span className="text-xs md:text-sm font-medium">{calculateDistance(store)}</span>
                       </div>
                       <div className="flex items-center text-gray-500">
-                        <span className="text-sm font-medium">{store.totalReviews || 0} {t('shopper.reviews')}</span>
+                        <span className="text-xs md:text-sm font-medium">{store.totalReviews || 0} {t('shopper.reviews')}</span>
                       </div>
                     </div>
 
-                    {/* Premium Delivery Info */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 flex-wrap">
+                    {/* Mobile-First Delivery Info */}
+                    <div className="space-y-2 md:space-y-3">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {store.deliveryOptions?.delivery && (
-                          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 px-3 py-2 rounded-xl text-xs font-semibold border border-emerald-200">
+                          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs font-semibold border border-emerald-200">
                             🚚 {t('shopper.delivery')} ${store.deliveryCostWithDiscount || 'Free'}
                           </div>
                         )}
                         {store.deliveryOptions?.pickup && (
-                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 px-3 py-2 rounded-xl text-xs font-semibold border border-blue-200">
+                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs font-semibold border border-blue-200">
                             📦 {t('shopper.pickup')}
                           </div>
                         )}
@@ -533,7 +578,7 @@ export const ShopperDashboard = () => {
                       
                       {store.minimumOrder && (
                         <div className="text-center">
-                          <span className="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs font-medium">
+                          <span className="bg-gray-100 text-gray-600 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs font-medium">
                             {t('shopper.minimumOrder')}: ${store.minimumOrder}
                           </span>
                         </div>
@@ -541,8 +586,8 @@ export const ShopperDashboard = () => {
                     </div>
 
                     {/* Call to Action */}
-                    <div className="pt-2">
-                      <div className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white text-center py-3 rounded-xl font-semibold text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <div className="pt-1 md:pt-2">
+                      <div className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white text-center py-2 md:py-3 rounded-lg md:rounded-xl font-semibold text-xs md:text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                         {t('shopper.viewMenuOrder')}
                       </div>
                     </div>

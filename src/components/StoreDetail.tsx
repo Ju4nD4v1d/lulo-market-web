@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Star, Clock, MapPin, Phone, Globe, Instagram, Facebook, Twitter, Search, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { Product } from '../types/product';
 import { ProductCard } from './ProductCard';
@@ -132,6 +132,11 @@ interface StoreDetailProps {
 export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
   const { t } = useLanguage();
+  
+  // Debug log to check store location data
+  console.log('Store data in StoreDetail:', store);
+  console.log('Store location:', store.location);
+  console.log('Store delivery hours:', store.deliveryHours || store.businessHours);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -220,57 +225,136 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   }, [products, searchTerm, selectedCategory, sortBy, filterAndSortProducts]);
 
   const formatRating = (rating?: number) => {
-    return rating ? rating.toFixed(1) : 'No rating';
+    return rating ? rating.toFixed(1) : t('product.noRating');
   };
 
-  const getBusinessHoursToday = () => {
-    const dayMap: { [key: string]: string } = {
-      'sunday': 'sunday',
-      'monday': 'monday',
-      'tuesday': 'tuesday',
-      'wednesday': 'wednesday',
-      'thursday': 'thursday',
-      'friday': 'friday',
-      'saturday': 'saturday'
-    };
+  // Convert 24-hour time to 12-hour AM/PM format
+  const formatTime12Hour = (time24: string): string => {
+    const [hours, minutes] = time24.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12 || 12;
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const getDeliveryHoursToday = () => {
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = daysOfWeek[new Date().getDay()];
     
-    const dayName = Object.keys(dayMap)[new Date().getDay()];
-    const todayHours = store.businessHours?.[dayName];
+    // Check multiple possible field names and formats
+    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
     
     if (!todayHours || todayHours.closed) {
-      return 'Closed today';
+      return t('delivery.noDeliveryToday');
     }
     
-    return `${todayHours.open} - ${todayHours.close}`;
+    return `${formatTime12Hour(todayHours.open)} - ${formatTime12Hour(todayHours.close)}`;
+  };
+
+  const isDeliveryAvailable = () => {
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = daysOfWeek[new Date().getDay()];
+    
+    // Check multiple possible field names and formats
+    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
+    
+    return todayHours && !todayHours.closed;
+  };
+
+  // Get all delivery days with formatted hours
+  const getDeliverySchedule = () => {
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    
+    if (!businessHours) return [];
+    
+    return daysOfWeek.map((day, index) => {
+      const dayHours = businessHours[day] || businessHours[day.toLowerCase()];
+      const dayKey = `days.${day.toLowerCase()}` as keyof typeof t;
+      return {
+        day: t(dayKey),
+        dayIndex: index,
+        isOpen: dayHours && !dayHours.closed,
+        hours: dayHours && !dayHours.closed 
+          ? `${formatTime12Hour(dayHours.open)} - ${formatTime12Hour(dayHours.close)}`
+          : t('delivery.closed'),
+        rawHours: dayHours
+      };
+    });
+  };
+
+  // Find next available delivery within 24 hours
+  const getNextAvailableDelivery = () => {
+    const schedule = getDeliverySchedule();
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
+    
+    // Check today first if delivery is still available
+    const todaySchedule = schedule[currentDay];
+    if (todaySchedule?.isOpen && todaySchedule.rawHours) {
+      const closeTime = todaySchedule.rawHours.close;
+      const [closeHours, closeMinutes] = closeTime.split(':').map(Number);
+      const closeTimeHHMM = closeHours * 100 + closeMinutes;
+      
+      if (currentTime < closeTimeHHMM) {
+        return {
+          ...todaySchedule,
+          isToday: true,
+          timeUntil: t('delivery.availableNow')
+        };
+      }
+    }
+    
+    // Check next 7 days
+    for (let i = 1; i <= 7; i++) {
+      const checkDay = (currentDay + i) % 7;
+      const daySchedule = schedule[checkDay];
+      
+      if (daySchedule?.isOpen) {
+        const daysUntil = i;
+        const timeUntil = daysUntil === 1 ? t('delivery.tomorrow') : t('delivery.inDays').replace('{days}', daysUntil.toString());
+        
+        return {
+          ...daySchedule,
+          isToday: false,
+          timeUntil,
+          daysUntil
+        };
+      }
+    }
+    
+    return null;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-      {/* Premium Header */}
+      {/* Mobile-First Header */}
       <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 md:py-4">
+          <div className="flex items-center gap-3 md:gap-6">
             <button
               onClick={onBack}
-              className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-105 group"
+              className="p-2 md:p-3 hover:bg-gray-100 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 group"
             >
-              <ArrowLeft className="w-6 h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
+              <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
             </button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('storeDetail.title')}</h1>
-              <p className="text-gray-600 font-medium">{t('storeDetail.subtitle')}</p>
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 tracking-tight">{t('storeDetail.title')}</h1>
+              <p className="text-sm md:text-base text-gray-600 font-medium hidden md:block">{t('storeDetail.subtitle')}</p>
             </div>
             
             {/* Cart Button */}
             <button
               onClick={() => setShowCart(true)}
-              className="relative flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:border-[#C8E400] hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="relative flex items-center gap-1 md:gap-2 bg-white border-2 border-gray-200 text-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl font-semibold hover:border-[#C8E400] hover:shadow-lg transition-all duration-300"
             >
               <ShoppingCart className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('shopper.header.cart')}</span>
+              <span className="hidden sm:inline text-xs md:text-sm">{t('shopper.header.cart')}</span>
               {cart.summary.itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {cart.summary.itemCount > 99 ? '99+' : cart.summary.itemCount}
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                  {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
                 </span>
               )}
             </button>
@@ -278,15 +362,15 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Premium Store Info Section */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 mb-12 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
+        {/* Mobile-First Store Info Section */}
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8 mb-6 md:mb-8 overflow-hidden relative">
           {/* Background Pattern */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#C8E400]/5 to-transparent rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-gradient-to-br from-[#C8E400]/5 to-transparent rounded-full -translate-y-16 translate-x-16 md:-translate-y-32 md:translate-x-32"></div>
           
-          <div className="relative flex flex-col lg:flex-row gap-8">
-            {/* Premium Store Image */}
-            <div className="w-full lg:w-80 h-64 rounded-2xl overflow-hidden shadow-xl">
+          <div className="relative flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
+            {/* Mobile-First Store Image */}
+            <div className="w-full lg:w-80 h-48 md:h-56 lg:h-64 rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl">
               {(store.storeImage || store.imageUrl) ? (
                 <img 
                   src={store.storeImage || store.imageUrl} 
@@ -306,193 +390,254 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                     <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-3 flex items-center justify-center">
                       <span className="text-3xl">🍽️</span>
                     </div>
-                    <span className="text-gray-500 font-medium">Restaurant Image</span>
+                    <span className="text-gray-500 font-medium">{t('storeDetail.title')}</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Premium Store Details */}
-            <div className="flex-1 space-y-6">
+            {/* Mobile-First Store Details */}
+            <div className="flex-1 space-y-4 md:space-y-6">
               <div>
-                <div className="flex items-start gap-4 mb-4">
+                <div className="flex items-start gap-2 md:gap-4 mb-3 md:mb-4">
                   <div className="flex-1">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">{store.name}</h2>
+                    <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 tracking-tight">{store.name}</h2>
                     {store.description && (
-                      <p className="text-gray-600 text-lg leading-relaxed">{store.description}</p>
+                      <p className="text-gray-600 text-sm md:text-base lg:text-lg leading-relaxed">{store.description}</p>
                     )}
                   </div>
                   
-                  {/* Premium Badges */}
-                  <div className="flex flex-col gap-2">
-                    {store.isVerified && (
-                      <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">
-                        <div className="flex items-center gap-2">
-                          <span>✓</span>
-                          <span>{t('storeDetail.verifiedPartner')}</span>
-                        </div>
+                  {/* Verification Badge */}
+                  {store.isVerified && (
+                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs md:text-sm font-semibold shadow-lg">
+                      <div className="flex items-center gap-1 md:gap-2">
+                        <span>✓</span>
+                        <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
                 
-                {/* Premium Rating Display */}
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 px-6 py-3 rounded-2xl border border-yellow-200">
-                    <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                {/* Mobile-First Rating Display */}
+                <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+                  <div className="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-yellow-200">
+                    <Star className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
                     <div>
-                      <span className="font-bold text-xl text-gray-900">{formatRating(store.averageRating)}</span>
+                      <span className="font-bold text-base md:text-lg lg:text-xl text-gray-900">{formatRating(store.averageRating)}</span>
                       {store.totalReviews && (
-                        <p className="text-sm text-gray-600 font-medium">({store.totalReviews} reviews)</p>
+                        <p className="text-xs md:text-sm text-gray-600 font-medium">({store.totalReviews} reviews)</p>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-3 rounded-2xl border border-blue-200">
-                    <Clock className="w-5 h-5 text-blue-600" />
+                  <div className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border ${
+                    isDeliveryAvailable() 
+                      ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
+                      : 'bg-gradient-to-r from-red-50 to-red-100 border-red-200'
+                  }`}>
+                    <Clock className={`w-4 h-4 md:w-5 md:h-5 ${
+                      isDeliveryAvailable() ? 'text-green-600' : 'text-red-600'
+                    }`} />
                     <div>
-                      <p className="font-semibold text-gray-900">{getBusinessHoursToday()}</p>
-                      <p className="text-xs text-gray-600">{t('storeDetail.todaysHours')}</p>
+                      <p className={`font-semibold text-sm md:text-base ${
+                        isDeliveryAvailable() ? 'text-green-900' : 'text-red-900'
+                      }`}>{getDeliveryHoursToday()}</p>
+                      <p className="text-xs text-gray-600">{t('delivery.deliveryHours')}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Business Hours */}
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">{getBusinessHoursToday()}</span>
-                </div>
-
                 {/* Location */}
-                {store.location && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">{store.location.address}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">
+                    {store.location?.address || store.address || 'Address not available'}
+                  </span>
+                </div>
               </div>
 
-              {/* Contact and Social */}
-              <div className="flex flex-wrap gap-4">
-                {store.phone && (
-                  <a href={`tel:${store.phone}`} className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
-                    <Phone className="w-4 h-4" />
-                    {store.phone}
-                  </a>
-                )}
-                {store.website && (
-                  <a href={store.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
-                    <Globe className="w-4 h-4" />
-                    Website
-                  </a>
-                )}
+              {/* Social Media Only */}
+              <div className="flex flex-wrap gap-3">
                 {store.instagram && (
-                  <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-pink-600 hover:underline">
+                  <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-pink-600 hover:underline">
                     <Instagram className="w-4 h-4" />
                     Instagram
                   </a>
                 )}
                 {store.facebook && (
-                  <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-700 hover:underline">
+                  <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-blue-700 hover:underline">
                     <Facebook className="w-4 h-4" />
                     Facebook
                   </a>
                 )}
                 {store.twitter && (
-                  <a href={store.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-500 hover:underline">
+                  <a href={store.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-blue-500 hover:underline">
                     <Twitter className="w-4 h-4" />
                     Twitter
                   </a>
                 )}
               </div>
 
-              {/* Delivery Info */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              {/* Comprehensive Delivery Service Info */}
+              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <Truck className="w-4 h-4 text-[#C8E400]" />
+                  <h4 className="font-semibold text-gray-900 text-sm md:text-base">{t('delivery.service')}</h4>
+                </div>
+
+                {/* Next Available Delivery Highlight */}
+                {(() => {
+                  const nextDelivery = getNextAvailableDelivery();
+                  if (nextDelivery) {
+                    return (
+                      <div className="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-green-800 font-semibold text-sm">
+                              🚚 {t('delivery.nextAvailable')}
+                            </p>
+                            <p className="text-green-700 text-xs">
+                              {nextDelivery.isToday ? t('delivery.today') : nextDelivery.day} • {nextDelivery.hours}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {nextDelivery.timeUntil}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3">
+                        <p className="text-red-700 font-medium text-sm text-center">
+                          ⚠️ {t('delivery.noService')}
+                        </p>
+                      </div>
+                    );
+                  }
+                })()}
+
+                {/* Full Weekly Delivery Schedule */}
+                <div className="mb-4">
+                  <h5 className="text-xs md:text-sm font-medium text-gray-700 mb-2">{t('delivery.weeklySchedule')}</h5>
+                  <div className="space-y-2">
+                    {getDeliverySchedule().map((dayInfo) => {
+                      const isToday = dayInfo.dayIndex === new Date().getDay();
+                      return (
+                        <div 
+                          key={dayInfo.day}
+                          className={`flex justify-between items-center px-3 py-2 rounded-lg ${
+                            isToday 
+                              ? 'bg-blue-50 border border-blue-200'
+                              : dayInfo.isOpen 
+                              ? 'bg-gray-50 border border-gray-200'
+                              : 'bg-gray-50 border border-gray-200 opacity-60'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs md:text-sm font-medium ${
+                              isToday ? 'text-blue-800' : 'text-gray-700'
+                            }`}>
+                              {dayInfo.day}
+                              {isToday && <span className="ml-1 text-blue-600">({t('delivery.today')})</span>}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs md:text-sm ${
+                              dayInfo.isOpen 
+                                ? isToday ? 'text-blue-700 font-medium' : 'text-gray-700'
+                                : 'text-gray-500'
+                            }`}>
+                              {dayInfo.hours}
+                            </span>
+                            <div className={`w-2 h-2 rounded-full ${
+                              dayInfo.isOpen ? 'bg-green-400' : 'bg-red-400'
+                            }`}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Service Options */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
                   {store.deliveryOptions?.delivery && (
-                    <div>
-                      <span className="text-gray-500">Delivery:</span>
-                      <span className="ml-1 font-medium">
+                    <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                      <span className="text-green-700 font-medium">🚚 {t('shopper.delivery')}</span>
+                      <span className="text-green-900 font-semibold">
                         {store.deliveryCostWithDiscount ? `$${store.deliveryCostWithDiscount}` : 'Available'}
                       </span>
                     </div>
                   )}
                   {store.deliveryOptions?.pickup && (
-                    <div>
-                      <span className="text-gray-500">Pickup:</span>
-                      <span className="ml-1 font-medium">Available</span>
+                    <div className="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+                      <span className="text-blue-700 font-medium">📦 {t('shopper.pickup')}</span>
+                      <span className="text-blue-900 font-semibold">Free</span>
                     </div>
                   )}
                   {store.minimumOrder && (
-                    <div>
-                      <span className="text-gray-500">Min Order:</span>
-                      <span className="ml-1 font-medium">${store.minimumOrder}</span>
+                    <div className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 md:col-span-2">
+                      <span className="text-gray-700 font-medium">{t('shopper.minimumOrder')}</span>
+                      <span className="text-gray-900 font-semibold">${store.minimumOrder}</span>
                     </div>
                   )}
-                  <div>
-                    <span className="text-gray-500">Payment:</span>
-                    <span className="ml-1 font-medium">
-                      {[
-                        store.paymentMethods?.cash && 'Cash',
-                        store.paymentMethods?.card && 'Card',
-                        store.paymentMethods?.transfer && 'Transfer'
-                      ].filter(Boolean).join(', ') || 'Various'}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Premium Products Section */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
-          <div className="mb-8">
-            <div className="text-center space-y-4 mb-8">
-              <h3 className="text-3xl font-bold text-gray-900 tracking-tight">{t('storeDetail.ourMenu')}</h3>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        {/* Mobile-First Products Section */}
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8">
+          <div className="mb-6 md:mb-8">
+            <div className="text-center space-y-2 md:space-y-3 mb-6 md:mb-8">
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">{t('storeDetail.ourMenu')}</h3>
+              <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
                 {t('storeDetail.menuDescription')}
               </p>
             </div>
             
-            {/* Premium Search and Filters */}
-            <div className="space-y-6">
-              {/* Premium Search */}
-              <div className="relative max-w-2xl mx-auto">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Search className="w-5 h-5" />
+            {/* Mobile-First Search and Filters */}
+            <div className="space-y-4 md:space-y-6">
+              {/* Mobile-First Search */}
+              <div className="relative">
+                <div className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Search className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Search for your favorite dishes..."
+                  placeholder={t('storeDetail.searchDishes')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-14 pl-12 pr-6 border-2 border-gray-200 rounded-2xl 
+                  className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 md:pr-6 border-2 border-gray-200 rounded-xl md:rounded-2xl 
                     focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
-                    bg-white shadow-lg placeholder:text-gray-400 text-base
+                    bg-white shadow-lg placeholder:text-gray-400 text-sm md:text-base
                     transition-all duration-300 hover:shadow-xl"
                 />
               </div>
 
-              {/* Premium Filter Section */}
-              <div className="flex flex-col lg:flex-row gap-6 items-center">
+              {/* Mobile-First Filter Section */}
+              <div className="flex flex-col gap-4">
                 {/* Category Filter */}
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide text-center lg:text-left">
-                    Categories
+                <div className="space-y-2">
+                  <h4 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide text-center md:text-left">
+                    {t('storeDetail.categories')}
                   </h4>
-                  <div className="flex gap-3 flex-wrap justify-center lg:justify-start">
+                  <div className="flex gap-2 flex-wrap justify-center md:justify-start">
                     {categories.map((category) => (
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform flex items-center gap-2 ${
+                        className={`px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl font-medium text-xs md:text-sm transition-all duration-300 transform flex items-center gap-1 md:gap-2 ${
                           selectedCategory === category.id
                             ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg shadow-[#C8E400]/30 scale-105'
                             : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#C8E400] hover:shadow-lg hover:scale-105'
                         }`}
                       >
-                        <span className="text-lg">{category.icon}</span>
+                        <span className="text-sm md:text-base">{category.icon}</span>
                         <span>{category.name}</span>
                       </button>
                     ))}
@@ -500,35 +645,35 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                 </div>
 
                 {/* Sort Filter */}
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide text-center lg:text-left">
-                    Sort By
+                <div className="space-y-2">
+                  <h4 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide text-center md:text-left">
+                    {t('storeDetail.sortBy')}
                   </h4>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'name' | 'price' | 'rating')}
-                    className="px-6 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
-                      bg-white shadow-lg font-medium text-gray-700 hover:shadow-xl transition-all duration-300"
+                    className="w-full md:w-auto px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
+                      bg-white shadow-lg font-medium text-gray-700 hover:shadow-xl transition-all duration-300 text-sm md:text-base"
                   >
-                    <option value="name">Name A-Z</option>
-                    <option value="price">Price Low-High</option>
-                    <option value="rating">Highest Rated</option>
+                    <option value="name">{t('storeDetail.sortName')}</option>
+                    <option value="price">{t('storeDetail.sortPrice')}</option>
+                    <option value="rating">{t('storeDetail.sortRating')}</option>
                   </select>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Premium Products Grid */}
+          {/* Mobile-First Products Grid */}
           {loading ? (
-            <div className="flex justify-center py-20">
+            <div className="flex justify-center py-12 md:py-20">
               <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-10 w-10 border-3 border-[#C8E400] border-t-transparent"></div>
-                <span className="text-gray-600 font-medium">Loading delicious menu items...</span>
+                <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-3 border-[#C8E400] border-t-transparent"></div>
+                <span className="text-gray-600 font-medium text-sm md:text-base">{t('storeDetail.loadingMenu')}</span>
               </div>
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -540,22 +685,22 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="w-20 h-20 bg-gray-100 rounded-full mx-auto flex items-center justify-center">
-                  <span className="text-3xl">🍽️</span>
+            <div className="text-center py-12 md:py-20">
+              <div className="max-w-md mx-auto space-y-3 md:space-y-4 px-4">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-full mx-auto flex items-center justify-center">
+                  <span className="text-2xl md:text-3xl">🍽️</span>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h4 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
                     {searchTerm || selectedCategory !== 'all' 
-                      ? 'No dishes found'
-                      : 'Menu coming soon'
+                      ? t('storeDetail.noDishesFound')
+                      : t('storeDetail.menuComingSoon')
                     }
                   </h4>
-                  <p className="text-gray-600">
+                  <p className="text-sm md:text-base text-gray-600">
                     {searchTerm || selectedCategory !== 'all' 
-                      ? 'Try adjusting your search or filter criteria to find what you\'re looking for.'
-                      : 'This restaurant is still preparing their menu. Check back soon for delicious options!'
+                      ? t('storeDetail.adjustSearch')
+                      : t('storeDetail.checkBackSoon')
                     }
                   </p>
                 </div>
@@ -565,9 +710,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                       setSearchTerm('');
                       setSelectedCategory('all');
                     }}
-                    className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+                    className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold hover:shadow-lg transition-all duration-300 text-sm md:text-base"
                   >
-                    Clear Filters
+                    {t('storeDetail.clearFilters')}
                   </button>
                 )}
               </div>

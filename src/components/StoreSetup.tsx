@@ -21,7 +21,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { SaveProgressModal } from './SaveProgressModal';
 import { useStore } from '../context/StoreContext';
 
-interface BusinessHours {
+interface DeliveryHours {
   [day: string]: { open: string; close: string; closed: boolean };
 }
 
@@ -41,13 +41,13 @@ export interface StoreData {
   address: string;
   phone: string;
   website: string;
-  businessHours: BusinessHours;
+  deliveryHours: DeliveryHours;
   aboutSections: AboutSection[];
   storeImage?: string;
   imageFiles?: string[];
 }
 
-const defaultBusinessHours = {
+const defaultDeliveryHours = {
   Sunday: { open: "09:00", close: "18:00", closed: true },
   Monday: { open: "09:00", close: "18:00", closed: false },
   Tuesday: { open: "09:00", close: "18:00", closed: false },
@@ -64,7 +64,7 @@ const initialStoreData: StoreData = {
   address: '',
   phone: '',
   website: '',
-  businessHours: defaultBusinessHours,
+  deliveryHours: defaultDeliveryHours,
   aboutSections: [
     { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
     { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
@@ -176,7 +176,7 @@ export const StoreSetup = () => {
             address: data.address || '',
             phone: data.phone || '',
             website: data.website || '',
-            businessHours: data.storeBusinessHours || defaultBusinessHours,
+            deliveryHours: data.storeDeliveryHours || data.storeBusinessHours || defaultDeliveryHours,
             aboutSections,
             storeImage: data.storeImage || '',
             imageFiles: data.imageFiles || []
@@ -254,7 +254,7 @@ export const StoreSetup = () => {
         location: coordinates,
         phone: values.phone,
         website: values.website,
-        storeBusinessHours: values.businessHours,
+        storeDeliveryHours: values.deliveryHours,
         titleTabAboutFirst: values.aboutSections[0]?.title || '',
         bodyTabAboutFirst: values.aboutSections[0]?.description || '',
         imageTabAboutFirst: aboutSectionImages[0] || '',
@@ -577,7 +577,7 @@ export const StoreSetup = () => {
           </div>
         </FormSection>
 
-        <FormSection title="Business Hours" icon={Clock}>
+        <FormSection title="Delivery Hours" icon={Clock}>
           <div className="space-y-4">
             {daysOrder.map((day) => (
               <div key={day} className="flex items-center space-x-4">
@@ -589,40 +589,40 @@ export const StoreSetup = () => {
                 <div className="flex-1 flex items-center space-x-4">
                   <input
                     type="time"
-                    value={draftValues.businessHours[day].open}
+                    value={draftValues.deliveryHours[day].open}
                     onChange={(e) => setDraftValues({
                       ...draftValues,
-                      businessHours: {
-                        ...draftValues.businessHours,
-                        [day]: { ...draftValues.businessHours[day], open: e.target.value }
+                      deliveryHours: {
+                        ...draftValues.deliveryHours,
+                        [day]: { ...draftValues.deliveryHours[day], open: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={draftValues.businessHours[day].closed}
+                    disabled={draftValues.deliveryHours[day].closed}
                   />
                   <span className="text-gray-500">to</span>
                   <input
                     type="time"
-                    value={draftValues.businessHours[day].close}
+                    value={draftValues.deliveryHours[day].close}
                     onChange={(e) => setDraftValues({
                       ...draftValues,
-                      businessHours: {
-                        ...draftValues.businessHours,
-                        [day]: { ...draftValues.businessHours[day], close: e.target.value }
+                      deliveryHours: {
+                        ...draftValues.deliveryHours,
+                        [day]: { ...draftValues.deliveryHours[day], close: e.target.value }
                       }
                     })}
                     className="w-40"
-                    disabled={draftValues.businessHours[day].closed}
+                    disabled={draftValues.deliveryHours[day].closed}
                   />
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      checked={draftValues.businessHours[day].closed}
+                      checked={draftValues.deliveryHours[day].closed}
                       onChange={(e) => setDraftValues({
                         ...draftValues,
-                        businessHours: {
-                          ...draftValues.businessHours,
-                          [day]: { ...draftValues.businessHours[day], closed: e.target.checked }
+                        deliveryHours: {
+                          ...draftValues.deliveryHours,
+                          [day]: { ...draftValues.deliveryHours[day], closed: e.target.checked }
                         }
                       })}
                       className="rounded border-gray-300"
@@ -865,17 +865,17 @@ export const StoreSetup = () => {
             <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
               <div className="flex items-center mb-2">
                 <Clock className="w-5 h-5 text-primary-600 mr-2" />
-                <h3 className="font-semibold text-primary-700">Business Hours</h3>
+                <h3 className="font-semibold text-primary-700">Delivery Hours</h3>
               </div>
               <div className="space-y-2">
                 {daysOrder.map(day => (
                   <div key={day} className="flex justify-between text-sm">
                     <span className="font-medium text-gray-700">{day}</span>
-                    {storeData.businessHours[day].closed ? (
+                    {storeData.deliveryHours[day].closed ? (
                       <span className="text-gray-900">Closed</span>
                     ) : (
                       <span className="text-gray-900">
-                        {storeData.businessHours[day].open} - {storeData.businessHours[day].close}
+                        {storeData.deliveryHours[day].open} - {storeData.deliveryHours[day].close}
                       </span>
                     )}
                   </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Check, AlertTriangle } from 'lucide-react';
 import { Product } from '../types/product';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AddToCartButtonProps {
   product: Product;
@@ -23,6 +24,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   showQuantityControls = false
 }) => {
   const { cart, addToCart, canAddToCart } = useCart();
+  const { t } = useLanguage();
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -89,7 +91,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     return (
       <div className={`flex items-center gap-2 ${sizeClasses[size]} bg-red-50 border border-red-200 rounded-xl text-red-700 ${className}`}>
         <AlertTriangle className={iconSizes[size]} />
-        <span className="font-medium text-sm">Different store in cart</span>
+        <span className="font-medium text-sm">{t('cart.differentStoreInCart')}</span>
       </div>
     );
   }
@@ -99,7 +101,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     return (
       <div className={`flex items-center justify-center gap-2 ${sizeClasses[size]} bg-green-100 border border-green-200 rounded-xl text-green-700 ${className}`}>
         <Check className={iconSizes[size]} />
-        <span className="font-semibold">Added to cart!</span>
+        <span className="font-semibold">{t('cart.addedToCart')}</span>
       </div>
     );
   }
@@ -154,22 +156,22 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           focus:outline-none focus:ring-4 focus:ring-[#C8E400]/30
           ${!canAdd ? 'opacity-50 cursor-not-allowed' : ''}
         `}
-        title={!isAvailable ? 'Product not available' : !canAdd ? 'Clear cart to add from different store' : 'Add to cart'}
+        title={!isAvailable ? t('cart.productNotAvailable') : !canAdd ? t('cart.clearCartDifferentStore') : t('cart.addToCart')}
       >
         {isAdding ? (
           <>
             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-            <span>Adding...</span>
+            <span>{t('cart.adding')}</span>
           </>
         ) : (
           <>
             <ShoppingCart className={iconSizes[size]} />
             <span>
               {currentQuantityInCart > 0 
-                ? `Add More (${currentQuantityInCart} in cart)` 
+                ? `${t('cart.addMore')} (${currentQuantityInCart} ${t('cart.inCart')})` 
                 : showQuantityControls && quantity > 1
-                ? `Add ${quantity} to Cart`
-                : 'Add to Cart'
+                ? t('cart.addToCartQuantity').replace('{quantity}', quantity.toString())
+                : t('cart.addToCart')
               }
             </span>
             {!showQuantityControls && quantity > 1 && (
