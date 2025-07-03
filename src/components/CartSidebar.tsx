@@ -121,19 +121,19 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('cart.subtotal')}</span>
-                    <span className="font-medium">${cart.summary.subtotal}</span>
+                    <span className="font-medium">CAD ${cart.summary.subtotal}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('cart.tax')}</span>
-                    <span className="font-medium">${cart.summary.tax}</span>
+                    <span className="font-medium">CAD ${cart.summary.tax}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('cart.deliveryFee')}</span>
-                    <span className="font-medium">${cart.summary.deliveryFee}</span>
+                    <span className="font-medium">CAD ${cart.summary.deliveryFee}</span>
                   </div>
                   <div className="border-t border-gray-300 pt-2 flex justify-between text-lg font-bold">
                     <span>{t('cart.total')}</span>
-                    <span className="text-[#C8E400]">${cart.summary.total}</span>
+                    <span className="text-[#C8E400]">CAD ${cart.summary.total}</span>
                   </div>
                 </div>
 
@@ -222,9 +222,9 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item, onQuantityChange, onR
           {/* Price and Quantity */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[#C8E400]">${item.priceAtTime}</span>
+              <span className="font-bold text-[#C8E400]">CAD ${item.priceAtTime}</span>
               {item.priceAtTime !== item.product.price && (
-                <span className="text-xs text-gray-500 line-through">${item.product.price}</span>
+                <span className="text-xs text-gray-500 line-through">CAD ${item.product.price}</span>
               )}
             </div>
 

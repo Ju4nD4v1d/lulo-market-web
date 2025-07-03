@@ -22,11 +22,20 @@ export interface StoreData {
   name: string;
   description?: string;
   location?: StoreLocation;
+  address?: string;  // Legacy field for backward compatibility with StoreSetup
   phone?: string;
   website?: string;
   instagram?: string;
   facebook?: string;
   twitter?: string;
+  deliveryHours?: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  // Legacy field for backwards compatibility - use deliveryHours instead
   businessHours?: {
     [key: string]: {
       open: string;
@@ -54,4 +63,5 @@ export interface StoreData {
   averageRating?: number;        // Calculated average rating (0-5)
   totalReviews?: number;         // Total number of reviews
   isVerified?: boolean;          // Verified business status
+  createdAt?: Date;              // Store creation timestamp
 }

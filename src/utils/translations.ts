@@ -156,6 +156,9 @@ export const translations = {
     'store.saveProgress.createdTitle': 'Store Created Successfully!',
     'store.saveProgress.createdDesc': 'Your store is now live and ready to accept orders. You can start adding products right away.',
     'store.saveProgress.continue': 'Continue to Products',
+    
+    // Store Status
+    'store.new': 'New',
 
     // Products
     'products.title': 'Product Management',
@@ -420,7 +423,7 @@ export const translations = {
     'storeDetail.title': 'Restaurant Details',
     'storeDetail.subtitle': 'Explore menu and place your order',
     'storeDetail.verifiedPartner': 'Verified Partner',
-    'storeDetail.todaysHours': "Today's Hours",
+    'storeDetail.todaysHours': "Today's Delivery Hours",
     'storeDetail.ourMenu': 'Our Menu',
     'storeDetail.menuDescription': 'Discover our carefully curated selection of premium dishes',
     'storeDetail.searchDishes': 'Search for your favorite dishes...',
@@ -435,6 +438,29 @@ export const translations = {
     'storeDetail.adjustSearch': "Try adjusting your search or filter criteria to find what you're looking for.",
     'storeDetail.checkBackSoon': 'This restaurant is still preparing their menu. Check back soon for delicious options!',
     'storeDetail.clearFilters': 'Clear Filters',
+
+    // Delivery Schedule
+    'delivery.nextAvailable': 'Next Available Delivery',
+    'delivery.availableNow': 'Available now',
+    'delivery.today': 'Today',
+    'delivery.tomorrow': 'Tomorrow',
+    'delivery.inDays': 'In {days} days',
+    'delivery.noService': 'No delivery service available in the next 7 days',
+    'delivery.weeklySchedule': 'Weekly Delivery Schedule',
+    'delivery.deliveryHours': 'Delivery Hours',
+    'delivery.closed': 'Closed',
+    'delivery.service': 'Delivery Service',
+    'delivery.currentlyUnavailable': 'Delivery service currently unavailable',
+    'delivery.noDeliveryToday': 'No delivery today',
+
+    // Days of the week
+    'days.sunday': 'Sunday',
+    'days.monday': 'Monday',
+    'days.tuesday': 'Tuesday',
+    'days.wednesday': 'Wednesday',
+    'days.thursday': 'Thursday',
+    'days.friday': 'Friday',
+    'days.saturday': 'Saturday',
 
     // Categories
     'category.all': 'All',
@@ -468,7 +494,13 @@ export const translations = {
     'cart.differentStoreInCart': 'Different store in cart',
     'cart.addedToCart': 'Added to cart!',
     'cart.adding': 'Adding...',
-    'cart.unavailable': 'Unavailable'
+    'cart.unavailable': 'Unavailable',
+
+    // Product Rating and General
+    'product.noRating': 'No rating',
+    'product.inStock': 'in stock',
+    'product.popular': 'Popular',
+    'product.unavailable': 'Unavailable'
   },
   es: {
     // Navigation
@@ -625,6 +657,9 @@ export const translations = {
     'store.saveProgress.createdTitle': '¡Tienda Creada Exitosamente!',
     'store.saveProgress.createdDesc': 'Tu tienda ya está en línea y lista para recibir pedidos. Puedes comenzar a agregar productos de inmediato.',
     'store.saveProgress.continue': 'Continuar a Productos',
+    
+    // Store Status
+    'store.new': 'Nuevo',
 
     // Products
     'products.title': 'Gestión de Productos',
@@ -889,7 +924,7 @@ export const translations = {
     'storeDetail.title': 'Detalles del Restaurante',
     'storeDetail.subtitle': 'Explora el menú y haz tu pedido',
     'storeDetail.verifiedPartner': 'Socio Verificado',
-    'storeDetail.todaysHours': 'Horario de Hoy',
+    'storeDetail.todaysHours': 'Horario de Entrega de Hoy',
     'storeDetail.ourMenu': 'Nuestro Menú',
     'storeDetail.menuDescription': 'Descubre nuestra selección cuidadosamente curada de platos premium',
     'storeDetail.searchDishes': 'Busca tus platos favoritos...',
@@ -904,6 +939,29 @@ export const translations = {
     'storeDetail.adjustSearch': 'Intenta ajustar tu búsqueda o criterios de filtro para encontrar lo que buscas.',
     'storeDetail.checkBackSoon': 'Este restaurante todavía está preparando su menú. ¡Vuelve pronto para opciones deliciosas!',
     'storeDetail.clearFilters': 'Limpiar Filtros',
+
+    // Delivery Schedule
+    'delivery.nextAvailable': 'Próxima Entrega Disponible',
+    'delivery.availableNow': 'Disponible ahora',
+    'delivery.today': 'Hoy',
+    'delivery.tomorrow': 'Mañana',
+    'delivery.inDays': 'En {days} días',
+    'delivery.noService': 'No hay servicio de entrega disponible en los próximos 7 días',
+    'delivery.weeklySchedule': 'Horario Semanal de Entrega',
+    'delivery.deliveryHours': 'Horario de Entrega',
+    'delivery.closed': 'Cerrado',
+    'delivery.service': 'Servicio de Entrega',
+    'delivery.currentlyUnavailable': 'Servicio de entrega actualmente no disponible',
+    'delivery.noDeliveryToday': 'Sin entrega hoy',
+
+    // Days of the week
+    'days.sunday': 'Domingo',
+    'days.monday': 'Lunes',
+    'days.tuesday': 'Martes',
+    'days.wednesday': 'Miércoles',
+    'days.thursday': 'Jueves',
+    'days.friday': 'Viernes',
+    'days.saturday': 'Sábado',
 
     // Categories
     'category.all': 'Todo',
@@ -937,6 +995,12 @@ export const translations = {
     'cart.differentStoreInCart': 'Tienda diferente en carrito',
     'cart.addedToCart': '¡Agregado al carrito!',
     'cart.adding': 'Agregando...',
-    'cart.unavailable': 'No disponible'
+    'cart.unavailable': 'No disponible',
+
+    // Product Rating and General
+    'product.noRating': 'Sin calificación',
+    'product.inStock': 'en stock',
+    'product.popular': 'Popular',
+    'product.unavailable': 'No disponible'
   }
 };
