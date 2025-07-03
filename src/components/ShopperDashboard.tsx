@@ -535,15 +535,14 @@ export const ShopperDashboard = () => {
             ) : (
               <div className="col-span-full text-center py-12">
                 <p className="text-gray-500 text-lg">
-                  {searchQuery || selectedFoodTypes.length > 0
+                  {searchQuery
                     ? t('shopper.noStoresFound')
                     : t('shopper.noStoresAvailable')}
                 </p>
-                {(searchQuery || selectedFoodTypes.length > 0) && (
+                {searchQuery && (
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setSelectedFoodTypes([]);
                     }}
                     className="mt-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
                   >
