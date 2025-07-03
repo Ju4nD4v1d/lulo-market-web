@@ -23,21 +23,7 @@ import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'fireb
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  status: 'active' | 'draft' | 'outOfStock';
-  ownerId: string;
-  storeId: string;
-  pstPercentage?: number;
-  gstPercentage?: number;
-}
+import { Product } from '../types/product';
 
 const defaultFormData = {
   name: '',

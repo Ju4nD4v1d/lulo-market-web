@@ -47,6 +47,11 @@ export interface StoreData {
   deliveryCostWithDiscount?: number;
   minimumOrder?: number;
   imageUrl?: string;
+  storeImage?: string;
   aboutUsSections: AboutUsSection[];
   ownerId: string;
+  // Enhanced shopper experience fields
+  averageRating?: number;        // Calculated average rating (0-5)
+  totalReviews?: number;         // Total number of reviews
+  isVerified?: boolean;          // Verified business status
 }

@@ -14,6 +14,7 @@ import { Pricing } from './components/Pricing';
 import { ShopperDashboard } from './components/ShopperDashboard';
 import { StoreMenu } from './components/StoreMenu';
 import { LanguageProvider } from './context/LanguageContext';
+import { CartProvider } from './context/CartContext';
 
 function App() {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
@@ -76,9 +77,11 @@ function App() {
 
   return (
     <LanguageProvider>
-      <div className="font-sans">
-        {renderRoute()}
-      </div>
+      <CartProvider>
+        <div className="font-sans">
+          {renderRoute()}
+        </div>
+      </CartProvider>
     </LanguageProvider>
   );
 }
