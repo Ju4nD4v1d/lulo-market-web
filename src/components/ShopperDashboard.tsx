@@ -130,8 +130,11 @@ export const ShopperDashboard = () => {
         ...doc.data()
       })) as StoreData[];
       
-      // Use real data if available, otherwise use mock data
-      setStores(storesData.length > 0 ? storesData : mockStores);
+      console.log('Firebase stores data:', storesData);
+      
+      // For demo purposes, always use mock data with proper names and coordinates
+      // TODO: Use real data when store setup is complete
+      setStores(mockStores);
     } catch (error) {
       console.error('Error fetching stores:', error);
       setStores(mockStores); // Fallback to mock data
@@ -169,6 +172,19 @@ export const ShopperDashboard = () => {
     return 'Unknown Location';
   };
 
+  // Function to simulate Vancouver location for testing
+  const simulateVancouverLocation = async () => {
+    setLocationStatus('requesting');
+    // Simulate a location in downtown Vancouver
+    const coords = {
+      lat: 49.2827,
+      lng: -123.1207
+    };
+    setUserLocation(coords);
+    setLocationName('Vancouver, BC');
+    setLocationStatus('granted');
+  };
+
   // Function to request user location
   const requestLocation = () => {
     setLocationStatus('requesting');
@@ -186,19 +202,21 @@ export const ShopperDashboard = () => {
         },
         (error) => {
           console.error('Error getting location:', error);
-          setLocationStatus('denied');
+          // Fallback to Vancouver for demo
+          simulateVancouverLocation();
         }
       );
     } else {
       console.error('Geolocation is not supported');
-      setLocationStatus('denied');
+      // Fallback to Vancouver for demo
+      simulateVancouverLocation();
     }
   };
 
   // Function to calculate distance between two points
   const calculateDistance = useCallback((store?: StoreData): string => {
     if (!userLocation || !store?.location?.coordinates) {
-      return '-- km';
+      return 'Near you';
     }
 
     const R = 6371; // Radius of the Earth in kilometers
@@ -212,7 +230,7 @@ export const ShopperDashboard = () => {
     const distance = R * c;
 
     if (distance < 1) {
-      return `${Math.round(distance * 1000)} m`;
+      return 'Less than 1 km';
     } else {
       return `${distance.toFixed(1)} km`;
     }
