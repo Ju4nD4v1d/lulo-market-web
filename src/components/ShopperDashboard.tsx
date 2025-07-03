@@ -132,9 +132,8 @@ export const ShopperDashboard = () => {
       
       console.log('Firebase stores data:', storesData);
       
-      // For demo purposes, always use mock data with proper names and coordinates
-      // TODO: Use real data when store setup is complete
-      setStores(mockStores);
+      // Use real data if available, otherwise use mock data
+      setStores(storesData.length > 0 ? storesData : mockStores);
     } catch (error) {
       console.error('Error fetching stores:', error);
       setStores(mockStores); // Fallback to mock data
