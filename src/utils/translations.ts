@@ -500,7 +500,109 @@ export const translations = {
     'product.noRating': 'No rating',
     'product.inStock': 'in stock',
     'product.popular': 'Popular',
-    'product.unavailable': 'Unavailable'
+    'product.unavailable': 'Unavailable',
+
+    // Order Management
+    'order.checkout': 'Checkout',
+    'order.placeOrder': 'Place Order',
+    'order.orderSummary': 'Order Summary',
+    'order.customerInfo': 'Customer Information',
+    'order.deliveryAddress': 'Delivery Address',
+    'order.orderNotes': 'Order Notes',
+    'order.specialInstructions': 'Special Instructions',
+    'order.name': 'Full Name',
+    'order.email': 'Email Address',
+    'order.phone': 'Phone Number',
+    'order.street': 'Street Address',
+    'order.city': 'City',
+    'order.province': 'Province',
+    'order.postalCode': 'Postal Code',
+    'order.country': 'Country',
+    'order.deliveryInstructions': 'Delivery Instructions',
+    'order.orderHistory': 'Order History',
+    'order.trackOrder': 'Track Order',
+    'order.orderConfirmation': 'Order Confirmation',
+    'order.thankYou': 'Thank you for your order!',
+    'order.orderNumber': 'Order Number',
+    'order.estimatedDelivery': 'Estimated Delivery',
+    'order.contactStore': 'Contact Store',
+    
+    // Order Status
+    'orderStatus.pending': 'Pending',
+    'orderStatus.confirmed': 'Confirmed',
+    'orderStatus.preparing': 'Preparing',
+    'orderStatus.ready': 'Ready',
+    'orderStatus.outForDelivery': 'Out for Delivery',
+    'orderStatus.delivered': 'Delivered',
+    'orderStatus.cancelled': 'Cancelled',
+    
+    // Order Types
+    'orderType.delivery': 'Delivery',
+    'orderType.pickup': 'Pickup',
+    
+    // Payment
+    'payment.pending': 'Payment Pending',
+    'payment.paid': 'Paid',
+    'payment.failed': 'Payment Failed',
+    'payment.refunded': 'Refunded',
+    
+    // Validation Messages
+    'validation.required': 'This field is required',
+    'validation.invalidEmail': 'Please enter a valid email address',
+    'validation.invalidPhone': 'Please enter a valid phone number',
+    'validation.minLength': 'Must be at least {min} characters',
+    'validation.maxLength': 'Must be no more than {max} characters',
+    
+    // Order Confirmation
+    'order.confirmation.title': 'Order Confirmation',
+    'order.confirmation.subtitle': 'Your order has been placed successfully',
+    'order.confirmation.success': 'Order Placed Successfully!',
+    'order.confirmation.thankYou': 'Thank you for your order. We\'ll get it prepared right away.',
+    'order.number': 'Order Number',
+    'order.storeInfo': 'Store Information',
+    'order.items': 'Order Items',
+    'order.quantity': 'Qty',
+    'order.subtotal': 'Subtotal',
+    'order.tax': 'Tax',
+    'order.deliveryFee': 'Delivery Fee',
+    'order.total': 'Total',
+    'order.paymentSummary': 'Payment Summary',
+    'order.paymentStatus': 'Payment Status',
+    'order.estimatedTime': 'Estimated Time',
+    'order.minutes': 'minutes',
+    'order.nextSteps': 'What\'s Next',
+    'order.nextSteps.confirmation': 'Order confirmed and sent to restaurant',
+    'order.nextSteps.preparation': 'Restaurant begins preparing your order',
+    'order.nextSteps.delivery': 'Order will be delivered to your address',
+    'order.nextSteps.pickup': 'Order will be ready for pickup',
+    'order.continueShopping': 'Continue Shopping',
+    'order.reviewPrompt.title': 'Enjoyed your meal?',
+    'order.reviewPrompt.description': 'Help other customers by leaving a review of your experience.',
+    'order.reviewPrompt.action': 'Leave a Review',
+    'order.status.pending': 'Pending Confirmation',
+    'order.status.confirmed': 'Confirmed by Restaurant',
+    'order.status.preparing': 'Being Prepared',
+    'order.error.submitFailed': 'Failed to place order. Please try again.',
+    
+    // Checkout specific
+    'checkout.deliveryOnly': 'All orders are delivered to your address',
+    'checkout.selectDeliveryDate': 'Select Delivery Date',
+    'checkout.deliveryDateNote': 'Delivery available from tomorrow onwards. Select your preferred date within 2 weeks.',
+    
+    // Form placeholders
+    'placeholder.fullName': 'Enter your full name',
+    'placeholder.email': 'Enter your email address',
+    'placeholder.phone': 'Enter your phone number',
+    'placeholder.street': '123 Main Street',
+    'placeholder.city': 'Vancouver',
+    'placeholder.postalCode': 'V6B 1A1',
+    'placeholder.deliveryInstructions': 'Apartment number, gate code, special instructions...',
+    'placeholder.orderNotes': 'Any special requests or notes for the restaurant...',
+    'placeholder.selectProvince': 'Select Province',
+    
+    // Buttons
+    'button.continueToDeliveryAddress': 'Continue to Delivery Address',
+    'button.reviewOrder': 'Review Order'
   },
   es: {
     // Navigation
@@ -1001,6 +1103,108 @@ export const translations = {
     'product.noRating': 'Sin calificación',
     'product.inStock': 'en stock',
     'product.popular': 'Popular',
-    'product.unavailable': 'No disponible'
+    'product.unavailable': 'No disponible',
+
+    // Order Management
+    'order.checkout': 'Finalizar Compra',
+    'order.placeOrder': 'Realizar Pedido',
+    'order.orderSummary': 'Resumen del Pedido',
+    'order.customerInfo': 'Información del Cliente',
+    'order.deliveryAddress': 'Dirección de Entrega',
+    'order.orderNotes': 'Notas del Pedido',
+    'order.specialInstructions': 'Instrucciones Especiales',
+    'order.name': 'Nombre Completo',
+    'order.email': 'Correo Electrónico',
+    'order.phone': 'Número de Teléfono',
+    'order.street': 'Dirección',
+    'order.city': 'Ciudad',
+    'order.province': 'Provincia',
+    'order.postalCode': 'Código Postal',
+    'order.country': 'País',
+    'order.deliveryInstructions': 'Instrucciones de Entrega',
+    'order.orderHistory': 'Historial de Pedidos',
+    'order.trackOrder': 'Rastrear Pedido',
+    'order.orderConfirmation': 'Confirmación del Pedido',
+    'order.thankYou': '¡Gracias por tu pedido!',
+    'order.orderNumber': 'Número de Pedido',
+    'order.estimatedDelivery': 'Entrega Estimada',
+    'order.contactStore': 'Contactar Tienda',
+    
+    // Order Status
+    'orderStatus.pending': 'Pendiente',
+    'orderStatus.confirmed': 'Confirmado',
+    'orderStatus.preparing': 'Preparando',
+    'orderStatus.ready': 'Listo',
+    'orderStatus.outForDelivery': 'En Camino',
+    'orderStatus.delivered': 'Entregado',
+    'orderStatus.cancelled': 'Cancelado',
+    
+    // Order Types
+    'orderType.delivery': 'Entrega a Domicilio',
+    'orderType.pickup': 'Recogida',
+    
+    // Payment
+    'payment.pending': 'Pago Pendiente',
+    'payment.paid': 'Pagado',
+    'payment.failed': 'Pago Fallido',
+    'payment.refunded': 'Reembolsado',
+    
+    // Validation Messages
+    'validation.required': 'Este campo es obligatorio',
+    'validation.invalidEmail': 'Por favor ingresa un correo electrónico válido',
+    'validation.invalidPhone': 'Por favor ingresa un número de teléfono válido',
+    'validation.minLength': 'Debe tener al menos {min} caracteres',
+    'validation.maxLength': 'No debe tener más de {max} caracteres',
+    
+    // Order Confirmation
+    'order.confirmation.title': 'Confirmación del Pedido',
+    'order.confirmation.subtitle': 'Tu pedido ha sido enviado exitosamente',
+    'order.confirmation.success': '¡Pedido Enviado Exitosamente!',
+    'order.confirmation.thankYou': 'Gracias por tu pedido. Lo prepararemos inmediatamente.',
+    'order.number': 'Número de Pedido',
+    'order.storeInfo': 'Información de la Tienda',
+    'order.items': 'Productos del Pedido',
+    'order.quantity': 'Cant.',
+    'order.subtotal': 'Subtotal',
+    'order.tax': 'Impuesto',
+    'order.deliveryFee': 'Costo de Envío',
+    'order.total': 'Total',
+    'order.paymentSummary': 'Resumen del Pago',
+    'order.paymentStatus': 'Estado del Pago',
+    'order.estimatedTime': 'Tiempo Estimado',
+    'order.minutes': 'minutos',
+    'order.nextSteps': 'Siguientes Pasos',
+    'order.nextSteps.confirmation': 'Pedido confirmado y enviado al restaurante',
+    'order.nextSteps.preparation': 'El restaurante comienza a preparar tu pedido',
+    'order.nextSteps.delivery': 'El pedido será entregado a tu dirección',
+    'order.nextSteps.pickup': 'El pedido estará listo para recoger',
+    'order.continueShopping': 'Continuar Comprando',
+    'order.reviewPrompt.title': '¿Disfrutaste tu comida?',
+    'order.reviewPrompt.description': 'Ayuda a otros clientes dejando una reseña de tu experiencia.',
+    'order.reviewPrompt.action': 'Dejar una Reseña',
+    'order.status.pending': 'Pendiente de Confirmación',
+    'order.status.confirmed': 'Confirmado por el Restaurante',
+    'order.status.preparing': 'Siendo Preparado',
+    'order.error.submitFailed': 'Error al enviar el pedido. Inténtalo nuevamente.',
+    
+    // Checkout specific
+    'checkout.deliveryOnly': 'Todos los pedidos se entregan a tu dirección',
+    'checkout.selectDeliveryDate': 'Seleccionar Fecha de Entrega',
+    'checkout.deliveryDateNote': 'Entrega disponible desde mañana en adelante. Selecciona tu fecha preferida dentro de 2 semanas.',
+    
+    // Form placeholders
+    'placeholder.fullName': 'Ingresa tu nombre completo',
+    'placeholder.email': 'Ingresa tu correo electrónico',
+    'placeholder.phone': 'Ingresa tu número de teléfono',
+    'placeholder.street': '123 Calle Principal',
+    'placeholder.city': 'Vancouver',
+    'placeholder.postalCode': 'V6B 1A1',
+    'placeholder.deliveryInstructions': 'Número de apartamento, código de acceso, instrucciones especiales...',
+    'placeholder.orderNotes': 'Cualquier solicitud especial o notas para el restaurante...',
+    'placeholder.selectProvince': 'Seleccionar Provincia',
+    
+    // Buttons
+    'button.continueToDeliveryAddress': 'Continuar a Dirección de Entrega',
+    'button.reviewOrder': 'Revisar Pedido'
   }
 };

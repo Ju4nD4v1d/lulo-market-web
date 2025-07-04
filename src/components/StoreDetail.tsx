@@ -142,7 +142,6 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'price' | 'rating'>('name');
   const [showCart, setShowCart] = useState(false);
 
   const categories = [
@@ -184,7 +183,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     }
   }, [store.id]);
 
-  const filterAndSortProducts = useCallback(() => {
+  const filterProducts = useCallback(() => {
     let filtered = products;
 
     // Filter by search term
@@ -200,29 +199,16 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
-    // Sort products
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price':
-          return a.price - b.price;
-        case 'rating':
-          return (b.averageRating || 0) - (a.averageRating || 0);
-        case 'name':
-        default:
-          return a.name.localeCompare(b.name);
-      }
-    });
-
     setFilteredProducts(filtered);
-  }, [products, searchTerm, selectedCategory, sortBy]);
+  }, [products, searchTerm, selectedCategory]);
 
   useEffect(() => {
     fetchProducts();
   }, [store.id, fetchProducts]);
 
   useEffect(() => {
-    filterAndSortProducts();
-  }, [products, searchTerm, selectedCategory, sortBy, filterAndSortProducts]);
+    filterProducts();
+  }, [products, searchTerm, selectedCategory, filterProducts]);
 
   const formatRating = (rating?: number) => {
     return rating ? rating.toFixed(1) : t('product.noRating');
@@ -241,7 +227,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     const dayName = daysOfWeek[new Date().getDay()];
     
     // Check multiple possible field names and formats
-    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    const businessHours = store.businessHours || (store as unknown as { storeBusinessHours?: Record<string, { open: string; close: string; closed?: boolean }> }).storeBusinessHours;
     const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
     
     if (!todayHours || todayHours.closed) {
@@ -256,7 +242,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     const dayName = daysOfWeek[new Date().getDay()];
     
     // Check multiple possible field names and formats
-    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    const businessHours = store.businessHours || (store as unknown as { storeBusinessHours?: Record<string, { open: string; close: string; closed?: boolean }> }).storeBusinessHours;
     const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
     
     return todayHours && !todayHours.closed;
@@ -265,7 +251,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   // Get all delivery days with formatted hours
   const getDeliverySchedule = () => {
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const businessHours = store.businessHours || (store as any).storeBusinessHours;
+    const businessHours = store.businessHours || (store as unknown as { storeBusinessHours?: Record<string, { open: string; close: string; closed?: boolean }> }).storeBusinessHours;
     
     if (!businessHours) return [];
     
@@ -644,22 +630,6 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   </div>
                 </div>
 
-                {/* Sort Filter */}
-                <div className="space-y-2">
-                  <h4 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide text-center md:text-left">
-                    {t('storeDetail.sortBy')}
-                  </h4>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'name' | 'price' | 'rating')}
-                    className="w-full md:w-auto px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
-                      bg-white shadow-lg font-medium text-gray-700 hover:shadow-xl transition-all duration-300 text-sm md:text-base"
-                  >
-                    <option value="name">{t('storeDetail.sortName')}</option>
-                    <option value="price">{t('storeDetail.sortPrice')}</option>
-                    <option value="rating">{t('storeDetail.sortRating')}</option>
-                  </select>
-                </div>
               </div>
             </div>
           </div>
