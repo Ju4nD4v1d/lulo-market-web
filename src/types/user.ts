@@ -1,9 +1,12 @@
 import { StoreLocation } from './store';
 
+export type UserType = 'admin' | 'storeOwner' | 'shopper';
+
 export interface UserProfile {
   id: string;
   email: string;
   displayName: string;
+  userType: UserType;
   avatar?: string;
   phoneNumber?: string;
   createdAt: Date;
