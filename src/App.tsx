@@ -10,14 +10,17 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
 import { TermsOfService } from './pages/TermsOfService';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { EditProfile } from './pages/EditProfile';
 import { Pricing } from './components/Pricing';
 import { ShopperDashboard } from './components/ShopperDashboard';
 import { StoreMenu } from './components/StoreMenu';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-function App() {
+const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
+  const { currentUser, userType, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -28,10 +31,57 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  // Handle redirect after successful login
+  useEffect(() => {
+    if (currentUser && redirectAfterLogin) {
+      const redirectPath = redirectAfterLogin;
+      setRedirectAfterLogin(null);
+      
+      // Small delay to ensure auth state is fully updated
+      setTimeout(() => {
+        window.location.hash = redirectPath;
+        
+        // If redirecting with checkout parameter, trigger checkout view
+        if (redirectPath.includes('checkout=true')) {
+          // This will be handled by the cart context or component
+          window.dispatchEvent(new CustomEvent('openCheckout'));
+        }
+      }, 100);
+    }
+  }, [currentUser, redirectAfterLogin, setRedirectAfterLogin]);
+
+  // Show loading state while auth is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
   const renderRoute = () => {
-    // Check for dashboard routes first
+    // Check for dashboard routes first - redirect based on userType
     if (currentRoute.startsWith('#dashboard')) {
-      return <Dashboard />;
+      if (!currentUser) {
+        window.location.hash = '#login';
+        return <Login />;
+      }
+
+      // Route based on userType
+      switch (userType) {
+        case 'admin':
+          // TODO: Create AdminDashboard component
+          return <Dashboard />; // Temporary fallback
+        case 'storeOwner':
+          return <Dashboard />;
+        case 'shopper':
+          window.location.hash = '#shopper-dashboard';
+          return <ShopperDashboard />;
+        default:
+          // Legacy users without userType - default to shopper
+          window.location.hash = '#shopper-dashboard';
+          return <ShopperDashboard />;
+      }
     }
 
     // Check for shopper dashboard routes
@@ -60,6 +110,14 @@ function App() {
       return <PrivacyPolicy />;
     }
 
+    if (currentRoute.startsWith('#profile/edit')) {
+      if (!currentUser) {
+        window.location.hash = '#login';
+        return <Login />;
+      }
+      return <EditProfile />;
+    }
+
     return (
       <>
         <Header />
@@ -76,12 +134,20 @@ function App() {
   };
 
   return (
+    <div className="font-sans">
+      {renderRoute()}
+    </div>
+  );
+};
+
+function App() {
+  return (
     <LanguageProvider>
-      <CartProvider>
-        <div className="font-sans">
-          {renderRoute()}
-        </div>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <AppRoutes />
+        </CartProvider>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

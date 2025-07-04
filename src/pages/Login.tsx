@@ -8,7 +8,7 @@ import { getAuthErrorMessage } from '../utils/auth-errors';
 
 export const Login = () => {
   const { t, locale } = useLanguage();
-  const { login, register, currentUser } = useAuth();
+  const { login, register, currentUser, redirectAfterLogin } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,9 +22,14 @@ export const Login = () => {
 
   useEffect(() => {
     if (currentUser) {
-      window.location.hash = '#dashboard';
+      // If there's a redirect path, use it; otherwise use default dashboard
+      if (redirectAfterLogin) {
+        window.location.hash = redirectAfterLogin;
+      } else {
+        window.location.hash = '#dashboard';
+      }
     }
-  }, [currentUser]);
+  }, [currentUser, redirectAfterLogin]);
 
   // Check URL parameters to determine initial mode
   useEffect(() => {
@@ -92,7 +97,7 @@ export const Login = () => {
         await login(email, password);
         window.location.hash = '#dashboard';
       } else {
-        await register(email, password);
+        await register(email, password, fullName);
         setSuccess('Account created successfully! You can now access your dashboard.');
         setTimeout(() => {
           window.location.hash = '#dashboard';

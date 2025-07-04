@@ -58,6 +58,16 @@ export interface StoreData {
   imageUrl?: string;
   storeImage?: string;
   aboutUsSections: AboutUsSection[];
+  // Firestore About Us fields
+  titleTabAboutFirst?: string;
+  bodyTabAboutFirst?: string;
+  imageTabAboutFirst?: string;
+  titleTabAboutSecond?: string;
+  bodyTabAboutSecond?: string;
+  imageTabAboutSecond?: string;
+  titleTabAboutThird?: string;
+  bodyTabAboutThird?: string;
+  imageTabAboutThird?: string;
   ownerId: string;
   // Enhanced shopper experience fields
   averageRating?: number;        // Calculated average rating (0-5)

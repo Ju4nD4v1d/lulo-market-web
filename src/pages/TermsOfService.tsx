@@ -5,19 +5,30 @@ import { useLanguage } from '../context/LanguageContext';
 export const TermsOfService = () => {
   const { t } = useLanguage();
 
+  const handleBack = () => {
+    // Check if there's a stored back navigation path, otherwise go to home
+    const backPath = localStorage.getItem('backNavigationPath');
+    if (backPath && backPath !== window.location.hash) {
+      localStorage.removeItem('backNavigationPath');
+      window.location.hash = backPath;
+    } else {
+      window.location.hash = '#';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <a 
-              href="#" 
+            <button 
+              onClick={handleBack}
               className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               <span>{t('legal.backToHome')}</span>
-            </a>
+            </button>
             <div className="text-sm text-gray-500">
               {t('legal.lastUpdated')}: December 2024
             </div>

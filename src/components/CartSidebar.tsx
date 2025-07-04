@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, ShoppingCart, Plus, Minus, Trash2, Store } from 'lucide-react';
+import { X, ShoppingCart, Plus, Minus, Trash2, Store, User } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { CartItem } from '../types/cart';
 import { CheckoutForm } from './CheckoutForm';
 import { OrderConfirmation } from './OrderConfirmation';
@@ -10,16 +11,25 @@ import { Order } from '../types/order';
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  openInCheckoutMode?: boolean;
 }
 
 type CartView = 'cart' | 'checkout' | 'confirmation';
 
-export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
+export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openInCheckoutMode = false }) => {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const { t } = useLanguage();
+  const { currentUser, setRedirectAfterLogin } = useAuth();
   const [isClearing, setIsClearing] = useState(false);
   const [currentView, setCurrentView] = useState<CartView>('cart');
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+
+  // Handle opening in checkout mode
+  React.useEffect(() => {
+    if (openInCheckoutMode && isOpen && currentUser && cart.items.length > 0) {
+      setCurrentView('checkout');
+    }
+  }, [openInCheckoutMode, isOpen, currentUser, cart.items.length]);
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -37,6 +47,12 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   const handleCheckout = () => {
+    if (!currentUser) {
+      // Set redirect to come back to the cart with checkout view
+      setRedirectAfterLogin('#shopper-dashboard?checkout=true');
+      window.location.hash = '#login';
+      return;
+    }
     setCurrentView('checkout');
   };
 
@@ -155,7 +171,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
               )}
 
               {/* Cart Items */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {cart.items.map((item) => (
                   <CartItemCard 
                     key={item.id} 
@@ -189,11 +205,24 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
+                  {!currentUser && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-3">
+                      <div className="flex items-center gap-2 text-blue-700 text-sm">
+                        <User className="w-4 h-4" />
+                        <span>{t('cart.loginRequired')}</span>
+                      </div>
+                    </div>
+                  )}
+                  
                   <button
                     onClick={handleCheckout}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
+                      currentUser 
+                        ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white hover:shadow-lg' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+                    }`}
                   >
-                    {t('cart.proceedToCheckout')}
+                    {currentUser ? t('cart.proceedToCheckout') : t('cart.signInToCheckout')}
                   </button>
                   
                   <button
@@ -230,10 +259,10 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item, onQuantityChange, onR
   };
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 p-4 transition-all duration-300 ${isRemoving ? 'opacity-50 scale-95' : 'hover:shadow-md'}`}>
-      <div className="flex gap-3">
-        {/* Product Image */}
-        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+    <div className={`bg-white rounded-lg border border-gray-200 p-2.5 transition-all duration-300 ${isRemoving ? 'opacity-50 scale-95' : 'hover:shadow-sm'}`}>
+      <div className="flex gap-2.5">
+        {/* Product Image - Smaller */}
+        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
           {item.product.images && item.product.images.length > 0 ? (
             <img 
               src={item.product.images[0]} 
@@ -242,62 +271,63 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item, onQuantityChange, onR
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-2xl">🍽️</span>
+              <span className="text-lg">🍽️</span>
             </div>
           )}
         </div>
 
-        {/* Product Info */}
+        {/* Product Info - Compact Layout */}
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-gray-900 truncate">{item.product.name}</h4>
-              <p className="text-sm text-gray-600 line-clamp-1">{item.product.description}</p>
+          {/* Header Row: Name, Price, Remove Button */}
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex-1 min-w-0 mr-2">
+              <h4 className="font-semibold text-gray-900 truncate text-sm leading-tight">{item.product.name}</h4>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="font-bold text-[#C8E400] text-sm">CAD ${item.priceAtTime}</span>
+                {item.priceAtTime !== item.product.price && (
+                  <span className="text-xs text-gray-500 line-through">CAD ${item.product.price}</span>
+                )}
+              </div>
             </div>
             <button
               onClick={handleRemove}
               disabled={isRemoving}
-              className="ml-2 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50"
+              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50 flex-shrink-0"
               title="Remove item"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Price and Quantity */}
+          {/* Bottom Row: Quantity Controls */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#C8E400]">CAD ${item.priceAtTime}</span>
-              {item.priceAtTime !== item.product.price && (
-                <span className="text-xs text-gray-500 line-through">CAD ${item.product.price}</span>
-              )}
-            </div>
-
-            {/* Quantity Controls */}
-            <div className="flex items-center gap-1 bg-gray-50 rounded-lg border border-gray-200">
+            {/* Description - Truncated */}
+            <p className="text-xs text-gray-500 truncate flex-1 mr-2">{item.product.description}</p>
+            
+            {/* Quantity Controls - Compact */}
+            <div className="flex items-center bg-gray-50 rounded border border-gray-200 flex-shrink-0">
               <button 
                 onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-                className="p-1.5 hover:bg-gray-100 rounded-l-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-l transition-colors"
               >
-                <Minus className="w-3.5 h-3.5 text-gray-600" />
+                <Minus className="w-3 h-3 text-gray-600" />
               </button>
-              <span className="px-3 py-1.5 font-semibold text-gray-900 min-w-[2rem] text-center text-sm">
+              <span className="px-2 py-1 font-semibold text-gray-900 text-xs min-w-[1.5rem] text-center">
                 {item.quantity}
               </span>
               <button 
                 onClick={() => onQuantityChange(item.id, item.quantity + 1)}
-                className="p-1.5 hover:bg-gray-100 rounded-r-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-r transition-colors"
               >
-                <Plus className="w-3.5 h-3.5 text-gray-600" />
+                <Plus className="w-3 h-3 text-gray-600" />
               </button>
             </div>
           </div>
 
-          {/* Special Instructions */}
+          {/* Special Instructions - Compact */}
           {item.specialInstructions && (
-            <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-xs text-blue-700 font-medium">Special instructions:</p>
-              <p className="text-xs text-blue-600">{item.specialInstructions}</p>
+            <div className="mt-1.5 p-1.5 bg-blue-50 rounded border border-blue-200">
+              <p className="text-xs text-blue-600 italic">{item.specialInstructions}</p>
             </div>
           )}
         </div>

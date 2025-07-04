@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Globe, LogIn } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { COMPANY_NAME } from '../config/company';
 
 export const Header = () => {
   const { t, toggleLanguage } = useLanguage();
@@ -89,9 +88,11 @@ export const Header = () => {
         `}>
           <div className="px-6 flex justify-between items-center">
             <a href="#" className="flex items-center group">
-              <span className="text-2xl font-bold text-[#4B371C] transition-all duration-300 group-hover:text-primary-400">
-                {COMPANY_NAME}
-              </span>
+              <img 
+                src="/logo_lulo.png" 
+                alt="Lulo"
+                className="h-20 w-auto transition-all duration-300 group-hover:scale-105"
+              />
             </a>
 
             {/* Desktop Navigation */}
@@ -111,13 +112,6 @@ export const Header = () => {
                 </span>
                 <span className="absolute inset-0 w-full h-full bg-primary-400/10 rounded-lg transform scale-90 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110" />
               </button>
-              <a
-                href="#login"
-                className="flex items-center space-x-2 px-4 py-2 rounded-full bg-primary-400 text-white hover:bg-primary-500 transition-colors duration-300"
-              >
-                <LogIn size={16} />
-                <span>{t('auth.login')}</span>
-              </a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -128,12 +122,6 @@ export const Header = () => {
               >
                 <Globe size={20} />
               </button>
-              <a
-                href="#login"
-                className="mr-4 text-[#4B371C] hover:text-primary-400 transition-all duration-300"
-              >
-                <LogIn size={20} />
-              </a>
               <button
                 onClick={toggleMenu}
                 className="text-[#4B371C] hover:text-primary-400 transition-all duration-300"

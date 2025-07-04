@@ -55,12 +55,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg md:rounded-xl shadow-md md:shadow-lg overflow-hidden transition-transform hover:scale-[1.01] md:hover:scale-[1.02] cursor-pointer ${
+      className={`bg-white rounded-lg md:rounded-xl shadow-md md:shadow-lg overflow-hidden transition-transform hover:scale-[1.01] md:hover:scale-[1.02] cursor-pointer flex flex-col h-full ${
         isOutOfStock ? 'opacity-60' : ''
       }`}
       onClick={handleClick}
     >
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         {/* Product Image */}
         <div className="w-full h-32 md:h-40 lg:h-48 bg-gray-200 overflow-hidden">
           {product.images && product.images.length > 0 ? (
@@ -87,13 +87,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      <div className="p-3 md:p-4">
+      <div className="p-3 md:p-4 flex flex-col flex-1">
         {/* Product Info */}
-        <div className="mb-2 md:mb-3">
-          <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 text-sm md:text-base">
+        <div className="mb-2 md:mb-3 flex-1">
+          <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 text-sm md:text-base leading-tight">
             {product.name}
           </h3>
-          <p className="text-gray-600 text-xs md:text-sm line-clamp-2">
+          <p className="text-gray-600 text-xs md:text-sm line-clamp-2 leading-relaxed">
             {product.description}
           </p>
         </div>
@@ -102,7 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex items-center gap-2 md:gap-3 text-xs text-gray-500 mb-2 md:mb-3 flex-wrap">
           {/* Rating */}
           {product.averageRating && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               <span>{product.averageRating.toFixed(1)}</span>
               {product.reviewCount && (
@@ -113,7 +113,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Prep Time */}
           {product.preparationTime && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Clock className="w-3 h-3" />
               <span className="truncate">{product.preparationTime}</span>
             </div>
@@ -121,9 +121,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Serving Size */}
           {product.servingSize && (
-            <div className="flex items-center gap-1 hidden md:flex">
+            <div className="flex items-center gap-1 hidden md:flex flex-shrink-0">
               <Users className="w-3 h-3" />
-              <span>{product.servingSize}</span>
+              <span className="truncate">{product.servingSize}</span>
             </div>
           )}
         </div>
@@ -135,13 +135,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {product.allergens.slice(0, 2).map((allergen) => (
                 <span 
                   key={allergen}
-                  className="text-xs bg-orange-100 text-orange-600 px-1.5 md:px-2 py-0.5 md:py-1 rounded"
+                  className="text-xs bg-orange-100 text-orange-600 px-1.5 md:px-2 py-0.5 md:py-1 rounded flex-shrink-0"
                 >
                   {allergen}
                 </span>
               ))}
               {product.allergens.length > 2 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 flex-shrink-0">
                   +{product.allergens.length - 2} more
                 </span>
               )}
@@ -150,13 +150,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         {/* Price and Add to Cart */}
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-base md:text-lg font-bold text-gray-800">
+        <div className="flex items-center justify-between mt-auto gap-2">
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-base md:text-lg font-bold text-gray-800 truncate">
               {formatPrice(product.price)}
             </span>
             {product.stock > 0 && (
-              <span className="text-xs text-gray-500 hidden md:block">
+              <span className="text-xs text-gray-500 hidden md:block truncate">
                 {product.stock} {t('product.inStock')}
               </span>
             )}
@@ -173,7 +173,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           )}
 
           {isOutOfStock && (
-            <span className="text-red-500 text-xs md:text-sm font-medium">
+            <span className="text-red-500 text-xs md:text-sm font-medium flex-shrink-0">
               {t('product.unavailable')}
             </span>
           )}

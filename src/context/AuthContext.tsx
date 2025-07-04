@@ -7,15 +7,24 @@ import {
   signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { auth, db } from '../config/firebase';
+import { UserProfile, UserType } from '../types/user';
 
 interface AuthContextType {
   currentUser: User | null;
+  userProfile: UserProfile | null;
+  userType: UserType | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updateProfile: (profileData: Partial<UserProfile>, authData?: { email?: string; currentPassword?: string; newPassword?: string }) => Promise<void>;
+  refreshUserProfile: () => Promise<void>;
+  redirectAfterLogin: string | null;
+  setRedirectAfterLogin: (path: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,11 +39,59 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // Convert Firestore Timestamps to Dates
+            const userProfile: UserProfile = {
+              ...userData,
+              createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
+              lastLoginAt: userData.lastLoginAt?.toDate ? userData.lastLoginAt.toDate() : new Date(userData.lastLoginAt || Date.now()),
+            } as UserProfile;
+            setUserProfile(userProfile);
+            setUserType(userProfile.userType);
+          } else {
+            // Handle legacy users without userType - default to shopper
+            const defaultUserData: UserProfile = {
+              id: user.uid,
+              email: user.email || '',
+              displayName: user.displayName || 'User',
+              userType: 'shopper',
+              createdAt: new Date(),
+              lastLoginAt: new Date(),
+              preferences: {},
+            };
+            
+            await setDoc(doc(db, 'users', user.uid), {
+              ...defaultUserData,
+              createdAt: serverTimestamp(),
+              lastLoginAt: serverTimestamp(),
+            });
+            
+            setUserProfile(defaultUserData);
+            setUserType('shopper');
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+          setUserProfile(null);
+          setUserType(null);
+        }
+      } else {
+        setUserProfile(null);
+        setUserType(null);
+      }
+      
       setLoading(false);
     });
 
@@ -45,8 +102,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const register = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+  const register = async (email: string, password: string, displayName?: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Create user profile document with shopper as default
+    const userProfileData: UserProfile = {
+      id: user.uid,
+      email: user.email || '',
+      displayName: displayName || 'User',
+      userType: 'shopper', // Default to shopper
+      createdAt: new Date(),
+      lastLoginAt: new Date(),
+      preferences: {},
+    };
+    
+    await setDoc(doc(db, 'users', user.uid), {
+      ...userProfileData,
+      createdAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
+    });
   };
 
   const logout = async () => {
@@ -57,13 +132,105 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await sendPasswordResetEmail(auth, email);
   };
 
+  const updateProfile = async (
+    profileData: Partial<UserProfile>,
+    authData?: { email?: string; currentPassword?: string; newPassword?: string }
+  ) => {
+    if (!currentUser) {
+      throw new Error('No user is currently logged in');
+    }
+
+    try {
+      
+      // Handle authentication updates (email/password) first
+      if (authData && (authData.email || authData.newPassword)) {
+        if (!authData.currentPassword) {
+          throw new Error('Current password is required to update email or password');
+        }
+
+        // Reauthenticate user before sensitive operations
+        const credential = EmailAuthProvider.credential(
+          currentUser.email!,
+          authData.currentPassword
+        );
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // Update email if provided
+        if (authData.email && authData.email !== currentUser.email) {
+          await updateEmail(currentUser, authData.email);
+        }
+
+        // Update password if provided
+        if (authData.newPassword) {
+          await updatePassword(currentUser, authData.newPassword);
+        }
+      }
+
+      // Update Firestore profile document
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const updateData = {
+        ...profileData,
+        lastLoginAt: serverTimestamp()
+      };
+
+      await updateDoc(userDocRef, updateData);
+
+      // Update local state
+      if (userProfile) {
+        const updatedProfile = { ...userProfile, ...profileData };
+        setUserProfile(updatedProfile);
+      }
+      
+
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      console.error('Error updating profile:', err);
+      
+      // Re-throw the original error to preserve Firebase error codes for better error handling
+      throw error;
+    }
+  };
+
+  const refreshUserProfile = async () => {
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // Convert Firestore Timestamps to Dates
+        const refreshedProfile: UserProfile = {
+          ...userData,
+          createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
+          lastLoginAt: userData.lastLoginAt?.toDate ? userData.lastLoginAt.toDate() : new Date(userData.lastLoginAt || Date.now()),
+        } as UserProfile;
+        
+        setUserProfile(refreshedProfile);
+        setUserType(refreshedProfile.userType);
+      } else {
+      }
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+      // Don't throw error - this is a background refresh
+    }
+  };
+
   const value = {
     currentUser,
+    userProfile,
+    userType,
     loading,
     login,
     register,
     logout,
-    resetPassword
+    resetPassword,
+    updateProfile,
+    refreshUserProfile,
+    redirectAfterLogin,
+    setRedirectAfterLogin
   };
 
   return (

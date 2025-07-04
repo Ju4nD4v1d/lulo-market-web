@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { Product } from '../types/product';
 import { ProductCard } from './ProductCard';
@@ -143,6 +143,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCart, setShowCart] = useState(false);
+  const [activeAboutTab, setActiveAboutTab] = useState(0);
 
   const categories = [
     { id: 'all', name: t('category.all'), icon: '🍽️' },
@@ -210,9 +211,6 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     filterProducts();
   }, [products, searchTerm, selectedCategory, filterProducts]);
 
-  const formatRating = (rating?: number) => {
-    return rating ? rating.toFixed(1) : t('product.noRating');
-  };
 
   // Convert 24-hour time to 12-hour AM/PM format
   const formatTime12Hour = (time24: string): string => {
@@ -387,9 +385,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               <div>
                 <div className="flex items-start gap-2 md:gap-4 mb-3 md:mb-4">
                   <div className="flex-1">
-                    <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 tracking-tight">{store.name}</h2>
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-3 tracking-tight leading-tight">{store.name}</h2>
                     {store.description && (
-                      <p className="text-gray-600 text-sm md:text-base lg:text-lg leading-relaxed">{store.description}</p>
+                      <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light">{store.description}</p>
                     )}
                   </div>
                   
@@ -406,31 +404,27 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                 
                 {/* Mobile-First Rating Display */}
                 <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
-                  <div className="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-yellow-200">
-                    <Star className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
-                    <div>
-                      <span className="font-bold text-base md:text-lg lg:text-xl text-gray-900">{formatRating(store.averageRating)}</span>
-                      {store.totalReviews && (
-                        <p className="text-xs md:text-sm text-gray-600 font-medium">({store.totalReviews} reviews)</p>
-                      )}
+                  {store.averageRating && (
+                    <div className="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-yellow-200">
+                      <Star className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
+                      <div>
+                        <span className="font-bold text-base md:text-lg lg:text-xl text-gray-900">{store.averageRating.toFixed(1)}</span>
+                        {store.totalReviews && (
+                          <p className="text-xs md:text-sm text-gray-600 font-medium">({store.totalReviews} reviews)</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                   
-                  <div className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border ${
-                    isDeliveryAvailable() 
-                      ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
-                      : 'bg-gradient-to-r from-red-50 to-red-100 border-red-200'
-                  }`}>
-                    <Clock className={`w-4 h-4 md:w-5 md:h-5 ${
-                      isDeliveryAvailable() ? 'text-green-600' : 'text-red-600'
-                    }`} />
-                    <div>
-                      <p className={`font-semibold text-sm md:text-base ${
-                        isDeliveryAvailable() ? 'text-green-900' : 'text-red-900'
-                      }`}>{getDeliveryHoursToday()}</p>
-                      <p className="text-xs text-gray-600">{t('delivery.deliveryHours')}</p>
+                  {isDeliveryAvailable() && (
+                    <div className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+                      <Clock className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-sm md:text-base text-green-900">{getDeliveryHoursToday()}</p>
+                        <p className="text-xs text-gray-600">{t('delivery.deliveryHours')}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Location */}
@@ -577,59 +571,55 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
         </div>
 
         {/* Mobile-First Products Section */}
-        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8">
+        <div data-menu-section className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8">
           <div className="mb-6 md:mb-8">
-            <div className="text-center space-y-2 md:space-y-3 mb-6 md:mb-8">
-              <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">{t('storeDetail.ourMenu')}</h3>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
+            <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
+                <span className="text-xs font-medium text-[#C8E400]">✨ Menu</span>
+              </div>
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 tracking-tight leading-tight">{t('storeDetail.ourMenu')}</h3>
+              <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto leading-relaxed font-light">
                 {t('storeDetail.menuDescription')}
               </p>
             </div>
             
             {/* Mobile-First Search and Filters */}
             <div className="space-y-4 md:space-y-6">
-              {/* Mobile-First Search */}
-              <div className="relative">
-                <div className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Search className="w-4 h-4 md:w-5 md:h-5" />
+              {/* Enhanced Search */}
+              <div className="relative max-w-md mx-auto">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Search className="w-4 h-4" />
                 </div>
                 <input
                   type="text"
                   placeholder={t('storeDetail.searchDishes')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 md:pr-6 border-2 border-gray-200 rounded-xl md:rounded-2xl 
-                    focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none
-                    bg-white shadow-lg placeholder:text-gray-400 text-sm md:text-base
-                    transition-all duration-300 hover:shadow-xl"
+                  className="w-full h-11 pl-11 pr-4 border border-gray-200/60 rounded-2xl 
+                    focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400]/50 focus:outline-none
+                    bg-white/80 backdrop-blur-sm shadow-sm placeholder:text-gray-400 text-sm
+                    transition-all duration-300 hover:shadow-md hover:bg-white"
                 />
               </div>
 
-              {/* Mobile-First Filter Section */}
-              <div className="flex flex-col gap-4">
-                {/* Category Filter */}
-                <div className="space-y-2">
-                  <h4 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide text-center md:text-left">
-                    {t('storeDetail.categories')}
-                  </h4>
-                  <div className="flex gap-2 flex-wrap justify-center md:justify-start">
-                    {categories.map((category) => (
-                      <button
-                        key={category.id}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className={`px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl font-medium text-xs md:text-sm transition-all duration-300 transform flex items-center gap-1 md:gap-2 ${
-                          selectedCategory === category.id
-                            ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg shadow-[#C8E400]/30 scale-105'
-                            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#C8E400] hover:shadow-lg hover:scale-105'
-                        }`}
-                      >
-                        <span className="text-sm md:text-base">{category.icon}</span>
-                        <span>{category.name}</span>
-                      </button>
-                    ))}
-                  </div>
+              {/* Enhanced Category Filter */}
+              <div className="space-y-4">
+                <div className="flex gap-1.5 flex-wrap justify-center">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`px-4 py-2 rounded-full font-medium text-xs transition-all duration-500 flex items-center gap-2 ${
+                        selectedCategory === category.id
+                          ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg scale-105'
+                          : 'bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:border-[#C8E400]/50 hover:shadow-md hover:scale-105 hover:text-gray-900'
+                      }`}
+                    >
+                      <span className="text-sm">{category.icon}</span>
+                      <span>{category.name}</span>
+                    </button>
+                  ))}
                 </div>
-
               </div>
             </div>
           </div>
@@ -643,7 +633,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               </div>
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-stretch">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -689,6 +679,218 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
             </div>
           )}
         </div>
+
+        {/* Story Mode About Us Section */}
+        {(() => {
+          // Map Firestore fields to about sections
+          const aboutSections = [
+            { 
+              title: store.titleTabAboutFirst, 
+              body: store.bodyTabAboutFirst, 
+              image: store.imageTabAboutFirst 
+            },
+            { 
+              title: store.titleTabAboutSecond, 
+              body: store.bodyTabAboutSecond, 
+              image: store.imageTabAboutSecond 
+            },
+            { 
+              title: store.titleTabAboutThird, 
+              body: store.bodyTabAboutThird, 
+              image: store.imageTabAboutThird 
+            }
+          ].filter(section => section.title && section.body);
+
+          // Don't show About Us section if no stories
+          if (aboutSections.length === 0) return null;
+
+          return (
+            <div className="mt-12 md:mt-16 lg:mt-20">
+              {/* Premium About Us Section - Story Mode Only */}
+              <div className="relative overflow-hidden">
+                {/* Background Elements */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8E400]/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#A3C700]/5 rounded-full blur-3xl"></div>
+                
+                <div className="relative bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] lg:rounded-[3rem] shadow-2xl border border-white/20 overflow-hidden">
+                  {/* Elegant Header */}
+                  <div className="relative text-center py-12 md:py-16 lg:py-20 px-6 md:px-8">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#C8E400]/10 via-white/50 to-[#A3C700]/10"></div>
+                    <div className="relative space-y-4 md:space-y-6">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20">
+                        <BookOpen className="w-4 h-4 text-[#C8E400]" />
+                        <span className="text-sm font-medium text-gray-700">{t('storeDetail.ourStory')}</span>
+                      </div>
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-gray-900 leading-tight">
+                        {t('storeDetail.aboutUs')}
+                      </h2>
+                      <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                        {t('storeDetail.discoverStory')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Book-Style Story Content */}
+                  <div className="px-6 md:px-8 lg:px-12 pb-12 md:pb-16 lg:pb-20">
+                    <div className="max-w-5xl mx-auto">
+                      <div className="relative">
+                        {/* Book-style layout */}
+                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-2xl border border-amber-200/50 overflow-hidden">
+                          {aboutSections.length === 1 ? (
+                            /* Single Story Layout */
+                            <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px] md:min-h-[600px]">
+                              {/* Left page - Content */}
+                              <div className="p-6 md:p-8 lg:p-12 bg-gradient-to-br from-white to-gray-50 lg:border-r border-gray-200/50">
+                                <div className="h-full flex flex-col justify-center space-y-6">
+                                  <div className="space-y-4">
+                                    <div className="text-xs uppercase tracking-wider text-[#C8E400] font-semibold">{t('storeDetail.ourStory')}</div>
+                                    <h3 className="text-xl md:text-2xl lg:text-3xl font-light text-gray-900 leading-tight break-words">
+                                      {aboutSections[0].title}
+                                    </h3>
+                                    <div className="w-16 h-0.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700]"></div>
+                                  </div>
+                                  <div className="max-h-64 md:max-h-80 lg:max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                    <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light break-words pr-2">
+                                      {aboutSections[0].body}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Right page - Image */}
+                              <div className="relative bg-gradient-to-br from-gray-50 to-white min-h-[300px] lg:min-h-0">
+                                {aboutSections[0].image ? (
+                                  <img 
+                                    src={aboutSections[0].image} 
+                                    alt={aboutSections[0].title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                    <div className="text-center">
+                                      <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                      <span className="text-gray-500 text-sm">{aboutSections[0].title}</span>
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/5"></div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* Multiple Stories Layout with Navigation */
+                            <>
+                              <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px] md:min-h-[600px]">
+                                {/* Left page - Content */}
+                                <div className="p-6 md:p-8 lg:p-12 bg-gradient-to-br from-white to-gray-50 lg:border-r border-gray-200/50">
+                                  <div className="h-full flex flex-col justify-center space-y-6">
+                                    <div className="space-y-4">
+                                      <div className="flex items-center justify-between">
+                                        <div className="text-xs uppercase tracking-wider text-[#C8E400] font-semibold">{t('storeDetail.ourStory')}</div>
+                                        <div className="text-xs text-gray-500">
+                                          {activeAboutTab + 1} of {aboutSections.length}
+                                        </div>
+                                      </div>
+                                      <h3 className="text-xl md:text-2xl lg:text-3xl font-light text-gray-900 leading-tight break-words">
+                                        {aboutSections[activeAboutTab]?.title}
+                                      </h3>
+                                      <div className="w-16 h-0.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700]"></div>
+                                    </div>
+                                    <div className="max-h-64 md:max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                      <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light break-words pr-2">
+                                        {aboutSections[activeAboutTab]?.body}
+                                      </p>
+                                    </div>
+                                    
+                                    {/* Story indicators */}
+                                    <div className="flex items-center gap-2 pt-4">
+                                      {aboutSections.map((_, index) => (
+                                        <button
+                                          key={index}
+                                          onClick={() => setActiveAboutTab(index)}
+                                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                            activeAboutTab === index 
+                                              ? 'bg-[#C8E400] w-6' 
+                                              : 'bg-gray-300 hover:bg-gray-400'
+                                          }`}
+                                          aria-label={`Go to story ${index + 1}`}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right page - Image */}
+                                <div className="relative bg-gradient-to-br from-gray-50 to-white min-h-[300px] lg:min-h-0">
+                                  {aboutSections[activeAboutTab]?.image ? (
+                                    <img 
+                                      src={aboutSections[activeAboutTab].image} 
+                                      alt={aboutSections[activeAboutTab].title}
+                                      className="w-full h-full object-cover transition-opacity duration-500"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                      <div className="text-center">
+                                        <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                        <span className="text-gray-500 text-sm">{aboutSections[activeAboutTab]?.title}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/5"></div>
+                                </div>
+                              </div>
+
+                              {/* Navigation for multiple stories */}
+                              <div className="flex justify-center gap-4 p-6 bg-gradient-to-r from-amber-50/50 to-orange-50/50">
+                                <button
+                                  onClick={() => setActiveAboutTab(activeAboutTab > 0 ? activeAboutTab - 1 : aboutSections.length - 1)}
+                                  className="flex items-center gap-2 px-4 py-2 bg-amber-100/80 text-amber-800 rounded-lg hover:bg-amber-200 transition-all duration-300 text-sm font-medium"
+                                >
+                                  <ChevronLeft className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Previous</span>
+                                </button>
+                                
+                                <button
+                                  onClick={() => setActiveAboutTab(activeAboutTab < aboutSections.length - 1 ? activeAboutTab + 1 : 0)}
+                                  className="flex items-center gap-2 px-4 py-2 bg-amber-100/80 text-amber-800 rounded-lg hover:bg-amber-200 transition-all duration-300 text-sm font-medium"
+                                >
+                                  <span className="hidden sm:inline">Next</span>
+                                  <ChevronRight className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Call to Action */}
+                  <div className="text-center py-12 md:py-16 px-6 md:px-8 bg-gradient-to-r from-[#C8E400]/5 via-white/50 to-[#A3C700]/5">
+                    <div className="space-y-6">
+                      <h4 className="text-xl md:text-2xl font-light text-gray-900">
+                        {t('storeDetail.readyToTaste')}
+                      </h4>
+                      <p className="text-gray-600 text-sm md:text-base max-w-xl mx-auto">
+                        {t('storeDetail.exploreMenu')}
+                      </p>
+                      <button 
+                        onClick={() => {
+                          const menuSection = document.querySelector('[data-menu-section]');
+                          menuSection?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl font-medium text-sm md:text-base hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
+                      >
+                        <span>{t('storeDetail.viewMenu')}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Cart Sidebar */}
