@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
-import { X, ShoppingCart, Plus, Minus, Trash2, Store, Clock } from 'lucide-react';
+import { X, ShoppingCart, Plus, Minus, Trash2, Store } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CartItem } from '../types/cart';
+import { CheckoutForm } from './CheckoutForm';
+import { OrderConfirmation } from './OrderConfirmation';
+import { Order } from '../types/order';
 
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type CartView = 'cart' | 'checkout' | 'confirmation';
+
 export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const { t } = useLanguage();
   const [isClearing, setIsClearing] = useState(false);
+  const [currentView, setCurrentView] = useState<CartView>('cart');
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -30,19 +37,62 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   const handleCheckout = () => {
-    // TODO: Navigate to checkout page
-    console.log('Proceeding to checkout...');
+    setCurrentView('checkout');
+  };
+
+  const handleBackToCart = () => {
+    setCurrentView('cart');
+  };
+
+  const handleOrderComplete = (order: Order) => {
+    setCompletedOrder(order);
+    setCurrentView('confirmation');
+  };
+
+  const handleBackToShopping = () => {
+    setCurrentView('cart');
+    setCompletedOrder(null);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setCurrentView('cart');
+    setCompletedOrder(null);
     onClose();
   };
 
   if (!isOpen) return null;
+
+  // Render checkout form as full-screen modal
+  if (currentView === 'checkout') {
+    return (
+      <div className="fixed inset-0 z-50">
+        <CheckoutForm 
+          onBack={handleBackToCart}
+          onOrderComplete={handleOrderComplete}
+        />
+      </div>
+    );
+  }
+
+  // Render order confirmation as full-screen modal
+  if (currentView === 'confirmation' && completedOrder) {
+    return (
+      <div className="fixed inset-0 z-50">
+        <OrderConfirmation 
+          order={completedOrder}
+          onBackToShopping={handleBackToShopping}
+        />
+      </div>
+    );
+  }
 
   return (
     <>
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Sidebar */}
@@ -59,7 +109,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 hover:bg-white/20 rounded-full transition-colors"
           >
             <X className="w-6 h-6" />
@@ -82,7 +132,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
                   </p>
                 </div>
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
                 >
                   {t('cart.empty.startShopping')}
@@ -155,11 +205,6 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => 
                   </button>
                 </div>
 
-                {/* Estimated Delivery Time */}
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600 pt-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{t('cart.estimatedDelivery')}</span>
-                </div>
               </div>
             </>
           )}

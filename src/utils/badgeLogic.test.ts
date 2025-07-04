@@ -97,7 +97,7 @@ console.log('🧪 Running Badge Logic Tests\n');
 let passed = 0;
 let failed = 0;
 
-testCases.forEach((testCase, index) => {
+testCases.forEach((testCase) => {
   const result = getBadgeType(testCase.store as StoreData);
   const success = result === testCase.expectedBadge;
   
