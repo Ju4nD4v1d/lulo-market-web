@@ -44,6 +44,10 @@ vi.mock('../../context/AuthContext', () => ({
   useAuth: () => mockAuthContext,
 }));
 
+vi.mock('../../config/stripe', () => ({
+  stripePromise: Promise.resolve(null),
+}));
+
 // Mock TestModeContext
 const mockTestModeContext = {
   isTestMode: false,
