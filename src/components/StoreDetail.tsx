@@ -371,10 +371,10 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
             {/* Enhanced Cart Button */}
             <button
               onClick={() => setShowCart(true)}
-              className="relative flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="relative p-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-lg hover:shadow-lg transition-all duration-300"
+              title={t('shopper.header.cart')}
             >
-              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline text-sm md:text-base">{t('shopper.header.cart')}</span>
+              <ShoppingCart className="w-5 h-5" />
               {cart.summary.itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
