@@ -8,7 +8,7 @@ const mockAddDoc = vi.fn();
 const mockCollection = vi.fn();
 const mockServerTimestamp = vi.fn(() => new Date());
 
-vi.mock('firebase/firestore', () => ({
+vi.doMock('firebase/firestore', () => ({
   addDoc: mockAddDoc,
   collection: mockCollection,
   serverTimestamp: mockServerTimestamp,
@@ -16,6 +16,10 @@ vi.mock('firebase/firestore', () => ({
 
 vi.mock('../../config/firebase', () => ({
   db: {},
+}));
+
+vi.mock('../../config/stripe', () => ({
+  stripePromise: Promise.resolve(null),
 }));
 
 // Mock CartContext

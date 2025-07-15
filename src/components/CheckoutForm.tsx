@@ -999,6 +999,56 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   )}
                 </div>
               )}
+
+              {/* Payment Step - Main Form Area */}
+              {currentStep === 'payment' && paymentClientSecret && (
+                <div className="space-y-4 md:space-y-6 relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <CreditCard className="w-6 h-6 text-[#C8E400]" />
+                    <h2 className="text-xl font-bold text-gray-900">Método de Pago</h2>
+                  </div>
+
+                  <StripePaymentForm
+                    order={{
+                      id: paymentIntentId || 'temp',
+                      storeId: cart.storeId!,
+                      storeName: cart.storeName!,
+                      customerInfo: formData.customerInfo,
+                      deliveryAddress: formData.deliveryAddress,
+                      items: cart.items.map(item => ({
+                        id: item.id,
+                        productId: item.product.id,
+                        productName: item.product.name,
+                        productImage: item.product.image,
+                        price: item.priceAtTime,
+                        quantity: item.quantity,
+                      })),
+                      summary: {
+                        subtotal: cart.summary.subtotal,
+                        tax: cart.summary.tax,
+                        deliveryFee: cart.summary.deliveryFee,
+                        total: cart.summary.total,
+                        platformFee: cart.summary.platformFee,
+                        finalTotal: cart.summary.finalTotal,
+                        storeAmount: cart.summary.total - (cart.summary.total * 0.10),
+                        platformAmount: cart.summary.platformFee + (cart.summary.total * 0.10),
+                        itemCount: cart.summary.itemCount,
+                      },
+                      status: 'pending' as OrderStatus,
+                      orderNotes: formData.orderNotes,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      paymentStatus: 'pending',
+                      isDelivery: formData.isDelivery,
+                      language: 'en',
+                    }}
+                    clientSecret={paymentClientSecret}
+                    onPaymentSuccess={handlePaymentSuccess}
+                    onPaymentError={handlePaymentError}
+                    onProcessing={(processing) => setIsSubmitting(processing)}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1073,62 +1123,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       'Proceed to Payment'
                     )}
                   </button>
-                </div>
-              )}
-
-              {/* Payment Step - Main Form Area */}
-              {currentStep === 'payment' && paymentClientSecret && (
-                <div className="space-y-4 md:space-y-6 relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <CreditCard className="w-6 h-6 text-[#C8E400]" />
-                    <h2 className="text-xl font-bold text-gray-900">Método de Pago</h2>
-                  </div>
-                  
-                  <div className="bg-red-500 text-white p-4 rounded-lg font-bold">
-                    PAYMENT FORM SHOULD APPEAR HERE IN MAIN AREA
-                  </div>
-                  
-                  <div className="border-4 border-blue-500 p-4 rounded-lg bg-blue-50">
-                    <StripePaymentForm
-                      order={{
-                        id: paymentIntentId || 'temp',
-                        storeId: cart.storeId!,
-                        storeName: cart.storeName!,
-                        customerInfo: formData.customerInfo,
-                        deliveryAddress: formData.deliveryAddress,
-                        items: cart.items.map(item => ({
-                          id: item.id,
-                          productId: item.product.id,
-                          productName: item.product.name,
-                          productImage: item.product.image,
-                          price: item.priceAtTime,
-                          quantity: item.quantity,
-                        })),
-                        summary: {
-                          subtotal: cart.summary.subtotal,
-                          tax: cart.summary.tax,
-                          deliveryFee: cart.summary.deliveryFee,
-                          total: cart.summary.total,
-                          platformFee: cart.summary.platformFee,
-                          finalTotal: cart.summary.finalTotal,
-                          storeAmount: cart.summary.total - (cart.summary.total * 0.10),
-                          platformAmount: cart.summary.platformFee + (cart.summary.total * 0.10),
-                          itemCount: cart.summary.itemCount,
-                        },
-                        status: 'pending' as OrderStatus,
-                        orderNotes: formData.orderNotes,
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                        paymentStatus: 'pending',
-                        isDelivery: formData.isDelivery,
-                        language: 'en',
-                      }}
-                      clientSecret={paymentClientSecret}
-                      onPaymentSuccess={handlePaymentSuccess}
-                      onPaymentError={handlePaymentError}
-                      onProcessing={(processing) => setIsSubmitting(processing)}
-                    />
-                  </div>
                 </div>
               )}
 

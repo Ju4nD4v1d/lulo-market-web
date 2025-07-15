@@ -11,7 +11,7 @@ const mockSignOut = vi.fn();
 const mockUpdateProfile = vi.fn();
 const mockOnAuthStateChanged = vi.fn();
 
-vi.mock('../../config/firebase', () => ({
+vi.doMock('../../config/firebase', () => ({
   auth: {
     currentUser: null,
     signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
