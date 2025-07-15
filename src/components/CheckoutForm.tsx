@@ -619,25 +619,27 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     );
   }
 
-  return (
-    <Elements 
-      stripe={stripePromise} 
-      options={paymentClientSecret ? {
-        clientSecret: paymentClientSecret,
-        appearance: {
-          theme: 'stripe',
-          variables: {
-            colorPrimary: '#C8E400',
-            colorBackground: '#ffffff',
-            colorText: '#262626',
-            colorDanger: '#df1b41',
-            fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-            spacingUnit: '4px',
-            borderRadius: '8px',
+  // Only render Elements when we have a clientSecret for payment step
+  if (currentStep === 'payment' && paymentClientSecret) {
+    return (
+      <Elements 
+        stripe={stripePromise} 
+        options={{
+          clientSecret: paymentClientSecret,
+          appearance: {
+            theme: 'stripe',
+            variables: {
+              colorPrimary: '#C8E400',
+              colorBackground: '#ffffff',
+              colorText: '#262626',
+              colorDanger: '#df1b41',
+              fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              spacingUnit: '4px',
+              borderRadius: '8px',
+            },
           },
-        },
-      } : undefined}
-    >
+        }}
+      >
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-auto">
         <StepHeader />
         
@@ -1139,6 +1141,400 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
         </div>
       </div>
-    </Elements>
+      </Elements>
+    );
+  }
+
+  // For non-payment steps, render without Elements wrapper
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-auto">
+      <StepHeader />
+      
+      <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Main Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6">
+              
+              {/* Customer Information Step */}
+              {currentStep === 'info' && (
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-3 mb-4 md:mb-6">
+                    <User className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.customerInfo')}</h2>
+                  </div>
+
+                  {/* Logged in user confirmation */}
+                  {currentUser && (
+                    <div className="mb-4 md:mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-green-900">
+                            {t('checkout.loggedInAs')} {currentUser.email}
+                          </p>
+                          <label className="flex items-center gap-2 mt-2 text-sm text-green-700">
+                            <input
+                              type="checkbox"
+                              checked={formData.useProfileAsDeliveryContact}
+                              onChange={(e) => setFormData({
+                                ...formData,
+                                useProfileAsDeliveryContact: e.target.checked
+                              })}
+                              className="rounded border-green-300 text-green-600 focus:ring-green-500"
+                            />
+                            {t('checkout.useProfileAsContact')}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.name')} *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.customerInfo.name}
+                      onChange={(e) => handleInputChange('customerInfo', 'name', e.target.value)}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        getErrorMessage('customerInfo.name') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
+                      placeholder={t('placeholder.name')}
+                    />
+                    {getErrorMessage('customerInfo.name') && (
+                      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{getErrorMessage('customerInfo.name')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.email')} *
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.customerInfo.email}
+                      onChange={(e) => handleInputChange('customerInfo', 'email', e.target.value)}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        getErrorMessage('customerInfo.email') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
+                      placeholder={t('placeholder.email')}
+                    />
+                    {getErrorMessage('customerInfo.email') && (
+                      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{getErrorMessage('customerInfo.email')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.phone')} *
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.customerInfo.phone}
+                      onChange={(e) => handleInputChange('customerInfo', 'phone', e.target.value)}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        getErrorMessage('customerInfo.phone') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
+                      placeholder={t('placeholder.phone')}
+                    />
+                    {getErrorMessage('customerInfo.phone') && (
+                      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{getErrorMessage('customerInfo.phone')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Continue Button */}
+                  <div className="flex justify-end pt-4 md:pt-6">
+                    <button
+                      onClick={handleNext}
+                      className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      {t('order.continue')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Address Information Step */}
+              {currentStep === 'address' && (
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-3 mb-4 md:mb-6">
+                    <MapPin className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.deliveryAddress')}</h2>
+                  </div>
+
+                  {/* Street Address */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.streetAddress')} *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.deliveryAddress.street}
+                      onChange={(e) => handleInputChange('deliveryAddress', 'street', e.target.value)}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        getErrorMessage('deliveryAddress.street') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
+                      placeholder={t('placeholder.streetAddress')}
+                    />
+                    {getErrorMessage('deliveryAddress.street') && (
+                      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{getErrorMessage('deliveryAddress.street')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.city')} *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.deliveryAddress.city}
+                      onChange={(e) => handleInputChange('deliveryAddress', 'city', e.target.value)}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        getErrorMessage('deliveryAddress.city') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
+                      placeholder={t('placeholder.city')}
+                    />
+                    {getErrorMessage('deliveryAddress.city') && (
+                      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{getErrorMessage('deliveryAddress.city')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Province and Postal Code */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('order.province')} *
+                      </label>
+                      <select
+                        value={formData.deliveryAddress.province}
+                        onChange={(e) => handleInputChange('deliveryAddress', 'province', e.target.value)}
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                          getErrorMessage('deliveryAddress.province') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <option value="">{t('placeholder.selectProvince')}</option>
+                        <option value="BC">British Columbia</option>
+                        <option value="AB">Alberta</option>
+                        <option value="SK">Saskatchewan</option>
+                        <option value="MB">Manitoba</option>
+                        <option value="ON">Ontario</option>
+                        <option value="QC">Quebec</option>
+                        <option value="NB">New Brunswick</option>
+                        <option value="NS">Nova Scotia</option>
+                        <option value="PE">Prince Edward Island</option>
+                        <option value="NL">Newfoundland and Labrador</option>
+                        <option value="YT">Yukon</option>
+                        <option value="NT">Northwest Territories</option>
+                        <option value="NU">Nunavut</option>
+                      </select>
+                      {getErrorMessage('deliveryAddress.province') && (
+                        <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>{getErrorMessage('deliveryAddress.province')}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('order.postalCode')} *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.deliveryAddress.postalCode}
+                        onChange={(e) => handleInputChange('deliveryAddress', 'postalCode', e.target.value)}
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                          getErrorMessage('deliveryAddress.postalCode') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
+                        placeholder={t('placeholder.postalCode')}
+                      />
+                      {getErrorMessage('deliveryAddress.postalCode') && (
+                        <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>{getErrorMessage('deliveryAddress.postalCode')}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Delivery Instructions */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('order.deliveryInstructions')}
+                    </label>
+                    <textarea
+                      value={formData.orderNotes}
+                      onChange={(e) => setFormData({...formData, orderNotes: e.target.value})}
+                      rows={3}
+                      className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300"
+                      placeholder={t('placeholder.deliveryInstructions')}
+                    />
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4 md:pt-6">
+                    <button
+                      onClick={handleBack}
+                      className="bg-gray-200 text-gray-700 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all duration-300"
+                    >
+                      {t('order.back')}
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      {t('order.continue')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Review Step */}
+              {currentStep === 'review' && (
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-3 mb-4 md:mb-6">
+                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.orderSummary')}</h2>
+                  </div>
+
+                  {/* Customer Info Review */}
+                  <div className="bg-gray-50 rounded-xl p-4 md:p-6">
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('order.customerInfo')}</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">{t('order.name')}:</span> {formData.customerInfo.name}</p>
+                      <p><span className="font-medium">{t('order.email')}:</span> {formData.customerInfo.email}</p>
+                      <p><span className="font-medium">{t('order.phone')}:</span> {formData.customerInfo.phone}</p>
+                    </div>
+                  </div>
+
+                  {/* Delivery Address Review */}
+                  <div className="bg-gray-50 rounded-xl p-4 md:p-6">
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('order.deliveryAddress')}</h3>
+                    <div className="text-sm">
+                      <p>{formData.deliveryAddress.street}</p>
+                      <p>{formData.deliveryAddress.city}, {formData.deliveryAddress.province} {formData.deliveryAddress.postalCode}</p>
+                      {formData.orderNotes && (
+                        <p className="mt-2 text-gray-600">
+                          <span className="font-medium">{t('order.notes')}:</span> {formData.orderNotes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4 md:pt-6">
+                    <button
+                      onClick={handleBack}
+                      className="bg-gray-200 text-gray-700 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all duration-300"
+                    >
+                      {t('order.back')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div className="lg:col-span-1">
+            <div className={`bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col ${currentStep === 'payment' ? '' : 'sticky top-24 max-h-[80vh]'}`}>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
+              
+              {/* Store Info */}
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <p className="font-semibold text-gray-900">{cart.storeName}</p>
+                <p className="text-sm text-gray-600">{t('orderType.delivery')}</p>
+              </div>
+
+              {/* Items - Scrollable */}
+              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                {cart.items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900 text-sm">{item.product.name}</p>
+                      <p className="text-xs text-gray-600">{t('order.quantity')}: {item.quantity}</p>
+                    </div>
+                    <p className="font-semibold text-gray-900 text-sm">{formatPrice(item.priceAtTime * item.quantity)}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Totals */}
+              <div className="space-y-2 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.subtotal)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.tax)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.deliveryFee)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.platformFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.platformFee)}</span>
+                </div>
+                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
+                  <span className="flex-1">{t('order.total')}</span>
+                  <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(cart.summary.finalTotal)}</span>
+                </div>
+              </div>
+
+              {/* Place Order Button - Only show in review step */}
+              {currentStep === 'review' && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  {getErrorMessage('general') && (
+                    <div className="flex items-center gap-2 mb-4 text-red-600 text-xs bg-red-50 p-3 rounded-lg border border-red-200">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{getErrorMessage('general')}</span>
+                    </div>
+                  )}
+                  <button
+                    onClick={handleNext}
+                    disabled={isCreatingPaymentIntent}
+                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isCreatingPaymentIntent ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span className="text-sm">Preparing Payment...</span>
+                      </div>
+                    ) : (
+                      'Proceed to Payment'
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
   );
 };
