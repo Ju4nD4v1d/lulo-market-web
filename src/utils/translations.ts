@@ -1133,6 +1133,7 @@ export const translations = {
     'payment.notCompleted': 'Payment was not completed. Please try again.',
     'payment.stripeNotLoaded': 'Stripe is not loaded. Please refresh the page.',
     'payment.unexpectedError': 'An unexpected error occurred',
+    'payment.cardDeclined': 'Card declined',
     'payment.secure': 'Secure Payment',
     'payment.encryptedProtected': 'Your payment information is encrypted and protected',
     
@@ -2326,6 +2327,7 @@ export const translations = {
     'payment.notCompleted': 'El pago no se completó. Por favor intenta de nuevo.',
     'payment.stripeNotLoaded': 'Stripe no se ha cargado. Por favor recarga la página.',
     'payment.unexpectedError': 'Ocurrió un error inesperado',
+    'payment.cardDeclined': 'Tarjeta rechazada',
     'payment.secure': 'Pago Seguro',
     'payment.encryptedProtected': 'Tu información de pago está encriptada y protegida',
     

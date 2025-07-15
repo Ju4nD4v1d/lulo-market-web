@@ -529,6 +529,75 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     }
   };
 
+  const handlePaymentFailure = async (paymentIntentId: string, error: string) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Create failed order record for tracking
+      const failedOrderData = {
+        userId: currentUser?.uid || '',
+        storeId: cart.storeId || '',
+        storeName: cart.storeName || '',
+        customerInfo: formData.customerInfo,
+        deliveryAddress: formData.deliveryAddress,
+        items: cart.items.map(item => ({
+          id: item.id,
+          productId: item.product.id,
+          productName: item.product.name,
+          productImage: item.product.images?.[0] || '',
+          price: item.priceAtTime,
+          quantity: item.quantity,
+          specialInstructions: item.specialInstructions || ''
+        })),
+        summary: cart.summary,
+        status: OrderStatus.CANCELLED,
+        orderNotes: formData.orderNotes,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        estimatedDeliveryTime: new Date(formData.deliveryDate),
+        paymentStatus: 'failed',
+        paymentId: paymentIntentId,
+        paymentError: error,
+        isDelivery: formData.isDelivery,
+        language: 'en'
+      };
+
+      // Save failed order for record keeping
+      const ordersCollection = collection(db, 'failed_orders');
+      await addDoc(ordersCollection, failedOrderData);
+      
+      console.log('Failed order recorded:', paymentIntentId);
+      
+      // Show error to user
+      setErrors({ 
+        general: error || t('payment.failed'),
+        payment: 'Payment was not successful. Please try again or use a different payment method.' 
+      });
+      
+      // Go back to review step so user can try again
+      setCurrentStep('review');
+      setPaymentClientSecret(null);
+      setPaymentIntentId(null);
+      
+    } catch (recordError) {
+      console.error('Error recording failed payment:', recordError);
+      setErrors({ 
+        general: 'Payment failed and we could not save the error details. Please contact support.',
+        payment: error 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePaymentError = (error: string) => {
+    console.error('Payment error:', error);
+    setErrors({ 
+      general: error,
+      payment: 'There was an issue processing your payment. Please try again.' 
+    });
+  };
+
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     try {
       setIsSubmitting(true);
@@ -1068,6 +1137,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     clientSecret={paymentClientSecret}
                     onPaymentSuccess={handlePaymentSuccess}
                     onPaymentError={handlePaymentError}
+                    onPaymentFailure={handlePaymentFailure}
                     onProcessing={(processing) => setIsSubmitting(processing)}
                   />
                 </div>

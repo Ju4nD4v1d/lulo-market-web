@@ -15,6 +15,7 @@ interface StripePaymentFormProps {
   clientSecret: string;
   onPaymentSuccess: (paymentIntentId: string) => void;
   onPaymentError: (error: string) => void;
+  onPaymentFailure?: (paymentIntentId: string, error: string) => void;
   onProcessing: (isProcessing: boolean) => void;
 }
 
@@ -23,6 +24,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   clientSecret,
   onPaymentSuccess,
   onPaymentError,
+  onPaymentFailure,
   onProcessing
 }) => {
   const stripe = useStripe();
@@ -66,15 +68,35 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       });
 
       if (error) {
-        setPaymentError(error.message || t('payment.failed'));
-        onPaymentError(error.message || t('payment.failed'));
+        const errorMessage = error.message || t('payment.failed');
+        setPaymentError(errorMessage);
+        onPaymentError(errorMessage);
+        
+        // If we have a payment intent ID, record this as a failed payment
+        if (error.payment_intent?.id && onPaymentFailure) {
+          onPaymentFailure(error.payment_intent.id, errorMessage);
+        }
       } else if (paymentIntent) {
         if (paymentIntent.status === 'succeeded') {
           setPaymentComplete(true);
           onPaymentSuccess(paymentIntent.id);
+        } else if (paymentIntent.status === 'requires_payment_method') {
+          const errorMessage = t('payment.failed') + ' - ' + t('payment.cardDeclined');
+          setPaymentError(errorMessage);
+          onPaymentError(errorMessage);
+          if (onPaymentFailure) {
+            onPaymentFailure(paymentIntent.id, errorMessage);
+          }
+        } else if (paymentIntent.status === 'processing') {
+          setPaymentError(t('payment.processing'));
+          onPaymentError(t('payment.processing'));
         } else {
-          setPaymentError(t('payment.notCompleted'));
-          onPaymentError(t('payment.notCompleted'));
+          const errorMessage = t('payment.notCompleted');
+          setPaymentError(errorMessage);
+          onPaymentError(errorMessage);
+          if (onPaymentFailure) {
+            onPaymentFailure(paymentIntent.id, errorMessage);
+          }
         }
       }
     } catch (err) {
