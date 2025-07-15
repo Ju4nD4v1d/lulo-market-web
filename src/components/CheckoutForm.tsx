@@ -10,6 +10,9 @@ import { db } from '../config/firebase';
 import { stripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
 
+// Platform fee configuration
+const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
+
 interface CheckoutFormProps {
   onBack: () => void;
   onOrderComplete: (order: Order) => void;
@@ -435,7 +438,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         currency: 'cad',
         isDelivery: formData.isDelivery,
         orderNotes: formData.orderNotes || '',
-        applicationFeeInCents: Math.round(cart.summary.platformFee * 100),
+        applicationFeeInCents: Math.round((cart.summary.platformFee + (cart.summary.finalTotal * PLATFORM_FEE_PERCENTAGE)) * 100),
         
         // Items summary
         itemCount: cart.summary.itemCount,
@@ -457,10 +460,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         }
       };
 
+      const totalApplicationFee = cart.summary.platformFee + (cart.summary.finalTotal * PLATFORM_FEE_PERCENTAGE);
       console.log('Creating payment intent with data:', {
         amount: cart.summary.finalTotal,
         amountInCents,
-        applicationFeeInCents: Math.round(cart.summary.platformFee * 100),
+        applicationFeeInCents: Math.round(totalApplicationFee * 100),
+        visiblePlatformFee: cart.summary.platformFee,
+        hiddenPlatformFee: cart.summary.finalTotal * PLATFORM_FEE_PERCENTAGE,
+        totalPlatformFee: totalApplicationFee,
         orderId: orderIdGenerated,
         storeStripeAccountId
       });
