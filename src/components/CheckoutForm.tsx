@@ -640,7 +640,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           },
         }}
       >
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-auto">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
         <StepHeader />
         
         <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">
@@ -1141,7 +1141,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   // For non-payment steps, render without Elements wrapper
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
       <StepHeader />
       
       <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">

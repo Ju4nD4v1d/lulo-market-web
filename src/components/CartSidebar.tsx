@@ -82,7 +82,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   // Render checkout form as full-screen modal
   if (currentView === 'checkout') {
     return (
-      <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-50 overflow-y-auto">
         <CheckoutForm 
           onBack={handleBackToCart}
           onOrderComplete={handleOrderComplete}
@@ -94,7 +94,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   // Render order confirmation as full-screen modal
   if (currentView === 'confirmation' && completedOrder) {
     return (
-      <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-50 overflow-y-auto">
         <OrderConfirmation 
           order={completedOrder}
           onBackToShopping={handleBackToShopping}
