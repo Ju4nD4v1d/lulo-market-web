@@ -116,12 +116,12 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
         {/* Enhanced Professional Header */}
         <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-xl flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-lg flex items-center justify-center">
+              <ShoppingCart className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">{t('cart.title')}</h2>
-              <p className="text-gray-500 text-sm">
+              <h2 className="text-base font-semibold text-gray-900">{t('cart.title')}</h2>
+              <p className="text-gray-500 text-xs">
                 {cart.summary.itemCount} {cart.summary.itemCount === 1 ? t('cart.item') : t('cart.items')}
               </p>
             </div>
@@ -244,10 +244,10 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
                   
                   <button
                     onClick={handleCheckout}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
+                    className={`w-full py-3 rounded-lg font-semibold text-base transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg ${
                       currentUser 
-                        ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg' 
-                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-md' 
+                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
                     }`}
                   >
                     {currentUser ? t('cart.proceedToCheckout') : t('cart.signInToCheckout')}
@@ -256,7 +256,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
                   <button
                     onClick={handleClearCart}
                     disabled={isClearing}
-                    className="w-full bg-gradient-to-r from-red-50 to-red-100 text-red-600 py-3 rounded-xl font-semibold border border-red-200 hover:bg-gradient-to-r hover:from-red-100 hover:to-red-200 transition-all duration-300 disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-red-50 to-red-100 text-red-600 py-2.5 rounded-lg font-medium text-sm border border-red-200 hover:bg-gradient-to-r hover:from-red-100 hover:to-red-200 transition-all duration-300 disabled:opacity-50"
                   >
                     {isClearing ? t('cart.clearing') : t('cart.clearCart')}
                   </button>

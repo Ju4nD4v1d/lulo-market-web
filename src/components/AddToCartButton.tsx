@@ -41,15 +41,15 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const currentQuantityInCart = existingItem?.quantity || 0;
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-3 text-base',
-    lg: 'px-6 py-4 text-lg'
+    sm: 'px-3 py-1.5 text-xs',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5 text-base'
   };
 
   const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-5 h-5'
   };
 
   const handleAddToCart = async () => {
@@ -150,8 +150,8 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         className={`
           ${sizeClasses[size]} 
           ${getVariantClasses()}
-          flex items-center justify-center gap-2 rounded-xl font-semibold
-          transition-all duration-300 transform hover:scale-105
+          flex items-center justify-center gap-2 rounded-lg font-medium
+          transition-all duration-300 transform hover:scale-[1.02]
           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
           focus:outline-none focus:ring-4 focus:ring-[#C8E400]/30
           ${!canAdd ? 'opacity-50 cursor-not-allowed' : ''}
