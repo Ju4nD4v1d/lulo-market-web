@@ -91,36 +91,17 @@ const testCases: Array<{
   }
 ];
 
-// Run tests
-console.log('🧪 Running Badge Logic Tests\n');
+import { describe, it, expect } from 'vitest';
 
-let passed = 0;
-let failed = 0;
+describe('Badge Logic Tests', () => {
+  console.log('🧪 Running Badge Logic Tests');
 
-testCases.forEach((testCase) => {
-  const result = getBadgeType(testCase.store as StoreData);
-  const success = result === testCase.expectedBadge;
-  
-  if (success) {
-    console.log(`✅ ${testCase.name}: PASSED`);
-    console.log(`   Expected: ${testCase.expectedBadge}, Got: ${result}`);
-    console.log(`   ${testCase.description}\n`);
-    passed++;
-  } else {
-    console.log(`❌ ${testCase.name}: FAILED`);
-    console.log(`   Expected: ${testCase.expectedBadge}, Got: ${result}`);
-    console.log(`   ${testCase.description}\n`);
-    failed++;
-  }
+  testCases.forEach(({ name, store, expectedBadge, description }) => {
+    it(description, () => {
+      const result = getBadgeType(store as StoreData);
+      expect(result).toBe(expectedBadge);
+    });
+  });
 });
 
-console.log(`📊 Test Results: ${passed} passed, ${failed} failed`);
-
-if (failed === 0) {
-  console.log('🎉 All tests passed! Badge logic is working correctly.');
-} else {
-  console.log('❌ Some tests failed. Please review the badge logic.');
-}
-
-// Export for potential use in other files
 export { getBadgeType, isStoreNew, testCases };
