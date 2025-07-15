@@ -469,10 +469,10 @@ export const Home = () => {
               {/* Cart */}
               <button
                 onClick={() => setShowCart(true)}
-                className="relative flex items-center gap-1.5 bg-white border border-gray-200/60 text-gray-700 px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg font-medium hover:border-[#C8E400]/50 hover:shadow-md transition-all duration-300"
+                className="relative p-2 text-gray-700 hover:text-[#C8E400] hover:bg-gray-50 rounded-lg transition-all duration-300"
+                title={t('shopper.header.cart')}
               >
-                <ShoppingCart className="w-4 h-4" />
-                <span className="hidden sm:inline text-sm">{t('shopper.header.cart')}</span>
+                <ShoppingCart className="w-5 h-5" />
                 {cart.summary.itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                     {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
