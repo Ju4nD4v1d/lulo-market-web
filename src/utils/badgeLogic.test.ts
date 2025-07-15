@@ -1,7 +1,7 @@
 // Test file for badge logic validation
 import { StoreData } from '../types/store';
 
-// Helper function to check if a store is new (copied from ShopperDashboard)
+// Helper function to check if a store is new (copied from Home component)
 const isStoreNew = (createdAt?: Date): boolean => {
   if (!createdAt) return false;
   const now = new Date();

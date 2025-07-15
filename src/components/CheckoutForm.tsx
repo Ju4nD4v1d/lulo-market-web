@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock } from 'lucide-react';
+import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { stripePromise } from '../config/stripe';
+import { StripePaymentForm } from './StripePaymentForm';
 
 interface CheckoutFormProps {
   onBack: () => void;
@@ -17,6 +21,7 @@ interface FormData {
   orderNotes: string;
   isDelivery: boolean;
   deliveryDate: string;
+  useProfileAsDeliveryContact: boolean;
 }
 
 interface FormErrors {
@@ -98,16 +103,64 @@ const initialFormData: FormData = {
   },
   orderNotes: '',
   isDelivery: true,
-  deliveryDate: getNextAvailableDeliveryDate()
+  deliveryDate: getNextAvailableDeliveryDate(),
+  useProfileAsDeliveryContact: true
 };
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderComplete }) => {
   const { cart, clearCart } = useCart();
   const { t } = useLanguage();
+  const { currentUser, userProfile } = useAuth();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'info' | 'address' | 'review'>('info');
+  const [, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'info' | 'address' | 'review' | 'payment'>('info');
+  const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
+
+  // Auto-fill user data when logged in
+  useEffect(() => {
+    if (currentUser && userProfile) {
+      if (formData.useProfileAsDeliveryContact) {
+        setFormData(prev => ({
+          ...prev,
+          customerInfo: {
+            name: userProfile.displayName || currentUser.displayName || '',
+            email: userProfile.email || currentUser.email || '',
+            phone: userProfile.phoneNumber || ''
+          },
+          deliveryAddress: {
+            ...prev.deliveryAddress,
+            ...(userProfile.preferences?.defaultLocation && {
+              street: userProfile.preferences.defaultLocation.address || '',
+              // Note: StoreLocation only has 'address' field, other fields would need to be
+              // added to the user profile structure in a future update
+              country: 'Canada'
+            })
+          }
+        }));
+      } else {
+        // Clear auto-filled data when checkbox is unchecked
+        setFormData(prev => ({
+          ...prev,
+          customerInfo: {
+            name: '',
+            email: '',
+            phone: ''
+          },
+          deliveryAddress: {
+            street: '',
+            city: '',
+            province: '',
+            postalCode: '',
+            country: 'Canada',
+            deliveryInstructions: ''
+          }
+        }));
+      }
+    }
+  }, [currentUser, userProfile, formData.useProfileAsDeliveryContact]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -158,7 +211,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (section: keyof FormData, field: string, value: string) => {
+  const handleInputChange = (section: keyof FormData, field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [section]: typeof prev[section] === 'object' 
@@ -182,6 +235,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       setCurrentStep('address');
     } else if (currentStep === 'address' && validateStep('address')) {
       setCurrentStep('review');
+    } else if (currentStep === 'review' && validateStep('review')) {
+      handleProceedToPayment();
     }
   };
 
@@ -190,42 +245,89 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       setCurrentStep('info');
     } else if (currentStep === 'review') {
       setCurrentStep('address');
+    } else if (currentStep === 'payment') {
+      setCurrentStep('review');
     } else {
       onBack();
     }
   };
 
-  const handleSubmitOrder = async () => {
+  // Legacy order submission function - keeping for reference
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSubmitOrder_LEGACY = async () => {
     if (!validateStep('review')) return;
+
+    // Ensure user is authenticated
+    if (!currentUser?.uid) {
+      setErrors({ general: 'You must be logged in to place an order' });
+      return;
+    }
 
     setIsSubmitting(true);
     
     try {
-      // Create order object
+      // Create order object with all undefined values replaced
       const orderData = {
-        storeId: cart.storeId!,
-        storeName: cart.storeName!,
-        customerInfo: formData.customerInfo,
-        deliveryAddress: formData.deliveryAddress,
+        userId: currentUser?.uid || '',
+        storeId: cart.storeId || '',
+        storeName: cart.storeName || '',
+        customerInfo: {
+          name: formData.customerInfo.name || '',
+          email: formData.customerInfo.email || '',
+          phone: formData.customerInfo.phone || ''
+        },
+        deliveryAddress: {
+          street: formData.deliveryAddress.street || '',
+          city: formData.deliveryAddress.city || '',
+          province: formData.deliveryAddress.province || '',
+          postalCode: formData.deliveryAddress.postalCode || '',
+          country: formData.deliveryAddress.country || 'Canada',
+          deliveryInstructions: formData.deliveryAddress.deliveryInstructions || ''
+        },
         items: cart.items.map(item => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          productImage: item.product.images?.[0],
-          price: item.priceAtTime,
-          quantity: item.quantity,
-          specialInstructions: item.specialInstructions
+          id: item.id || '',
+          productId: item.product.id || '',
+          productName: item.product.name || '',
+          productImage: item.product.images?.[0] || '',
+          price: item.priceAtTime || 0,
+          quantity: item.quantity || 1,
+          specialInstructions: item.specialInstructions || ''
         })),
-        summary: cart.summary,
+        summary: cart.summary || {
+          subtotal: 0,
+          tax: 0,
+          deliveryFee: 0,
+          total: 0
+        },
         status: OrderStatus.PENDING,
-        orderNotes: formData.orderNotes,
+        orderNotes: formData.orderNotes || '',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         estimatedDeliveryTime: new Date(formData.deliveryDate),
         paymentStatus: 'pending',
-        isDelivery: formData.isDelivery,
-        language: t.locale || 'en'
+        isDelivery: formData.isDelivery ?? true,
+        language: (typeof t === 'object' && 'locale' in t ? t.locale : 'en') || 'en'
       };
+
+      // Debug: Check for any remaining undefined values
+      const checkForUndefined = (obj: Record<string, unknown>, path = ''): void => {
+        for (const [key, value] of Object.entries(obj)) {
+          const currentPath = path ? `${path}.${key}` : key;
+          if (value === undefined) {
+            console.warn(`Undefined value found at: ${currentPath}`);
+          } else if (value && typeof value === 'object' && !Array.isArray(value) && value.constructor === Object) {
+            checkForUndefined(value, currentPath);
+          } else if (Array.isArray(value)) {
+            value.forEach((item, index) => {
+              if (item && typeof item === 'object') {
+                checkForUndefined(item, `${currentPath}[${index}]`);
+              }
+            });
+          }
+        }
+      };
+      
+      checkForUndefined(orderData);
 
       // Save order to Firebase
       const ordersCollection = collection(db, 'orders');
@@ -251,6 +353,218 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     }
   };
 
+  const handleProceedToPayment = async () => {
+    if (!validateStep('review')) return;
+
+    setIsCreatingPaymentIntent(true);
+    setErrors({});
+
+    try {
+      // First, get the store's Stripe account ID
+      const storeDoc = await getDoc(doc(db, 'stores', cart.storeId!));
+      if (!storeDoc.exists()) {
+        throw new Error('Store not found');
+      }
+
+      const storeData = storeDoc.data();
+      const storeStripeAccountId = storeData.stripeAccountId;
+
+      if (!storeStripeAccountId) {
+        throw new Error('Store payment processing is not set up. Please contact the store owner.');
+      }
+
+      // Create preliminary order data for payment intent
+      const orderData = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        storeId: cart.storeId!,
+        storeName: cart.storeName!,
+        customerInfo: formData.customerInfo,
+        deliveryAddress: formData.deliveryAddress,
+        items: cart.items.map(item => ({
+          id: item.id,
+          productId: item.product.id,
+          productName: item.product.name,
+          productImage: item.product.images?.[0] || '',
+          price: item.priceAtTime,
+          quantity: item.quantity,
+          specialInstructions: item.specialInstructions || ''
+        })),
+        summary: {
+          ...cart.summary,
+          // Calculate store and platform amounts
+          storeAmount: 0, // Will be calculated by createPaymentIntent
+          platformAmount: 0, // Will be calculated by createPaymentIntent
+        },
+        status: OrderStatus.PENDING,
+        orderNotes: formData.orderNotes,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        estimatedDeliveryTime: new Date(formData.deliveryDate),
+        paymentStatus: 'pending' as const,
+        isDelivery: formData.isDelivery,
+        language: 'en' as const
+      };
+
+      // Create payment intent via HTTP endpoint
+      const amountInCents = Math.round(cart.summary.finalTotal * 100);
+      const orderIdGenerated = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const payloadData = {
+        // Core required fields
+        amount: cart.summary.finalTotal,
+        amountInCents: amountInCents,
+        orderId: orderIdGenerated,
+        storeStripeAccountId: storeStripeAccountId,
+        
+        // Order details
+        storeId: cart.storeId,
+        storeName: cart.storeName,
+        customerEmail: formData.customerInfo.email,
+        customerName: formData.customerInfo.name,
+        customerPhone: formData.customerInfo.phone,
+        
+        // Financial breakdown
+        subtotal: cart.summary.subtotal,
+        tax: cart.summary.tax,
+        deliveryFee: cart.summary.deliveryFee,
+        platformFee: cart.summary.platformFee,
+        total: cart.summary.total,
+        finalTotal: cart.summary.finalTotal,
+        
+        // Additional data
+        currency: 'cad',
+        isDelivery: formData.isDelivery,
+        orderNotes: formData.orderNotes || '',
+        
+        // Items summary
+        itemCount: cart.summary.itemCount,
+        items: cart.items.map(item => ({
+          id: item.id,
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.priceAtTime,
+          quantity: item.quantity,
+        })),
+        
+        // Address
+        deliveryAddress: {
+          street: formData.deliveryAddress.street,
+          city: formData.deliveryAddress.city,
+          province: formData.deliveryAddress.province,
+          postalCode: formData.deliveryAddress.postalCode,
+          country: formData.deliveryAddress.country
+        }
+      };
+
+      console.log('Creating payment intent with data:', {
+        amount: cart.summary.finalTotal,
+        amountInCents,
+        orderId: orderIdGenerated,
+        storeStripeAccountId
+      });
+
+      const response = await fetch('https://createpaymentintent-6v2n7ecudq-uc.a.run.app', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ data: payloadData })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Payment intent response:', result);
+      
+      // Handle Firebase Callable Function response format
+      const { clientSecret, paymentIntentId } = result.data;
+
+      setPaymentClientSecret(clientSecret);
+      setPaymentIntentId(paymentIntentId);
+      setCurrentStep('payment');
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      console.error('Full error details:', JSON.stringify(error, null, 2));
+      
+      let errorMessage = 'Failed to initialize payment. Please try again.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // If it's a Firebase error, try to extract more details
+        if ('code' in error) {
+          console.error('Firebase error code:', error.code);
+        }
+        if ('details' in error) {
+          console.error('Firebase error details:', error.details);
+        }
+      }
+      
+      setErrors({ general: errorMessage });
+    } finally {
+      setIsCreatingPaymentIntent(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Create the final order in Firebase
+      const orderData = {
+        userId: currentUser?.uid || '',
+        storeId: cart.storeId || '',
+        storeName: cart.storeName || '',
+        customerInfo: formData.customerInfo,
+        deliveryAddress: formData.deliveryAddress,
+        items: cart.items.map(item => ({
+          id: item.id,
+          productId: item.product.id,
+          productName: item.product.name,
+          productImage: item.product.images?.[0] || '',
+          price: item.priceAtTime,
+          quantity: item.quantity,
+          specialInstructions: item.specialInstructions || ''
+        })),
+        summary: cart.summary,
+        status: OrderStatus.CONFIRMED, // Set to confirmed since payment succeeded
+        orderNotes: formData.orderNotes,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        estimatedDeliveryTime: new Date(formData.deliveryDate),
+        paymentStatus: 'paid',
+        paymentId: paymentIntentId,
+        isDelivery: formData.isDelivery,
+        language: 'en'
+      };
+
+      const ordersCollection = collection(db, 'orders');
+      const orderDoc = await addDoc(ordersCollection, orderData);
+      
+      const order: Order = {
+        id: orderDoc.id,
+        ...orderData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        estimatedDeliveryTime: new Date(formData.deliveryDate)
+      };
+      
+      clearCart();
+      onOrderComplete(order);
+    } catch (error) {
+      console.error('Error creating order after payment:', error);
+      setErrors({ general: 'Payment succeeded but order creation failed. Please contact support.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePaymentError = (error: string) => {
+    setErrors({ general: error });
+  };
+
   const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
 
   const getErrorMessage = (key: string): string | undefined => {
@@ -274,6 +588,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               <div className={`w-2 h-2 rounded-full ${currentStep === 'info' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
               <div className={`w-2 h-2 rounded-full ${currentStep === 'address' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
               <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'payment' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
             </div>
           </div>
         </div>
@@ -305,10 +620,28 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-      <StepHeader />
-      
-      <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8">
+    <Elements 
+      stripe={stripePromise} 
+      options={paymentClientSecret ? {
+        clientSecret: paymentClientSecret,
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#C8E400',
+            colorBackground: '#ffffff',
+            colorText: '#262626',
+            colorDanger: '#df1b41',
+            fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+            spacingUnit: '4px',
+            borderRadius: '8px',
+          },
+        },
+      } : undefined}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-auto">
+        <StepHeader />
+        
+        <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Form */}
           <div className="lg:col-span-2">
@@ -321,6 +654,28 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     <User className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.customerInfo')}</h2>
                   </div>
+
+                  {/* Logged in user confirmation */}
+                  {currentUser && (
+                    <div className="mb-4 md:mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-green-900">
+                            {t('checkout.loggedInAs')} {currentUser.email}
+                          </p>
+                          <label className="flex items-center gap-2 mt-2 text-sm text-green-700">
+                            <input
+                              type="checkbox"
+                              checked={formData.useProfileAsDeliveryContact}
+                              onChange={(e) => handleInputChange('useProfileAsDeliveryContact', '', e.target.checked)}
+                              className="rounded border-green-300 text-green-600 focus:ring-green-500"
+                            />
+                            {t('checkout.useProfileAsDeliveryContact')}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="space-y-3 md:space-y-4">
                     {/* Name */}
@@ -417,6 +772,21 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     <MapPin className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.deliveryAddress')}</h2>
                   </div>
+
+                  {/* Logged in user address confirmation */}
+                  {currentUser && (
+                    <div className="mb-4 md:mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                      <label className="flex items-center gap-2 text-sm text-green-700">
+                        <input
+                          type="checkbox"
+                          checked={formData.useProfileAsDeliveryContact}
+                          onChange={(e) => handleInputChange('useProfileAsDeliveryContact', '', e.target.checked)}
+                          className="rounded border-green-300 text-green-600 focus:ring-green-500"
+                        />
+                        {t('checkout.useProfileAsDeliveryAddress')}
+                      </label>
+                    </div>
+                  )}
                   
                   <div className="space-y-3 md:space-y-4">
                     {/* Street Address */}
@@ -464,8 +834,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     </div>
 
                     {/* Province and Postal Code */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           {t('order.province')} *
                         </label>
@@ -578,8 +948,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
 
                   {/* Delivery Date Selection */}
-                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                    <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                  <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                    <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
                       <Clock className="w-4 h-4" />
                       {t('checkout.selectDeliveryDate')}
                     </h3>
@@ -593,16 +963,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                               value={dateOption.value}
                               checked={formData.deliveryDate === dateOption.value}
                               onChange={(e) => setFormData(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                              className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-blue-300"
+                              className="w-4 h-4 text-orange-600 focus:ring-orange-500 border-orange-300"
                             />
-                            <span className="text-sm text-blue-900 font-medium">{dateOption.label}</span>
+                            <span className="text-sm text-orange-900 font-medium">{dateOption.label}</span>
                           </label>
                         ))
                       ) : (
-                        <p className="text-sm text-blue-700">No delivery dates available within the next week.</p>
+                        <p className="text-sm text-orange-700">No delivery dates available within the next week.</p>
                       )}
                     </div>
-                    <p className="text-xs text-blue-600 mt-2">
+                    <p className="text-xs text-orange-600 mt-2">
                       Delivery available from tomorrow onwards. Select your preferred date.
                     </p>
                   </div>
@@ -634,7 +1004,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 sticky top-24 max-h-[80vh] flex flex-col">
+            <div className={`bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col ${currentStep === 'payment' ? '' : 'sticky top-24 max-h-[80vh]'}`}>
               <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
               
               {/* Store Info */}
@@ -658,21 +1028,25 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
               {/* Totals */}
               <div className="space-y-2 pt-4 border-t border-gray-200">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.subtotal')}</span>
-                  <span className="font-medium">{formatPrice(cart.summary.subtotal)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.tax')}</span>
-                  <span className="font-medium">{formatPrice(cart.summary.tax)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.tax)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.deliveryFee')}</span>
-                  <span className="font-medium">{formatPrice(cart.summary.deliveryFee)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.deliveryFee)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-300">
-                  <span>{t('order.total')}</span>
-                  <span className="text-[#C8E400]">{formatPrice(cart.summary.total)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.platformFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.platformFee)}</span>
+                </div>
+                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
+                  <span className="flex-1">{t('order.total')}</span>
+                  <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(cart.summary.finalTotal)}</span>
                 </div>
               </div>
 
@@ -686,26 +1060,85 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     </div>
                   )}
                   <button
-                    onClick={handleSubmitOrder}
-                    disabled={isSubmitting}
+                    onClick={handleNext}
+                    disabled={isCreatingPaymentIntent}
                     className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
-                    {isSubmitting ? (
+                    {isCreatingPaymentIntent ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        <span className="text-sm">Processing...</span>
+                        <span className="text-sm">Preparing Payment...</span>
                       </div>
                     ) : (
-                      t('order.placeOrder')
+                      'Proceed to Payment'
                     )}
                   </button>
                 </div>
               )}
 
+              {/* Payment Step - Main Form Area */}
+              {currentStep === 'payment' && paymentClientSecret && (
+                <div className="space-y-4 md:space-y-6 relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <CreditCard className="w-6 h-6 text-[#C8E400]" />
+                    <h2 className="text-xl font-bold text-gray-900">Método de Pago</h2>
+                  </div>
+                  
+                  <div className="bg-red-500 text-white p-4 rounded-lg font-bold">
+                    PAYMENT FORM SHOULD APPEAR HERE IN MAIN AREA
+                  </div>
+                  
+                  <div className="border-4 border-blue-500 p-4 rounded-lg bg-blue-50">
+                    <StripePaymentForm
+                      order={{
+                        id: paymentIntentId || 'temp',
+                        storeId: cart.storeId!,
+                        storeName: cart.storeName!,
+                        customerInfo: formData.customerInfo,
+                        deliveryAddress: formData.deliveryAddress,
+                        items: cart.items.map(item => ({
+                          id: item.id,
+                          productId: item.product.id,
+                          productName: item.product.name,
+                          productImage: item.product.image,
+                          price: item.priceAtTime,
+                          quantity: item.quantity,
+                        })),
+                        summary: {
+                          subtotal: cart.summary.subtotal,
+                          tax: cart.summary.tax,
+                          deliveryFee: cart.summary.deliveryFee,
+                          total: cart.summary.total,
+                          platformFee: cart.summary.platformFee,
+                          finalTotal: cart.summary.finalTotal,
+                          storeAmount: cart.summary.total - (cart.summary.total * 0.10),
+                          platformAmount: cart.summary.platformFee + (cart.summary.total * 0.10),
+                          itemCount: cart.summary.itemCount,
+                        },
+                        status: 'pending' as OrderStatus,
+                        orderNotes: formData.orderNotes,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        paymentStatus: 'pending',
+                        isDelivery: formData.isDelivery,
+                        language: 'en',
+                      }}
+                      clientSecret={paymentClientSecret}
+                      onPaymentSuccess={handlePaymentSuccess}
+                      onPaymentError={handlePaymentError}
+                      onProcessing={(processing) => setIsSubmitting(processing)}
+                    />
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
+
+        </div>
+
         </div>
       </div>
-    </div>
+    </Elements>
   );
 };

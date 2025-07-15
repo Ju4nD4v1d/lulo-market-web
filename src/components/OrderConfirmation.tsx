@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Clock, MapPin, Package, Phone, Mail, ArrowLeft, Star } from 'lucide-react';
+import { Check, Clock, MapPin, Package, Phone, Mail, ArrowLeft, FileText, Eye } from 'lucide-react';
 import { Order, OrderStatus } from '../types/order';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -42,11 +42,38 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
   const formatEstimatedTime = (time: Date) => {
     const now = new Date();
     const diffInMinutes = Math.ceil((time.getTime() - now.getTime()) / (1000 * 60));
-    return `${diffInMinutes} ${t('order.minutes')}`;
+    
+    if (diffInMinutes < 60) {
+      // Less than 1 hour: show minutes
+      return `${diffInMinutes} ${t('order.minutes')}`;
+    } else if (diffInMinutes < 1440) {
+      // Less than 24 hours: show hours and minutes
+      const hours = Math.floor(diffInMinutes / 60);
+      const remainingMinutes = diffInMinutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours} ${hours === 1 ? t('order.hour') : t('order.hours')}`;
+      } else {
+        return `${hours} ${hours === 1 ? t('order.hour') : t('order.hours')} ${remainingMinutes} ${t('order.minutes')}`;
+      }
+    } else {
+      // 24 hours or more: show days, hours and minutes
+      const days = Math.floor(diffInMinutes / 1440);
+      const remainingHours = Math.floor((diffInMinutes % 1440) / 60);
+      const remainingMinutes = diffInMinutes % 60;
+      
+      let result = `${days} ${days === 1 ? t('order.day') : t('order.days')}`;
+      if (remainingHours > 0) {
+        result += ` ${remainingHours} ${remainingHours === 1 ? t('order.hour') : t('order.hours')}`;
+      }
+      if (remainingMinutes > 0) {
+        result += ` ${remainingMinutes} ${t('order.minutes')}`;
+      }
+      return result;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-y-auto">
       {/* Header */}
       <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-200/50">
         <div className="max-w-3xl mx-auto px-3 md:px-6 py-3 md:py-4">
@@ -183,22 +210,26 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.paymentSummary')}</h3>
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.subtotal')}</span>
-                  <span className="font-medium">{formatPrice(order.summary.subtotal)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.tax')}</span>
-                  <span className="font-medium">{formatPrice(order.summary.tax)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.tax)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{t('order.deliveryFee')}</span>
-                  <span className="font-medium">{formatPrice(order.summary.deliveryFee)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.deliveryFee)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 flex-1">{t('order.platformFee')}</span>
+                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.platformFee)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-2">
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>{t('order.total')}</span>
-                    <span className="text-[#C8E400]">{formatPrice(order.summary.total)}</span>
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span className="flex-1">{t('order.total')}</span>
+                    <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(order.summary.finalTotal)}</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -242,15 +273,21 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
               </button>
             </div>
 
-            {/* Review Prompt */}
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl md:rounded-3xl border border-amber-200 p-4 md:p-6">
+            {/* Order Tracking */}
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl md:rounded-3xl border border-orange-200 p-4 md:p-6">
               <div className="flex items-center gap-3 mb-3">
-                <Star className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-amber-900">{t('order.reviewPrompt.title')}</h3>
+                <Eye className="w-5 h-5 text-orange-500" />
+                <h3 className="font-bold text-orange-900">{t('order.tracking.title')}</h3>
               </div>
-              <p className="text-sm text-amber-700 mb-4">{t('order.reviewPrompt.description')}</p>
-              <button className="text-sm font-medium text-amber-800 hover:text-amber-900 transition-colors">
-                {t('order.reviewPrompt.action')}
+              <p className="text-sm text-orange-700 mb-4">{t('order.tracking.description')}</p>
+              <button 
+                onClick={() => {
+                  window.location.hash = '#order-history';
+                }}
+                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2 rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-300 transform hover:scale-105 text-sm font-medium flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                {t('order.tracking.action')}
               </button>
             </div>
           </div>

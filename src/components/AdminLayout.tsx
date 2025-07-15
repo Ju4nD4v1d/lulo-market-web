@@ -63,7 +63,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
         `}>
           {isCollapsed ? (
             logoError ? (
-              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-bold">
                   {COMPANY_NAME.charAt(0)}
                 </span>
@@ -72,7 +72,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               <img 
                 src="/logo_lulo.png" 
                 alt={COMPANY_NAME}
-                className="h-8 w-8 object-contain"
+                className="h-10 w-10 object-contain"
                 onError={handleLogoError}
               />
             )

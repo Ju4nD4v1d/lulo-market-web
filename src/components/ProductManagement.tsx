@@ -23,6 +23,7 @@ import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'fireb
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../context/StoreContext';
 import { Product } from '../types/product';
 
 const defaultFormData = {
@@ -156,15 +157,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-bold text-gray-900">
             {product ? t('products.editModal') : t('products.addNew')}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -184,9 +185,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             </label>
             <div
               className={`
-                relative border-2 border-dashed rounded-lg p-8
-                ${dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-                ${(formData.images?.length || 0) >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary-400'}
+                relative border-2 border-dashed rounded-xl p-8
+                ${dragActive ? 'border-[#C8E400] bg-[#C8E400]/10' : 'border-gray-300'}
+                ${(formData.images?.length || 0) >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#C8E400]/60'}
                 transition-colors duration-200
                 text-center
               `}
@@ -196,7 +197,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             >
               {isLoading ? (
                 <div className="flex flex-col items-center">
-                  <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                  <Loader2 className="w-12 h-12 text-[#C8E400] animate-spin" />
                   <p className="mt-2 text-sm text-gray-600">{t('store.saveProgress.uploadingImages')}</p>
                 </div>
               ) : (formData.images?.length || 0) >= 5 ? (
@@ -270,7 +271,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                 required
               />
             </div>
@@ -283,7 +284,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 id="category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="block w-full"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                 required
               >
                 <option value="">{t('products.selectCategory')}</option>
@@ -322,7 +323,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                  className="block w-full pl-10"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                   required
                 />
               </div>
@@ -338,7 +339,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 min="0"
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                className="block w-full"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                 required
               />
             </div>
@@ -358,7 +359,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.pstPercentage}
                   onChange={(e) => setFormData({ ...formData, pstPercentage: parseFloat(e.target.value) })}
-                  className="block w-full pr-8"
+                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                   placeholder="0.00"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -380,7 +381,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.gstPercentage}
                   onChange={(e) => setFormData({ ...formData, gstPercentage: parseFloat(e.target.value) })}
-                  className="block w-full pr-8"
+                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
                   placeholder="0.00"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -402,7 +403,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     value={status}
                     checked={formData.status === status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as Product['status'] })}
-                    className="form-radio text-primary-600 focus:ring-primary-500"
+                    className="form-radio text-[#C8E400] focus:ring-[#C8E400]"
                   />
                   <span className="ml-2 text-sm text-gray-700 capitalize">
                     {status === 'outOfStock'
@@ -414,17 +415,17 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
+          <div className="flex justify-end space-x-4 pt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 hover:text-gray-900"
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
             >
               {t('dialog.cancel')}
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
             >
               {product ? t('products.update') : t('products.add')}
             </button>
@@ -447,7 +448,7 @@ export const ProductManagement = () => {
   const [isViewingDetails, setIsViewingDetails] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [storeId, setStoreId] = useState<string | null>(null);
+  const { storeId } = useStore();
 
   const categories = [
     { id: 'hot', label: t('products.category.hot'), icon: Flame },
@@ -457,36 +458,13 @@ export const ProductManagement = () => {
   ];
 
   useEffect(() => {
-    if (!currentUser) return;
-    fetchStoreId();
-  }, [currentUser]);
-
-  useEffect(() => {
     if (storeId) {
       loadProducts();
-    }
-  }, [storeId]);
-
-  const fetchStoreId = async () => {
-    if (!currentUser) return;
-    
-    try {
-      const storesRef = collection(db, 'stores');
-      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        setStoreId(snapshot.docs[0].id);
-      } else {
-        setError('No store found. Please set up your store first.');
-        setIsLoading(false);
-      }
-    } catch (err) {
-      console.error('Error fetching store:', err);
-      setError('Failed to fetch store information.');
+    } else if (storeId === null && !currentUser) {
+      setError('No store found. Please set up your store first.');
       setIsLoading(false);
     }
-  };
+  }, [storeId, currentUser]);
 
   const loadProducts = async () => {
     if (!storeId) return;
@@ -596,9 +574,9 @@ export const ProductManagement = () => {
             setIsModalOpen(true);
           }}
           disabled={!storeId}
-          className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-            hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md
-            disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl 
+            hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           <Plus className="w-5 h-5 mr-2" />
           {t('products.add')}
@@ -616,7 +594,7 @@ export const ProductManagement = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400]"
               />
             </div>
             <div className="flex gap-2">
@@ -634,7 +612,7 @@ export const ProductManagement = () => {
                       px-4 py-2 rounded-full text-sm font-medium transition-all
                       flex items-center space-x-2
                       ${selectedCategories.includes(category.id)
-                        ? 'bg-primary-100 text-primary-800 ring-2 ring-primary-500'
+                        ? 'bg-[#C8E400]/20 text-[#7A8B00] ring-2 ring-[#C8E400]'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
                       ${((category.id === 'hot' && selectedCategories.includes('frozen')) ||
                          (category.id === 'frozen' && selectedCategories.includes('hot')))
@@ -652,15 +630,15 @@ export const ProductManagement = () => {
           <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-gray-100' : ''}`}
+              className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-[#C8E400]/20 text-[#7A8B00]' : 'hover:bg-gray-100'}`}
             >
-              <Grid className="w-5 h-5 text-gray-600" />
+              <Grid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-gray-100' : ''}`}
+              className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-[#C8E400]/20 text-[#7A8B00]' : 'hover:bg-gray-100'}`}
             >
-              <List className="w-5 h-5 text-gray-600" />
+              <List className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -686,8 +664,8 @@ export const ProductManagement = () => {
             <button
               onClick={() => setIsModalOpen(true)}
               disabled={!storeId}
-              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg 
-                hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A8C400] text-gray-900 rounded-xl 
+                hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               <Plus className="w-5 h-5 mr-2" />
               {t('products.addFirst')}
@@ -728,7 +706,9 @@ export const ProductManagement = () => {
                           product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
                           'bg-red-100 text-red-800'}
                       `}>
-                        {product.status}
+                        {product.status === 'outOfStock'
+                          ? t('products.status.outOfStock')
+                          : t(`products.status.${product.status}`)}
                       </span>
                     </div>
                   </div>
@@ -778,7 +758,9 @@ export const ProductManagement = () => {
                           product.status === 'draft' ? 'bg-gray-100 text-gray-800' :
                           'bg-red-100 text-red-800'}
                       `}>
-                        {product.status}
+                        {product.status === 'outOfStock'
+                          ? t('products.status.outOfStock')
+                          : t(`products.status.${product.status}`)}
                       </span>
                     </div>
                     

@@ -6,8 +6,8 @@ import { ProductCard } from './ProductCard';
 import { CartSidebar } from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { useTestMode } from '../context/TestModeContext';
+import { useDataProvider } from '../services/DataProvider';
 
 // Mock products for testing cart functionality
 const mockProducts: Product[] = [
@@ -132,11 +132,14 @@ interface StoreDetailProps {
 export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
   const { t } = useLanguage();
+  const { isTestMode, toggleTestMode } = useTestMode();
+  const { getProducts } = useDataProvider();
   
   // Debug log to check store location data
   console.log('Store data in StoreDetail:', store);
   console.log('Store location:', store.location);
   console.log('Store delivery hours:', store.deliveryHours || store.businessHours);
+  console.log('Test mode:', isTestMode);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,23 +160,35 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const q = query(
-        collection(db, 'products'),
-        where('storeId', '==', store.id),
-        where('status', '==', 'active')
-      );
-      const querySnapshot = await getDocs(q);
-      const productsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
+      console.log(`Fetching products for store ${store.id} (Test mode: ${isTestMode})`);
       
-      // Use real data if available, otherwise use mock data filtered by store
-      const storeProducts = productsData.length > 0 
-        ? productsData 
-        : mockProducts.filter(product => product.storeId === store.id);
+      // Use DataProvider which handles both test mode and real data
+      const querySnapshot = await getProducts(store.id);
       
-      setProducts(storeProducts);
+      // Handle different response formats
+      let productsData: Product[] = [];
+      
+      if (querySnapshot.docs) {
+        // Firebase format
+        productsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[];
+      } else if (Array.isArray(querySnapshot)) {
+        // Direct array format (from DataProvider mock)
+        productsData = querySnapshot as Product[];
+      }
+      
+      console.log(`Found ${productsData.length} products for store ${store.id}:`, productsData);
+      
+      // If no products found and not in test mode, fallback to mock data
+      if (productsData.length === 0 && !isTestMode) {
+        console.log('No products found, using mock data fallback');
+        const storeProducts = mockProducts.filter(product => product.storeId === store.id);
+        setProducts(storeProducts);
+      } else {
+        setProducts(productsData);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
       // Fallback to mock data on error
@@ -182,10 +197,13 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     } finally {
       setLoading(false);
     }
-  }, [store.id]);
+  }, [store.id, isTestMode, getProducts]);
 
   const filterProducts = useCallback(() => {
     let filtered = products;
+
+    // Filter out draft products (only show active and outOfStock products)
+    filtered = filtered.filter(product => product.status !== 'draft');
 
     // Filter by search term
     if (searchTerm) {
@@ -205,7 +223,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
 
   useEffect(() => {
     fetchProducts();
-  }, [store.id, fetchProducts]);
+  }, [fetchProducts]);
 
   useEffect(() => {
     filterProducts();
@@ -313,31 +331,52 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-      {/* Mobile-First Header */}
-      <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 md:py-4">
-          <div className="flex items-center gap-3 md:gap-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50">
+      {/* Enhanced Professional Header */}
+      <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-100/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
+          <div className="flex items-center gap-4 md:gap-6">
             <button
               onClick={onBack}
-              className="p-2 md:p-3 hover:bg-gray-100 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 group"
+              className="p-2 md:p-3 hover:bg-gray-50 rounded-xl transition-all duration-300 hover:scale-105 group border border-gray-200 hover:border-[#C8E400]/50"
             >
               <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
             </button>
             <div className="flex-1">
-              <h1 className="text-lg md:text-2xl font-bold text-gray-900 tracking-tight">{t('storeDetail.title')}</h1>
-              <p className="text-sm md:text-base text-gray-600 font-medium hidden md:block">{t('storeDetail.subtitle')}</p>
+              <h1 className="text-lg md:text-2xl font-semibold text-gray-900 tracking-tight">{store.name}</h1>
+              <div className="flex items-center gap-2">
+                <p className="text-sm md:text-base text-gray-500 font-medium hidden md:block">{t('storeDetail.subtitle')}</p>
+                {isTestMode && (
+                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                    {t('testMode.active')}
+                  </span>
+                )}
+              </div>
             </div>
             
-            {/* Cart Button */}
+            {/* Test Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
+                <input
+                  type="checkbox"
+                  checked={isTestMode}
+                  onChange={toggleTestMode}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                <span className="ml-2 text-xs text-gray-600 font-medium hidden lg:inline">{t('testMode.toggle')}</span>
+              </label>
+            </div>
+            
+            {/* Enhanced Cart Button */}
             <button
               onClick={() => setShowCart(true)}
-              className="relative flex items-center gap-1 md:gap-2 bg-white border-2 border-gray-200 text-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl font-semibold hover:border-[#C8E400] hover:shadow-lg transition-all duration-300"
+              className="relative flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
             >
-              <ShoppingCart className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs md:text-sm">{t('shopper.header.cart')}</span>
+              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline text-sm md:text-base">{t('shopper.header.cart')}</span>
               {cart.summary.itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
                 </span>
               )}
@@ -347,275 +386,369 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
       </div>
 
       <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
-        {/* Mobile-First Store Info Section */}
-        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8 mb-6 md:mb-8 overflow-hidden relative">
-          {/* Background Pattern */}
-          <div className="absolute top-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-gradient-to-br from-[#C8E400]/5 to-transparent rounded-full -translate-y-16 translate-x-16 md:-translate-y-32 md:translate-x-32"></div>
+        {/* Enhanced Store Hero Section */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8 relative">
+          {/* Sophisticated Background Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#C8E400]/3 via-white to-[#A3C700]/3"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#C8E400]/5 to-transparent rounded-full -translate-y-48 translate-x-48 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#A3C700]/5 to-transparent rounded-full translate-y-48 -translate-x-48 blur-3xl"></div>
           
-          <div className="relative flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
-            {/* Mobile-First Store Image */}
-            <div className="w-full lg:w-80 h-48 md:h-56 lg:h-64 rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl">
+          <div className="relative">
+            {/* Professional Store Image with Overlay */}
+            <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
               {(store.storeImage || store.imageUrl) ? (
-                <img 
-                  src={store.storeImage || store.imageUrl} 
-                  alt={store.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  onError={(e) => {
-                    // If storeImage fails, try imageUrl as fallback
-                    const target = e.target as HTMLImageElement;
-                    if (store.storeImage && store.imageUrl && target.src === store.storeImage) {
-                      target.src = store.imageUrl;
-                    }
-                  }}
-                />
+                <div className="relative h-full">
+                  <img 
+                    src={store.storeImage || store.imageUrl} 
+                    alt={store.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (store.storeImage && store.imageUrl && target.src === store.storeImage) {
+                        target.src = store.imageUrl;
+                      }
+                    }}
+                  />
+                  {/* Elegant Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20"></div>
+                </div>
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <span className="text-3xl">🍽️</span>
+                    <div className="w-24 h-24 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <span className="text-4xl">🍽️</span>
                     </div>
-                    <span className="text-gray-500 font-medium">{t('storeDetail.title')}</span>
+                    <span className="text-gray-500 font-medium text-lg">{store.name}</span>
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Mobile-First Store Details */}
-            <div className="flex-1 space-y-4 md:space-y-6">
-              <div>
-                <div className="flex items-start gap-2 md:gap-4 mb-3 md:mb-4">
+              
+              {/* Store Info Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
+                <div className="flex items-end justify-between">
                   <div className="flex-1">
-                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-3 tracking-tight leading-tight">{store.name}</h2>
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-2 tracking-tight">{store.name}</h1>
                     {store.description && (
-                      <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light">{store.description}</p>
+                      <p className="text-white/90 text-base md:text-lg font-light leading-relaxed max-w-2xl">{store.description}</p>
                     )}
                   </div>
                   
                   {/* Verification Badge */}
                   {store.isVerified && (
-                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs md:text-sm font-semibold shadow-lg">
-                      <div className="flex items-center gap-1 md:gap-2">
+                    <div className="bg-white/90 backdrop-blur-sm text-[#C8E400] px-4 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/20">
+                      <div className="flex items-center gap-2">
                         <span>✓</span>
                         <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
                       </div>
                     </div>
                   )}
                 </div>
-                
-                {/* Mobile-First Rating Display */}
-                <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
-                  {store.averageRating && (
-                    <div className="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-yellow-200">
-                      <Star className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
+              </div>
+            </div>
+
+            {/* Enhanced Store Information Panel */}
+            <div className="p-6 md:p-8 bg-white/50 backdrop-blur-sm">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {/* Rating & Reviews */}
+                {store.averageRating && (
+                  <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-200/50">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
+                        <Star className="w-6 h-6 fill-white text-white" />
+                      </div>
                       <div>
-                        <span className="font-bold text-base md:text-lg lg:text-xl text-gray-900">{store.averageRating.toFixed(1)}</span>
+                        <div className="text-2xl font-bold text-gray-900">{store.averageRating.toFixed(1)}</div>
                         {store.totalReviews && (
-                          <p className="text-xs md:text-sm text-gray-600 font-medium">({store.totalReviews} reviews)</p>
+                          <p className="text-sm text-gray-600">({store.totalReviews} reviews)</p>
                         )}
                       </div>
                     </div>
-                  )}
-                  
-                  {isDeliveryAvailable() && (
-                    <div className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-                      <Clock className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                      <div>
-                        <p className="font-semibold text-sm md:text-base text-green-900">{getDeliveryHoursToday()}</p>
-                        <p className="text-xs text-gray-600">{t('delivery.deliveryHours')}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Location */}
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    {store.location?.address || store.address || 'Address not available'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Social Media Only */}
-              <div className="flex flex-wrap gap-3">
-                {store.instagram && (
-                  <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-pink-600 hover:underline">
-                    <Instagram className="w-4 h-4" />
-                    Instagram
-                  </a>
-                )}
-                {store.facebook && (
-                  <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-blue-700 hover:underline">
-                    <Facebook className="w-4 h-4" />
-                    Facebook
-                  </a>
-                )}
-                {store.twitter && (
-                  <a href={store.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs md:text-sm text-blue-500 hover:underline">
-                    <Twitter className="w-4 h-4" />
-                    Twitter
-                  </a>
-                )}
-              </div>
-
-              {/* Comprehensive Delivery Service Info */}
-              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-2 mb-4">
-                  <Truck className="w-4 h-4 text-[#C8E400]" />
-                  <h4 className="font-semibold text-gray-900 text-sm md:text-base">{t('delivery.service')}</h4>
-                </div>
-
-                {/* Next Available Delivery Highlight */}
-                {(() => {
-                  const nextDelivery = getNextAvailableDelivery();
-                  if (nextDelivery) {
-                    return (
-                      <div className="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-green-800 font-semibold text-sm">
-                              🚚 {t('delivery.nextAvailable')}
-                            </p>
-                            <p className="text-green-700 text-xs">
-                              {nextDelivery.isToday ? t('delivery.today') : nextDelivery.day} • {nextDelivery.hours}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                              {nextDelivery.timeUntil}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3">
-                        <p className="text-red-700 font-medium text-sm text-center">
-                          ⚠️ {t('delivery.noService')}
-                        </p>
-                      </div>
-                    );
-                  }
-                })()}
-
-                {/* Full Weekly Delivery Schedule */}
-                <div className="mb-4">
-                  <h5 className="text-xs md:text-sm font-medium text-gray-700 mb-2">{t('delivery.weeklySchedule')}</h5>
-                  <div className="space-y-2">
-                    {getDeliverySchedule().map((dayInfo) => {
-                      const isToday = dayInfo.dayIndex === new Date().getDay();
-                      return (
-                        <div 
-                          key={dayInfo.day}
-                          className={`flex justify-between items-center px-3 py-2 rounded-lg ${
-                            isToday 
-                              ? 'bg-blue-50 border border-blue-200'
-                              : dayInfo.isOpen 
-                              ? 'bg-gray-50 border border-gray-200'
-                              : 'bg-gray-50 border border-gray-200 opacity-60'
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(store.averageRating || 0)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
                           }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs md:text-sm font-medium ${
-                              isToday ? 'text-blue-800' : 'text-gray-700'
-                            }`}>
-                              {dayInfo.day}
-                              {isToday && <span className="ml-1 text-blue-600">({t('delivery.today')})</span>}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs md:text-sm ${
-                              dayInfo.isOpen 
-                                ? isToday ? 'text-blue-700 font-medium' : 'text-gray-700'
-                                : 'text-gray-500'
-                            }`}>
-                              {dayInfo.hours}
-                            </span>
-                            <div className={`w-2 h-2 rounded-full ${
-                              dayInfo.isOpen ? 'bg-green-400' : 'bg-red-400'
-                            }`}></div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery Status */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200/50">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-green-900">
+                        {isDeliveryAvailable() ? t('delivery.openNow') : t('delivery.closed')}
+                      </div>
+                      <div className="text-xs text-gray-600">{getDeliveryHoursToday()}</div>
+                    </div>
+                  </div>
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    isDeliveryAvailable() 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full mr-2 ${
+                      isDeliveryAvailable() ? 'bg-green-400' : 'bg-gray-400'
+                    }`}></div>
+                    {isDeliveryAvailable() ? t('delivery.delivering') : t('delivery.notDelivering')}
                   </div>
                 </div>
 
+                {/* Location */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200/50">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-blue-900">{t('storeDetail.location')}</div>
+                      <div className="text-xs text-gray-600 max-w-48 line-clamp-2">
+                        {store.location?.address || store.address || 'Address not available'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Social Media & Service Options */}
+            <div className="p-6 md:p-8 bg-gradient-to-br from-gray-50 to-white border-t border-gray-100">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Social Media Links */}
+                {(store.instagram || store.facebook || store.twitter) && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('storeDetail.followUs')}</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {store.instagram && (
+                        <a 
+                          href={store.instagram} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                        >
+                          <Instagram className="w-4 h-4" />
+                          Instagram
+                        </a>
+                      )}
+                      {store.facebook && (
+                        <a 
+                          href={store.facebook} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                        >
+                          <Facebook className="w-4 h-4" />
+                          Facebook
+                        </a>
+                      )}
+                      {store.twitter && (
+                        <a 
+                          href={store.twitter} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex items-center gap-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                        >
+                          <Twitter className="w-4 h-4" />
+                          Twitter
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Service Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
-                  {store.deliveryOptions?.delivery && (
-                    <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                      <span className="text-green-700 font-medium">🚚 {t('shopper.delivery')}</span>
-                      <span className="text-green-900 font-semibold">
-                        {store.deliveryCostWithDiscount ? `$${store.deliveryCostWithDiscount}` : 'Available'}
-                      </span>
-                    </div>
-                  )}
-                  {store.deliveryOptions?.pickup && (
-                    <div className="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
-                      <span className="text-blue-700 font-medium">📦 {t('shopper.pickup')}</span>
-                      <span className="text-blue-900 font-semibold">Free</span>
-                    </div>
-                  )}
-                  {store.minimumOrder && (
-                    <div className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 md:col-span-2">
-                      <span className="text-gray-700 font-medium">{t('shopper.minimumOrder')}</span>
-                      <span className="text-gray-900 font-semibold">${store.minimumOrder}</span>
-                    </div>
-                  )}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('storeDetail.serviceOptions')}</h3>
+                  <div className="space-y-3">
+                    {store.deliveryOptions?.delivery && (
+                      <div className="flex items-center justify-between bg-green-50 px-4 py-3 rounded-xl border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <Truck className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-green-800 font-medium">{t('shopper.delivery')}</span>
+                        </div>
+                        <span className="text-green-900 font-bold">
+                          {store.deliveryCostWithDiscount ? `$${store.deliveryCostWithDiscount}` : 'Available'}
+                        </span>
+                      </div>
+                    )}
+                    {store.deliveryOptions?.pickup && (
+                      <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-xl border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm">📦</span>
+                          </div>
+                          <span className="text-blue-800 font-medium">{t('shopper.pickup')}</span>
+                        </div>
+                        <span className="text-blue-900 font-bold">Free</span>
+                      </div>
+                    )}
+                    {store.minimumOrder && (
+                      <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm">$</span>
+                          </div>
+                          <span className="text-gray-800 font-medium">{t('shopper.minimumOrder')}</span>
+                        </div>
+                        <span className="text-gray-900 font-bold">${store.minimumOrder}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile-First Products Section */}
-        <div data-menu-section className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-100 p-4 md:p-6 lg:p-8">
-          <div className="mb-6 md:mb-8">
-            <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
-                <span className="text-xs font-medium text-[#C8E400]">✨ Menu</span>
+        {/* Enhanced Delivery Schedule Section */}
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-8">
+          <div className="p-6 md:p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
+                <Truck className="w-4 h-4 text-[#C8E400]" />
+                <span className="text-sm font-medium text-[#C8E400]">{t('delivery.service')}</span>
               </div>
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 tracking-tight leading-tight">{t('storeDetail.ourMenu')}</h3>
-              <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto leading-relaxed font-light">
+              <h2 className="text-2xl md:text-3xl font-light text-gray-900 mb-2">{t('delivery.schedule')}</h2>
+              <p className="text-gray-600 text-sm md:text-base">{t('delivery.scheduleDescription')}</p>
+            </div>
+
+            {/* Next Available Delivery Highlight */}
+            {(() => {
+              const nextDelivery = getNextAvailableDelivery();
+              if (nextDelivery) {
+                return (
+                  <div className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-800 font-semibold text-lg">
+                          🚚 {t('delivery.nextAvailable')}
+                        </p>
+                        <p className="text-green-700 text-sm">
+                          {nextDelivery.isToday ? t('delivery.today') : nextDelivery.day} • {nextDelivery.hours}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="bg-green-200 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+                          {nextDelivery.timeUntil}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6">
+                    <p className="text-red-700 font-medium text-center">
+                      ⚠️ {t('delivery.noService')}
+                    </p>
+                  </div>
+                );
+              }
+            })()}
+
+            {/* Enhanced Weekly Schedule */}
+            <div className="grid gap-3">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('delivery.weeklySchedule')}</h3>
+              <div className="grid gap-2">
+                {getDeliverySchedule().map((dayInfo) => {
+                  const isToday = dayInfo.dayIndex === new Date().getDay();
+                  return (
+                    <div 
+                      key={dayInfo.day}
+                      className={`flex justify-between items-center px-6 py-4 rounded-xl transition-all duration-300 ${
+                        isToday 
+                          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md'
+                          : dayInfo.isOpen 
+                          ? 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                          : 'bg-gray-50 border border-gray-200 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          dayInfo.isOpen ? 'bg-green-400' : 'bg-red-400'
+                        }`}></div>
+                        <span className={`text-sm font-medium ${
+                          isToday ? 'text-blue-800' : 'text-gray-700'
+                        }`}>
+                          {dayInfo.day}
+                          {isToday && <span className="ml-2 text-blue-600 text-xs">({t('delivery.today')})</span>}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className={`text-sm font-medium ${
+                          dayInfo.isOpen 
+                            ? isToday ? 'text-blue-700' : 'text-gray-700'
+                            : 'text-gray-500'
+                        }`}>
+                          {dayInfo.hours}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Products Section */}
+        <div data-menu-section className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div className="p-6 md:p-8">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-6">
+                <span className="text-sm font-medium text-[#C8E400]">✨ {t('storeDetail.menu')}</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-light text-gray-900 mb-4 tracking-tight">{t('storeDetail.ourMenu')}</h2>
+              <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 {t('storeDetail.menuDescription')}
               </p>
             </div>
             
-            {/* Mobile-First Search and Filters */}
-            <div className="space-y-4 md:space-y-6">
-              {/* Enhanced Search */}
-              <div className="relative max-w-md mx-auto">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Search className="w-4 h-4" />
+            {/* Enhanced Search and Filters */}
+            <div className="mb-10">
+              <div className="max-w-4xl mx-auto space-y-6">
+                {/* Professional Search Bar */}
+                <div className="relative max-w-lg mx-auto">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder={t('storeDetail.searchDishes')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full h-12 pl-12 pr-4 border border-gray-200 rounded-2xl 
+                      focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400] focus:outline-none
+                      bg-gray-50/50 backdrop-blur-sm shadow-sm placeholder:text-gray-400 text-base
+                      transition-all duration-300 hover:shadow-md hover:bg-white"
+                  />
                 </div>
-                <input
-                  type="text"
-                  placeholder={t('storeDetail.searchDishes')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-11 pl-11 pr-4 border border-gray-200/60 rounded-2xl 
-                    focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400]/50 focus:outline-none
-                    bg-white/80 backdrop-blur-sm shadow-sm placeholder:text-gray-400 text-sm
-                    transition-all duration-300 hover:shadow-md hover:bg-white"
-                />
-              </div>
 
-              {/* Enhanced Category Filter */}
-              <div className="space-y-4">
-                <div className="flex gap-1.5 flex-wrap justify-center">
+                {/* Elegant Category Filters */}
+                <div className="flex flex-wrap gap-3 justify-center">
                   {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`px-4 py-2 rounded-full font-medium text-xs transition-all duration-500 flex items-center gap-2 ${
+                      className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all duration-500 flex items-center gap-3 border-2 ${
                         selectedCategory === category.id
-                          ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg scale-105'
-                          : 'bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:border-[#C8E400]/50 hover:shadow-md hover:scale-105 hover:text-gray-900'
+                          ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white border-[#C8E400] shadow-lg scale-105'
+                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C8E400]/50 hover:shadow-md hover:scale-105 hover:text-gray-900'
                       }`}
                     >
-                      <span className="text-sm">{category.icon}</span>
+                      <span className="text-base">{category.icon}</span>
                       <span>{category.name}</span>
                     </button>
                   ))}
@@ -624,60 +757,66 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
             </div>
           </div>
 
-          {/* Mobile-First Products Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12 md:py-20">
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-3 border-[#C8E400] border-t-transparent"></div>
-                <span className="text-gray-600 font-medium text-sm md:text-base">{t('storeDetail.loadingMenu')}</span>
-              </div>
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-stretch">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                  storeId={store.id}
-                  storeName={store.name}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 md:py-20">
-              <div className="max-w-md mx-auto space-y-3 md:space-y-4 px-4">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-full mx-auto flex items-center justify-center">
-                  <span className="text-2xl md:text-3xl">🍽️</span>
+          {/* Enhanced Products Grid */}
+          <div className="px-6 md:px-8 pb-8">
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <div className="text-center space-y-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#C8E400] border-t-transparent mx-auto"></div>
+                  <div className="space-y-2">
+                    <p className="text-gray-600 font-medium text-lg">{t('storeDetail.loadingMenu')}</p>
+                    <p className="text-gray-500 text-sm">{t('storeDetail.preparingDelicious')}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
-                    {searchTerm || selectedCategory !== 'all' 
-                      ? t('storeDetail.noDishesFound')
-                      : t('storeDetail.menuComingSoon')
-                    }
-                  </h4>
-                  <p className="text-sm md:text-base text-gray-600">
-                    {searchTerm || selectedCategory !== 'all' 
-                      ? t('storeDetail.adjustSearch')
-                      : t('storeDetail.checkBackSoon')
-                    }
-                  </p>
-                </div>
-                {(searchTerm || selectedCategory !== 'all') && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setSelectedCategory('all');
-                    }}
-                    className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold hover:shadow-lg transition-all duration-300 text-sm md:text-base"
-                  >
-                    {t('storeDetail.clearFilters')}
-                  </button>
-                )}
               </div>
-            </div>
-          )}
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={onAddToCart}
+                    storeId={store.id}
+                    storeName={store.name}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <div className="max-w-lg mx-auto space-y-6 px-4">
+                  <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto flex items-center justify-center">
+                    <span className="text-4xl">🍽️</span>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="text-xl md:text-2xl font-semibold text-gray-900">
+                      {searchTerm || selectedCategory !== 'all' 
+                        ? t('storeDetail.noDishesFound')
+                        : t('storeDetail.menuComingSoon')
+                      }
+                    </h4>
+                    <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                      {searchTerm || selectedCategory !== 'all' 
+                        ? t('storeDetail.adjustSearch')
+                        : t('storeDetail.checkBackSoon')
+                      }
+                    </p>
+                  </div>
+                  {(searchTerm || selectedCategory !== 'all') && (
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedCategory('all');
+                      }}
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      <span>{t('storeDetail.clearFilters')}</span>
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Story Mode About Us Section */}

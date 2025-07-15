@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { BusinessOwners } from './components/BusinessOwners';
-import { Shoppers } from './components/Shoppers';
-import { About } from './components/About';
+import { HowItWorks } from './components/HowItWorks';
+import { SocialProof } from './components/SocialProof';
+import { ConversionPricing } from './components/ConversionPricing';
 import { Footer } from './components/Footer';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -11,16 +11,25 @@ import { Dashboard } from './pages/Dashboard';
 import { TermsOfService } from './pages/TermsOfService';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { EditProfile } from './pages/EditProfile';
-import { Pricing } from './components/Pricing';
-import { ShopperDashboard } from './components/ShopperDashboard';
 import { StoreMenu } from './components/StoreMenu';
+import { Business } from './components/Business';
+import { Home } from './components/Home';
+import { OrderHistory } from './components/OrderHistory';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { TestModeProvider } from './context/TestModeContext';
+import { DataProvider } from './services/DataProvider';
+import { MockAuthProvider } from './services/MockAuthService';
+
+// Helper function to update document title
+const updateTitle = (title: string) => {
+  document.title = title;
+};
 
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
-  const { currentUser, userType, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
+  const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -60,37 +69,27 @@ const AppRoutes = () => {
   }
 
   const renderRoute = () => {
-    // Check for dashboard routes first - redirect based on userType
+    // Check for dashboard routes first
     if (currentRoute.startsWith('#dashboard')) {
       if (!currentUser) {
         window.location.hash = '#login';
         return <Login />;
       }
 
-      // Route based on userType
-      switch (userType) {
-        case 'admin':
-          // TODO: Create AdminDashboard component
-          return <Dashboard />; // Temporary fallback
-        case 'storeOwner':
-          return <Dashboard />;
-        case 'shopper':
-          window.location.hash = '#shopper-dashboard';
-          return <ShopperDashboard />;
-        default:
-          // Legacy users without userType - default to shopper
-          window.location.hash = '#shopper-dashboard';
-          return <ShopperDashboard />;
-      }
+      // Allow any authenticated user to access dashboard
+      // The Dashboard component will handle permissions internally
+      return <Dashboard />;
     }
 
-    // Check for shopper dashboard routes
+    // Check for shopper dashboard routes - redirect to unified home experience
     if (currentRoute.startsWith('#shopper-dashboard/')) {
       return <StoreMenu />;
     }
 
     if (currentRoute.startsWith('#shopper-dashboard')) {
-      return <ShopperDashboard />;
+      // Redirect to unified home experience
+      window.location.hash = '#';
+      return <Home />;
     }
 
     // Then check other routes
@@ -118,19 +117,39 @@ const AppRoutes = () => {
       return <EditProfile />;
     }
 
-    return (
-      <>
-        <Header />
-        <main>
-          <Hero />
-          <BusinessOwners />
-          <Shoppers />
-          <Pricing />
-          <About />
-        </main>
-        <Footer />
-      </>
-    );
+    if (currentRoute.startsWith('#business')) {
+      updateTitle('Lulo Market for Merchants – Partner Program & Pricing');
+      return <Business />;
+    }
+
+    if (currentRoute.startsWith('#order-history')) {
+      if (!currentUser) {
+        window.location.hash = '#login';
+        return <Login />;
+      }
+      updateTitle('Lulo Market - Order History');
+      return <OrderHistory onBack={() => window.location.hash = '#'} />;
+    }
+
+    if (currentRoute.startsWith('#landing')) {
+      // Old static landing page, now archived
+      return (
+        <>
+          <Header />
+          <main>
+            <Hero />
+            <HowItWorks />
+            <SocialProof />
+            <ConversionPricing />
+          </main>
+          <Footer />
+        </>
+      );
+    }
+
+    // Default route now goes to Home (marketplace with hero)
+    updateTitle('Lulo Market - Browse Local Latino Stores & Products');
+    return <Home />;
   };
 
   return (
@@ -142,13 +161,19 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <CartProvider>
-          <AppRoutes />
-        </CartProvider>
-      </AuthProvider>
-    </LanguageProvider>
+    <TestModeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <MockAuthProvider>
+            <DataProvider>
+              <CartProvider>
+                <AppRoutes />
+              </CartProvider>
+            </DataProvider>
+          </MockAuthProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </TestModeProvider>
   );
 }
 

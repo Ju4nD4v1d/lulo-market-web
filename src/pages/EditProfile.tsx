@@ -27,7 +27,7 @@ const getFirebaseErrorMessage = (errorCode: string, t: (key: string) => string):
 };
 
 export const EditProfile = () => {
-  const { currentUser, userProfile, updateProfile, refreshUserProfile, redirectAfterLogin } = useAuth();
+  const { currentUser, userProfile, updateProfile, refreshUserProfile } = useAuth();
   const { t } = useLanguage();
   
   const [formData, setFormData] = useState({

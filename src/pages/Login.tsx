@@ -22,12 +22,12 @@ export const Login = () => {
 
   useEffect(() => {
     if (currentUser) {
-      // If there's a redirect path, use it; otherwise use default dashboard
-      if (redirectAfterLogin) {
-        window.location.hash = redirectAfterLogin;
-      } else {
-        window.location.hash = '#dashboard';
+      // Redirect logic is now handled by AuthContext
+      // Only redirect if no redirectAfterLogin is set (meaning user came directly to login page)
+      if (!redirectAfterLogin) {
+        window.location.hash = '#';
       }
+      // If redirectAfterLogin is set, AuthContext will handle the redirect
     }
   }, [currentUser, redirectAfterLogin]);
 
@@ -55,26 +55,26 @@ export const Login = () => {
   const validateForm = () => {
     if (!isLogin) {
       if (!fullName.trim()) {
-        setError('Please enter your full name');
+        setError(t('auth.errors.fullNameRequired'));
         return false;
       }
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        setError(t('auth.errors.passwordsDoNotMatch'));
         return false;
       }
       if (password.length < 6) {
-        setError('Password must be at least 6 characters long');
+        setError(t('auth.errors.passwordTooShort'));
         return false;
       }
     }
     
     if (!email.trim()) {
-      setError('Please enter your email address');
+      setError(t('auth.errors.emailRequired'));
       return false;
     }
     
     if (!password.trim()) {
-      setError('Please enter your password');
+      setError(t('auth.errors.passwordRequired'));
       return false;
     }
     
@@ -95,12 +95,12 @@ export const Login = () => {
     try {
       if (isLogin) {
         await login(email, password);
-        window.location.hash = '#dashboard';
+        // Redirect will be handled by the useEffect above based on redirectAfterLogin
       } else {
         await register(email, password, fullName);
         setSuccess('Account created successfully! You can now access your dashboard.');
         setTimeout(() => {
-          window.location.hash = '#dashboard';
+          window.location.hash = '#';
         }, 1500);
       }
     } catch (err: unknown) {
@@ -242,7 +242,7 @@ export const Login = () => {
                       clearMessages();
                     }}
                     className="w-full pl-10 border border-gray-300 rounded-lg"
-                    placeholder="Enter your full name"
+                    placeholder={t('auth.fullNamePlaceholder')}
                   />
                 </div>
               </div>
@@ -326,7 +326,7 @@ export const Login = () => {
                       clearMessages();
                     }}
                     className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
-                    placeholder="Confirm your password"
+                    placeholder={t('auth.confirmPasswordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -349,7 +349,7 @@ export const Login = () => {
                     <input
                       id="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 border-gray-300 rounded"
+                      className="h-4 w-4 border-gray-300 rounded text-[#C8E400] focus:ring-[#C8E400]"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                       {t('auth.rememberMe')}

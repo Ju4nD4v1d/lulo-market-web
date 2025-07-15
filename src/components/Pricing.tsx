@@ -1,12 +1,48 @@
-import React, { useState } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { Check, ArrowRight, Shield, Zap, MapPin } from 'lucide-react';
 import { ContactForm } from './ContactForm';
 
 export const Pricing = () => {
-  const { t } = useLanguage();
   const [showContactForm, setShowContactForm] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+  const [cardsVisible, setCardsVisible] = useState([false, false]);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('translate-y-0', 'opacity-100');
+            entry.target.classList.remove('translate-y-12', 'opacity-0');
+            
+            // Update cards visibility state
+            const cardIndex = cardsRef.current.indexOf(entry.target as HTMLDivElement);
+            if (cardIndex !== -1) {
+              setCardsVisible(prev => {
+                const newState = [...prev];
+                newState[cardIndex] = true;
+                return newState;
+              });
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const elements = [sectionRef.current, ...cardsRef.current];
+    elements.forEach(element => {
+      if (element) observer.observe(element);
+    });
+
+    return () => {
+      elements.forEach(element => {
+        if (element) observer.unobserve(element);
+      });
+    };
+  }, []);
 
   const handlePlanClick = () => {
     setShowContactForm(true);
@@ -16,134 +52,205 @@ export const Pricing = () => {
     return <ContactForm onBack={() => setShowContactForm(false)} />;
   }
 
+  const basicFeatures = [
+    'Store listing in marketplace',
+    'Basic order management',
+    'Customer messaging',
+    'Payment processing',
+    'Mobile-friendly dashboard'
+  ];
+
+  const premiumFeatures = [
+    'All Basic features included',
+    'Advanced analytics dashboard',
+    'Priority customer support',
+    'Custom store branding',
+    'Inventory management tools',
+    'Marketing campaign tools',
+    'Multi-location support'
+  ];
+
   return (
-    <section id="pricing" className="py-24 bg-background">
+    <section id="pricing" className="relative py-24 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            {t('pricing.title')}
+        {/* Header */}
+        <div 
+          ref={sectionRef}
+          className="text-center mb-16 transform transition-all duration-1000 translate-y-12 opacity-0"
+        >
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 mb-6">
+            Simple <span className="font-bold">Pricing</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('pricing.subtitle')}
+          
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Choose the plan that works best for your business
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center mt-8 space-x-4">
-            <span className={`text-sm ${!isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              {t('pricing.monthly')}
+          <div className="flex items-center justify-center mt-8 space-x-6">
+            <span className={`text-lg font-medium transition-all duration-300 ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`}>
+              Monthly
             </span>
             <button
               onClick={() => setIsYearly(!isYearly)}
-              className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-gray-200"
+              className={`relative inline-flex h-8 w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 ease-in-out focus:outline-none ${
+                isYearly ? 'bg-primary-400' : 'bg-gray-300'
+              }`}
               role="switch"
               aria-checked={isYearly}
             >
               <span
                 aria-hidden="true"
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  isYearly ? 'translate-x-5' : 'translate-x-0'
+                className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition-all duration-300 ease-in-out ${
+                  isYearly ? 'translate-x-8' : 'translate-x-0'
                 }`}
               />
             </button>
-            <span className={`text-sm ${isYearly ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              {t('pricing.yearly')}
-              <span className="ml-1.5 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                {t('pricing.savePercent')}
+            <span className={`text-lg font-medium transition-all duration-300 ${isYearly ? 'text-gray-900' : 'text-gray-500'}`}>
+              Yearly
+              <span className="ml-2 inline-flex items-center rounded-full bg-primary-400 px-3 py-1 text-sm font-bold text-black">
+                Save 20%
               </span>
             </span>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {/* Pricing Cards */}
+        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
           {/* Basic Plan */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
+          <div 
+            ref={el => cardsRef.current[0] = el}
+            className={`
+              bg-white rounded-xl p-8 shadow-sm border border-gray-200
+              transform transition-all duration-700 delay-100
+              hover:shadow-md hover:-translate-y-1
+              ${!cardsVisible[0] ? 'translate-y-12 opacity-0' : 'translate-y-0 opacity-100'}
+            `}
+          >
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                {t('pricing.basic.title')}
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                Basic
               </h3>
-              <div className="flex items-baseline mb-4">
-                <span className="text-4xl font-bold text-primary-600">
-                  {isYearly ? t('pricing.basic.yearlyPrice') : t('pricing.basic.monthlyPrice')}
+              
+              <div className="flex items-baseline mb-6">
+                <span className="text-4xl font-bold text-gray-900">
+                  ${isYearly ? '39' : '49'}
                 </span>
                 <span className="text-gray-500 ml-2">
-                  {isYearly ? t('pricing.yearly.period') : t('pricing.monthly.period')}
+                  /{isYearly ? 'month' : 'month'}
                 </span>
               </div>
-              <p className="text-gray-600">
-                {t('pricing.basic.description')}
+              
+              <p className="text-gray-600 leading-relaxed">
+                Perfect for small restaurants and home kitchens just getting started
               </p>
             </div>
 
-            <ul className="space-y-4 mb-8">
-              {t('pricing.basic.features', { returnObjects: true }).map((feature: string) => (
-                <li key={feature} className="flex items-center text-gray-700">
-                  <Check className="w-5 h-5 text-primary-600 mr-3 flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="mb-8">
+              <ul className="space-y-4">
+                {basicFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-start text-gray-700">
+                    <div className="flex-shrink-0 w-5 h-5 bg-primary-400 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <Check className="w-3 h-3 text-black" />
+                    </div>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <button
-              onClick={() => handlePlanClick('basic')}
-              className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl
-                hover:bg-primary-700 transition-all duration-200 transform
-                hover:scale-[1.02] active:scale-[0.98] font-medium
-                flex items-center justify-center mt-auto"
+              onClick={handlePlanClick}
+              className="w-full bg-gray-900 text-white py-3 px-6 rounded-xl hover:bg-gray-800 transition-all duration-200 font-semibold"
             >
-              {t('pricing.getStarted')}
-              <ArrowRight className="w-5 h-5 ml-2" />
+              Get Started
             </button>
           </div>
 
           {/* Premium Plan */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300
-            relative overflow-hidden flex flex-col">
-            <div className="absolute top-4 right-4 bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
-              {t('pricing.recommended')}
+          <div 
+            ref={el => cardsRef.current[1] = el}
+            className={`
+              bg-white rounded-xl p-8 shadow-sm border-2 border-primary-400
+              transform transition-all duration-700 delay-200
+              hover:shadow-md hover:-translate-y-1 relative
+              ${!cardsVisible[1] ? 'translate-y-12 opacity-0' : 'translate-y-0 opacity-100'}
+            `}
+          >
+            {/* Popular Badge */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary-400 text-black px-4 py-1 rounded-full text-sm font-semibold">
+              Most Popular
             </div>
 
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                {t('pricing.premium.title')}
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                Premium
               </h3>
-              <div className="flex items-baseline mb-4">
-                <span className="text-4xl font-bold text-primary-600">
-                  {isYearly ? t('pricing.premium.yearlyPrice') : t('pricing.premium.monthlyPrice')}
+              
+              <div className="flex items-baseline mb-6">
+                <span className="text-4xl font-bold text-gray-900">
+                  ${isYearly ? '79' : '99'}
                 </span>
                 <span className="text-gray-500 ml-2">
-                  {isYearly ? t('pricing.yearly.period') : t('pricing.monthly.period')}
+                  /{isYearly ? 'month' : 'month'}
                 </span>
               </div>
-              <p className="text-gray-600">
-                {t('pricing.premium.description')}
+              
+              <p className="text-gray-600 leading-relaxed">
+                For growing businesses that want advanced features and priority support
               </p>
             </div>
 
-            <ul className="space-y-4 mb-8">
-              {t('pricing.premium.features', { returnObjects: true }).map((feature: string) => (
-                <li key={feature} className="flex items-center text-gray-700">
-                  <Check className="w-5 h-5 text-primary-600 mr-3 flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="mb-8">
+              <ul className="space-y-4">
+                {premiumFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-start text-gray-700">
+                    <div className="flex-shrink-0 w-5 h-5 bg-primary-400 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <Check className="w-3 h-3 text-black" />
+                    </div>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <button
-              onClick={() => handlePlanClick('premium')}
-              className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl
-                hover:bg-primary-700 transition-all duration-200 transform
-                hover:scale-[1.02] active:scale-[0.98] font-medium
-                flex items-center justify-center mt-auto"
+              onClick={handlePlanClick}
+              className="w-full bg-primary-400 text-black py-3 px-6 rounded-xl hover:bg-primary-500 transition-all duration-200 font-semibold flex items-center justify-center"
             >
-              {t('pricing.getStarted')}
-              <ArrowRight className="w-5 h-5 ml-2" />
+              Get Started
+              <ArrowRight className="w-4 h-4 ml-2" />
             </button>
           </div>
         </div>
 
-        <p className="text-center text-gray-600 mt-8">
-          {t('pricing.contactUs')}
-        </p>
+        {/* Trust Indicators */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-8 flex-wrap">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Shield className="w-5 h-5 text-primary-600" />
+              <span className="font-medium">Secure & Safe</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <Zap className="w-5 h-5 text-primary-600" />
+              <span className="font-medium">Instant Setup</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <MapPin className="w-5 h-5 text-primary-600" />
+              <span className="font-medium">Canadian Business</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Info */}
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-4">
+            Have questions? We're here to help.
+          </p>
+          <p className="text-gray-500">
+            Contact us at <span className="font-medium text-gray-900">hello@lulocart.ca</span>
+          </p>
+        </div>
       </div>
     </section>
   );

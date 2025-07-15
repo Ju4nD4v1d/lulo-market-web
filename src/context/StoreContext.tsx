@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext';
 
 interface StoreContextType {
   hasStore: boolean;
+  storeId: string | null;
   refreshStoreStatus: () => Promise<void>;
   setHasStore: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -22,18 +23,27 @@ export const useStore = (): StoreContextType => {
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
   const [hasStore, setHasStore] = useState(false);
+  const [storeId, setStoreId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshStoreStatus = async () => {
     if (!currentUser) {
       setHasStore(false);
+      setStoreId(null);
       setLoading(false);
       return;
     }
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('ownerId', '==', currentUser.uid));
     const snapshot = await getDocs(q);
-    setHasStore(!snapshot.empty);
+    
+    if (!snapshot.empty) {
+      setHasStore(true);
+      setStoreId(snapshot.docs[0].id);
+    } else {
+      setHasStore(false);
+      setStoreId(null);
+    }
     setLoading(false);
   };
 
@@ -42,7 +52,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [currentUser]);
 
   return (
-    <StoreContext.Provider value={{ hasStore, refreshStoreStatus, setHasStore }}>
+    <StoreContext.Provider value={{ hasStore, storeId, refreshStoreStatus, setHasStore }}>
       {!loading && children}
     </StoreContext.Provider>
   );

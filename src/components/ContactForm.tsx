@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Building2, Mail, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -30,39 +30,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  // Load Calendly widget after successful submission
-  useEffect(() => {
-    if (isSubmitted) {
-      // Add Calendly CSS
-      const link = document.createElement('link');
-      link.href = 'https://assets.calendly.com/assets/external/widget.css';
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-
-      // Add Calendly script
-      const script = document.createElement('script');
-      script.src = 'https://assets.calendly.com/assets/external/widget.js';
-      script.async = true;
-      script.onload = () => {
-        // Initialize Calendly badge widget
-        if (window.Calendly) {
-          window.Calendly.initBadgeWidget({
-            url: 'https://calendly.com/juandavidortegat/15min',
-            text: t('contact.calendlyButton'),
-            color: '#c7e402',
-            textColor: '#ffffff'
-          });
-        }
-      };
-      document.head.appendChild(script);
-
-      // Cleanup function
-      return () => {
-        document.head.removeChild(link);
-        document.head.removeChild(script);
-      };
-    }
-  }, [isSubmitted, t]);
+  // Removed Calendly widget initialization as it's now handled in the Business component
 
   const validateForm = () => {
     const newErrors = {
@@ -376,7 +344,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                         type="checkbox"
                         checked={formData.agreeToTerms}
                         onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
-                        className={`mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500 ${
+                        className={`mt-1 rounded border-gray-300 text-[#C8E400] focus:ring-[#C8E400] ${
                           errors.agreeToTerms ? 'border-red-300' : ''
                         }`}
                         disabled={isSubmitting}
@@ -435,6 +403,16 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
           </div>
         </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };

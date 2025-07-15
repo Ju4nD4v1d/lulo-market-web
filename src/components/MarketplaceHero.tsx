@@ -1,0 +1,278 @@
+import React, { useState, useEffect } from 'react';
+import { Search, Navigation, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+
+interface MarketplaceHeroProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  selectedCountry: string;
+  setSelectedCountry: (country: string) => void;
+  onLocationRequest: () => void;
+  locationStatus: 'idle' | 'requesting' | 'granted' | 'denied';
+  locationName: string;
+}
+
+export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
+  searchQuery,
+  setSearchQuery,
+  selectedCountry,
+  setSelectedCountry,
+  onLocationRequest,
+  locationStatus,
+  locationName
+}) => {
+  const { t } = useLanguage();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const countries = [
+    { id: 'colombia', name: t('home.filters.colombia'), active: true },
+    { id: 'brazil', name: t('home.filters.brazil'), active: false },
+    { id: 'venezuela', name: t('home.filters.venezuela'), active: false },
+    { id: 'mexico', name: t('home.filters.mexico'), active: false }
+  ];
+
+  // Carousel slides with dynamic content
+  const heroSlides = [
+    {
+      title: t('hero.slides.taste.title'),
+      subtitle: t('hero.slides.taste.subtitle'),
+      background: 'bg-gradient-to-br from-amber-50/60 via-orange-50/40 to-red-50/30',
+      icon: <Heart className="w-5 h-5 text-orange-600" />,
+      accent: 'from-orange-500 to-red-500',
+      stats: [
+        { icon: <Star className="w-4 h-4" />, text: t('hero.stats.authentic'), color: 'text-orange-600' },
+        { icon: <Users className="w-4 h-4" />, text: t('hero.stats.families'), color: 'text-red-600' }
+      ]
+    },
+    {
+      title: t('hero.slides.community.title'),
+      subtitle: t('hero.slides.community.subtitle'),
+      background: 'bg-gradient-to-br from-blue-50/60 via-indigo-50/40 to-purple-50/30',
+      icon: <Users className="w-5 h-5 text-blue-600" />,
+      accent: 'from-blue-500 to-indigo-600',
+      stats: [
+        { icon: <MapPin className="w-4 h-4" />, text: t('hero.stats.local'), color: 'text-blue-600' },
+        { icon: <Heart className="w-4 h-4" />, text: t('hero.stats.community'), color: 'text-indigo-600' }
+      ]
+    },
+    {
+      title: t('hero.slides.delivery.title'),
+      subtitle: t('hero.slides.delivery.subtitle'),
+      background: 'bg-gradient-to-br from-emerald-50/60 via-teal-50/40 to-cyan-50/30',
+      icon: <Truck className="w-5 h-5 text-emerald-600" />,
+      accent: 'from-emerald-500 to-teal-600',
+      stats: [
+        { icon: <Clock className="w-4 h-4" />, text: t('hero.stats.fast'), color: 'text-emerald-600' },
+        { icon: <Sparkles className="w-4 h-4" />, text: t('hero.stats.fresh'), color: 'text-teal-600' }
+      ]
+    }
+  ];
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, heroSlides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    setIsAutoPlaying(false);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    setIsAutoPlaying(false);
+  };
+
+  const currentSlideData = heroSlides[currentSlide];
+
+  return (
+    <section className={`relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-8 lg:py-12`}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 lg:px-8">
+        {/* Compact Hero Banner */}
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 mb-8">
+          {/* Carousel Content */}
+          <div className="flex-1 text-center lg:text-left">
+            <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+              {currentSlideData.icon}
+              <span className="text-sm font-medium text-gray-600 uppercase tracking-wider">
+                {t('hero.badge')}
+              </span>
+            </div>
+            
+            <h1 className="text-2xl lg:text-4xl xl:text-5xl font-light text-gray-900 mb-4 leading-tight transition-all duration-500">
+              {currentSlideData.title}
+            </h1>
+            
+            <p className="text-base lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 transition-all duration-500">
+              {currentSlideData.subtitle}
+            </p>
+
+            {/* Stats/Features */}
+            <div className="flex items-center gap-6 justify-center lg:justify-start mb-6">
+              {currentSlideData.stats.map((stat, index) => (
+                <div key={index} className="flex items-center gap-2 text-sm font-medium transition-all duration-500">
+                  <span className={stat.color}>{stat.icon}</span>
+                  <span className="text-gray-700">{stat.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <button
+                onClick={onLocationRequest}
+                disabled={locationStatus === 'requesting'}
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                  locationStatus === 'granted' 
+                    ? 'bg-blue-500 text-white shadow-lg hover:shadow-xl' 
+                    : locationStatus === 'denied'
+                    ? 'bg-red-500 text-white shadow-lg'
+                    : 'bg-white/80 backdrop-blur-sm border-2 border-gray-200/60 text-gray-700 hover:border-blue-300 hover:shadow-md'
+                }`}
+              >
+                {locationStatus === 'requesting' ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
+                ) : (
+                  <Navigation className="w-4 h-4" />
+                )}
+                <span>
+                  {locationStatus === 'granted' 
+                    ? locationName || t('home.location.set')
+                    : locationStatus === 'denied'
+                    ? t('home.location.denied')
+                    : t('home.location.getLocation')
+                  }
+                </span>
+              </button>
+
+              <div className="flex gap-2">
+                {countries.filter(c => c.active).map((country) => (
+                  <button
+                    key={country.id}
+                    onClick={() => setSelectedCountry(country.id)}
+                    className={`px-4 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                      selectedCountry === country.id
+                        ? `bg-gradient-to-r ${currentSlideData.accent} text-white shadow-lg`
+                        : 'bg-white/60 backdrop-blur-sm border border-gray-200/60 text-gray-700 hover:shadow-md'
+                    }`}
+                  >
+                    {country.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Enhanced Search Section */}
+          <div className="w-full lg:w-96">
+            {/* Search Stats */}
+            <div className="flex items-center justify-center lg:justify-end gap-4 mb-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4 text-blue-500" />
+                <span>{t('hero.search.stores')}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-orange-500" />
+                <span>{t('hero.search.products')}</span>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <Search className="w-5 h-5" />
+              </div>
+              <input
+                type="text"
+                placeholder={t('home.search.placeholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-12 lg:h-14 pl-12 pr-4 border-2 border-white/60 rounded-xl 
+                  focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400]/50 focus:outline-none
+                  bg-white/90 backdrop-blur-sm shadow-lg placeholder:text-gray-400 text-base
+                  transition-all duration-300 hover:shadow-xl hover:bg-white"
+              />
+              
+              {/* Search Enhancement Badge */}
+              {searchQuery && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+                    {t('hero.search.searching')}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Popular Searches */}
+            <div className="mt-3 text-center lg:text-right">
+              <span className="text-xs text-gray-500 mr-2">{t('hero.search.popular')}:</span>
+              <div className="inline-flex gap-2 flex-wrap justify-center lg:justify-end mt-1">
+                {['Arepas', 'Empanadas', 'Tacos'].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => setSearchQuery(term)}
+                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Controls */}
+        <div className="flex items-center justify-center gap-4">
+          <button
+            onClick={prevSlide}
+            className="p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md transition-all duration-300"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          {/* Slide Indicators */}
+          <div className="flex gap-2">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setCurrentSlide(index);
+                  setIsAutoPlaying(false);
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? `bg-gradient-to-r ${currentSlideData.accent} shadow-lg` 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          <button
+            onClick={nextSlide}
+            className="p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md transition-all duration-300"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};

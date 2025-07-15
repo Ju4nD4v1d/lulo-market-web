@@ -17,7 +17,7 @@ export const Header = () => {
       }
 
       // Update active section based on scroll position
-      const sections = ['home', 'businesses', 'shoppers', 'pricing', 'about'];
+      const sections = ['home', 'how-it-works', 'social-proof', 'pricing'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -46,10 +46,10 @@ export const Header = () => {
       <a
         href={href}
         className={`
-          relative text-[#4B371C] group
-          transition-all duration-300 ease-out
-          hover:text-primary-400
-          ${isActive ? 'text-primary-400' : ''}
+          relative text-gray-900 font-medium
+          transition-all duration-200 ease-out
+          hover:text-primary-600
+          ${isActive ? 'text-primary-600' : ''}
         `}
       >
         <span className="relative">
@@ -57,60 +57,50 @@ export const Header = () => {
           <span className={`
             absolute -bottom-1 left-0 w-full h-0.5
             bg-primary-400 origin-left
-            transform scale-x-0 transition-transform duration-300 ease-out
-            group-hover:scale-x-100
+            transform scale-x-0 transition-transform duration-200 ease-out
+            hover:scale-x-100
             ${isActive ? 'scale-x-100' : ''}
           `} />
         </span>
-        <span className={`
-          absolute inset-0 w-full h-full
-          bg-primary-400/10 rounded-lg
-          transform scale-90 opacity-0 transition-all duration-300
-          group-hover:opacity-100 group-hover:scale-110
-        `} />
       </a>
     );
   };
 
   return (
-    <header className="fixed w-full z-50">
-      <div className="container mx-auto px-4">
-        <nav className={`
-          fixed top-4 left-1/2 -translate-x-1/2
-          bg-white/10 backdrop-blur-md
-          border border-white/20
-          rounded-full
-          shadow-sm
-          transition-all duration-300
-          ${isScrolled ? 'py-2 bg-white/15' : 'py-3'}
-          w-[calc(100%-2rem)]
-          max-w-6xl
-        `}>
-          <div className="px-6 flex justify-between items-center">
-            <a href="#" className="flex items-center group">
-              <img 
-                src="/logo_lulo.png" 
-                alt="Lulo"
-                className="h-20 w-auto transition-all duration-300 group-hover:scale-105"
-              />
+    <header className="fixed w-full z-50 top-0">
+      <nav className={`
+        bg-white/95 backdrop-blur-sm
+        border-b border-gray-200/50
+        transition-all duration-300
+        ${isScrolled ? 'shadow-sm' : ''}
+      `}>
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <a href="#" className="flex items-center">
+              <img src="/logo_lulo.png" alt="Lulo" className="h-12 w-auto" />
             </a>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <NavLink href="#">{t('nav.home')}</NavLink>
-              <NavLink href="#businesses">{t('nav.forBusinesses')}</NavLink>
-              <NavLink href="#shoppers">{t('nav.forShoppers')}</NavLink>
-              <NavLink href="#pricing">{t('nav.prices')}</NavLink>
-              <NavLink href="#about">{t('nav.about')}</NavLink>
+              <NavLink href="#">{t('nav.marketplace')}</NavLink>
+              <a
+                href="#business"
+                className="text-gray-900 font-medium transition-all duration-200 ease-out hover:text-[#C8E400]"
+              >
+                {t('nav.forBusiness')}
+              </a>
+              <a
+                href="#login"
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white font-medium rounded-lg text-sm transition-all duration-200 hover:shadow-lg"
+              >
+                {t('nav.signIn')}
+              </a>
               <button 
                 onClick={toggleLanguage}
-                className="group relative text-[#4B371C] transition-all duration-300 hover:text-primary-400"
+                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
-                <span className="flex items-center space-x-1">
-                  <Globe size={16} />
-                  <span>{t('language.toggle')}</span>
-                </span>
-                <span className="absolute inset-0 w-full h-full bg-primary-400/10 rounded-lg transform scale-90 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110" />
+                <Globe size={16} />
+                <span className="text-sm">{t('language.toggle')}</span>
               </button>
             </div>
 
@@ -118,61 +108,52 @@ export const Header = () => {
             <div className="md:hidden flex items-center">
               <button
                 onClick={toggleLanguage}
-                className="mr-4 text-[#4B371C] hover:text-primary-400 transition-all duration-300"
+                className="mr-4 text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
                 <Globe size={20} />
               </button>
               <button
                 onClick={toggleMenu}
-                className="text-[#4B371C] hover:text-primary-400 transition-all duration-300"
+                className="text-gray-900 hover:text-primary-600 transition-colors duration-200"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
           </div>
-        </nav>
-      </div>
+        </div>
+      </nav>
 
       {/* Mobile Menu */}
       <div 
         className={`
           md:hidden fixed inset-0 z-40 
-          bg-white/10 backdrop-blur-lg
+          bg-white
           transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-          transition-transform duration-300 ease-in-out pt-24
+          transition-transform duration-300 ease-in-out pt-16
         `}
       >
-        <nav className="flex flex-col items-center space-y-8 p-4">
-          {['home', 'businesses', 'shoppers', 'pricing', 'about'].map((section) => (
-            <a 
-              key={section}
-              href={`#${section === 'home' ? '' : section}`}
-              className={`
-                group relative text-xl text-[#4B371C]
-                transition-all duration-300
-                hover:text-primary-400
-                ${activeSection === section ? 'text-primary-400' : ''}
-              `}
-              onClick={() => setIsOpen(false)}
-            >
-              <span className="relative">
-                {t(`nav.${section === 'home' ? 'home' : section === 'businesses' ? 'forBusinesses' : section === 'shoppers' ? 'forShoppers' : section === 'pricing' ? 'prices' : 'about'}`)}
-                <span className={`
-                  absolute -bottom-1 left-0 w-full h-0.5
-                  bg-primary-400 origin-left
-                  transform scale-x-0 transition-transform duration-300
-                  group-hover:scale-x-100
-                  ${activeSection === section ? 'scale-x-100' : ''}
-                `} />
-              </span>
-              <span className={`
-                absolute inset-0 w-full h-full
-                bg-primary-400/10 rounded-lg
-                transform scale-90 opacity-0 transition-all duration-300
-                group-hover:opacity-100 group-hover:scale-110
-              `} />
-            </a>
-          ))}
+        <nav className="flex flex-col p-4 space-y-6">
+          <a 
+            href="#"
+            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-[#C8E400]"
+            onClick={() => setIsOpen(false)}
+          >
+            {t('nav.marketplace')}
+          </a>
+          <a 
+            href="#business"
+            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-[#C8E400]"
+            onClick={() => setIsOpen(false)}
+          >
+            {t('nav.forBusiness')}
+          </a>
+          <a 
+            href="#login"
+            className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white font-medium rounded-lg text-lg transition-all duration-200 hover:shadow-lg"
+            onClick={() => setIsOpen(false)}
+          >
+            {t('nav.signIn')}
+          </a>
         </nav>
       </div>
     </header>

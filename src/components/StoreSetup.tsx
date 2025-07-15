@@ -1,77 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Store, 
-  Upload,
-  X,
-  InfoIcon,
-  Loader2,
   MapPin,
   Phone,
   Globe,
   Clock,
   Building2,
-  Plus
+  Edit3,
+  CheckCircle2,
+  Star,
+  Users,
+  Calendar,
+  ExternalLink,
+  Image as ImageIcon,
+  Package
 } from 'lucide-react';
-import { FormSection } from './FormSection';
-import { collection, addDoc, GeoPoint, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { StoreForm } from './StoreForm';
+import { collection, addDoc, GeoPoint, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SaveProgressModal } from './SaveProgressModal';
 import { useStore } from '../context/StoreContext';
-
-interface DeliveryHours {
-  [day: string]: { open: string; close: string; closed: boolean };
-}
-
-interface AboutSection {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  imageFile: File | null;
-  imagePreview: string;
-}
-
-export interface StoreData {
-  name: string;
-  description: string;
-  country: string;
-  address: string;
-  phone: string;
-  website: string;
-  deliveryHours: DeliveryHours;
-  aboutSections: AboutSection[];
-  storeImage?: string;
-  imageFiles?: string[];
-}
+import { StoreData } from '../types/store';
 
 const defaultDeliveryHours = {
-  Sunday: { open: "09:00", close: "18:00", closed: true },
+  Sunday: { open: "09:00", close: "21:00", closed: false },
   Monday: { open: "09:00", close: "18:00", closed: false },
-  Tuesday: { open: "09:00", close: "18:00", closed: false },
-  Wednesday: { open: "09:00", close: "18:00", closed: false },
-  Thursday: { open: "09:00", close: "18:00", closed: false },
-  Friday: { open: "09:00", close: "18:00", closed: false },
+  Tuesday: { open: "09:00", close: "18:00", closed: true },
+  Wednesday: { open: "09:00", close: "18:00", closed: true },
+  Thursday: { open: "09:00", close: "18:00", closed: true },
+  Friday: { open: "09:00", close: "18:00", closed: true },
   Saturday: { open: "09:00", close: "18:00", closed: true }
 };
 
 const initialStoreData: StoreData = {
+  id: '',
   name: '',
   description: '',
-  country: '',
-  address: '',
+  category: '',
+  cuisine: '',
   phone: '',
+  email: '',
   website: '',
-  deliveryHours: defaultDeliveryHours,
-  aboutSections: [
-    { id: '1', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
-    { id: '2', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' },
-    { id: '3', title: '', description: '', imageUrl: '', imageFile: null, imagePreview: '' }
+  aboutUsSections: [
+    { id: '1', title: '', description: '', imageUrl: '' },
+    { id: '2', title: '', description: '', imageUrl: '' },
+    { id: '3', title: '', description: '', imageUrl: '' }
   ],
-  storeImage: '',
-  imageFiles: []
+  ownerId: '',
+  deliveryHours: defaultDeliveryHours
 };
 
 const daysOrder = [
@@ -83,6 +62,19 @@ const daysOrder = [
   'Friday',
   'Saturday'
 ];
+
+const getDayName = (day: string, t: (key: string) => string) => {
+  const dayMap: { [key: string]: string } = {
+    'Sunday': t('day.sunday'),
+    'Monday': t('day.monday'),
+    'Tuesday': t('day.tuesday'),
+    'Wednesday': t('day.wednesday'),
+    'Thursday': t('day.thursday'),
+    'Friday': t('day.friday'),
+    'Saturday': t('day.saturday')
+  };
+  return dayMap[day] || day;
+};
 
 export const StoreSetup = () => {
   const { currentUser } = useAuth();
@@ -96,32 +88,17 @@ export const StoreSetup = () => {
     url?: string;
   }>({});
   const [storeData, setStoreData] = useState<StoreData>(initialStoreData);
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [draftValues, setDraftValues] = useState<StoreData>(initialStoreData);
-  const { setHasStore } = useStore();
-  const hasStore = storeData.name.trim() !== '';
+  const { hasStore, storeId, refreshStoreStatus } = useStore();
+  const [storeStats, setStoreStats] = useState({
+    productCount: 0,
+    orderCount: 0,
+    rating: 0,
+    status: 'Active',
+    loading: true
+  });
 
-  const validateFields = (values: StoreData) => {
-    if (
-      !values.name.trim() ||
-      !values.description.trim() ||
-      !values.country.trim() ||
-      !values.address.trim() ||
-      !values.phone.trim() ||
-      !values.website.trim()
-    ) {
-      return false;
-    }
-
-    if (values.aboutSections.some(section => !section.title.trim() || !section.description.trim())) {
-      return false;
-    }
-
-    return true;
-  };
-
-  // Load existing store data
+  // Load existing store data and stats
   useEffect(() => {
     const loadStoreData = async () => {
       if (!currentUser) return;
@@ -130,808 +107,589 @@ export const StoreSetup = () => {
         const storesRef = collection(db, 'stores');
         const q = query(storesRef, where('ownerId', '==', currentUser.uid));
         const querySnapshot = await getDocs(q);
-        
+
         if (!querySnapshot.empty) {
-          const data = querySnapshot.docs[0].data();
-
-          if (data.storeImage) {
-            setStoreImage(prev => ({
-              ...prev,
-              preview: data.storeImage,
-              url: data.storeImage
-            }));
-          }
-
-          const aboutSections = [
-            {
-              id: '1',
-              title: data.titleTabAboutFirst || '',
-              description: data.bodyTabAboutFirst || '',
-              imageUrl: data.imageTabAboutFirst || '',
-              imageFile: null,
-              imagePreview: data.imageTabAboutFirst || ''
-            },
-            {
-              id: '2',
-              title: data.titleTabAboutSecond || '',
-              description: data.bodyTabAboutSecond || '',
-              imageUrl: data.imageTabAboutSecond || '',
-              imageFile: null,
-              imagePreview: data.imageTabAboutSecond || ''
-            },
-            {
-              id: '3',
-              title: data.titleTabAboutThird || '',
-              description: data.bodyTabAboutThird || '',
-              imageUrl: data.imageTabAboutThird || '',
-              imageFile: null,
-              imagePreview: data.imageTabAboutThird || ''
-            }
-          ];
-
-          const loadedData: StoreData = {
+          const storeDoc = querySnapshot.docs[0];
+          const data = storeDoc.data();
+          const currentStoreId = storeDoc.id;
+          
+          // Transform data to match our interface
+          const transformedData: StoreData = {
+            id: currentStoreId,
             name: data.name || '',
             description: data.description || '',
+            category: data.category || '',
+            cuisine: data.cuisine || '',
             country: data.country || '',
-            address: data.address || '',
             phone: data.phone || '',
+            email: data.email || '',
             website: data.website || '',
-            deliveryHours: data.storeDeliveryHours || data.storeBusinessHours || defaultDeliveryHours,
-            aboutSections,
-            storeImage: data.storeImage || '',
-            imageFiles: data.imageFiles || []
+            address: data.location?.address || '',
+            deliveryHours: data.businessHours || defaultDeliveryHours,
+            aboutUsSections: data.aboutUsSections?.map((section: { id?: string; title?: string; content?: string; imageUrl?: string }, index: number) => ({
+              id: section.id || `${index + 1}`,
+              title: section.title || '',
+              description: section.content || '',
+              imageUrl: section.imageUrl || ''
+            })) || initialStoreData.aboutUsSections,
+            imageUrl: data.storeImage || data.imageUrl || '',
+            storeImage: data.storeImage || data.imageUrl || '',
+            ownerId: currentUser.uid
           };
 
-          setStoreData(loadedData);
-          setHasStore(true);
+          console.log('Loading store data:', {
+            originalData: data,
+            transformedData,
+            cuisine: transformedData.cuisine,
+            country: transformedData.country
+          });
+          setStoreData(transformedData);
+          
+          if (transformedData.storeImage) {
+            setStoreImage({ url: transformedData.storeImage });
+          }
+
+          // Load store statistics
+          await loadStoreStats(currentStoreId);
         }
-        if (querySnapshot.empty) {
-          setHasStore(false);
-        }
-      } catch (err) {
-        console.error('Error loading store data:', err);
-        setError('Failed to load store data');
+      } catch (error) {
+        console.error('Error loading store data:', error);
       }
     };
 
     loadStoreData();
-  }, [currentUser, setHasStore]);
+  }, [currentUser]);
 
-  useEffect(() => {
-    if (isEditing) {
-      setDraftValues(storeData);
+  // Load store statistics
+  const loadStoreStats = async (storeId: string) => {
+    setStoreStats(prev => ({ ...prev, loading: true }));
+    
+    try {
+      // Get product count
+      const productsRef = collection(db, 'products');
+      const productsQuery = query(productsRef, where('storeId', '==', storeId));
+      const productsSnapshot = await getDocs(productsQuery);
+      const productCount = productsSnapshot.size;
+
+      // Get order count
+      const ordersRef = collection(db, 'orders');
+      const ordersQuery = query(ordersRef, where('storeId', '==', storeId));
+      const ordersSnapshot = await getDocs(ordersQuery);
+      const orderCount = ordersSnapshot.size;
+
+      // Calculate average rating (simplified - using mock data for now)
+      const rating = 4.8; // This would typically be calculated from order reviews
+
+      setStoreStats({
+        productCount,
+        orderCount,
+        rating,
+        status: 'Active',
+        loading: false
+      });
+    } catch (error) {
+      console.error('Error loading store stats:', error);
+      setStoreStats(prev => ({ ...prev, loading: false }));
     }
-  }, [isEditing, storeData]);
+  };
 
-  const saveStoreToFirestore = async (values: StoreData) => {
+  const handleImageUpload = (file: File) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setStoreImage({
+          file,
+          preview: e.target?.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeStoreImage = () => {
+    setStoreImage({});
+  };
+
+  const saveStore = async () => {
     if (!currentUser) return;
 
     setSaving(true);
-    setSaveStep('saving');
     setError(null);
+    setSaveStep('saving');
 
     try {
-      // Geocode the address if provided
-      let coordinates = new GeoPoint(0, 0);
-      if (values.address.trim()) {
-        const geocoder = new google.maps.Geocoder();
-        const geocodeResult = await geocoder.geocode({ address: values.address });
-        
-        if (geocodeResult.results[0]) {
-          const location = geocodeResult.results[0].geometry.location;
-          coordinates = new GeoPoint(location.lat(), location.lng());
-        }
-      }
-
-      // Upload store image
+      // Small delay to show the saving step
+      await new Promise(resolve => setTimeout(resolve, 500));
       setSaveStep('uploading');
-      let storeImageUrl = storeImage.url;
+      
+      let storeImageUrl = storeImage.url || '';
+      
       if (storeImage.file) {
-        const storageRef = ref(storage, `stores/${currentUser.uid}/storeImage.png`);
-        await uploadBytes(storageRef, storeImage.file);
-        storeImageUrl = await getDownloadURL(storageRef);
+        const imageRef = ref(storage, `stores/${currentUser.uid}/main-image`);
+        await uploadBytes(imageRef, storeImage.file);
+        storeImageUrl = await getDownloadURL(imageRef);
       }
 
-      // Upload about section images
-      const aboutSectionImages = await Promise.all(
-        values.aboutSections.map(async (section, index) => {
-          if (section.imageFile) {
-            const storageRef = ref(storage, `stores/${currentUser.uid}/about${index + 1}.png`);
-            await uploadBytes(storageRef, section.imageFile);
-            return getDownloadURL(storageRef);
-          }
-          return section.imageUrl || '';
-        })
+      // Upload section images
+      const sectionsWithImages = await Promise.all(
+        storeData.aboutUsSections
+          .filter(section => section.title || section.description) // Only include sections with content
+          .map(async (section, index) => {
+            let sectionImageUrl = section.imageUrl || '';
+            
+            // If there's a new image file, upload it
+            if (section.image) {
+              const sectionImageRef = ref(storage, `stores/${currentUser.uid}/sections/section-${section.id || index}`);
+              await uploadBytes(sectionImageRef, section.image);
+              sectionImageUrl = await getDownloadURL(sectionImageRef);
+            }
+            
+            return {
+              id: section.id || `section-${index}`,
+              title: section.title || '',
+              content: section.description || '',
+              imageUrl: sectionImageUrl,
+              order: index
+            };
+          })
       );
 
+      // Small delay to show uploading step
+      await new Promise(resolve => setTimeout(resolve, 300));
       setSaveStep('finalizing');
 
-      const storeData = {
-        name: values.name,
-        description: values.description,
-        country: values.country,
-        address: values.address,
-        location: coordinates,
-        phone: values.phone,
-        website: values.website,
-        storeDeliveryHours: values.deliveryHours,
-        titleTabAboutFirst: values.aboutSections[0]?.title || '',
-        bodyTabAboutFirst: values.aboutSections[0]?.description || '',
-        imageTabAboutFirst: aboutSectionImages[0] || '',
-        titleTabAboutSecond: values.aboutSections[1]?.title || '',
-        bodyTabAboutSecond: values.aboutSections[1]?.description || '',
-        imageTabAboutSecond: aboutSectionImages[1] || '',
-        titleTabAboutThird: values.aboutSections[2]?.title || '',
-        bodyTabAboutThird: values.aboutSections[2]?.description || '',
-        imageTabAboutThird: aboutSectionImages[2] || '',
+      const storeDocData = {
+        name: storeData.name || '',
+        description: storeData.description || '',
+        cuisine: storeData.cuisine || '',
+        location: {
+          address: storeData.address || '',
+          coordinates: new GeoPoint(49.2827, -123.1207) // Default to Vancouver
+        },
+        phone: storeData.phone || '',
+        email: storeData.email || '',
+        website: storeData.website || '',
+        businessHours: storeData.deliveryHours || {},
+        aboutUsSections: sectionsWithImages,
+        storeImage: storeImageUrl || '',
+        imageUrl: storeImageUrl || '',
         ownerId: currentUser.uid,
-        updatedAt: new Date(),
-        storeImage: storeImageUrl
+        isVerified: false,
+        updatedAt: new Date()
       };
 
-      // Check if store already exists
-      const storesRef = collection(db, 'stores');
-      const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await addDoc(collection(db, 'stores'), {
-          ...storeData,
+      // Double-check we have a valid storeId for existing stores
+      let actualStoreId = storeId;
+      if (!actualStoreId && hasStore && currentUser) {
+        console.log('StoreId missing from context, fetching directly...');
+        const storesRef = collection(db, 'stores');
+        const q = query(storesRef, where('ownerId', '==', currentUser.uid));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          actualStoreId = snapshot.docs[0].id;
+          console.log('Found storeId from direct query:', actualStoreId);
+        }
+      }
+      
+      console.log('Save operation details:', {
+        hasStore,
+        storeId: actualStoreId,
+        operation: hasStore && actualStoreId ? 'UPDATE' : 'CREATE',
+        storeDataName: storeData.name
+      });
+      
+      if (hasStore && actualStoreId) {
+        // Update existing store
+        console.log('Updating existing store with ID:', actualStoreId);
+        const storeDocRef = doc(db, 'stores', actualStoreId);
+        await updateDoc(storeDocRef, storeDocData);
+        console.log('Store updated successfully');
+      } else {
+        // Create new store
+        console.log('Creating new store');
+        const storeRef = collection(db, 'stores');
+        const docRef = await addDoc(storeRef, {
+          ...storeDocData,
           createdAt: new Date()
         });
-      } else {
-        // Update existing store
-        const storeDoc = querySnapshot.docs[0].ref;
-        await updateDoc(storeDoc, storeData);
+        console.log('New store created with ID:', docRef.id);
+        // The global context will be updated after refreshStoreStatus is called
       }
-
+      
       setSaveStep('complete');
+      
+      // Ensure context is refreshed with latest store data
+      await refreshStoreStatus();
+      
+      // Keep the success message visible longer
+      setTimeout(() => {
+        setSaving(false);
+        setIsEditing(false);
+      }, 3000);
+
     } catch (error) {
       console.error('Error saving store:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save store information');
+      setError('Failed to save store. Please try again.');
       setSaving(false);
     }
   };
 
-  const handleConfirmation = () => {
-    window.location.hash = '#dashboard/products';
+  const updateAboutSection = (index: number, field: string, value: string) => {
+    const updatedSections = [...storeData.aboutUsSections];
+    updatedSections[index] = { ...updatedSections[index], [field]: value };
+    setStoreData({ ...storeData, aboutUsSections: updatedSections });
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
+  // Filter out empty about sections for display
+  const aboutItems = storeData.aboutUsSections.filter(item => item.title || item.description || item.imageUrl);
 
-  const handleStoreDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleStoreImageValidation(file);
-  };
-
-  const handleStoreImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleStoreImageValidation(file);
-    }
-  };
-
-  const handleStoreImageValidation = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setStoreImage({
-        file,
-        preview: e.target?.result as string
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSectionImageChange = (e: React.ChangeEvent<HTMLInputElement>, sectionId: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleSectionImageValidation(file, sectionId);
-    }
-  };
-
-  const handleSectionDrop = (e: React.DragEvent, sectionId: string) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleSectionImageValidation(file, sectionId);
-  };
-
-  const handleSectionImageValidation = (file: File, sectionId: string) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setDraftValues(prev => ({
-        ...prev,
-        aboutSections: prev.aboutSections.map(section =>
-          section.id === sectionId
-            ? {
-                ...section,
-                imageFile: file,
-                imagePreview: e.target?.result as string
-              }
-            : section
-        )
-      }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const openLightboxAt = (index: number) => {
-    setLightboxIndex(index);
-  };
-
-  const closeLightbox = () => {
-    setLightboxIndex(null);
-  };
-
-  const aboutItems = storeData.aboutSections
-    .map(section => ({
-      title: section.title,
-      body: section.description,
-      imageUrl: section.imageUrl
-    }))
-    .filter(item => item.title || item.body || item.imageUrl);
-
-  return (
-    <div className="max-w-4xl mx-auto">
-      <SaveProgressModal
-        isOpen={saving}
-        currentStep={saveStep}
-        onComplete={handleConfirmation}
+  if (saving) {
+    return (
+      <SaveProgressModal 
+        isOpen={saving} 
+        currentStep={saveStep} 
+        onComplete={() => {
+          setSaving(false);
+          setSaveStep('saving');
+          // Redirect to dashboard after successful creation
+          window.location.hash = '#dashboard/products';
+        }}
       />
+    );
+  }
 
-      {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={closeLightbox}
-          />
-          <img
-            src={storeData.imageFiles?.[lightboxIndex]}
-            alt={`Store image ${lightboxIndex + 1}`}
-            className="relative max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl"
-          />
-        </div>
-      )}
+  if (!isEditing && hasStore) {
+    // Enhanced Store Profile View
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        {/* Header Section */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                {/* Store Image */}
+                <div className="relative">
+                  {storeData.storeImage ? (
+                    <img
+                      src={storeData.storeImage}
+                      alt="Store"
+                      className="w-24 h-24 lg:w-32 lg:h-32 object-cover rounded-2xl shadow-lg border-4 border-white"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
+                      <Store className="w-8 h-8 lg:w-12 lg:h-12 text-[#C8E400]" />
+                    </div>
+                  )}
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center shadow-lg">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                </div>
 
+                {/* Store Info */}
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">{storeData.name}</h1>
+                    <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium border border-green-200">
+                      <CheckCircle2 className="w-4 h-4 inline mr-1" />
+                      {t('store.dashboard.active')}
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-3 max-w-lg">{storeData.description}</p>
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      <span>{storeData.cuisine ? t(`store.cuisine.${storeData.cuisine}`) : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{t('store.dashboard.joined')} 2024</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="bg-primary-50 p-3 rounded-lg">
-            <Store className="w-6 h-6 text-primary-600" />
+              {/* Action Button */}
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+              >
+                <Edit3 className="w-5 h-5" />
+                {t('store.dashboard.editStore')}
+              </button>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('store.setup.title')}</h1>
-            <p className="text-gray-600 mt-1">{t('store.setup.subtitle')}</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">{t('store.dashboard.storeStatus')}</p>
+                  {storeStats.loading ? (
+                    <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-green-600">{t('store.dashboard.active')}</p>
+                  )}
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">{t('store.dashboard.products')}</p>
+                  {storeStats.loading ? (
+                    <div className="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-blue-600">{storeStats.productCount}</p>
+                  )}
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Package className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">{t('store.dashboard.orders')}</p>
+                  {storeStats.loading ? (
+                    <div className="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-purple-600">{storeStats.orderCount}</p>
+                  )}
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">{t('store.dashboard.rating')}</p>
+                  {storeStats.loading ? (
+                    <div className="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-yellow-600">{storeStats.rating}</p>
+                  )}
+                </div>
+                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                  <Star className="w-6 h-6 text-yellow-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Basic Info */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Basic Information Card */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#C8E400]/10 to-[#A3C700]/10 px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-xl flex items-center justify-center">
+                      <Store className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store.dashboard.basicInfo')}</h3>
+                  </div>
+                </div>
+                <div className="p-6 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">{t('store.dashboard.storeName')}</label>
+                      <p className="text-gray-900 font-medium">{storeData.name}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">{t('store.dashboard.cuisine')}</label>
+                      <p className="text-gray-900">{storeData.cuisine ? t(`store.cuisine.${storeData.cuisine}`) : ''}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">{t('store.dashboard.description')}</label>
+                    <p className="text-gray-900 leading-relaxed">{storeData.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information Card */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                      <Phone className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store.dashboard.contactInfo')}</h3>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{t('store.dashboard.address')}</p>
+                      <p className="text-gray-900">{storeData.address}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{t('store.dashboard.phone')}</p>
+                      <p className="text-gray-900">{storeData.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{t('store.dashboard.website')}</p>
+                      <a 
+                        href={storeData.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[#C8E400] hover:text-[#A3C700] flex items-center gap-1"
+                      >
+                        {storeData.website}
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* About Us Section */}
+              {aboutItems.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900">About Us</h3>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {aboutItems.map((item, i) => (
+                        <div key={i} className="text-center">
+                          {(item.imageUrl || item.imagePreview) ? (
+                            <img
+                              src={item.imageUrl || item.imagePreview}
+                              alt={item.title}
+                              className="w-20 h-20 object-cover rounded-2xl mx-auto mb-4 shadow-md"
+                            />
+                          ) : (
+                            <div className="w-20 h-20 bg-gray-100 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-gray-400" />
+                            </div>
+                          )}
+                          <h4 className="font-semibold text-gray-900 mb-2">{item.title}</h4>
+                          <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column - Delivery Hours */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store.dashboard.deliveryHours')}</h3>
+                  </div>
+                </div>
+                <div className="p-6 space-y-3">
+                  {daysOrder.map(day => (
+                    <div key={day} className="flex justify-between items-center py-2">
+                      <span className="font-medium text-gray-700">{getDayName(day, t)}</span>
+                      {storeData.deliveryHours[day].closed ? (
+                        <span className="text-red-600 font-medium">{t('store.dashboard.closed')}</span>
+                      ) : (
+                        <span className="text-green-600 font-medium">
+                          {storeData.deliveryHours[day].open} - {storeData.deliveryHours[day].close}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('store.dashboard.quickActions')}</h3>
+                <div className="space-y-3">
+                  <button 
+                    onClick={() => window.location.hash = '#dashboard/products'}
+                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-medium hover:shadow-md transition-all duration-300"
+                  >
+                    {t('store.dashboard.manageProducts')}
+                  </button>
+                  <button 
+                    onClick={() => window.location.hash = '#dashboard/orders'}
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:shadow-md transition-all duration-300"
+                  >
+                    {t('store.dashboard.viewOrders')}
+                  </button>
+                  <button 
+                    onClick={() => window.location.hash = '#dashboard/metrics'}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-medium hover:shadow-md transition-all duration-300"
+                  >
+                    {t('store.dashboard.analytics')}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 rounded-lg text-red-700">
-          {error}
+  // Edit Mode / Initial Setup Form
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+            <Store className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {hasStore ? t('store.edit.title') : t('store.create.title')}
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            {hasStore ? t('store.edit.subtitle') : t('store.create.subtitle')}
+          </p>
         </div>
-      )}
 
-      {isEditing ? (
-        <form className="space-y-6">
-          <FormSection title={t('store.setup.basicInfo')} icon={Store}>
-            <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('store.setup.storeImage')}
-              </label>
-              <div
-                className="border-2 border-dashed rounded-lg p-8 border-gray-300
-                  hover:border-primary-400 transition-colors duration-200
-                  flex flex-col items-center justify-center cursor-pointer"
-                onDragOver={handleDragOver}
-                onDrop={handleStoreDrop}
-              >
-                {storeImage.preview ? (
-                  <div className="relative w-full">
-                    <img
-                      src={storeImage.preview}
-                      alt="Store preview"
-                      className="max-h-48 mx-auto rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setStoreImage({})}
-                      className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                          <span>{t('store.setup.uploadFile')}</span>
-                          <input
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            onChange={handleStoreImageChange}
-                          />
-                        </label>
-                        <p className="pl-1">{t('store.setup.dragDrop')}</p>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {t('store.setup.uploadHint')}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Store Name
-              </label>
-              <input
-                type="text"
-                value={draftValues.name}
-                onChange={(e) => setDraftValues(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full"
-                placeholder="Enter your store name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Store Description
-              </label>
-              <textarea
-                value={draftValues.description}
-                onChange={(e) => setDraftValues(prev => ({ ...prev, description: e.target.value }))}
-                rows={4}
-                className="w-full"
-                placeholder="Describe your store"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                Country *
-              </label>
-              <select
-                id="country"
-                name="country"
-                value={draftValues.country}
-                onChange={(e) => setDraftValues(prev => ({ ...prev, country: e.target.value }))}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <option value="" disabled>Select a country</option>
-                <option>Colombia</option>
-                <option>Mexico</option>
-                <option>Argentina</option>
-                <option>Peru</option>
-                <option>Chile</option>
-                <option>Ecuador</option>
-                <option>Venezuela</option>
-                <option>Brazil</option>
-                <option>Uruguay</option>
-                <option>Paraguay</option>
-                <option>Bolivia</option>
-              </select>
-            </div>
-
-          </div>
-        </FormSection>
-
-        <FormSection title="Contact Information" icon={Phone}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={draftValues.address}
-                  onChange={(e) => setDraftValues(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full pl-10"
-                  placeholder="Enter your store address"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  value={draftValues.phone}
-                  onChange={(e) => setDraftValues(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full pl-10"
-                  placeholder="Enter your phone number"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Website
-              </label>
-              <div className="relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="url"
-                  value={draftValues.website}
-                  onChange={(e) => setDraftValues(prev => ({ ...prev, website: e.target.value }))}
-                  className="w-full pl-10"
-                  placeholder="Enter your website URL"
-                />
-              </div>
-            </div>
-          </div>
-        </FormSection>
-
-        <FormSection title="Delivery Hours" icon={Clock}>
-          <div className="space-y-4">
-            {daysOrder.map((day) => (
-              <div key={day} className="flex items-center space-x-4">
-                <div className="w-28">
-                  <span className="text-sm font-medium text-gray-700">
-                    {day}
-                  </span>
-                </div>
-                <div className="flex-1 flex items-center space-x-4">
-                  <input
-                    type="time"
-                    value={draftValues.deliveryHours[day].open}
-                    onChange={(e) => setDraftValues({
-                      ...draftValues,
-                      deliveryHours: {
-                        ...draftValues.deliveryHours,
-                        [day]: { ...draftValues.deliveryHours[day], open: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={draftValues.deliveryHours[day].closed}
-                  />
-                  <span className="text-gray-500">to</span>
-                  <input
-                    type="time"
-                    value={draftValues.deliveryHours[day].close}
-                    onChange={(e) => setDraftValues({
-                      ...draftValues,
-                      deliveryHours: {
-                        ...draftValues.deliveryHours,
-                        [day]: { ...draftValues.deliveryHours[day], close: e.target.value }
-                      }
-                    })}
-                    className="w-40"
-                    disabled={draftValues.deliveryHours[day].closed}
-                  />
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={draftValues.deliveryHours[day].closed}
-                      onChange={(e) => setDraftValues({
-                        ...draftValues,
-                        deliveryHours: {
-                          ...draftValues.deliveryHours,
-                          [day]: { ...draftValues.deliveryHours[day], closed: e.target.checked }
-                        }
-                      })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Closed</span>
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
-        </FormSection>
-
-        <FormSection title="About Us" icon={Building2}>
-          <div className="space-y-8">
-            <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6">
-              <p className="text-sm text-primary-800">
-                <InfoIcon className="w-5 h-5 inline-block mr-2" />
-                These sections will be prominently featured in your store profile. 
-                A compelling story helps attract customers and builds trust.
-              </p>
-            </div>
-
-            {draftValues.aboutSections.map((section) => (
-              <div
-                key={section.id}
-                className="relative bg-gray-50 rounded-lg p-6"
-              >
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Section Title
-                    </label>
-                    <input
-                      type="text"
-                      value={section.title}
-                      onChange={(e) => setDraftValues(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, title: e.target.value } : s
-                        )
-                      }))}
-                      className="w-full"
-                      placeholder="Enter a title for this section"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={section.description}
-                      onChange={(e) => setDraftValues(prev => ({
-                        ...prev,
-                        aboutSections: prev.aboutSections.map(s =>
-                          s.id === section.id ? { ...s, description: e.target.value } : s
-                        )
-                      }))}
-                      rows={4}
-                      className="w-full"
-                      placeholder="Tell your story..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image
-                    </label>
-                    <div
-                      className="border-2 border-dashed rounded-lg p-8 border-gray-300
-                        hover:border-primary-400 transition-colors duration-200
-                        flex flex-col items-center justify-center cursor-pointer"
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleSectionDrop(e, section.id)}
-                    >
-                      {section.imagePreview ? (
-                        <div className="relative w-full">
-                          <img
-                            src={section.imagePreview}
-                            alt="Preview"
-                            className="max-h-48 mx-auto rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setDraftValues(prev => ({
-                              ...prev,
-                              aboutSections: prev.aboutSections.map(s =>
-                                s.id === section.id ? { ...s, imageFile: null, imagePreview: '', imageUrl: '' } : s
-                              )
-                            }))}
-                            className="absolute -top-2 -right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full text-red-600 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                          <div className="mt-4 flex flex-col items-center text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <label className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500">
-                                <span>{t('store.setup.uploadFile')}</span>
-                                <input
-                                  type="file"
-                                  className="sr-only"
-                                  accept="image/*"
-                                  onChange={(e) => handleSectionImageChange(e, section.id)}
-                                />
-                              </label>
-                              <p className="pl-1">{t('store.setup.dragDrop')}</p>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                              {t('store.setup.uploadHint')}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </FormSection>
-
-          <div className="flex justify-end">
-            <button
-              type="button"
-              disabled={saving}
-              className={`
-                inline-flex items-center px-6 py-3 rounded-lg text-white
-                ${saving
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-primary-600 hover:bg-primary-700 transform transition-all duration-200 hover:scale-105'}
-                shadow-lg hover:shadow-xl
-              `}
-              onClick={async () => {
-                if (!validateFields(draftValues)) {
-                  setError('Please fill in all required fields');
-                  return;
-                }
-                await saveStoreToFirestore(draftValues);
-                setStoreData(draftValues);
-                setHasStore(true);
-                setIsEditing(false);
-              }}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  {t('store.setup.saving')}
-                </>
-              ) : (
-                <>
-                  <Store className="w-5 h-5 mr-2" />
-                  {t('store.setup.saveStore')}
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              className="mt-6 ml-4 px-4 py-2 border border-gray-300 text-gray-700 rounded"
-              onClick={() => {
-                setDraftValues(storeData);
-                setError(null);
-                setIsEditing(false);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : hasStore ? (
-        <div className="space-y-6">
-          {storeData.storeImage && (
-            <img
-              src={storeData.storeImage}
-              alt="Store"
-              className="w-32 h-32 object-cover rounded-full mx-auto mb-6"
-            />
-          )}
-
-          {storeData.imageFiles?.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-              {storeData.imageFiles.slice(0, 5).map((url, idx) => (
-                <img
-                  key={idx}
-                  src={url}
-                  alt={`Store image ${idx + 1}`}
-                  className="w-full h-32 object-cover rounded cursor-pointer"
-                  onClick={() => openLightboxAt(idx)}
-                />
-              ))}
-            </div>
-          )}
-
-          <section className="bg-gray-50 p-4 rounded-lg shadow-sm mb-6">
-            <div className="flex items-center mb-2">
-              <Store className="w-5 h-5 text-primary-600 mr-2" />
-              <h3 className="font-semibold text-primary-700">Basic Information</h3>
-            </div>
-            <div className="space-y-2">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Store Name</h4>
-                <p className="text-gray-900">{storeData.name}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Description</h4>
-                <p className="text-gray-900">{storeData.description}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Country</h4>
-                <p className="text-gray-900 break-words">{storeData.country}</p>
-              </div>
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
-              <div className="flex items-center mb-2">
-                <Phone className="w-5 h-5 text-primary-600 mr-2" />
-                <h3 className="font-semibold text-primary-700">Contact Info</h3>
-              </div>
-              <div className="space-y-2">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Address</h4>
-                <p className="text-gray-900 break-words">{storeData.address}</p>
-              </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">Phone</h4>
-                  <p className="text-gray-900">{storeData.phone}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">Website</h4>
-                  <p className="text-gray-900 break-words">{storeData.website}</p>
-                </div>
-              </div>
-            </section>
-
-            <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
-              <div className="flex items-center mb-2">
-                <Clock className="w-5 h-5 text-primary-600 mr-2" />
-                <h3 className="font-semibold text-primary-700">Delivery Hours</h3>
-              </div>
-              <div className="space-y-2">
-                {daysOrder.map(day => (
-                  <div key={day} className="flex justify-between text-sm">
-                    <span className="font-medium text-gray-700">{day}</span>
-                    {storeData.deliveryHours[day].closed ? (
-                      <span className="text-gray-900">Closed</span>
-                    ) : (
-                      <span className="text-gray-900">
-                        {storeData.deliveryHours[day].open} - {storeData.deliveryHours[day].close}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <section className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <div className="flex items-center mb-2">
-              <Building2 className="w-5 h-5 text-primary-600 mr-2" />
-              <h3 className="font-semibold text-primary-700">About Us</h3>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4 mb-6 md:divide-x md:divide-gray-200">
-              {aboutItems.map((item, i) => (
-                <div key={i} className="flex-1 bg-gray-50 p-4 rounded-lg md:first:pl-0 md:pl-4">
-                  {item.imageUrl && (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      className="w-16 h-16 object-cover rounded-full mb-2 mx-auto"
-                    />
-                  )}
-                  <h4 className="font-medium text-gray-700">{item.title}</h4>
-                  <p className="text-gray-900 mt-1">{item.body}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <button
-            className="mt-6 px-4 py-2 bg-primary-600 text-white rounded w-full md:w-auto"
-            onClick={() => {
-              setDraftValues(storeData);
-              setIsEditing(true);
-            }}
-          >
-            Edit Store
-          </button>
+        {/* Form Container */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          <StoreForm
+            storeData={storeData}
+            setStoreData={setStoreData}
+            storeImage={storeImage}
+            handleImageUpload={handleImageUpload}
+            removeStoreImage={removeStoreImage}
+            updateAboutSection={updateAboutSection}
+            onSave={saveStore}
+            onCancel={hasStore ? () => setIsEditing(false) : undefined}
+            saving={saving}
+            error={error}
+          />
         </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 text-center">
-          <div className="max-w-md mx-auto">
-            <Store className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome!</h3>
-            <p className="text-gray-600 mb-6">Let's set up your store to start selling online.</p>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Create Store
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

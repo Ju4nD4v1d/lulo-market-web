@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="none"/>
+  <!-- Growth chart -->
+  <rect x="80" y="80" width="240" height="160" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2" rx="8"/>
+  <!-- Chart bars -->
+  <rect x="100" y="180" width="20" height="40" fill="#e5e7eb"/>
+  <rect x="130" y="160" width="20" height="60" fill="#C8E400" opacity="0.6"/>
+  <rect x="160" y="140" width="20" height="80" fill="#C8E400" opacity="0.8"/>
+  <rect x="190" y="120" width="20" height="100" fill="#C8E400"/>
+  <rect x="220" y="100" width="20" height="120" fill="#C8E400"/>
+  <rect x="250" y="110" width="20" height="110" fill="#A3C700"/>
+  <rect x="280" y="90" width="20" height="130" fill="#A3C700"/>
+  <!-- Arrow pointing up -->
+  <path d="M350 140 L370 120 L370 130 L380 130 L380 150 L370 150 L370 160 Z" fill="#10b981"/>
+  <!-- Dollar signs -->
+  <text x="120" y="50" font-family="Arial" font-size="24" fill="#C8E400" font-weight="bold">$</text>
+  <text x="260" y="60" font-family="Arial" font-size="20" fill="#C8E400" opacity="0.8">$</text>
+  <text x="340" y="70" font-family="Arial" font-size="18" fill="#C8E400" opacity="0.6">$</text>
+  <!-- Person celebrating -->
+  <circle cx="50" cy="120" r="15" fill="#C8E400"/>
+  <rect x="40" y="135" width="20" height="35" rx="10" fill="#6b7280"/>
+  <!-- Arms up -->
+  <rect x="25" y="140" width="15" height="6" rx="3" fill="#6b7280" transform="rotate(-30 32.5 143)"/>
+  <rect x="60" y="140" width="15" height="6" rx="3" fill="#6b7280" transform="rotate(30 67.5 143)"/>
+  <!-- Legs -->
+  <rect x="45" y="170" width="5" height="20" fill="#6b7280"/>
+  <rect x="55" y="170" width="5" height="20" fill="#6b7280"/>
+</svg>

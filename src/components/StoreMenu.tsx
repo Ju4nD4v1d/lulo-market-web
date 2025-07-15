@@ -173,7 +173,7 @@ export const StoreMenu: React.FC = () => {
   };
 
   const handleBack = () => {
-    window.location.hash = '#shopper-dashboard';
+    window.location.hash = '#';
   };
 
   return (

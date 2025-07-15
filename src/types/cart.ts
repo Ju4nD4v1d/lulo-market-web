@@ -13,7 +13,9 @@ export interface CartSummary {
   subtotal: number;
   tax: number;
   deliveryFee: number;
-  total: number;
+  total: number; // Base total before platform fee
+  platformFee: number; // 2 CAD platform fee charged to customer
+  finalTotal: number; // Total amount customer pays (total + platformFee)
   itemCount: number;
 }
 

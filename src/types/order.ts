@@ -41,7 +41,11 @@ export interface OrderSummary {
   subtotal: number;
   tax: number;
   deliveryFee: number;
-  total: number;
+  total: number; // Base total before platform fee
+  platformFee: number; // 2 CAD platform fee charged to customer
+  finalTotal: number; // Total amount customer pays (total + platformFee)
+  storeAmount: number; // Amount that goes to store after platform fees
+  platformAmount: number; // Amount that goes to platform (2 CAD + 10% of order)
   itemCount: number;
 }
 
@@ -76,6 +80,8 @@ export interface Order {
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   paymentMethod?: string;
   paymentId?: string; // Stripe payment intent ID
+  stripeTransferId?: string; // Stripe transfer ID to store account
+  platformTransactionFee?: number; // Actual Stripe processing fee
   
   // Additional Information
   isDelivery: boolean; // true for delivery, false for pickup

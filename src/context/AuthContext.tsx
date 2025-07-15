@@ -18,6 +18,7 @@ interface AuthContextType {
   userType: UserType | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  portalLogin: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -25,6 +26,7 @@ interface AuthContextType {
   refreshUserProfile: () => Promise<void>;
   redirectAfterLogin: string | null;
   setRedirectAfterLogin: (path: string | null) => void;
+  checkStoreOwnerPermissions: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +102,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
+  };
+  
+  const portalLogin = async (email: string, password: string) => {
+    // Login without triggering automatic user profile creation
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Check for stores directly without creating a default profile
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
+    const storesRef = collection(db, 'stores');
+    const storeQuery = query(storesRef, where('ownerId', '==', user.uid));
+    const storeSnapshot = await getDocs(storeQuery);
+    
+    const hasStores = !storeSnapshot.empty;
+    
+    if (hasStores) {
+      // User has stores - check/create proper profile
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        // Create store owner profile
+        const storeOwnerProfileData = {
+          id: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || 'Store Owner',
+          userType: 'storeOwner' as const,
+          createdAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp(),
+          preferences: {},
+        };
+        
+        await setDoc(doc(db, 'users', user.uid), storeOwnerProfileData);
+      }
+      return true;
+    } else {
+      // User doesn't have stores - sign them out
+      await signOut(auth);
+      return false;
+    }
   };
 
   const register = async (email: string, password: string, displayName?: string) => {
@@ -210,11 +250,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUserProfile(refreshedProfile);
         setUserType(refreshedProfile.userType);
-      } else {
       }
     } catch (error) {
       console.error('Error refreshing user profile:', error);
       // Don't throw error - this is a background refresh
+    }
+  };
+
+  const checkStoreOwnerPermissions = async (): Promise<boolean> => {
+    if (!currentUser) {
+      return false;
+    }
+
+    try {
+      // First check the current userType from state
+      if (userType === 'storeOwner' || userType === 'admin') {
+        return true;
+      }
+
+      // If userType is not set or is 'shopper', check if user has any stores
+      // This covers cases where a user might have become a store owner after initial registration
+      const { collection, query, where, getDocs } = await import('firebase/firestore');
+      const storesRef = collection(db, 'stores');
+      const storeQuery = query(storesRef, where('ownerId', '==', currentUser.uid));
+      const storeSnapshot = await getDocs(storeQuery);
+
+      return !storeSnapshot.empty;
+    } catch (error) {
+      console.error('Error checking store owner permissions:', error);
+      return false;
     }
   };
 
@@ -224,13 +288,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userType,
     loading,
     login,
+    portalLogin,
     register,
     logout,
     resetPassword,
     updateProfile,
     refreshUserProfile,
     redirectAfterLogin,
-    setRedirectAfterLogin
+    setRedirectAfterLogin,
+    checkStoreOwnerPermissions
   };
 
   return (

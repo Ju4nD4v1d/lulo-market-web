@@ -4,6 +4,7 @@ export interface AboutUsSection {
   description: string;
   image?: File;
   imagePreview?: string;
+  imageUrl?: string;
 }
 
 export interface Coordinates {
@@ -21,6 +22,9 @@ export interface StoreData {
   id: string;
   name: string;
   description?: string;
+  category?: string;
+  country?: string;
+  cuisine?: string;
   location?: StoreLocation;
   address?: string;  // Legacy field for backward compatibility with StoreSetup
   phone?: string;
@@ -74,4 +78,7 @@ export interface StoreData {
   totalReviews?: number;         // Total number of reviews
   isVerified?: boolean;          // Verified business status
   createdAt?: Date;              // Store creation timestamp
+  updatedAt?: Date;              // Store last update timestamp
+  // Products field for mock data and test mode
+  products?: unknown[];          // Mock products for testing
 }

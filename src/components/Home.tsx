@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, Star, User, Navigation, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, History, ChevronDown } from 'lucide-react';
+import { MapPin, Star, User, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, ChevronDown, Truck, Users, Clock, ChevronRight, Receipt } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { StoreDetail } from './StoreDetail';
 import { CartSidebar } from './CartSidebar';
+import { MarketplaceHero } from './MarketplaceHero';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { useTestMode } from '../context/TestModeContext';
+import { useDataProvider } from '../services/DataProvider';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { generateAllMockStores } from '../utils/mockDataGenerators';
 
 // Helper function to check if a store is new (created less than a month ago)
 const isStoreNew = (createdAt?: Date): boolean => {
@@ -19,8 +22,8 @@ const isStoreNew = (createdAt?: Date): boolean => {
 };
 
 // Mock data for testing all badge scenarios
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockStores: StoreData[] = [
-  // TEST CASE 1: Old store WITH rating - Should show rating badge (4.8)
   {
     id: 'test-old-with-rating',
     name: 'Sabor Colombiano',
@@ -39,9 +42,8 @@ const mockStores: StoreData[] = [
     aboutUsSections: [],
     ownerId: 'mock-owner-1',
     isVerified: true,
-    createdAt: new Date('2024-01-15') // Old store (more than a month ago)
+    createdAt: new Date('2024-01-15')
   },
-  // TEST CASE 2: New store WITHOUT rating - Should show "New" badge
   {
     id: 'test-new-without-rating',
     name: 'Casa de Arepas',
@@ -59,9 +61,8 @@ const mockStores: StoreData[] = [
     aboutUsSections: [],
     ownerId: 'mock-owner-2',
     isVerified: false,
-    createdAt: new Date() // New store (just created)
+    createdAt: new Date()
   },
-  // TEST CASE 3: New store WITH rating - Should show "New" badge (priority over rating)
   {
     id: 'test-new-with-rating',
     name: 'Empanadas del Valle',
@@ -80,9 +81,8 @@ const mockStores: StoreData[] = [
     aboutUsSections: [],
     ownerId: 'mock-owner-3',
     isVerified: true,
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) // New store (15 days ago) WITH rating
+    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
   },
-  // TEST CASE 4: Old store WITHOUT rating - Should show NO badge
   {
     id: 'test-old-without-rating',
     name: 'Mercado Latino',
@@ -100,14 +100,17 @@ const mockStores: StoreData[] = [
     aboutUsSections: [],
     ownerId: 'mock-owner-4',
     isVerified: false,
-    createdAt: new Date('2024-05-01') // Old store (more than a month ago) WITHOUT rating
+    createdAt: new Date('2024-05-01')
   }
 ];
 
-export const ShopperDashboard = () => {
+export const Home = () => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
   const { setRedirectAfterLogin, currentUser, userProfile, logout, refreshUserProfile } = useAuth();
+  const { isTestMode, toggleTestMode } = useTestMode();
+  const dataProvider = useDataProvider();
+  const { isOffline, hasNetworkError } = useNetworkStatus();
   const [selectedCountry, setSelectedCountry] = useState('colombia');
   const [searchQuery, setSearchQuery] = useState('');
   const [stores, setStores] = useState<StoreData[]>([]);
@@ -121,14 +124,9 @@ export const ShopperDashboard = () => {
   const [showCart, setShowCart] = useState(false);
   const [shouldOpenCheckout, setShouldOpenCheckout] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const countries = [
-    { id: 'colombia', name: t('shopper.filters.colombia'), active: true },
-    { id: 'brazil', name: t('shopper.filters.brazil'), active: false },
-    { id: 'venezuela', name: t('shopper.filters.venezuela'), active: false },
-    { id: 'mexico', name: t('shopper.filters.mexico'), active: false }
-  ];
-
+  const [hasDataError, setHasDataError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isFetching, setIsFetching] = useState(false);
 
   // Define filterStores function first
   const filterStores = useCallback(() => {
@@ -142,16 +140,9 @@ export const ShopperDashboard = () => {
       );
     }
 
-    // TODO: Add country filtering when country field is added to StoreData
-    // TODO: Add food type filtering based on store categories
-
     setFilteredStores(filtered);
   }, [stores, searchQuery]);
 
-  // Fetch stores from Firestore
-  useEffect(() => {
-    fetchStores();
-  }, []);
 
   // Filter stores when search or filters change
   useEffect(() => {
@@ -183,33 +174,101 @@ export const ShopperDashboard = () => {
     return () => window.removeEventListener('profileUpdated', handleProfileUpdated);
   }, [refreshUserProfile]);
 
-  const fetchStores = async () => {
+  // Define fetchStores first before any useEffect that uses it
+  const fetchStores = useCallback(async () => {
+    // Prevent multiple simultaneous calls
+    if (isFetching) {
+      console.log('🚫 Fetch already in progress, skipping');
+      return;
+    }
+    
     try {
+      console.log('🔄 Starting fetchStores');
+      setIsFetching(true);
       setLoading(true);
-      const storesCollection = collection(db, 'stores');
-      const storesSnapshot = await getDocs(storesCollection);
-      const storesData = storesSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          // Convert Firebase Timestamp to JavaScript Date
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
-        };
-      }) as StoreData[];
+      setHasDataError(false);
+      setErrorMessage('');
       
-      console.log('Firebase stores data:', storesData);
-      
-      // Use real data if available, otherwise use mock data
-      setStores(storesData.length > 0 ? storesData : mockStores);
+      if (isTestMode) {
+        // Use mock data in test mode
+        const mockStores = generateAllMockStores();
+        setStores(mockStores);
+      } else {
+        // Check network connectivity first
+        if (isOffline || hasNetworkError) {
+          setHasDataError(true);
+          setErrorMessage('No internet connection. Please check your network and try again.');
+          setStores([]);
+          return;
+        }
+
+        // Use real Firebase data
+        const storesSnapshot = await dataProvider.getStores();
+        const storesData = storesSnapshot.docs.map((doc: { id: string; data: () => unknown }) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
+          };
+        }) as StoreData[];
+        
+        if (storesData.length === 0) {
+          setHasDataError(true);
+          setErrorMessage('No stores available at the moment. Please try again later.');
+        }
+        
+        setStores(storesData);
+      }
     } catch (error) {
       console.error('Error fetching stores:', error);
-      setStores(mockStores); // Fallback to mock data
+      setHasDataError(true);
+      
+      // Determine error type and set appropriate message
+      if (error instanceof Error) {
+        if (error.message.includes('network') || error.message.includes('fetch')) {
+          setErrorMessage('Network error. Please check your internet connection and try again.');
+        } else if (error.message.includes('permission') || error.message.includes('auth')) {
+          setErrorMessage('Unable to load stores. Please try refreshing the page.');
+        } else {
+          setErrorMessage('Something went wrong. Please try again later.');
+        }
+      } else {
+        setErrorMessage('Unable to connect to our services. Please check your internet connection.');
+      }
+      
+      // DO NOT fallback to mock data - this was the problem!
+      setStores([]);
     } finally {
+      console.log('✅ Fetch complete');
       setLoading(false);
+      setIsFetching(false);
     }
-  };
+  }, [isTestMode, isFetching, isOffline, hasNetworkError, dataProvider]);
 
+  // Listen for hash changes to handle order history navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      // Order history is now handled by App.tsx routing
+      // No need to handle it here
+    };
+
+    // Check initial hash
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Fetch stores only once on mount
+  useEffect(() => {
+    console.log('🚀 Component mounted, fetching stores once');
+    fetchStores();
+  }, []); // Empty dependency array to run only once on mount
+
+  const handleRetryFetch = () => {
+    fetchStores();
+  };
 
   const handleStoreClick = (store: StoreData) => {
     setSelectedStore(store);
@@ -225,8 +284,7 @@ export const ShopperDashboard = () => {
     try {
       await logout();
       setShowUserMenu(false);
-      // Redirect to shopper dashboard
-      window.location.hash = '#shopper-dashboard';
+      window.location.hash = '#';
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -238,8 +296,7 @@ export const ShopperDashboard = () => {
 
   const handleMenuNavigation = (path: string) => {
     setShowUserMenu(false);
-    // Store back navigation path in localStorage instead of redirectAfterLogin
-    localStorage.setItem('backNavigationPath', '#shopper-dashboard');
+    localStorage.setItem('backNavigationPath', '#');
     window.location.hash = path;
   };
 
@@ -264,7 +321,6 @@ export const ShopperDashboard = () => {
   // Function to simulate Vancouver location for testing
   const simulateVancouverLocation = async () => {
     setLocationStatus('requesting');
-    // Simulate a location in downtown Vancouver
     const coords = {
       lat: 49.2827,
       lng: -123.1207
@@ -291,13 +347,11 @@ export const ShopperDashboard = () => {
         },
         (error) => {
           console.error('Error getting location:', error);
-          // Fallback to Vancouver for demo
           simulateVancouverLocation();
         }
       );
     } else {
       console.error('Geolocation is not supported');
-      // Fallback to Vancouver for demo
       simulateVancouverLocation();
     }
   };
@@ -325,8 +379,6 @@ export const ShopperDashboard = () => {
     }
   }, [userLocation]);
 
-
-
   // Show store detail view if a store is selected
   if (showStoreDetail && selectedStore) {
     return (
@@ -334,7 +386,6 @@ export const ShopperDashboard = () => {
         store={selectedStore}
         onBack={handleBackToList}
         onAddToCart={(product) => {
-          // TODO: Implement cart functionality
           console.log('Add to cart:', product);
         }}
       />
@@ -343,39 +394,61 @@ export const ShopperDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-100">
-      {/* Premium Header */}
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-200/40 shadow-sm">
+        {/* Test Mode Banner */}
+        {isTestMode && (
+          <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center">
+            <span className="text-yellow-800 text-sm font-medium">
+              🧪 {t('testMode.active')}
+            </span>
+          </div>
+        )}
+
+        {/* Offline Banner */}
+        {isOffline && (
+          <div className="bg-red-100 border-b border-red-200 px-4 py-2 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-red-800 text-sm font-medium">
+                You're offline. Please check your internet connection.
+              </span>
+            </div>
+          </div>
+        )}
+        
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          {/* Main Header Row */}
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Left Section - Logo & Tagline */}
+            {/* Left Section - Logo */}
             <div className="flex items-center gap-3 lg:gap-6">
-              <div className="flex items-center gap-2 lg:gap-3">
-                <button
-                  onClick={() => {
-                    // Clear back navigation path since we're going to landing page
-                    localStorage.removeItem('backNavigationPath');
-                    window.location.hash = '#';
-                  }}
-                  className="hover:opacity-80 transition-opacity duration-200"
-                >
-                  <img 
-                    src="/logo_lulo.png" 
-                    alt="Lulo" 
-                    className="h-12 lg:h-14 w-auto object-contain"
-                  />
-                </button>
-              </div>
-              <div className="hidden lg:block h-6 w-px bg-gray-300"></div>
-              <div className="hidden lg:block">
-                <p className="text-sm text-gray-600 font-light">
-                  {t('shopper.header.tagline')}
-                </p>
-              </div>
+              <button
+                onClick={() => window.location.hash = '#'}
+                className="hover:opacity-80 transition-opacity duration-200"
+              >
+                <img 
+                  src="/logo_lulo.png" 
+                  alt="Lulo" 
+                  className="h-12 lg:h-14 w-auto object-contain"
+                />
+              </button>
             </div>
 
             {/* Right Section - Actions */}
             <div className="flex items-center gap-2 lg:gap-3">
+              {/* Test Mode Toggle */}
+              <div className="flex items-center gap-2">
+                <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
+                  <input
+                    type="checkbox"
+                    checked={isTestMode}
+                    onChange={toggleTestMode}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                  <span className="ml-2 text-xs text-gray-600 font-medium hidden lg:inline">{t('testMode.toggle')}</span>
+                </label>
+              </div>
+
               {/* Language Switcher */}
               <button 
                 onClick={toggleLanguage}
@@ -385,32 +458,13 @@ export const ShopperDashboard = () => {
                 <span className="hidden sm:inline">{t('language.toggle')}</span>
               </button>
 
-              {/* Location */}
-              <button
-                onClick={requestLocation}
-                disabled={locationStatus === 'requesting'}
-                className={`flex items-center gap-1.5 px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  locationStatus === 'granted' 
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
-                    : locationStatus === 'denied'
-                    ? 'bg-red-50 text-red-700 border border-red-200/60'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200/60 hover:bg-gray-100'
-                }`}
+              {/* For Business Link */}
+              <a
+                href="#business"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/60 rounded-lg transition-all duration-300 text-sm font-medium"
               >
-                {locationStatus === 'requesting' ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
-                ) : (
-                  <Navigation className="w-4 h-4" />
-                )}
-                <span className="hidden lg:inline">
-                  {locationStatus === 'granted' 
-                    ? locationName || 'Location Set'
-                    : locationStatus === 'denied'
-                    ? 'Location Denied'
-                    : 'Get Location'
-                  }
-                </span>
-              </button>
+                {t('nav.forBusiness')}
+              </a>
 
               {/* Cart */}
               <button
@@ -460,7 +514,6 @@ export const ShopperDashboard = () => {
                         onClick={() => setShowUserMenu(false)}
                       />
                       <div className="absolute right-0 top-12 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2">
-                        {/* User Info Header */}
                         <div className="px-4 py-3 border-b border-gray-100">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
@@ -485,26 +538,24 @@ export const ShopperDashboard = () => {
                           </div>
                         </div>
 
-                        {/* Menu Items */}
                         <div className="py-2">
                           <button 
                             onClick={() => handleMenuNavigation('#profile/edit')}
                             className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
                             <Settings className="w-4 h-4" />
-                            <span>Edit Profile</span>
+                            <span>{t('profile.editProfile')}</span>
                           </button>
                           
                           <button 
                             onClick={() => {
-                              // TODO: Implement Order History functionality
-                              alert('Order History feature coming soon!');
+                              window.location.hash = '#order-history';
+                              setShowUserMenu(false);
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-400 hover:bg-gray-50 transition-colors cursor-not-allowed"
+                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
-                            <History className="w-4 h-4" />
-                            <span>Order History</span>
-                            <span className="text-xs ml-auto bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Coming Soon</span>
+                            <Receipt className="w-4 h-4" />
+                            <span>{t('orderHistory.title') || 'My Orders'}</span>
                           </button>
 
                           <div className="border-t border-gray-100 my-2"></div>
@@ -542,7 +593,7 @@ export const ShopperDashboard = () => {
               ) : (
                 <button 
                   onClick={() => {
-                    setRedirectAfterLogin(window.location.hash || '#shopper-dashboard');
+                    setRedirectAfterLogin(window.location.hash || '#');
                     window.location.hash = '#login';
                   }}
                   className="flex items-center gap-1.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 text-sm"
@@ -553,73 +604,35 @@ export const ShopperDashboard = () => {
               )}
             </div>
           </div>
-
-          {/* Search Section */}
-          <div className="pb-4 lg:pb-6">
-            <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Search className="w-5 h-5" />
-                </div>
-                <input
-                  type="text"
-                  placeholder={t('shopper.search.placeholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 lg:h-14 pl-12 pr-4 border border-gray-200/60 rounded-2xl 
-                    focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400]/50 focus:outline-none
-                    bg-white/80 backdrop-blur-sm shadow-sm placeholder:text-gray-400 text-sm lg:text-base
-                    transition-all duration-300 hover:shadow-md hover:bg-white"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
-      {/* Country Filter Section */}
-      <div className="bg-white/60 backdrop-blur-sm border-b border-gray-200/40">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 lg:py-6">
-          <div className="text-center mb-6">
-            <h2 className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2">Cuisines by Country</h2>
-            <div className="flex justify-center gap-3 flex-wrap">
-              {countries.map((country) => (
-                <button
-                  key={country.id}
-                  onClick={() => country.active && setSelectedCountry(country.id)}
-                  disabled={!country.active}
-                  className={`px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-medium text-sm transition-all duration-500 ${
-                    country.active
-                      ? selectedCountry === country.id
-                        ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white shadow-lg scale-105'
-                        : 'bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-700 hover:border-[#C8E400]/50 hover:shadow-md hover:scale-105'
-                      : 'bg-gray-100/60 border border-gray-200/40 text-gray-400 cursor-not-allowed'
-                  }`}
-                  aria-label={`Filter by ${country.name}${!country.active ? ' (coming soon)' : ''}`}
-                >
-                  {country.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <MarketplaceHero
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedCountry={selectedCountry}
+        setSelectedCountry={setSelectedCountry}
+        onLocationRequest={requestLocation}
+        locationStatus={locationStatus}
+        locationName={locationName}
+      />
 
       {/* Featured Restaurants Section */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 pb-12 lg:pb-20">
+      <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 lg:py-20">
         <div className="text-center mb-8 lg:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
-            <span className="text-xs font-semibold text-[#C8E400]">✨ Featured Restaurants</span>
+            <span className="text-xs font-semibold text-[#C8E400]">✨ {t('home.featuredRestaurants.badge')}</span>
           </div>
           <h2 className="text-2xl lg:text-3xl font-light text-gray-900 mb-3 leading-tight">
-            {t('shopper.featuredRestaurants')}
+            {t('home.featuredRestaurants.title')}
           </h2>
           <p className="text-sm lg:text-base text-gray-600 max-w-xl mx-auto font-light">
-            {t('shopper.featuredDescription')}
+            {t('home.featuredRestaurants.description')}
           </p>
         </div>
 
-        {/* Premium Loading State */}
+        {/* Loading State */}
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="flex items-center gap-3">
@@ -647,7 +660,7 @@ export const ShopperDashboard = () => {
                     }
                   }}
                 >
-                  {/* Compact Store Image */}
+                  {/* Store Image */}
                   <div className="relative h-24 lg:h-32 overflow-hidden">
                     {(store.storeImage || store.imageUrl) ? (
                       <img
@@ -656,7 +669,6 @@ export const ShopperDashboard = () => {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         loading="lazy"
                         onError={(e) => {
-                          // If storeImage fails, try imageUrl as fallback
                           const target = e.target as HTMLImageElement;
                           if (store.storeImage && store.imageUrl && target.src === store.storeImage) {
                             target.src = store.imageUrl;
@@ -674,7 +686,6 @@ export const ShopperDashboard = () => {
                       </div>
                     )}
                     
-                    {/* Premium Overlays */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                     
                     {/* Verification Badge */}
@@ -687,9 +698,8 @@ export const ShopperDashboard = () => {
                       </div>
                     )}
                     
-                    {/* Badge Logic: New stores get "New" badge, rated stores get rating badge, old unrated stores get no badge */}
+                    {/* Badge Logic */}
                     {isStoreNew(store.createdAt) ? (
-                      /* New Badge for stores created less than a month ago */
                       <div className="absolute bottom-2 left-2 bg-[#C8E400] text-gray-800 rounded-full px-2 py-1 shadow-lg">
                         <div className="flex items-center text-xs font-semibold">
                           <Star className="w-3 h-3 fill-current mr-1" />
@@ -697,7 +707,6 @@ export const ShopperDashboard = () => {
                         </div>
                       </div>
                     ) : store.averageRating ? (
-                      /* Rating Badge for stores with ratings */
                       <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-sm rounded-full px-2 py-1 shadow-lg">
                         <div className="flex items-center text-xs font-semibold">
                           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 mr-1" />
@@ -706,10 +715,10 @@ export const ShopperDashboard = () => {
                           </span>
                         </div>
                       </div>
-                    ) : null /* No badge for old stores without ratings */}
+                    ) : null}
                   </div>
 
-                  {/* Compact Store Info */}
+                  {/* Store Info */}
                   <div className="p-2 lg:p-3 space-y-2">
                     <div className="space-y-1">
                       <h3 className="font-medium text-sm lg:text-base text-gray-900 leading-tight group-hover:text-[#C8E400] transition-colors duration-300 line-clamp-1">
@@ -720,7 +729,6 @@ export const ShopperDashboard = () => {
                       </p>
                     </div>
 
-                    {/* Compact Location and Reviews */}
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center text-gray-500">
                         <MapPin className="w-3 h-3 mr-1 text-[#C8E400]" />
@@ -731,7 +739,6 @@ export const ShopperDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Compact Delivery Info */}
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {store.deliveryOptions?.delivery && (
@@ -755,7 +762,6 @@ export const ShopperDashboard = () => {
                       )}
                     </div>
 
-                    {/* Compact Call to Action */}
                     <div className="pt-1">
                       <div className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white text-center py-1.5 rounded-lg font-medium text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
                         {t('shopper.viewMenuOrder')}
@@ -766,26 +772,174 @@ export const ShopperDashboard = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">
-                  {searchQuery
-                    ? t('shopper.noStoresFound')
-                    : t('shopper.noStoresAvailable')}
-                </p>
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                    }}
-                    className="mt-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-                  >
-                    {t('shopper.clearFilters')}
-                  </button>
+                {hasDataError ? (
+                  // Network/Data Error State
+                  <div className="max-w-md mx-auto">
+                    <div className="w-16 h-16 mx-auto mb-4 text-red-400">
+                      {isOffline ? (
+                        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636L5.636 18.364M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM8 12h8" />
+                        </svg>
+                      ) : (
+                        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {isOffline ? 'You\'re Offline' : 'Connection Problem'}
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      {errorMessage}
+                    </p>
+                    <div className="space-y-3">
+                      <button
+                        onClick={handleRetryFetch}
+                        disabled={loading}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-lg hover:from-[#A3C700] hover:to-[#8FB600] transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? 'Retrying...' : 'Try Again'}
+                      </button>
+                      {isOffline && (
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <p>• Check your internet connection</p>
+                          <p>• Make sure you're connected to Wi-Fi or mobile data</p>
+                          <p>• Try refreshing the page</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : searchQuery ? (
+                  // Search Results Empty State
+                  <div>
+                    <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
+                      <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Results Found</h3>
+                    <p className="text-gray-600 mb-4">
+                      We couldn't find any stores matching "{searchQuery}"
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="px-6 py-2 bg-[#C8E400] text-white rounded-lg hover:bg-[#A3C700] transition-colors font-semibold"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                ) : (
+                  // No Stores Available (but no error)
+                  <div>
+                    <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
+                      <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Stores Yet</h3>
+                    <p className="text-gray-600">
+                      There are no stores available in your area at the moment. Check back soon!
+                    </p>
+                  </div>
                 )}
               </div>
             )}
           </div>
         )}
-      </main>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="bg-white/50 py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl lg:text-3xl font-light text-gray-900 mb-4">
+              {t('home.howItWorks.title')}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              {t('home.howItWorks.description')}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-8 h-8 text-[#C8E400]" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step1.title')}</h3>
+              <p className="text-gray-600">{t('home.howItWorks.step1.description')}</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-[#C8E400]" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step2.title')}</h3>
+              <p className="text-gray-600">{t('home.howItWorks.step2.description')}</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-[#C8E400]" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step3.title')}</h3>
+              <p className="text-gray-600">{t('home.howItWorks.step3.description')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Story Section */}
+      <section className="py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-2xl lg:text-4xl font-light text-gray-900 mb-6">
+                {t('home.ourStory.title')}
+              </h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                {t('home.ourStory.description')}
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <div className="text-2xl font-light text-gray-900 mb-2">500+</div>
+                  <div className="text-gray-600">{t('home.ourStory.stat1')}</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-light text-gray-900 mb-2">50K+</div>
+                  <div className="text-gray-600">{t('home.ourStory.stat2')}</div>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop&crop=center"
+                alt="Our Story"
+                className="rounded-2xl shadow-lg"
+              />
+              <div className="absolute inset-0 bg-[#C8E400]/10 rounded-2xl"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Partner CTA Section */}
+      <section className="bg-gradient-to-br from-[#C8E400] to-[#A3C700] text-white py-16 lg:py-20">
+        <div className="max-w-4xl mx-auto px-4 lg:px-8 text-center">
+          <h2 className="text-2xl lg:text-4xl font-light mb-6">
+            {t('home.partnerCta.title')}
+          </h2>
+          <p className="text-lg lg:text-xl text-white/90 font-light max-w-2xl mx-auto mb-8">
+            {t('home.partnerCta.description')}
+          </p>
+          <button
+            onClick={() => window.location.hash = '#business'}
+            className="bg-white text-[#C8E400] px-8 py-4 rounded-lg font-medium hover:bg-white/90 transition-all duration-300 inline-flex items-center gap-2 shadow-lg text-lg"
+          >
+            {t('home.partnerCta.button')}
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </section>
 
       {/* Cart Sidebar */}
       <CartSidebar 
@@ -796,6 +950,7 @@ export const ShopperDashboard = () => {
         }} 
         openInCheckoutMode={shouldOpenCheckout}
       />
+
     </div>
   );
 };

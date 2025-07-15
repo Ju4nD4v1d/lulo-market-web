@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="none"/>
+  <!-- Phone/device -->
+  <rect x="150" y="50" width="100" height="180" rx="16" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2"/>
+  <rect x="160" y="70" width="80" height="140" rx="4" fill="white"/>
+  <!-- Checkmark -->
+  <circle cx="200" cy="120" r="25" fill="#C8E400"/>
+  <path d="M185 120 L195 130 L215 110" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Order details -->
+  <rect x="170" y="150" width="60" height="4" fill="#e5e7eb"/>
+  <rect x="170" y="160" width="40" height="4" fill="#e5e7eb"/>
+  <rect x="170" y="170" width="50" height="4" fill="#e5e7eb"/>
+  <!-- Floating elements -->
+  <circle cx="100" cy="100" r="6" fill="#C8E400" opacity="0.6"/>
+  <circle cx="320" cy="80" r="8" fill="#C8E400" opacity="0.4"/>
+  <circle cx="80" cy="200" r="4" fill="#C8E400" opacity="0.8"/>
+  <circle cx="340" cy="180" r="5" fill="#C8E400" opacity="0.5"/>
+</svg>
