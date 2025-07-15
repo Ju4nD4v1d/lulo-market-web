@@ -435,6 +435,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         currency: 'cad',
         isDelivery: formData.isDelivery,
         orderNotes: formData.orderNotes || '',
+        applicationFeeInCents: Math.round(cart.summary.platformFee * 100),
         
         // Items summary
         itemCount: cart.summary.itemCount,
@@ -459,6 +460,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       console.log('Creating payment intent with data:', {
         amount: cart.summary.finalTotal,
         amountInCents,
+        applicationFeeInCents: Math.round(cart.summary.platformFee * 100),
         orderId: orderIdGenerated,
         storeStripeAccountId
       });

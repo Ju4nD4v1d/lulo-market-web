@@ -21,14 +21,15 @@ type CartAction =
 
 const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
 const DELIVERY_BASE_FEE = 4.99; // Base delivery fee
-const PLATFORM_FEE = 2.00; // 2 CAD platform fee charged to customer
+const PLATFORM_FEE_BASE = 2.00; // 2 CAD base platform fee
+const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% platform fee
 
 const calculateSummary = (items: CartItem[]): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
   const tax = subtotal * TAX_RATE;
   const deliveryFee = items.length > 0 ? DELIVERY_BASE_FEE : 0;
   const total = subtotal + tax + deliveryFee; // Base total before platform fee
-  const platformFee = items.length > 0 ? PLATFORM_FEE : 0; // Platform fee only if there are items
+  const platformFee = items.length > 0 ? PLATFORM_FEE_BASE + (total * PLATFORM_FEE_PERCENTAGE) : 0; // Platform fee: 2 CAD + 10% of total
   const finalTotal = total + platformFee; // What customer actually pays
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
