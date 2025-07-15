@@ -1058,7 +1058,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className={`bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col ${currentStep === 'payment' ? '' : 'sticky top-24 max-h-[80vh]'}`}>
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col">
               <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
               
               {/* Store Info */}
@@ -1068,7 +1068,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               </div>
 
               {/* Items - Scrollable */}
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+              <div className="space-y-3 mb-4">
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex justify-between items-start">
                     <div className="flex-1">
@@ -1454,7 +1454,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className={`bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col ${currentStep === 'payment' ? '' : 'sticky top-24 max-h-[80vh]'}`}>
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col">
               <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
               
               {/* Store Info */}
@@ -1464,7 +1464,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               </div>
 
               {/* Items - Scrollable */}
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+              <div className="space-y-3 mb-4">
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex justify-between items-start">
                     <div className="flex-1">

@@ -73,7 +73,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
       {/* Header */}
       <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-200/50">
         <div className="max-w-3xl mx-auto px-3 md:px-6 py-3 md:py-4">
