@@ -235,7 +235,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">{t('order.paymentStatus')}</span>
-                    <span className="text-sm font-medium text-amber-600 capitalize">{order.paymentStatus}</span>
+                    <span className="text-sm font-medium text-amber-600">{t(`payment.${order.paymentStatus}`)}</span>
                   </div>
                 </div>
               </div>

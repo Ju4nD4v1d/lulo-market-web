@@ -8,6 +8,7 @@ import {
 import { CreditCard, Shield, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Order } from '../types/order';
 import { formatCurrency } from '../config/stripe';
+import { useLanguage } from '../context/LanguageContext';
 
 interface StripePaymentFormProps {
   order: Order;
@@ -26,6 +27,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { t } = useLanguage();
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     event.preventDefault();
 
     if (!stripe || !elements) {
-      setPaymentError('Stripe is not loaded. Please refresh the page.');
+      setPaymentError(t('payment.stripeNotLoaded'));
       return;
     }
 
@@ -64,19 +66,19 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       });
 
       if (error) {
-        setPaymentError(error.message || 'Payment failed. Please try again.');
-        onPaymentError(error.message || 'Payment failed');
+        setPaymentError(error.message || t('payment.failed'));
+        onPaymentError(error.message || t('payment.failed'));
       } else if (paymentIntent) {
         if (paymentIntent.status === 'succeeded') {
           setPaymentComplete(true);
           onPaymentSuccess(paymentIntent.id);
         } else {
-          setPaymentError('Payment was not completed. Please try again.');
-          onPaymentError('Payment was not completed');
+          setPaymentError(t('payment.notCompleted'));
+          onPaymentError(t('payment.notCompleted'));
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage = err instanceof Error ? err.message : t('payment.unexpectedError');
       setPaymentError(errorMessage);
       onPaymentError(errorMessage);
     } finally {
@@ -89,7 +91,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       <div className="text-center py-8">
         <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Payment Successful!
+          {t('payment.successful')}
         </h3>
         <p className="text-gray-600">
           Your order has been confirmed and you will receive an email receipt shortly.
@@ -137,7 +139,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-medium text-red-800">Payment Error</h4>
+              <h4 className="font-medium text-red-800">{t('payment.error')}</h4>
               <p className="text-red-600 text-sm mt-1">{paymentError}</p>
             </div>
           </div>
@@ -149,10 +151,10 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
         <div>
           <h4 className="font-medium text-green-800 text-sm flex items-center gap-1">
             <Lock className="w-3 h-3" />
-            Secure Payment
+{t('payment.secure')}
           </h4>
           <p className="text-green-700 text-xs mt-1">
-            Your payment information is encrypted and secure.
+{t('payment.encryptedProtected')}
           </p>
         </div>
       </div>
@@ -170,7 +172,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
         {isProcessing ? (
           <div className="flex items-center justify-center gap-2">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span>Processing...</span>
+            <span>{t('payment.processing')}</span>
           </div>
         ) : (
           <span className="flex items-center justify-center gap-2">

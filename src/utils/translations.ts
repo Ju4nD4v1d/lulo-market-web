@@ -1127,6 +1127,14 @@ export const translations = {
     'payment.paid': 'Paid',
     'payment.failed': 'Payment Failed',
     'payment.refunded': 'Refunded',
+    'payment.processing': 'Processing...',
+    'payment.successful': 'Payment Successful!',
+    'payment.error': 'Payment Error',
+    'payment.notCompleted': 'Payment was not completed. Please try again.',
+    'payment.stripeNotLoaded': 'Stripe is not loaded. Please refresh the page.',
+    'payment.unexpectedError': 'An unexpected error occurred',
+    'payment.secure': 'Secure Payment',
+    'payment.encryptedProtected': 'Your payment information is encrypted and protected',
     
     // Validation Messages
     'validation.required': 'This field is required',
@@ -2312,6 +2320,14 @@ export const translations = {
     'payment.paid': 'Pagado',
     'payment.failed': 'Pago Fallido',
     'payment.refunded': 'Reembolsado',
+    'payment.processing': 'Procesando...',
+    'payment.successful': '¡Pago Exitoso!',
+    'payment.error': 'Error de Pago',
+    'payment.notCompleted': 'El pago no se completó. Por favor intenta de nuevo.',
+    'payment.stripeNotLoaded': 'Stripe no se ha cargado. Por favor recarga la página.',
+    'payment.unexpectedError': 'Ocurrió un error inesperado',
+    'payment.secure': 'Pago Seguro',
+    'payment.encryptedProtected': 'Tu información de pago está encriptada y protegida',
     
     // Validation Messages
     'validation.required': 'Este campo es obligatorio',

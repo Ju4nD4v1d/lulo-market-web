@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useTestMode } from '../context/TestModeContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
 import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -114,6 +115,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const { cart, clearCart } = useCart();
   const { t } = useLanguage();
   const { currentUser, userProfile } = useAuth();
+  const { isTestMode } = useTestMode();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [, setIsSubmitting] = useState(false);
@@ -358,6 +360,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   const handleProceedToPayment = async () => {
     if (!validateStep('review')) return;
+
+    // Handle test mode - skip Stripe payment
+    if (isTestMode) {
+      setCurrentStep('payment');
+      // Simulate payment success after a short delay
+      setTimeout(() => {
+        handlePaymentSuccess('test_payment_intent_' + Date.now());
+      }, 2000);
+      return;
+    }
 
     setIsCreatingPaymentIntent(true);
     setErrors({});
