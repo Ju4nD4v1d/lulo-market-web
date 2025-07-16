@@ -612,16 +612,15 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
           </div>
         </div>
 
-        {/* Enhanced Delivery Schedule Section */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-8">
-          <div className="p-6 md:p-8">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
-                <Truck className="w-4 h-4 text-[#C8E400]" />
-                <span className="text-sm font-medium text-[#C8E400]">{t('delivery.service')}</span>
+        {/* Refined Delivery Schedule Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+          <div className="p-6">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Truck className="w-5 h-5 text-[#C8E400]" />
+                <h2 className="text-lg font-medium text-gray-900">{t('delivery.schedule')}</h2>
               </div>
-              <h2 className="text-2xl md:text-3xl font-light text-gray-900 mb-2">{t('delivery.schedule')}</h2>
-              <p className="text-gray-600 text-sm md:text-base">{t('delivery.scheduleDescription')}</p>
+              <p className="text-gray-600 text-sm">{t('delivery.scheduleDescription')}</p>
             </div>
 
             {/* Next Available Delivery Highlight */}
@@ -629,10 +628,10 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               const nextDelivery = getNextAvailableDelivery();
               if (nextDelivery) {
                 return (
-                  <div className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6">
+                  <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-green-800 font-semibold text-lg">
+                        <p className="text-green-800 font-medium text-sm">
                           🚚 {t('delivery.nextAvailable')}
                         </p>
                         <p className="text-green-700 text-sm">
@@ -640,7 +639,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="bg-green-200 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+                        <span className="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                           {nextDelivery.timeUntil}
                         </span>
                       </div>
@@ -649,8 +648,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                 );
               } else {
                 return (
-                  <div className="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6">
-                    <p className="text-red-700 font-medium text-center">
+                  <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-700 font-medium text-center text-sm">
                       ⚠️ {t('delivery.noService')}
                     </p>
                   </div>
@@ -658,25 +657,25 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               }
             })()}
 
-            {/* Enhanced Weekly Schedule */}
-            <div className="grid gap-3">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('delivery.weeklySchedule')}</h3>
-              <div className="grid gap-2">
+            {/* Refined Weekly Schedule */}
+            <div>
+              <h3 className="text-base font-medium text-gray-900 mb-3">{t('delivery.weeklySchedule')}</h3>
+              <div className="grid gap-1">
                 {getDeliverySchedule().map((dayInfo) => {
                   const isToday = dayInfo.dayIndex === new Date().getDay();
                   return (
                     <div 
                       key={dayInfo.day}
-                      className={`flex justify-between items-center px-6 py-4 rounded-xl transition-all duration-300 ${
+                      className={`flex justify-between items-center px-4 py-3 rounded-lg transition-all duration-300 ${
                         isToday 
-                          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md'
+                          ? 'bg-blue-50 border border-blue-200'
                           : dayInfo.isOpen 
                           ? 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
                           : 'bg-gray-50 border border-gray-200 opacity-60'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
                           dayInfo.isOpen ? 'bg-green-400' : 'bg-red-400'
                         }`}></div>
                         <span className={`text-sm font-medium ${
@@ -687,9 +686,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className={`text-sm font-medium ${
+                        <span className={`text-sm ${
                           dayInfo.isOpen 
-                            ? isToday ? 'text-blue-700' : 'text-gray-700'
+                            ? isToday ? 'text-blue-700 font-medium' : 'text-gray-700'
                             : 'text-gray-500'
                         }`}>
                           {dayInfo.hours}
