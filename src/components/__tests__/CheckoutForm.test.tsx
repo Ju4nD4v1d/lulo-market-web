@@ -20,6 +20,7 @@ vi.mock('../../config/firebase', () => ({
 
 vi.mock('../../config/stripe', () => ({
   stripePromise: Promise.resolve(null),
+  getStripePromise: () => Promise.resolve(null),
 }));
 
 // Mock CartContext

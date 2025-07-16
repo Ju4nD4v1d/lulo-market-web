@@ -200,17 +200,10 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
             : 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] hover:shadow-lg transform hover:scale-[1.02]'
         }`}
       >
-        {isProcessing ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span>{t('payment.processing')}</span>
-          </div>
-        ) : (
-          <span className="flex items-center justify-center gap-2">
-            <Lock className="w-4 h-4" />
-            Pay {formatCurrency(order.summary.finalTotal)}
-          </span>
-        )}
+        <span className="flex items-center justify-center gap-2">
+          <Lock className="w-4 h-4" />
+          {isProcessing ? t('payment.processing') : `Pay ${formatCurrency(order.summary.finalTotal)}`}
+        </span>
       </button>
 
       {/* Terms Notice */}

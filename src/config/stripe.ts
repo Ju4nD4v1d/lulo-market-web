@@ -1,4 +1,5 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
+import type { Locale } from '../utils/translations';
 
 // Get the publishable key from environment variables
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
@@ -8,7 +9,12 @@ if (!stripePublishableKey) {
 }
 
 // Initialize Stripe
-export const stripePromise: Promise<Stripe | null> = loadStripe(stripePublishableKey);
+export const getStripePromise = (locale: Locale): Promise<Stripe | null> => {
+  return loadStripe(stripePublishableKey, { locale });
+};
+
+// Default export using English to maintain backward compatibility
+export const stripePromise: Promise<Stripe | null> = getStripePromise('en');
 
 // Platform fee configuration
 export const PLATFORM_FEE = {
