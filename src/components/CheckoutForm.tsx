@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, User, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
@@ -8,7 +8,7 @@ import { useTestMode } from '../context/TestModeContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
 import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { stripePromise } from '../config/stripe';
+import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
 import { PaymentProcessingModal } from './PaymentProcessingModal';
 
@@ -114,7 +114,7 @@ const initialFormData: FormData = {
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderComplete }) => {
   const { cart, clearCart } = useCart();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { currentUser, userProfile } = useAuth();
   const { isTestMode } = useTestMode();
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -127,6 +127,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [orderStatus, setOrderStatus] = useState<string>('pending');
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+
+  const stripePromise = useMemo(
+    () => getStripePromise(locale === 'es' ? 'es-419' : 'en'),
+    [locale]
+  );
   
   // Payment processing modal states
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -246,7 +251,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                 paymentStatus: 'paid',
                 paymentId: orderData.paymentId || '',
                 isDelivery: formData.isDelivery,
-                language: 'en'
+                language: locale
               };
               
               clearCart();
@@ -465,7 +470,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         estimatedDeliveryTime: new Date(formData.deliveryDate),
         paymentStatus: 'pending',
         isDelivery: formData.isDelivery ?? true,
-        language: (typeof t === 'object' && 'locale' in t ? t.locale : 'en') || 'en'
+        language: locale
       };
 
       // Debug: Check for any remaining undefined values
@@ -702,7 +707,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         paymentId: paymentIntentId,
         paymentError: error,
         isDelivery: formData.isDelivery,
-        language: 'en'
+        language: locale
       };
 
       // Save failed order for record keeping
@@ -771,7 +776,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         paymentStatus: 'processing', // Start with processing, webhook will update to 'paid'
         paymentId: paymentIntentId,
         isDelivery: formData.isDelivery,
-        language: 'en'
+        language: locale
       };
 
       // Use the same order ID that was sent to the payment intent
@@ -831,7 +836,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             paymentStatus: 'paid',
             paymentId: paymentIntentId,
             isDelivery: formData.isDelivery,
-            language: 'en'
+            language: locale
           };
           
           clearCart();
@@ -926,10 +931,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   // Only render Elements when we have a clientSecret for payment step
   if (currentStep === 'payment' && paymentClientSecret) {
     return (
-      <Elements 
-        stripe={stripePromise} 
+      <Elements
+        stripe={stripePromise}
         options={{
           clientSecret: paymentClientSecret,
+          locale: locale === 'es' ? 'es-419' : 'en',
           appearance: {
             theme: 'stripe',
             variables: {
@@ -1346,13 +1352,19 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       updatedAt: new Date(),
                       paymentStatus: 'pending',
                       isDelivery: formData.isDelivery,
-                      language: 'en',
+                      language: locale,
                     }}
                     clientSecret={paymentClientSecret}
                     onPaymentSuccess={handlePaymentSuccess}
                     onPaymentError={handlePaymentError}
                     onPaymentFailure={handlePaymentFailure}
-                    onProcessing={(processing) => setIsSubmitting(processing)}
+                    onProcessing={(processing) => {
+                      setIsSubmitting(processing);
+                      if (processing) {
+                        setShowPaymentModal(true);
+                        setPaymentModalStatus('processing');
+                      }
+                    }}
                   />
                 </div>
               )}

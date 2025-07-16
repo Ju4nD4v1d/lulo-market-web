@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import Lottie from 'lottie-react';
 import { CheckCircle2, XCircle, CreditCard, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -392,13 +393,14 @@ export const PaymentProcessingModal: React.FC<PaymentProcessingModalProps> = ({
     }
   };
 
-  return (
-    <div 
-      className={`fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity duration-300 ${
+  const modal = (
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 ${
         showContent ? 'opacity-100' : 'opacity-0'
       }`}
+      style={{ zIndex: 10000 }}
     >
-      <div 
+      <div
         className={`bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-sm md:max-w-md w-full mx-4 transform transition-all duration-300 relative ${
           showContent ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
@@ -417,4 +419,6 @@ export const PaymentProcessingModal: React.FC<PaymentProcessingModalProps> = ({
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modal, document.body);
 };
