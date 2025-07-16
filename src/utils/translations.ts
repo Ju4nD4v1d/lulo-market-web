@@ -1134,8 +1134,23 @@ export const translations = {
     'payment.stripeNotLoaded': 'Stripe is not loaded. Please refresh the page.',
     'payment.unexpectedError': 'An unexpected error occurred',
     'payment.cardDeclined': 'Card declined',
+    'payment.canceled': 'Payment canceled',
+    'payment.processingDescription': 'Please wait while we process your payment securely...',
+    'payment.verifyingMethod': 'Verifying payment method...',
+    'payment.processingTransaction': 'Processing transaction...',
+    'payment.confirmingOrder': 'Confirming order...',
+    'payment.successDescription': 'Your payment has been processed successfully!',
     'payment.secure': 'Secure Payment',
     'payment.encryptedProtected': 'Your payment information is encrypted and protected',
+    'payment.proceedToPayment': 'Proceed to Payment',
+    'payment.preparingPayment': 'Preparing Payment...',
+    'payment.billingAddress': 'Billing Address',
+    'payment.termsNotice': 'By completing your purchase, you agree to our terms of service and privacy policy.',
+    'payment.confirmationMessage': 'Your order has been confirmed and you will receive an email receipt shortly.',
+    
+    // Common Actions
+    'common.tryAgain': 'Try Again',
+    'common.close': 'Close',
     
     // Validation Messages
     'validation.required': 'This field is required',
@@ -1176,6 +1191,7 @@ export const translations = {
     'order.tracking.description': 'View the status of this order and your order history.',
     'order.tracking.action': 'View Order History',
     'order.status.pending': 'Pending Confirmation',
+    'order.status.processing': 'Processing Payment',
     'order.status.confirmed': 'Confirmed by Restaurant',
     'order.status.preparing': 'Being Prepared',
     'order.status.ready': 'Ready for Pickup',
@@ -1220,6 +1236,7 @@ export const translations = {
     'checkout.loginToAutofill': 'Log in to automatically fill your contact information',
     'checkout.loggedInAs': 'Logged in as',
     'checkout.useProfileAsDeliveryContact': 'Use my profile information as delivery contact details',
+    'checkout.useProfileAsContact': 'Use my profile information as contact details',
     'checkout.useProfileAsDeliveryAddress': 'Use my profile address as delivery address',
     
     // Form placeholders
@@ -2328,8 +2345,23 @@ export const translations = {
     'payment.stripeNotLoaded': 'Stripe no se ha cargado. Por favor recarga la página.',
     'payment.unexpectedError': 'Ocurrió un error inesperado',
     'payment.cardDeclined': 'Tarjeta rechazada',
+    'payment.canceled': 'Pago cancelado',
+    'payment.processingDescription': 'Por favor espera mientras procesamos tu pago de forma segura...',
+    'payment.verifyingMethod': 'Verificando método de pago...',
+    'payment.processingTransaction': 'Procesando transacción...',
+    'payment.confirmingOrder': 'Confirmando pedido...',
+    'payment.successDescription': '¡Tu pago ha sido procesado exitosamente!',
     'payment.secure': 'Pago Seguro',
     'payment.encryptedProtected': 'Tu información de pago está encriptada y protegida',
+    'payment.proceedToPayment': 'Proceder al Pago',
+    'payment.preparingPayment': 'Preparando Pago...',
+    'payment.billingAddress': 'Dirección de Facturación',
+    'payment.termsNotice': 'Al completar tu compra, aceptas nuestros términos de servicio y política de privacidad.',
+    'payment.confirmationMessage': 'Tu pedido ha sido confirmado y recibirás un recibo por email en breve.',
+    
+    // Common Actions
+    'common.tryAgain': 'Intentar de Nuevo',
+    'common.close': 'Cerrar',
     
     // Validation Messages
     'validation.required': 'Este campo es obligatorio',
@@ -2370,6 +2402,7 @@ export const translations = {
     'order.tracking.description': 'Ve el estado de este pedido y tu historial de pedidos.',
     'order.tracking.action': 'Ver Historial de Pedidos',
     'order.status.pending': 'Pendiente de Confirmación',
+    'order.status.processing': 'Procesando Pago',
     'order.status.confirmed': 'Confirmado por el Restaurante',
     'order.status.preparing': 'Siendo Preparado',
     'order.status.ready': 'Listo para Recogida',
@@ -2414,6 +2447,7 @@ export const translations = {
     'checkout.loginToAutofill': 'Inicia sesión para llenar automáticamente tu información de contacto',
     'checkout.loggedInAs': 'Sesión iniciada como',
     'checkout.useProfileAsDeliveryContact': 'Usar mi información de perfil como datos de contacto de entrega',
+    'checkout.useProfileAsContact': 'Usar mi información de perfil como datos de contacto',
     'checkout.useProfileAsDeliveryAddress': 'Usar mi dirección de perfil como dirección de entrega',
     
     // Form placeholders

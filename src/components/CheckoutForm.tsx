@@ -6,10 +6,11 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useTestMode } from '../context/TestModeContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
-import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { stripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
+import { PaymentProcessingModal } from './PaymentProcessingModal';
 
 // Platform fee configuration
 const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
@@ -123,6 +124,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
+  const [orderStatus, setOrderStatus] = useState<string>('pending');
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  
+  // Payment processing modal states
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentModalStatus, setPaymentModalStatus] = useState<'processing' | 'success' | 'error' | null>(null);
+  const [paymentError, setPaymentError] = useState<string>('');
+  const [isOrderCompleted, setIsOrderCompleted] = useState(false);
 
   // Auto-fill user data when logged in
   useEffect(() => {
@@ -166,6 +176,141 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       }
     }
   }, [currentUser, userProfile, formData.useProfileAsDeliveryContact]);
+
+  // Real-time order status monitoring
+  useEffect(() => {
+    if (!currentOrderId) return;
+
+    console.log('Setting up order status listener for:', currentOrderId);
+    
+    const unsubscribe = onSnapshot(
+      doc(db, 'orders', currentOrderId),
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const orderData = docSnapshot.data();
+          const status = orderData.status || 'pending';
+          
+          console.log('Order status update:', status, orderData);
+          setOrderStatus(status);
+          
+          switch (status) {
+            case 'processing':
+              console.log('Payment processing...');
+              setErrors({});
+              break;
+              
+            case 'paid': {
+              console.log('Payment successful! Redirecting...');
+              
+              // Show success animation for 2 seconds before redirecting
+              setPaymentModalStatus('success');
+              console.log('🎉 PAYMENT CONFIRMED BY WEBHOOK - Showing success animation');
+              
+              setTimeout(() => {
+                // Prevent multiple calls to onOrderComplete
+                if (isOrderCompleted) {
+                  console.log('⚠️ Order already completed, skipping duplicate completion');
+                  return;
+                }
+                
+                console.log('🚀 REDIRECTING TO ORDER CONFIRMATION');
+                setIsOrderCompleted(true);
+                
+                // Create order object for completion
+                const completedOrder: Order = {
+                id: currentOrderId,
+                userId: currentUser?.uid || '',
+                storeId: cart.storeId || '',
+                storeName: cart.storeName || '',
+                customerInfo: formData.customerInfo,
+                deliveryAddress: formData.deliveryAddress,
+                items: cart.items.map(item => ({
+                  id: item.id,
+                  productId: item.product.id,
+                  productName: item.product.name,
+                  productImage: item.product.images?.[0] || '',
+                  price: item.priceAtTime,
+                  quantity: item.quantity,
+                  specialInstructions: item.specialInstructions || ''
+                })),
+                summary: {
+                ...cart.summary,
+                storeAmount: cart.summary.total * 0.9, // Store gets 90% of base total
+                platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1) // Platform gets fee + 10%
+              },
+                status: OrderStatus.CONFIRMED,
+                orderNotes: formData.orderNotes,
+                createdAt: orderData.createdAt?.toDate() || new Date(),
+                updatedAt: orderData.updatedAt?.toDate() || new Date(),
+                estimatedDeliveryTime: orderData.estimatedDeliveryTime?.toDate() || new Date(),
+                paymentStatus: 'paid',
+                paymentId: orderData.paymentId || '',
+                isDelivery: formData.isDelivery,
+                language: 'en'
+              };
+              
+              clearCart();
+              setShowPaymentModal(false);
+              onOrderComplete(completedOrder);
+              }, 2000); // Wait 2 seconds to show success animation
+              break;
+            }
+              
+            case 'failed': {
+              console.log('Payment failed:', orderData.failureReason);
+              
+              // Show error modal
+              setPaymentModalStatus('error');
+              setPaymentError(orderData.failureReason || t('payment.failed'));
+              
+              setTimeout(() => {
+                setShowPaymentModal(false);
+                setErrors({ 
+                  general: orderData.failureReason || t('payment.failed'),
+                  payment: 'The payment could not be processed. Please try again with a different payment method.'
+                });
+                // Reset payment state so user can try again
+                setCurrentStep('review');
+                setPaymentClientSecret(null);
+                setPaymentIntentId(null);
+                setCurrentOrderId(null);
+              }, 2000); // Wait 2 seconds to show error animation
+              break;
+            }
+              
+            case 'canceled': {
+              console.log('Payment canceled');
+              setErrors({ 
+                general: t('payment.canceled') || 'Payment was canceled',
+                payment: 'You can try again or use a different payment method.'
+              });
+              setCurrentStep('review');
+              setPaymentClientSecret(null);
+              setPaymentIntentId(null);
+              setCurrentOrderId(null);
+              break;
+            }
+              
+            default:
+              console.log('Unknown order status:', status);
+          }
+        }
+      },
+      (error) => {
+        console.error('Error listening to order status:', error);
+        setErrors({ 
+          general: 'Failed to monitor payment status. Please contact support if your payment was charged.',
+          payment: error.message 
+        });
+      }
+    );
+
+    // Cleanup listener when component unmounts or orderId changes
+    return () => {
+      console.log('Cleaning up order status listener');
+      unsubscribe();
+    };
+  }, [currentOrderId, currentUser, cart, formData, clearCart, onOrderComplete, t, isOrderCompleted]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -298,11 +443,20 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           quantity: item.quantity || 1,
           specialInstructions: item.specialInstructions || ''
         })),
-        summary: cart.summary || {
+        summary: {
+          ...cart.summary,
+          storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
+          platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0
+        } || {
           subtotal: 0,
           tax: 0,
           deliveryFee: 0,
-          total: 0
+          total: 0,
+          platformFee: 0,
+          finalTotal: 0,
+          itemCount: 0,
+          storeAmount: 0,
+          platformAmount: 0
         },
         status: OrderStatus.PENDING,
         orderNotes: formData.orderNotes || '',
@@ -364,6 +518,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     // Handle test mode - skip Stripe payment
     if (isTestMode) {
       setCurrentStep('payment');
+      
+      // Generate test order ID and store it
+      const testOrderId = `test_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setPendingOrderId(testOrderId);
+      
+      // Show processing modal for test mode
+      setShowPaymentModal(true);
+      setPaymentModalStatus('processing');
+      
       // Simulate payment success after a short delay
       setTimeout(() => {
         handlePaymentSuccess('test_payment_intent_' + Date.now());
@@ -388,47 +551,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         throw new Error('Store payment processing is not set up. Please contact the store owner.');
       }
 
-      // Create preliminary order data for payment intent
-      const orderData = {
-        id: `temp-${Date.now()}`, // Temporary ID
-        storeId: cart.storeId!,
-        storeName: cart.storeName!,
-        customerInfo: formData.customerInfo,
-        deliveryAddress: formData.deliveryAddress,
-        items: cart.items.map(item => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          productImage: item.product.images?.[0] || '',
-          price: item.priceAtTime,
-          quantity: item.quantity,
-          specialInstructions: item.specialInstructions || ''
-        })),
-        summary: {
-          ...cart.summary,
-          // Calculate store and platform amounts
-          storeAmount: 0, // Will be calculated by createPaymentIntent
-          platformAmount: 0, // Will be calculated by createPaymentIntent
-        },
-        status: OrderStatus.PENDING,
-        orderNotes: formData.orderNotes,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        estimatedDeliveryTime: new Date(formData.deliveryDate),
-        paymentStatus: 'pending' as const,
-        isDelivery: formData.isDelivery,
-        language: 'en' as const
-      };
 
+      // Generate a single order ID to use for BOTH Firestore and payment intent
+      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
       // Create payment intent via HTTP endpoint
       const amountInCents = Math.round(cart.summary.finalTotal * 100);
-      const orderIdGenerated = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const payloadData = {
         // Core required fields
         amount: cart.summary.finalTotal,
         amountInCents: amountInCents,
-        orderId: orderIdGenerated,
+        orderId: orderId, // Use the same ID that will be used for Firestore
         storeStripeAccountId: storeStripeAccountId,
         
         // Order details
@@ -480,7 +614,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         visiblePlatformFee: cart.summary.platformFee,
         hiddenPlatformFee: cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE,
         totalPlatformFee: totalApplicationFee,
-        orderId: orderIdGenerated,
+        orderId: orderId,
         storeStripeAccountId
       });
 
@@ -500,11 +634,20 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       const result = await response.json();
       console.log('Payment intent response:', result);
       
-      // Handle Firebase Callable Function response format
+      // Handle new response format with data wrapper
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      if (!result.data) {
+        throw new Error('Invalid response format from payment service');
+      }
+      
       const { clientSecret, paymentIntentId } = result.data;
 
       setPaymentClientSecret(clientSecret);
       setPaymentIntentId(paymentIntentId);
+      setPendingOrderId(orderId); // Store the order ID for later use in handlePaymentSuccess
       setCurrentStep('payment');
     } catch (error) {
       console.error('Error creating payment intent:', error);
@@ -602,7 +745,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     try {
       setIsSubmitting(true);
       
-      // Create the final order in Firebase
+      // Create the order in Firebase with 'processing' status
+      // The webhook will update it to 'paid' when payment confirmation is received
       const orderData = {
         userId: currentUser?.uid || '',
         storeId: cart.storeId || '',
@@ -619,30 +763,103 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           specialInstructions: item.specialInstructions || ''
         })),
         summary: cart.summary,
-        status: OrderStatus.CONFIRMED, // Set to confirmed since payment succeeded
+        status: OrderStatus.PROCESSING,
         orderNotes: formData.orderNotes,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         estimatedDeliveryTime: new Date(formData.deliveryDate),
-        paymentStatus: 'paid',
+        paymentStatus: 'processing', // Start with processing, webhook will update to 'paid'
         paymentId: paymentIntentId,
         isDelivery: formData.isDelivery,
         language: 'en'
       };
 
-      const ordersCollection = collection(db, 'orders');
-      const orderDoc = await addDoc(ordersCollection, orderData);
+      // Use the same order ID that was sent to the payment intent
+      const orderIdToUse = pendingOrderId || `fallback_${Date.now()}`;
       
-      const order: Order = {
-        id: orderDoc.id,
-        ...orderData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        estimatedDeliveryTime: new Date(formData.deliveryDate)
-      };
+      // Create the order document with the specific ID (same as payment intent)
+      const orderDocRef = doc(db, 'orders', orderIdToUse);
+      await setDoc(orderDocRef, orderData);
       
-      clearCart();
-      onOrderComplete(order);
+      // Show processing modal and set up real-time monitoring
+      console.log('🎬 SHOWING PAYMENT MODAL - Status: processing');
+      console.log('🔍 Current state before modal:', { showPaymentModal, paymentModalStatus, currentStep });
+      setShowPaymentModal(true);
+      setPaymentModalStatus('processing');
+      setCurrentOrderId(orderIdToUse);
+      setOrderStatus('processing');
+      console.log('🔍 Modal state set to: processing');
+      
+      // Fallback mechanism: If webhook doesn't update within 7 seconds, assume success
+      // Ensure this triggers after the 5-second Stripe processing time
+      setTimeout(() => {
+        console.log('⏰ WEBHOOK FALLBACK TIMER - Triggering fallback transition...');
+        console.log('🔍 Current modal state:', { showPaymentModal, paymentModalStatus });
+        
+        // Always transition to success first, then to completion
+        setPaymentModalStatus('success');
+        console.log('🔄 FALLBACK: Showing success animation');
+        
+        setTimeout(() => {
+          console.log('🚀 FALLBACK: Redirecting to order confirmation');
+          const fallbackOrder: Order = {
+            id: orderIdToUse,
+            userId: currentUser?.uid || '',
+            storeId: cart.storeId || '',
+            storeName: cart.storeName || '',
+            customerInfo: formData.customerInfo,
+            deliveryAddress: formData.deliveryAddress,
+            items: cart.items.map(item => ({
+              id: item.id,
+              productId: item.product.id,
+              productName: item.product.name,
+              productImage: item.product.images?.[0] || '',
+              price: item.priceAtTime,
+              quantity: item.quantity,
+              specialInstructions: item.specialInstructions || ''
+            })),
+            summary: {
+              ...cart.summary,
+              storeAmount: cart.summary.total * 0.9,
+              platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1)
+            },
+            status: OrderStatus.CONFIRMED,
+            orderNotes: formData.orderNotes,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            estimatedDeliveryTime: new Date(formData.deliveryDate),
+            paymentStatus: 'paid',
+            paymentId: paymentIntentId,
+            isDelivery: formData.isDelivery,
+            language: 'en'
+          };
+          
+          clearCart();
+          setShowPaymentModal(false);
+          onOrderComplete(fallbackOrder);
+        }, 2000); // Show success for 2 seconds before redirect
+      }, 7000); // 7 second fallback (after the 5-second Stripe processing)
+      
+      // Force a re-render to ensure modal shows
+      setTimeout(() => {
+        console.log('🔍 MODAL CHECK AFTER TIMEOUT:', { 
+          showPaymentModal, 
+          paymentModalStatus,
+          currentOrderId: orderIdToUse 
+        });
+      }, 100);
+      
+      console.log('✅ ORDER ID SYNCHRONIZATION:');
+      console.log('📝 Firestore order document ID:', orderIdToUse);
+      console.log('💳 Payment intent metadata orderId:', orderIdToUse);
+      console.log('🔄 Webhook will update order from "processing" → "paid"');
+      console.log('📡 Real-time listener monitoring:', orderIdToUse);
+      console.log('🎭 MODAL STATE:', { showPaymentModal, paymentModalStatus });
+      
+      // 🚨 IMPORTANT: Do NOT call onOrderComplete here!
+      // The real-time listener will handle order completion when webhook updates the status
+      // This keeps the modal visible while processing
+      
     } catch (error) {
       console.error('Error creating order after payment:', error);
       setErrors({ general: 'Payment succeeded but order creation failed. Please contact support.' });
@@ -651,9 +868,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     }
   };
 
-  const handlePaymentError = (error: string) => {
-    setErrors({ general: error });
-  };
 
   const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
 
@@ -678,7 +892,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               <div className={`w-2 h-2 rounded-full ${currentStep === 'info' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
               <div className={`w-2 h-2 rounded-full ${currentStep === 'address' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
               <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
-              <div className={`w-2 h-2 rounded-full ${currentStep === 'payment' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
             </div>
           </div>
         </div>
@@ -759,7 +973,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                             <input
                               type="checkbox"
                               checked={formData.useProfileAsDeliveryContact}
-                              onChange={(e) => handleInputChange('useProfileAsDeliveryContact', '', e.target.checked)}
+                              onChange={(e) => setFormData(prev => ({ ...prev, useProfileAsDeliveryContact: e.target.checked }))}
                               className="rounded border-green-300 text-green-600 focus:ring-green-500"
                             />
                             {t('checkout.useProfileAsDeliveryContact')}
@@ -872,7 +1086,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         <input
                           type="checkbox"
                           checked={formData.useProfileAsDeliveryContact}
-                          onChange={(e) => handleInputChange('useProfileAsDeliveryContact', '', e.target.checked)}
+                          onChange={(e) => setFormData(prev => ({ ...prev, useProfileAsDeliveryContact: e.target.checked }))}
                           className="rounded border-green-300 text-green-600 focus:ring-green-500"
                         />
                         {t('checkout.useProfileAsDeliveryAddress')}
@@ -1111,7 +1325,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         id: item.id,
                         productId: item.product.id,
                         productName: item.product.name,
-                        productImage: item.product.image,
+                        productImage: item.product.images?.[0] || '',
                         price: item.priceAtTime,
                         quantity: item.quantity,
                       })),
@@ -1210,10 +1424,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     {isCreatingPaymentIntent ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        <span className="text-sm">Preparing Payment...</span>
+                        <span className="text-sm">{t('payment.preparingPayment')}</span>
                       </div>
                     ) : (
-                      'Proceed to Payment'
+                      t('payment.proceedToPayment')
                     )}
                   </button>
                 </div>
@@ -1227,6 +1441,33 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         </div>
       </div>
       </Elements>
+    );
+  }
+
+  // If order is being processed, always show the processing modal
+  if (showPaymentModal) {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center">
+          <PaymentProcessingModal
+            isOpen={showPaymentModal}
+            status={paymentModalStatus}
+            onClose={() => {
+              console.log('🚪 MODAL CLOSED BY USER');
+              setShowPaymentModal(false);
+              setPaymentModalStatus(null);
+              setPaymentError('');
+              // Reset checkout flow to review step so user can try again
+              setCurrentStep('review');
+              setPaymentClientSecret(null);
+              setPaymentIntentId(null);
+              setCurrentOrderId(null);
+              setIsSubmitting(false);
+            }}
+            errorMessage={paymentError}
+          />
+        </div>
+      </>
     );
   }
 
@@ -1606,10 +1847,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     {isCreatingPaymentIntent ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        <span className="text-sm">Preparing Payment...</span>
+                        <span className="text-sm">{t('payment.preparingPayment')}</span>
                       </div>
                     ) : (
-                      'Proceed to Payment'
+                      t('payment.proceedToPayment')
                     )}
                   </button>
                 </div>

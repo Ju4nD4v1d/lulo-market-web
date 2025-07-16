@@ -5,7 +5,7 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
-import { CreditCard, Shield, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Shield, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Order } from '../types/order';
 import { formatCurrency } from '../config/stripe';
 import { useLanguage } from '../context/LanguageContext';
@@ -49,6 +49,9 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
 
     setIsProcessing(true);
     setPaymentError(null);
+    
+    // Ensure minimum 5-second processing time for better UX
+    const startTime = Date.now();
 
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
@@ -104,7 +107,13 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       setPaymentError(errorMessage);
       onPaymentError(errorMessage);
     } finally {
-      setIsProcessing(false);
+      // Ensure minimum 5-second processing time
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 5000 - elapsedTime);
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, remainingTime);
     }
   };
 
@@ -116,7 +125,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
           {t('payment.successful')}
         </h3>
         <p className="text-gray-600">
-          Your order has been confirmed and you will receive an email receipt shortly.
+          {t('payment.confirmationMessage')}
         </p>
       </div>
     );
@@ -136,7 +145,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       <div className="mt-4">
         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
           <Shield className="w-4 h-4" />
-          Billing Address
+          {t('payment.billingAddress')}
         </label>
         <AddressElement
           options={{
@@ -206,7 +215,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
 
       {/* Terms Notice */}
       <p className="text-xs text-gray-500 text-center mt-2">
-        By completing your purchase, you agree to our terms of service and privacy policy.
+        {t('payment.termsNotice')}
       </p>
     </form>
   );

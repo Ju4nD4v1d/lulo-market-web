@@ -22,7 +22,7 @@ type CartAction =
 const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
 const DELIVERY_BASE_FEE = 3.00; // Base delivery fee
 const PLATFORM_FEE_BASE = 2.00; // 2 CAD base platform fee
-const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% platform fee
+// PLATFORM_FEE_PERCENTAGE moved to CheckoutForm.tsx where it's used
 
 const calculateSummary = (items: CartItem[]): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);

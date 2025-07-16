@@ -1,5 +1,6 @@
 export enum OrderStatus {
   PENDING = 'pending',
+  PROCESSING = 'processing',
   CONFIRMED = 'confirmed', 
   PREPARING = 'preparing',
   READY = 'ready',
@@ -77,7 +78,7 @@ export interface Order {
   deliveredAt?: Date;
   
   // Payment Information
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentStatus: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded';
   paymentMethod?: string;
   paymentId?: string; // Stripe payment intent ID
   stripeTransferId?: string; // Stripe transfer ID to store account
