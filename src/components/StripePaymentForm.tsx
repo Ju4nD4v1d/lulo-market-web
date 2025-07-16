@@ -17,15 +17,16 @@ interface StripePaymentFormProps {
   onPaymentError: (error: string) => void;
   onPaymentFailure?: (paymentIntentId: string, error: string) => void;
   onProcessing: (isProcessing: boolean) => void;
+  externalError?: string; // External error from parent component
 }
 
 export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   order,
-  clientSecret,
   onPaymentSuccess,
   onPaymentError,
   onPaymentFailure,
-  onProcessing
+  onProcessing,
+  externalError
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -34,10 +35,24 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentComplete, setPaymentComplete] = useState(false);
+  
+  // Combined error state (internal + external)
+  const displayError = externalError || paymentError;
 
   useEffect(() => {
     onProcessing(isProcessing);
   }, [isProcessing, onProcessing]);
+
+  const handlePaymentElementChange = (event: { complete?: boolean; value?: string }) => {
+    // Clear errors when user starts typing
+    if (event.complete || event.value) {
+      setPaymentError(null);
+      // Clear external error by calling onPaymentError with empty string
+      if (externalError) {
+        onPaymentError('');
+      }
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -49,6 +64,11 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
 
     setIsProcessing(true);
     setPaymentError(null);
+    
+    // Clear external error when starting a new payment attempt
+    if (externalError) {
+      onPaymentError('');
+    }
     
     // Ensure minimum 5-second processing time for better UX
     const startTime = Date.now();
@@ -139,6 +159,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
           layout: 'tabs',
           paymentMethodOrder: ['card', 'apple_pay', 'google_pay'],
         }}
+        onChange={handlePaymentElementChange}
       />
 
       {/* Billing Address */}
@@ -166,12 +187,12 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       </div>
 
         {/* Error Display */}
-        {paymentError && (
+        {displayError && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
               <h4 className="font-medium text-red-800">{t('payment.error')}</h4>
-              <p className="text-red-600 text-sm mt-1">{paymentError}</p>
+              <p className="text-red-600 text-sm mt-1">{displayError}</p>
             </div>
           </div>
         )}

@@ -10,7 +10,6 @@ import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } 
 import { db } from '../config/firebase';
 import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
-import { PaymentProcessingModal } from './PaymentProcessingModal';
 
 // Platform fee configuration
 const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
@@ -125,7 +124,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [orderStatus, setOrderStatus] = useState<string>('pending');
+  const [, setOrderStatus] = useState<string>('pending');
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
   const stripePromise = useMemo(
@@ -133,10 +132,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     [locale]
   );
   
-  // Payment processing modal states
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentModalStatus, setPaymentModalStatus] = useState<'processing' | 'success' | 'error' | null>(null);
-  const [paymentError, setPaymentError] = useState<string>('');
+  const [, setPaymentError] = useState<string>('');
   const [isOrderCompleted, setIsOrderCompleted] = useState(false);
 
   // Auto-fill user data when logged in
@@ -208,7 +204,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               console.log('Payment successful! Redirecting...');
               
               // Show success animation for 2 seconds before redirecting
-              setPaymentModalStatus('success');
               console.log('🎉 PAYMENT CONFIRMED BY WEBHOOK - Showing success animation');
               
               setTimeout(() => {
@@ -255,7 +250,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               };
               
               clearCart();
-              setShowPaymentModal(false);
               onOrderComplete(completedOrder);
               }, 2000); // Wait 2 seconds to show success animation
               break;
@@ -264,20 +258,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             case 'failed': {
               console.log('Payment failed:', orderData.failureReason);
               
-              // Show error modal
-              setPaymentModalStatus('error');
+              // Show error inline in payment form
               setPaymentError(orderData.failureReason || t('payment.failed'));
               
               setTimeout(() => {
-                setShowPaymentModal(false);
                 setErrors({ 
-                  general: orderData.failureReason || t('payment.failed'),
-                  payment: 'The payment could not be processed. Please try again with a different payment method.'
+                  payment: orderData.failureReason || t('payment.failed')
                 });
-                // Reset payment state so user can try again
-                setCurrentStep('review');
-                setPaymentClientSecret(null);
-                setPaymentIntentId(null);
+                // Keep payment form mounted - don't reset client secret or payment intent
+                // User can correct their card details and retry
                 setCurrentOrderId(null);
               }, 2000); // Wait 2 seconds to show error animation
               break;
@@ -286,12 +275,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             case 'canceled': {
               console.log('Payment canceled');
               setErrors({ 
-                general: t('payment.canceled') || 'Payment was canceled',
-                payment: 'You can try again or use a different payment method.'
+                payment: t('payment.canceled') || 'Payment was canceled. You can try again or use a different payment method.'
               });
-              setCurrentStep('review');
-              setPaymentClientSecret(null);
-              setPaymentIntentId(null);
+              // Keep payment form mounted - don't reset client secret or payment intent
               setCurrentOrderId(null);
               break;
             }
@@ -452,16 +438,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           ...cart.summary,
           storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
           platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0
-        } || {
-          subtotal: 0,
-          tax: 0,
-          deliveryFee: 0,
-          total: 0,
-          platformFee: 0,
-          finalTotal: 0,
-          itemCount: 0,
-          storeAmount: 0,
-          platformAmount: 0
         },
         status: OrderStatus.PENDING,
         orderNotes: formData.orderNotes || '',
@@ -529,8 +505,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       setPendingOrderId(testOrderId);
       
       // Show processing modal for test mode
-      setShowPaymentModal(true);
-      setPaymentModalStatus('processing');
       
       // Simulate payment success after a short delay
       setTimeout(() => {
@@ -716,16 +690,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       
       console.log('Failed order recorded:', paymentIntentId);
       
-      // Show error to user
+      // Show error to user inline in the payment form
       setErrors({ 
-        general: error || t('payment.failed'),
-        payment: 'Payment was not successful. Please try again or use a different payment method.' 
+        payment: error || t('payment.failed')
       });
       
-      // Go back to review step so user can try again
-      setCurrentStep('review');
-      setPaymentClientSecret(null);
-      setPaymentIntentId(null);
+      // Keep the payment form mounted - don't reset client secret or payment intent
+      // User can correct their card details and retry
       
     } catch (recordError) {
       console.error('Error recording failed payment:', recordError);
@@ -740,10 +711,20 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   const handlePaymentError = (error: string) => {
     console.error('Payment error:', error);
-    setErrors({ 
-      general: error,
-      payment: 'There was an issue processing your payment. Please try again.' 
-    });
+    // Keep the payment form mounted and display inline error
+    // The StripePaymentForm will handle showing the error inline
+    if (error) {
+      setErrors({ 
+        payment: error
+      });
+    } else {
+      // Clear the payment error when called with empty string
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors.payment;
+        return newErrors;
+      });
+    }
   };
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
@@ -788,9 +769,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       
       // Show processing modal and set up real-time monitoring
       console.log('🎬 SHOWING PAYMENT MODAL - Status: processing');
-      console.log('🔍 Current state before modal:', { showPaymentModal, paymentModalStatus, currentStep });
-      setShowPaymentModal(true);
-      setPaymentModalStatus('processing');
+      console.log('🔍 Current state before modal:', { currentStep });
       setCurrentOrderId(orderIdToUse);
       setOrderStatus('processing');
       console.log('🔍 Modal state set to: processing');
@@ -799,10 +778,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       // Ensure this triggers after the 5-second Stripe processing time
       setTimeout(() => {
         console.log('⏰ WEBHOOK FALLBACK TIMER - Triggering fallback transition...');
-        console.log('🔍 Current modal state:', { showPaymentModal, paymentModalStatus });
+        console.log('🔍 Current modal state: fallback');
         
         // Always transition to success first, then to completion
-        setPaymentModalStatus('success');
         console.log('🔄 FALLBACK: Showing success animation');
         
         setTimeout(() => {
@@ -840,7 +818,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           };
           
           clearCart();
-          setShowPaymentModal(false);
           onOrderComplete(fallbackOrder);
         }, 2000); // Show success for 2 seconds before redirect
       }, 7000); // 7 second fallback (after the 5-second Stripe processing)
@@ -848,8 +825,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       // Force a re-render to ensure modal shows
       setTimeout(() => {
         console.log('🔍 MODAL CHECK AFTER TIMEOUT:', { 
-          showPaymentModal, 
-          paymentModalStatus,
           currentOrderId: orderIdToUse 
         });
       }, 100);
@@ -859,7 +834,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       console.log('💳 Payment intent metadata orderId:', orderIdToUse);
       console.log('🔄 Webhook will update order from "processing" → "paid"');
       console.log('📡 Real-time listener monitoring:', orderIdToUse);
-      console.log('🎭 MODAL STATE:', { showPaymentModal, paymentModalStatus });
+      console.log('🎭 MODAL STATE: modal removed');
       
       // 🚨 IMPORTANT: Do NOT call onOrderComplete here!
       // The real-time listener will handle order completion when webhook updates the status
@@ -1360,11 +1335,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     onPaymentFailure={handlePaymentFailure}
                     onProcessing={(processing) => {
                       setIsSubmitting(processing);
-                      if (processing) {
-                        setShowPaymentModal(true);
-                        setPaymentModalStatus('processing');
-                      }
                     }}
+                    externalError={errors.payment}
                   />
                 </div>
               )}
@@ -1456,32 +1428,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     );
   }
 
-  // If order is being processed, always show the processing modal
-  if (showPaymentModal) {
-    return (
-      <>
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center">
-          <PaymentProcessingModal
-            isOpen={showPaymentModal}
-            status={paymentModalStatus}
-            onClose={() => {
-              console.log('🚪 MODAL CLOSED BY USER');
-              setShowPaymentModal(false);
-              setPaymentModalStatus(null);
-              setPaymentError('');
-              // Reset checkout flow to review step so user can try again
-              setCurrentStep('review');
-              setPaymentClientSecret(null);
-              setPaymentIntentId(null);
-              setCurrentOrderId(null);
-              setIsSubmitting(false);
-            }}
-            errorMessage={paymentError}
-          />
-        </div>
-      </>
-    );
-  }
 
   // For non-payment steps, render without Elements wrapper
   return (

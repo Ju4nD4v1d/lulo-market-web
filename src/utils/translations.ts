@@ -1392,7 +1392,6 @@ export const translations = {
     'error.fieldRequired': 'This field is required',
 
     // Additional Placeholders
-    'placeholder.deliveryInstructions': 'Special delivery instructions',
 
     // Empty States
     'empty.noOrders': 'No orders yet',
@@ -2793,7 +2792,6 @@ export const translations = {
     'error.fieldRequired': 'Este campo es obligatorio',
 
     // Additional Placeholders - Spanish
-    'placeholder.deliveryInstructions': 'Instrucciones especiales de entrega',
 
     // Empty States - Spanish
     'empty.noOrders': 'Aún no hay pedidos',
