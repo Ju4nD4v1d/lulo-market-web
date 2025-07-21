@@ -746,6 +746,11 @@ export const translations = {
     'admin.orders.customer': 'Customer',
     'admin.orders.total': 'Total',
     'admin.orders.orderTime': 'Order Time',
+    'admin.orders.confirmOrder': 'Confirm Order',
+    'admin.orders.startPreparing': 'Start Preparing',
+    'admin.orders.markReady': 'Mark Ready',
+    'admin.orders.markOutForDelivery': 'Mark Out for Delivery',
+    'admin.orders.markDelivered': 'Mark Delivered',
     
     // Order Timeline
     'order.timeline.received': 'Order Received',
@@ -1956,6 +1961,11 @@ export const translations = {
     'admin.orders.customer': 'Cliente',
     'admin.orders.total': 'Total',
     'admin.orders.orderTime': 'Hora del Pedido',
+    'admin.orders.confirmOrder': 'Confirmar Pedido',
+    'admin.orders.startPreparing': 'Comenzar Preparación',
+    'admin.orders.markReady': 'Marcar Listo',
+    'admin.orders.markOutForDelivery': 'Marcar En Camino',
+    'admin.orders.markDelivered': 'Marcar Entregado',
     
     // Order Timeline
     'order.timeline.received': 'Pedido Recibido',

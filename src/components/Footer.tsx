@@ -13,31 +13,31 @@ export const Footer = () => {
 
   return (
     <>
-      <footer className="bg-gray-900 text-white">
+      <footer className="bg-gradient-to-b from-[#16726B] to-[#0f4f47] text-white">        
         <div className="container mx-auto px-4 py-16">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
             <div className="md:col-span-1">
-              <h3 className="text-2xl font-bold text-primary-400 mb-6">
-                LuloCart
+              <h3 className="text-h2 font-bold text-[#C8E400] mb-6">
+                Lulo Market
               </h3>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="body-font text-gray-300 mb-6">
                 Connecting communities through authentic Latino cuisine, one meal at a time.
               </p>
               
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <a href="#" className="text-white/70 hover:text-[#C8E400] transition-colors duration-200">
                   <Facebook size={20} />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <a href="#" className="text-white/70 hover:text-[#C8E400] transition-colors duration-200">
                   <Twitter size={20} />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <a href="#" className="text-white/70 hover:text-[#C8E400] transition-colors duration-200">
                   <Instagram size={20} />
                 </a>
                 <button
                   onClick={toggleLanguage}
-                  className="text-gray-400 hover:text-primary-400 transition-colors duration-200"
+                  className="text-white/70 hover:text-[#C8E400] transition-colors duration-200"
                 >
                   <Globe size={20} />
                 </button>
@@ -53,18 +53,18 @@ export const Footer = () => {
                 <li>
                   <button
                     onClick={handleCreateAccountClick}
-                    className="text-gray-300 hover:text-primary-400 transition-colors duration-200"
+                    className="text-white/80 hover:text-[#C8E400] transition-colors duration-200"
                   >
                     Create Account
                   </button>
                 </li>
                 <li>
-                  <a href="#login" className="text-gray-300 hover:text-primary-400 transition-colors duration-200">
+                  <a href="#login" className="text-white/80 hover:text-[#C8E400] transition-colors duration-200">
                     Seller Dashboard
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="text-gray-300 hover:text-primary-400 transition-colors duration-200">
+                  <a href="#pricing" className="text-white/80 hover:text-[#C8E400] transition-colors duration-200">
                     Pricing
                   </a>
                 </li>
@@ -78,20 +78,20 @@ export const Footer = () => {
               </h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors duration-200">
+                  <a href="#" className="text-white/80 hover:text-[#C8E400] transition-colors duration-200">
                     Browse Stores
                   </a>
                 </li>
                 <li>
                   <button 
                     onClick={() => setShowDeliveryMap(true)}
-                    className="text-gray-300 hover:text-primary-400 transition-colors duration-200"
+                    className="text-white/80 hover:text-[#C8E400] transition-colors duration-200"
                   >
                     Delivery Areas
                   </button>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors duration-200">
+                  <a href="#" className="text-white/80 hover:text-[#C8E400] transition-colors duration-200">
                     Help & Support
                   </a>
                 </li>
@@ -104,31 +104,31 @@ export const Footer = () => {
                 Contact
               </h4>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-gray-300">
-                  <Mail className="w-4 h-4 text-primary-400" />
-                  <span className="text-sm">hello@lulocart.ca</span>
+                <div className="flex items-center gap-3 text-white/80">
+                  <Mail className="w-4 h-4 text-[#C8E400]" />
+                  <span className="text-sm">hello@lulomarket.ca</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-300">
-                  <Phone className="w-4 h-4 text-primary-400" />
+                <div className="flex items-center gap-3 text-white/80">
+                  <Phone className="w-4 h-4 text-[#C8E400]" />
                   <span className="text-sm">+1 (647) 555-LULO</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-300">
-                  <MapPin className="w-4 h-4 text-primary-400" />
+                <div className="flex items-center gap-3 text-white/80">
+                  <MapPin className="w-4 h-4 text-[#C8E400]" />
                   <span className="text-sm">Toronto, ON Canada</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 mb-4 md:mb-0 text-sm">
-              © 2024 LuloCart. All rights reserved.
+          <div className="pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-white/70 mb-4 md:mb-0 text-sm">
+              © 2024 Lulo Market. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-white/70 hover:text-[#C8E400] transition-colors text-sm">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-white/70 hover:text-[#C8E400] transition-colors text-sm">
                 Terms of Service
               </a>
             </div>

@@ -41,7 +41,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const currentQuantityInCart = existingItem?.quantity || 0;
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
+    sm: 'px-2 py-1.5 text-xs',
     md: 'px-4 py-2 text-sm',
     lg: 'px-5 py-2.5 text-base'
   };
@@ -114,7 +114,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         return 'bg-transparent hover:bg-gray-50 text-gray-600 border border-gray-300';
       case 'primary':
       default:
-        return 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] hover:from-[#A3C700] hover:to-[#8AA600] text-white shadow-lg hover:shadow-xl';
+        return 'bg-[#C8E400] hover:bg-[#A3C700] text-gray-900 shadow-lg hover:shadow-xl';
     }
   };
 
@@ -150,10 +150,10 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         className={`
           ${sizeClasses[size]} 
           ${getVariantClasses()}
-          flex items-center justify-center gap-2 rounded-lg font-medium
-          transition-all duration-300 transform hover:scale-[1.02]
-          disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-          focus:outline-none focus:ring-4 focus:ring-[#C8E400]/30
+          flex items-center justify-center gap-1 rounded-lg font-medium min-w-0 w-full
+          transition-all duration-300
+          disabled:opacity-50 disabled:cursor-not-allowed
+          focus:outline-none focus:ring-2 focus:ring-[#C8E400]/30
           ${!canAdd ? 'opacity-50 cursor-not-allowed' : ''}
         `}
         title={!isAvailable ? t('cart.productNotAvailable') : !canAdd ? t('cart.clearCartDifferentStore') : t('cart.addToCart')}
@@ -166,12 +166,12 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         ) : (
           <>
             <ShoppingCart className={iconSizes[size]} />
-            <span>
+            <span className="truncate">
               {currentQuantityInCart > 0 
-                ? `${t('cart.addMore')} (${currentQuantityInCart} ${t('cart.inCart')})` 
+                ? `+${currentQuantityInCart}` 
                 : showQuantityControls && quantity > 1
-                ? t('cart.addToCartQuantity').replace('{quantity}', quantity.toString())
-                : t('cart.addToCart')
+                ? `+${quantity}`
+                : size === 'sm' ? '+' : t('cart.addToCart')
               }
             </span>
             {!showQuantityControls && quantity > 1 && (

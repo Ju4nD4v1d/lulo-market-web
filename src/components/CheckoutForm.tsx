@@ -882,7 +882,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+      <div className="min-h-screen bg-gray-50">
         <StepHeader />
         <div className="max-w-3xl mx-auto px-3 md:px-6 py-8 md:py-12">
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 text-center">
@@ -925,7 +925,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           },
         }}
       >
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+      <div className="min-h-screen bg-gray-50">
         <StepHeader />
         
         <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">
@@ -968,14 +968,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     {/* Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('order.name')} *
+                        {t('order.name')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={formData.customerInfo.name}
                         onChange={(e) => handleInputChange('customerInfo', 'name', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
-                          getErrorMessage('customerInfo.name') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                          getErrorMessage('customerInfo.name') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.fullName')}
                       />
@@ -990,14 +990,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     {/* Email */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('order.email')} *
+                        {t('order.email')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
                         value={formData.customerInfo.email}
                         onChange={(e) => handleInputChange('customerInfo', 'email', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
-                          getErrorMessage('customerInfo.email') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                          getErrorMessage('customerInfo.email') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.email')}
                       />
@@ -1012,14 +1012,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     {/* Phone */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('order.phone')} *
+                        {t('order.phone')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
                         value={formData.customerInfo.phone}
                         onChange={(e) => handleInputChange('customerInfo', 'phone', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
-                          getErrorMessage('customerInfo.phone') ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                          getErrorMessage('customerInfo.phone') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.phone')}
                       />
@@ -1045,7 +1045,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
                   <button
                     onClick={handleNext}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="btn-primary focus-ring w-full py-4 rounded-xl font-bold text-base"
                   >
                     {t('button.continueToDeliveryAddress')}
                   </button>
@@ -1195,7 +1195,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
                   <button
                     onClick={handleNext}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="btn-primary focus-ring w-full py-4 rounded-xl font-bold text-base"
                   >
                     {t('button.reviewOrder')}
                   </button>
@@ -1345,49 +1345,86 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
+            <div className="enhanced-card bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-200 p-6 flex flex-col">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 bg-[#C8E400] rounded-lg flex items-center justify-center">
+                  <ShoppingBag className="w-4 h-4 text-gray-900" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('order.orderSummary')}</h3>
+              </div>
               
               {/* Store Info */}
-              <div className="mb-4 pb-4 border-b border-gray-200">
-                <p className="font-semibold text-gray-900">{cart.storeName}</p>
-                <p className="text-sm text-gray-600">{t('orderType.delivery')}</p>
+              <div className="mb-4 pb-3 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center">
+                    <span className="text-gray-900 font-bold text-sm">{cart.storeName?.[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{cart.storeName}</p>
+                    <p className="text-xs text-gray-600 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3" />
+                      {t('orderType.delivery')}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Items - Scrollable */}
-              <div className="space-y-3 mb-4">
+              {/* Items with Images */}
+              <div className="space-y-2 mb-5">
                 {cart.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{item.product.name}</p>
-                      <p className="text-xs text-gray-600">{t('order.quantity')}: {item.quantity}</p>
+                  <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      {/* Product Image */}
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {item.product.images && item.product.images.length > 0 ? (
+                          <img 
+                            src={item.product.images[0]} 
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag className="w-3 h-3 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.product.name}</p>
+                      </div>
+                      {/* Quantity and Price */}
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 mb-1">Cant.: {item.quantity}</p>
+                        <p className="font-bold text-[#C8E400] text-sm whitespace-nowrap">
+                          {formatPrice(item.priceAtTime * item.quantity)}
+                        </p>
+                      </div>
                     </div>
-                    <p className="font-semibold text-gray-900 text-sm">{formatPrice(item.priceAtTime * item.quantity)}</p>
                   </div>
                 ))}
               </div>
 
               {/* Totals */}
               <div className="space-y-2 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.subtotal)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.subtotal')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.tax)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.tax')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.tax)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.deliveryFee)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.deliveryFee')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.deliveryFee)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.platformFee')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.platformFee)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.platformFee')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.platformFee)}</span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
-                  <span className="flex-1">{t('order.total')}</span>
-                  <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(cart.summary.finalTotal)}</span>
+                <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-gray-300">
+                  <span className="font-bold text-gray-900">{t('order.total')}</span>
+                  <span className="text-[#C8E400] font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
                 </div>
               </div>
 
@@ -1403,7 +1440,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <button
                     onClick={handleNext}
                     disabled={isCreatingPaymentIntent}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="btn-primary focus-ring w-full py-4 rounded-xl font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isCreatingPaymentIntent ? (
                       <div className="flex items-center justify-center gap-2">
@@ -1431,7 +1468,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   // For non-payment steps, render without Elements wrapper
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+    <div className="min-h-screen bg-gray-50">
       <StepHeader />
       
       <div className="max-w-3xl mx-auto px-3 md:px-6 py-4 md:py-8 pb-12">
@@ -1742,49 +1779,86 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 p-4 md:p-6 flex flex-col">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.orderSummary')}</h3>
+            <div className="enhanced-card bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-200 p-6 flex flex-col">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 bg-[#C8E400] rounded-lg flex items-center justify-center">
+                  <ShoppingBag className="w-4 h-4 text-gray-900" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('order.orderSummary')}</h3>
+              </div>
               
               {/* Store Info */}
-              <div className="mb-4 pb-4 border-b border-gray-200">
-                <p className="font-semibold text-gray-900">{cart.storeName}</p>
-                <p className="text-sm text-gray-600">{t('orderType.delivery')}</p>
+              <div className="mb-4 pb-3 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center">
+                    <span className="text-gray-900 font-bold text-sm">{cart.storeName?.[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{cart.storeName}</p>
+                    <p className="text-xs text-gray-600 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3" />
+                      {t('orderType.delivery')}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Items - Scrollable */}
-              <div className="space-y-3 mb-4">
+              {/* Items with Images */}
+              <div className="space-y-2 mb-5">
                 {cart.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{item.product.name}</p>
-                      <p className="text-xs text-gray-600">{t('order.quantity')}: {item.quantity}</p>
+                  <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      {/* Product Image */}
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {item.product.images && item.product.images.length > 0 ? (
+                          <img 
+                            src={item.product.images[0]} 
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag className="w-3 h-3 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.product.name}</p>
+                      </div>
+                      {/* Quantity and Price */}
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 mb-1">Cant.: {item.quantity}</p>
+                        <p className="font-bold text-[#C8E400] text-sm whitespace-nowrap">
+                          {formatPrice(item.priceAtTime * item.quantity)}
+                        </p>
+                      </div>
                     </div>
-                    <p className="font-semibold text-gray-900 text-sm">{formatPrice(item.priceAtTime * item.quantity)}</p>
                   </div>
                 ))}
               </div>
 
               {/* Totals */}
               <div className="space-y-2 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.subtotal)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.subtotal')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.tax)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.tax')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.tax)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.deliveryFee)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.deliveryFee')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.deliveryFee)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.platformFee')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(cart.summary.platformFee)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">{t('order.platformFee')}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.platformFee)}</span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
-                  <span className="flex-1">{t('order.total')}</span>
-                  <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(cart.summary.finalTotal)}</span>
+                <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-gray-300">
+                  <span className="font-bold text-gray-900">{t('order.total')}</span>
+                  <span className="text-[#C8E400] font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
                 </div>
               </div>
 
@@ -1800,7 +1874,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <button
                     onClick={handleNext}
                     disabled={isCreatingPaymentIntent}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="btn-primary focus-ring w-full py-4 rounded-xl font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isCreatingPaymentIntent ? (
                       <div className="flex items-center justify-center gap-2">

@@ -149,6 +149,11 @@ const OrderTimeline = ({ order }: { order: Order }) => {
   );
 };
 
+// Helper function to validate OrderStatus values
+const isValidOrderStatus = (status: any): status is OrderStatus => {
+  return Object.values(OrderStatus).includes(status);
+};
+
 export const OrderManagement = () => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
@@ -308,8 +313,29 @@ export const OrderManagement = () => {
             itemCount: data.summary?.itemCount || data.quantity || 1
           },
           
-          // Order status
-          status: data.status || OrderStatus.PENDING,
+          // Order status - ensure we use valid OrderStatus enum values
+          status: (() => {
+            if (isValidOrderStatus(data.status)) {
+              return data.status;
+            }
+            // Debug: Log when we have invalid status
+            console.log('Invalid order status detected:', data.status, 'Payment status:', data.paymentStatus);
+            
+            // Handle case where payment status was incorrectly stored in status field
+            if (data.status === 'paid') {
+              // If status is 'paid', it should be CONFIRMED since payment is complete
+              return OrderStatus.CONFIRMED;
+            }
+            
+            // Fallback based on payment status
+            if (data.paymentStatus === 'paid') {
+              return OrderStatus.CONFIRMED;
+            } else if (data.paymentStatus === 'processing') {
+              return OrderStatus.PENDING;
+            }
+            
+            return OrderStatus.PENDING;
+          })(),
           orderNotes: data.orderNotes || data.notes || '',
           
           // Timestamps - handle both new and old formats
@@ -318,8 +344,17 @@ export const OrderManagement = () => {
           estimatedDeliveryTime: data.estimatedDeliveryTime ? safeDate(data.estimatedDeliveryTime) : undefined,
           deliveredAt: data.deliveredAt ? safeDate(data.deliveredAt) : undefined,
           
-          // Payment info
-          paymentStatus: data.paymentStatus || 'pending',
+          // Payment info - fix case where 'paid' was stored in status field
+          paymentStatus: (() => {
+            if (data.paymentStatus && ['pending', 'processing', 'paid', 'failed', 'refunded'].includes(data.paymentStatus)) {
+              return data.paymentStatus;
+            }
+            // If status field contains 'paid', that's the payment status
+            if (data.status === 'paid') {
+              return 'paid';
+            }
+            return 'pending';
+          })(),
           paymentMethod: data.paymentMethod || '',
           paymentId: data.paymentId || '',
           
@@ -439,6 +474,23 @@ export const OrderManagement = () => {
         return OrderStatus.DELIVERED;
       default:
         return null;
+    }
+  };
+
+  const getNextActionText = (currentStatus: OrderStatus): string => {
+    switch (currentStatus) {
+      case OrderStatus.PENDING:
+        return t('admin.orders.confirmOrder');
+      case OrderStatus.CONFIRMED:
+        return t('admin.orders.startPreparing');
+      case OrderStatus.PREPARING:
+        return t('admin.orders.markReady');
+      case OrderStatus.READY:
+        return t('admin.orders.markOutForDelivery');
+      case OrderStatus.OUT_FOR_DELIVERY:
+        return t('admin.orders.markDelivered');
+      default:
+        return '';
     }
   };
 
@@ -640,7 +692,11 @@ export const OrderManagement = () => {
                       <div className="pt-4 border-t border-gray-200">
                         <h4 className="font-semibold text-gray-900 mb-3">{t('admin.orders.orderActions')}</h4>
                         <div className="flex gap-2">
-                          {getNextStatus(order.status) && (
+                          {(() => {
+                            const nextStatus = getNextStatus(order.status);
+                            console.log('Order:', order.id, 'Current status:', order.status, 'Next status:', nextStatus, 'Payment status:', order.paymentStatus);
+                            return nextStatus;
+                          })() && (
                             <button
                               onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}
                               disabled={updatingOrders.has(order.id)}
@@ -651,7 +707,7 @@ export const OrderManagement = () => {
                               ) : (
                                 getStatusIcon(getNextStatus(order.status)!)
                               )}
-                              {getStatusText(getNextStatus(order.status)!)}
+                              {getNextActionText(order.status)}
                             </button>
                           )}
                           

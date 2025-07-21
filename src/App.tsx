@@ -15,6 +15,8 @@ import { StoreMenu } from './components/StoreMenu';
 import { Business } from './components/Business';
 import { Home } from './components/Home';
 import { OrderHistory } from './components/OrderHistory';
+import { StoreList } from './components/StoreList';
+import { ProductList } from './components/ProductList';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -129,6 +131,16 @@ const AppRoutes = () => {
       }
       updateTitle('Lulo Market - Order History');
       return <OrderHistory onBack={() => window.location.hash = '#'} />;
+    }
+
+    if (currentRoute.startsWith('#stores')) {
+      updateTitle('Lulo Market - All Stores');
+      return <StoreList onBack={() => window.location.hash = '#'} />;
+    }
+
+    if (currentRoute.startsWith('#products')) {
+      updateTitle('Lulo Market - All Products');
+      return <ProductList onBack={() => window.location.hash = '#'} />;
     }
 
     if (currentRoute.startsWith('#landing')) {

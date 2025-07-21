@@ -93,7 +93,7 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
   const currentSlideData = heroSlides[currentSlide];
 
   return (
-    <section className={`relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-8 lg:py-12`}>
+    <section className={`hero-background relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-8 lg:py-12`}>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -113,11 +113,11 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
               </span>
             </div>
             
-            <h1 className="text-2xl lg:text-4xl xl:text-5xl font-light text-gray-900 mb-4 leading-tight transition-all duration-500">
+            <h1 className="text-h1 text-gray-900 mb-4 leading-tight transition-all duration-500">
               {currentSlideData.title}
             </h1>
             
-            <p className="text-base lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 transition-all duration-500">
+            <p className="body-font text-base lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-6 transition-all duration-500">
               {currentSlideData.subtitle}
             </p>
 
@@ -201,10 +201,7 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                 placeholder={t('home.search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-12 lg:h-14 pl-12 pr-4 border-2 border-white/60 rounded-xl 
-                  focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400]/50 focus:outline-none
-                  bg-white/90 backdrop-blur-sm shadow-lg placeholder:text-gray-400 text-base
-                  transition-all duration-300 hover:shadow-xl hover:bg-white"
+                className="search-input w-full h-12 lg:h-14 pl-12 pr-4 bg-white/90 backdrop-blur-sm text-base hover:bg-white"
               />
               
               {/* Search Enhancement Badge */}
@@ -239,7 +236,7 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={prevSlide}
-            className="p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md transition-all duration-300"
+            className="carousel-arrow focus-ring p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -254,9 +251,9 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                   setCurrentSlide(index);
                   setIsAutoPlaying(false);
                 }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`carousel-dot ${
                   index === currentSlide 
-                    ? `bg-gradient-to-r ${currentSlideData.accent} shadow-lg` 
+                    ? `carousel-dot-active bg-gradient-to-r ${currentSlideData.accent}` 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -266,7 +263,7 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
           
           <button
             onClick={nextSlide}
-            className="p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md transition-all duration-300"
+            className="carousel-arrow focus-ring p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md"
             aria-label="Next slide"
           >
             <ChevronRight className="w-5 h-5" />

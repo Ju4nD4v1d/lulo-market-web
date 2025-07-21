@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapPin, Star, User, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, ChevronDown, Truck, Users, Clock, ChevronRight, Receipt } from 'lucide-react';
+import { MapPin, Star, User, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, Truck, Users, Clock, ChevronRight, Receipt } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { StoreDetail } from './StoreDetail';
 import { CartSidebar } from './CartSidebar';
@@ -199,6 +199,8 @@ export const Home = () => {
           setHasDataError(true);
           setErrorMessage('No internet connection. Please check your network and try again.');
           setStores([]);
+          setLoading(false);
+          setIsFetching(false);
           return;
         }
 
@@ -244,7 +246,7 @@ export const Home = () => {
       setLoading(false);
       setIsFetching(false);
     }
-  }, [isTestMode, isFetching, isOffline, hasNetworkError, dataProvider]);
+  }, [isTestMode, isOffline, hasNetworkError, dataProvider]);
 
   // Listen for hash changes to handle order history navigation
   useEffect(() => {
@@ -264,7 +266,8 @@ export const Home = () => {
   useEffect(() => {
     console.log('🚀 Component mounted, fetching stores once');
     fetchStores();
-  }, []); // Empty dependency array to run only once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty to run only once on mount
 
   const handleRetryFetch = () => {
     fetchStores();
@@ -395,7 +398,7 @@ export const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-100">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-200/40 shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#16726B] text-white enhanced-navbar">
         {/* Test Mode Banner */}
         {isTestMode && (
           <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center">
@@ -417,77 +420,71 @@ export const Home = () => {
           </div>
         )}
         
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Left Section - Logo */}
-            <div className="flex items-center gap-3 lg:gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => window.location.hash = '#'}
-                className="hover:opacity-80 transition-opacity duration-200"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <img 
-                  src="/logo_lulo.png" 
-                  alt="Lulo" 
-                  className="h-12 lg:h-14 w-auto object-contain"
-                />
+                <span className="text-xl font-bold">Lulo Market</span>
               </button>
             </div>
-
-            {/* Right Section - Actions */}
-            <div className="flex items-center gap-2 lg:gap-3">
-              {/* Test Mode Toggle */}
-              <div className="flex items-center gap-2">
-                <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
-                  <input
-                    type="checkbox"
-                    checked={isTestMode}
-                    onChange={toggleTestMode}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
-                  <span className="ml-2 text-xs text-gray-600 font-medium hidden lg:inline">{t('testMode.toggle')}</span>
-                </label>
+            
+            {/* Search Bar */}
+            <div className="flex-1 max-w-2xl mx-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for Grocery, Stores, Vegetable or Meat"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input w-full pl-4 pr-4 py-2 bg-white text-gray-900 placeholder-gray-500"
+                />
               </div>
-
+            </div>
+            
+            {/* Right side actions */}
+            <div className="flex items-center gap-4">
               {/* Language Switcher */}
               <button 
                 onClick={toggleLanguage}
-                className="flex items-center gap-1.5 px-2 lg:px-3 py-1.5 lg:py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/60 rounded-lg transition-all duration-300 text-sm font-medium"
+                className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
               >
-                <Globe className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('language.toggle')}</span>
+                <Globe className="w-5 h-5" />
+                <span className="hidden sm:inline text-sm">{t('language.toggle')}</span>
               </button>
 
               {/* For Business Link */}
               <a
                 href="#business"
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/60 rounded-lg transition-all duration-300 text-sm font-medium"
+                className="nav-link hidden md:flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors text-sm"
               >
                 {t('nav.forBusiness')}
               </a>
-
-              {/* Cart */}
+              
+              {/* Cart Button */}
               <button
                 onClick={() => setShowCart(true)}
-                className="relative p-2 text-gray-700 hover:text-[#C8E400] hover:bg-gray-50 rounded-lg transition-all duration-300"
-                title={t('shopper.header.cart')}
+                className="relative p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {cart.summary.itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
                   </span>
                 )}
               </button>
-
+              
               {/* User Account */}
               {currentUser ? (
                 <div className="relative">
                   <button 
                     onClick={handleUserMenuClick}
-                    className="flex items-center gap-2 bg-white border border-gray-200/60 text-gray-700 px-3 py-2 rounded-lg font-medium hover:border-[#C8E400]/50 hover:shadow-md transition-all duration-300"
+                    className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    <div className="w-7 h-7 rounded-full overflow-hidden border border-gray-200">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/20">
                       {userProfile?.avatar ? (
                         <img
                           src={userProfile.avatar}
@@ -495,15 +492,11 @@ export const Home = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#C8E400] to-[#A3C700] flex items-center justify-center">
+                        <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />
                         </div>
                       )}
                     </div>
-                    <span className="hidden sm:inline text-sm">
-                      {userProfile?.displayName || currentUser.email?.split('@')[0] || 'User'}
-                    </span>
-                    <ChevronDown className="w-4 h-4" />
                   </button>
 
                   {/* User Menu Dropdown */}
@@ -596,11 +589,26 @@ export const Home = () => {
                     setRedirectAfterLogin(window.location.hash || '#');
                     window.location.hash = '#login';
                   }}
-                  className="flex items-center gap-1.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 text-sm"
+                  className="btn-primary focus-ring flex items-center gap-2 text-sm"
                 >
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline">Sign In</span>
                 </button>
+              )}
+              
+              {/* Test Mode Toggle */}
+              {isTestMode && (
+                <div className="flex items-center gap-2">
+                  <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
+                    <input
+                      type="checkbox"
+                      checked={isTestMode}
+                      onChange={toggleTestMode}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                  </label>
+                </div>
               )}
             </div>
           </div>
@@ -624,21 +632,29 @@ export const Home = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
             <span className="text-xs font-semibold text-[#C8E400]">✨ {t('home.featuredRestaurants.badge')}</span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-light text-gray-900 mb-3 leading-tight">
+          <h2 className="text-h2 text-gray-900 mb-3 leading-tight">
             {t('home.featuredRestaurants.title')}
           </h2>
-          <p className="text-sm lg:text-base text-gray-600 max-w-xl mx-auto font-light">
+          <p className="body-font text-sm lg:text-base text-gray-600 max-w-xl mx-auto">
             {t('home.featuredRestaurants.description')}
           </p>
         </div>
 
-        {/* Loading State */}
+        {/* Loading State with Shimmer */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#C8E400] border-t-transparent"></div>
-              <span className="text-gray-600 font-light text-sm">{t('shopper.loading')}</span>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div key={index} className="enhanced-card bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="aspect-square">
+                  <div className="shimmer-loading w-full h-full"></div>
+                </div>
+                <div className="p-3 space-y-2">
+                  <div className="shimmer-loading h-4 rounded"></div>
+                  <div className="shimmer-loading h-3 rounded w-3/4"></div>
+                  <div className="shimmer-loading h-8 rounded"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
@@ -647,9 +663,8 @@ export const Home = () => {
                 <div
                   key={store.id}
                   onClick={() => handleStoreClick(store)}
-                  className="group bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 overflow-hidden
-                    hover:bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-500 cursor-pointer
-                    focus:outline-none focus:ring-2 focus:ring-[#C8E400]/30 transform hover:scale-105"
+                  className="enhanced-card focus-ring group bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 overflow-hidden
+                    hover:bg-white cursor-pointer transform"
                   tabIndex={0}
                   role="button"
                   aria-label={`View menu for ${store.name}`}
@@ -796,7 +811,7 @@ export const Home = () => {
                       <button
                         onClick={handleRetryFetch}
                         disabled={loading}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-lg hover:from-[#A3C700] hover:to-[#8FB600] transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-primary focus-ring w-full px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? 'Retrying...' : 'Try Again'}
                       </button>
@@ -823,7 +838,7 @@ export const Home = () => {
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="px-6 py-2 bg-[#C8E400] text-white rounded-lg hover:bg-[#A3C700] transition-colors font-semibold"
+                      className="btn-primary focus-ring px-6 py-2"
                     >
                       Clear Search
                     </button>
@@ -852,10 +867,10 @@ export const Home = () => {
       <section className="bg-white/50 py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-2xl lg:text-3xl font-light text-gray-900 mb-4">
+            <h2 className="text-h2 text-gray-900 mb-4">
               {t('home.howItWorks.title')}
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="body-font text-gray-600 max-w-2xl mx-auto">
               {t('home.howItWorks.description')}
             </p>
           </div>
@@ -865,24 +880,24 @@ export const Home = () => {
               <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Truck className="w-8 h-8 text-[#C8E400]" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step1.title')}</h3>
-              <p className="text-gray-600">{t('home.howItWorks.step1.description')}</p>
+              <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step1.title')}</h3>
+              <p className="body-font text-gray-600">{t('home.howItWorks.step1.description')}</p>
             </div>
 
             <div className="text-center">
               <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-[#C8E400]" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step2.title')}</h3>
-              <p className="text-gray-600">{t('home.howItWorks.step2.description')}</p>
+              <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step2.title')}</h3>
+              <p className="body-font text-gray-600">{t('home.howItWorks.step2.description')}</p>
             </div>
 
             <div className="text-center">
               <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-[#C8E400]" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-3">{t('home.howItWorks.step3.title')}</h3>
-              <p className="text-gray-600">{t('home.howItWorks.step3.description')}</p>
+              <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step3.title')}</h3>
+              <p className="body-font text-gray-600">{t('home.howItWorks.step3.description')}</p>
             </div>
           </div>
         </div>
@@ -893,10 +908,10 @@ export const Home = () => {
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-2xl lg:text-4xl font-light text-gray-900 mb-6">
+              <h2 className="text-h1 text-gray-900 mb-6">
                 {t('home.ourStory.title')}
               </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              <p className="body-font text-lg text-gray-600 mb-6">
                 {t('home.ourStory.description')}
               </p>
               <div className="grid grid-cols-2 gap-6">
@@ -923,17 +938,17 @@ export const Home = () => {
       </section>
 
       {/* Partner CTA Section */}
-      <section className="bg-gradient-to-br from-[#C8E400] to-[#A3C700] text-white py-16 lg:py-20">
+      <section className="bg-gradient-to-b from-[#16726B] to-[#0f4f47] text-white py-16 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 lg:px-8 text-center">
-          <h2 className="text-2xl lg:text-4xl font-light mb-6">
+          <h2 className="text-h1 mb-6">
             {t('home.partnerCta.title')}
           </h2>
-          <p className="text-lg lg:text-xl text-white/90 font-light max-w-2xl mx-auto mb-8">
+          <p className="body-font text-lg lg:text-xl text-white/90 max-w-2xl mx-auto mb-8">
             {t('home.partnerCta.description')}
           </p>
           <button
             onClick={() => window.location.hash = '#business'}
-            className="bg-white text-[#C8E400] px-8 py-4 rounded-lg font-medium hover:bg-white/90 transition-all duration-300 inline-flex items-center gap-2 shadow-lg text-lg"
+            className="btn-primary focus-ring inline-flex items-center gap-2 text-lg px-8 py-4"
           >
             {t('home.partnerCta.button')}
             <ChevronRight className="w-5 h-5" />

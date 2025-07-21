@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { Product } from '../types/product';
 import { ProductCard } from './ProductCard';
@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTestMode } from '../context/TestModeContext';
 import { useDataProvider } from '../services/DataProvider';
+import { useAuth } from '../context/AuthContext';
 
 // Mock products for testing cart functionality
 const mockProducts: Product[] = [
@@ -131,9 +132,10 @@ interface StoreDetailProps {
 
 export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
-  const { t } = useLanguage();
+  const { t, toggleLanguage } = useLanguage();
   const { isTestMode, toggleTestMode } = useTestMode();
   const { getProducts } = useDataProvider();
+  const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
   
   // Debug log to check store location data
   console.log('Store data in StoreDetail:', store);
@@ -147,13 +149,14 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const categories = [
-    { id: 'all', name: t('category.all'), icon: '🍽️' },
-    { id: 'hot', name: t('category.hot'), icon: '🔥' },
-    { id: 'frozen', name: t('category.frozen'), icon: '❄️' },
-    { id: 'baked', name: t('category.baked'), icon: '🍪' },
-    { id: 'other', name: t('category.other'), icon: '📦' }
+    { id: 'all', name: t('category.all'), icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'hot', name: t('category.hot'), icon: <Truck className="w-4 h-4" /> },
+    { id: 'frozen', name: t('category.frozen'), icon: <Clock className="w-4 h-4" /> },
+    { id: 'baked', name: t('category.baked'), icon: <Star className="w-4 h-4" /> },
+    { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
   ];
 
   // Define functions first
@@ -330,57 +333,218 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     return null;
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowUserMenu(false);
+      window.location.hash = '#';
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  const handleUserMenuClick = () => {
+    setShowUserMenu(!showUserMenu);
+  };
+
+  const handleMenuNavigation = (path: string) => {
+    setShowUserMenu(false);
+    localStorage.setItem('backNavigationPath', '#');
+    window.location.hash = path;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Enhanced Professional Header */}
-      <div className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-gray-100/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
-          <div className="flex items-center gap-4 md:gap-6">
-            <button
-              onClick={onBack}
-              className="p-2 md:p-3 hover:bg-gray-50 rounded-xl transition-all duration-300 hover:scale-105 group border border-gray-200 hover:border-[#C8E400]/50"
-            >
-              <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
-            </button>
-            <div className="flex-1">
-              <h1 className="text-lg md:text-2xl font-semibold text-gray-900 tracking-tight">{store.name}</h1>
-              <div className="flex items-center gap-2">
-                <p className="text-sm md:text-base text-gray-500 font-medium hidden md:block">{t('storeDetail.subtitle')}</p>
-                {isTestMode && (
-                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                    {t('testMode.active')}
-                  </span>
-                )}
+      <div className="bg-[#16726B] text-white sticky top-0 z-50 enhanced-navbar shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center gap-4">
+            {/* Back and Store Name */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={onBack}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="heading-font text-xl font-bold truncate max-w-xs md:max-w-md">{store.name}</h1>
+            </div>
+            
+            {/* Search Bar */}
+            <div className="flex-1 max-w-2xl mx-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder={t('storeDetail.searchDishes')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input w-full pl-10 pr-4 py-2 bg-white text-gray-900 placeholder-gray-500"
+                />
               </div>
             </div>
             
-            {/* Test Mode Toggle */}
-            <div className="flex items-center gap-2">
-              <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
-                <input
-                  type="checkbox"
-                  checked={isTestMode}
-                  onChange={toggleTestMode}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
-                <span className="ml-2 text-xs text-gray-600 font-medium hidden lg:inline">{t('testMode.toggle')}</span>
-              </label>
-            </div>
-            
-            {/* Enhanced Cart Button */}
-            <button
-              onClick={() => setShowCart(true)}
-              className="relative p-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-lg hover:shadow-lg transition-all duration-300"
-              title={t('shopper.header.cart')}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {cart.summary.itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
-                </span>
+            {/* Right side actions */}
+            <div className="flex items-center gap-4">
+              {/* Language Switcher */}
+              <button 
+                onClick={toggleLanguage}
+                className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Globe className="w-5 h-5" />
+                <span className="hidden sm:inline text-sm">{t('language.toggle')}</span>
+              </button>
+
+              {/* Cart Button */}
+              <button
+                onClick={() => setShowCart(true)}
+                className="relative p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cart.summary.itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {cart.summary.itemCount > 9 ? '9+' : cart.summary.itemCount}
+                  </span>
+                )}
+              </button>
+              
+              {/* User Account */}
+              {currentUser ? (
+                <div className="relative">
+                  <button 
+                    onClick={handleUserMenuClick}
+                    className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/20">
+                      {userProfile?.avatar ? (
+                        <img
+                          src={userProfile.avatar}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* User Menu Dropdown */}
+                  {showUserMenu && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowUserMenu(false)}
+                      />
+                      <div className="absolute right-0 top-12 w-64 bg-white text-gray-900 border border-gray-200 rounded-xl shadow-xl z-50 py-2">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                              {userProfile?.avatar ? (
+                                <img
+                                  src={userProfile.avatar}
+                                  alt="Profile"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
+                                  <User className="w-5 h-5 text-white" />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {userProfile?.displayName || currentUser.email?.split('@')[0] || 'User'}
+                              </p>
+                              <p className="text-sm text-gray-500">{currentUser.email}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="py-2">
+                          <button 
+                            onClick={() => handleMenuNavigation('#profile/edit')}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span>{t('profile.editProfile')}</span>
+                          </button>
+                          
+                          <button 
+                            onClick={() => {
+                              window.location.hash = '#order-history';
+                              setShowUserMenu(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Receipt className="w-4 h-4" />
+                            <span>{t('orderHistory.title') || 'My Orders'}</span>
+                          </button>
+
+                          <div className="border-t border-gray-100 my-2"></div>
+
+                          <button 
+                            onClick={() => handleMenuNavigation('#terms')}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span>Terms of Service</span>
+                          </button>
+
+                          <button 
+                            onClick={() => handleMenuNavigation('#privacy')}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Shield className="w-4 h-4" />
+                            <span>Privacy Policy</span>
+                          </button>
+
+                          <div className="border-t border-gray-100 my-2"></div>
+
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setRedirectAfterLogin(window.location.hash || '#');
+                    window.location.hash = '#login';
+                  }}
+                  className="flex items-center gap-2 bg-[#C8E400] text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-[#A3C700] transition-colors text-sm"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline">Sign In</span>
+                </button>
               )}
-            </button>
+              
+              {/* Test Mode Toggle */}
+              {isTestMode && (
+                <div className="flex items-center gap-2">
+                  <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
+                    <input
+                      type="checkbox"
+                      checked={isTestMode}
+                      onChange={toggleTestMode}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                      {t('testMode.active')}
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -388,10 +552,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
       <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
         {/* Enhanced Store Hero Section */}
         <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8 relative">
-          {/* Sophisticated Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#C8E400]/3 via-white to-[#A3C700]/3"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#C8E400]/5 to-transparent rounded-full -translate-y-48 translate-x-48 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#A3C700]/5 to-transparent rounded-full translate-y-48 -translate-x-48 blur-3xl"></div>
+          {/* Subtle Background */}
+          <div className="absolute inset-0 bg-gray-50/30"></div>
           
           <div className="relative">
             {/* Professional Store Image with Overlay */}
@@ -414,12 +576,12 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20"></div>
                 </div>
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-24 h-24 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-4xl">🍽️</span>
+                    <div className="w-24 h-24 bg-[#C8E400]/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <BookOpen className="w-12 h-12 text-[#C8E400]" />
                     </div>
-                    <span className="text-gray-500 font-medium text-lg">{store.name}</span>
+                    <span className="body-font text-gray-500 font-medium text-lg">{store.name}</span>
                   </div>
                 </div>
               )}
@@ -428,9 +590,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
                 <div className="flex items-end justify-between">
                   <div className="flex-1">
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-2 tracking-tight">{store.name}</h1>
+                    <h1 className="text-h1 mb-2 tracking-tight">{store.name}</h1>
                     {store.description && (
-                      <p className="text-white/90 text-base md:text-lg font-light leading-relaxed max-w-2xl">{store.description}</p>
+                      <p className="body-font text-white/90 text-base md:text-lg leading-relaxed max-w-2xl">{store.description}</p>
                     )}
                   </div>
                   
@@ -438,7 +600,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   {store.isVerified && (
                     <div className="bg-white/90 backdrop-blur-sm text-[#C8E400] px-4 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/20">
                       <div className="flex items-center gap-2">
-                        <span>✓</span>
+                        <Shield className="w-4 h-4 text-emerald-600" />
                         <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
                       </div>
                     </div>
@@ -447,14 +609,14 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               </div>
             </div>
 
-            {/* Enhanced Store Information Panel */}
-            <div className="p-6 md:p-8 bg-white/50 backdrop-blur-sm">
+            {/* Store Information Panel */}
+            <div className="p-6 md:p-8 bg-white">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {/* Rating & Reviews */}
                 {store.averageRating && (
-                  <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-200/50">
+                  <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
                         <Star className="w-6 h-6 fill-white text-white" />
                       </div>
                       <div>
@@ -480,9 +642,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                 )}
 
                 {/* Delivery Status */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200/50">
+                <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
                       <Clock className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -505,9 +667,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                 </div>
 
                 {/* Location */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200/50">
+                <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                       <MapPin className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -521,8 +683,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               </div>
             </div>
 
-            {/* Enhanced Social Media & Service Options */}
-            <div className="p-6 md:p-8 bg-gradient-to-br from-gray-50 to-white border-t border-gray-100">
+            {/* Social Media & Service Options */}
+            <div className="p-6 md:p-8 bg-gray-50 border-t border-gray-100">
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Social Media Links */}
                 {(store.instagram || store.facebook || store.twitter) && (
@@ -534,7 +696,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                           href={store.instagram} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
                         >
                           <Instagram className="w-4 h-4" />
                           Instagram
@@ -545,7 +707,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                           href={store.facebook} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
                         >
                           <Facebook className="w-4 h-4" />
                           Facebook
@@ -556,7 +718,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                           href={store.twitter} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="flex items-center gap-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                          className="flex items-center gap-2 bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
                         >
                           <Twitter className="w-4 h-4" />
                           Twitter
@@ -587,7 +749,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                       <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-xl border border-blue-200">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm">📦</span>
+                            <MapPin className="w-4 h-4 text-white" />
                           </div>
                           <span className="text-blue-800 font-medium">{t('shopper.pickup')}</span>
                         </div>
@@ -632,7 +794,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-green-800 font-medium text-sm">
-                          🚚 {t('delivery.nextAvailable')}
+                          <Truck className="w-4 h-4 mr-2" />
+                          {t('delivery.nextAvailable')}
                         </p>
                         <p className="text-green-700 text-sm">
                           {nextDelivery.isToday ? t('delivery.today') : nextDelivery.day} • {nextDelivery.hours}
@@ -707,10 +870,11 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
           <div className="p-6 md:p-8">
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-6">
-                <span className="text-sm font-medium text-[#C8E400]">✨ {t('storeDetail.menu')}</span>
+                <Star className="w-4 h-4 text-[#C8E400]" />
+                <span className="text-sm font-medium text-[#C8E400]">{t('storeDetail.menu')}</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-light text-gray-900 mb-4 tracking-tight">{t('storeDetail.ourMenu')}</h2>
-              <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              <h2 className="text-h2 text-gray-900 mb-4 tracking-tight">{t('storeDetail.ourMenu')}</h2>
+              <p className="body-font text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
                 {t('storeDetail.menuDescription')}
               </p>
             </div>
@@ -728,10 +892,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                     placeholder={t('storeDetail.searchDishes')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-12 pl-12 pr-4 border border-gray-200 rounded-2xl 
-                      focus:ring-2 focus:ring-[#C8E400]/30 focus:border-[#C8E400] focus:outline-none
-                      bg-gray-50/50 backdrop-blur-sm shadow-sm placeholder:text-gray-400 text-base
-                      transition-all duration-300 hover:shadow-md hover:bg-white"
+                    className="search-input w-full h-12 pl-12 pr-4 bg-gray-50/50 backdrop-blur-sm text-base hover:bg-white"
                   />
                 </div>
 
@@ -741,10 +902,10 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all duration-500 flex items-center gap-3 border-2 ${
+                      className={`premium-pill focus-ring px-6 py-3 flex items-center gap-3 border-2 ${
                         selectedCategory === category.id
-                          ? 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white border-[#C8E400] shadow-lg scale-105'
-                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C8E400]/50 hover:shadow-md hover:scale-105 hover:text-gray-900'
+                          ? 'btn-primary text-gray-900 border-[#C8E400] shadow-lg'
+                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C8E400]/50'
                       }`}
                     >
                       <span className="text-base">{category.icon}</span>
@@ -759,17 +920,23 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
           {/* Enhanced Products Grid */}
           <div className="px-6 md:px-8 pb-8">
             {loading ? (
-              <div className="flex justify-center py-20">
-                <div className="text-center space-y-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#C8E400] border-t-transparent mx-auto"></div>
-                  <div className="space-y-2">
-                    <p className="text-gray-600 font-medium text-lg">{t('storeDetail.loadingMenu')}</p>
-                    <p className="text-gray-500 text-sm">{t('storeDetail.preparingDelicious')}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="enhanced-card bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div className="aspect-square">
+                      <div className="shimmer-loading w-full h-full"></div>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div className="shimmer-loading h-5 rounded"></div>
+                      <div className="shimmer-loading h-4 rounded w-3/4"></div>
+                      <div className="shimmer-loading h-6 rounded w-1/2"></div>
+                      <div className="shimmer-loading h-10 rounded"></div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             ) : filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -783,17 +950,17 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
             ) : (
               <div className="text-center py-20">
                 <div className="max-w-lg mx-auto space-y-6 px-4">
-                  <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto flex items-center justify-center">
-                    <span className="text-4xl">🍽️</span>
+                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
+                    <Search className="w-12 h-12 text-gray-400" />
                   </div>
                   <div className="space-y-4">
-                    <h4 className="text-xl md:text-2xl font-semibold text-gray-900">
+                    <h4 className="text-h3 text-gray-900">
                       {searchTerm || selectedCategory !== 'all' 
                         ? t('storeDetail.noDishesFound')
                         : t('storeDetail.menuComingSoon')
                       }
                     </h4>
-                    <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                    <p className="body-font text-gray-600 text-base md:text-lg">
                       {searchTerm || selectedCategory !== 'all' 
                         ? t('storeDetail.adjustSearch')
                         : t('storeDetail.checkBackSoon')
@@ -806,7 +973,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                         setSearchTerm('');
                         setSelectedCategory('all');
                       }}
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                      className="btn-primary focus-ring inline-flex items-center gap-2 px-6 py-3"
                     >
                       <span>{t('storeDetail.clearFilters')}</span>
                       <ArrowLeft className="w-4 h-4" />
