@@ -4,6 +4,7 @@ export interface AboutUsSection {
   description: string;
   image?: File;
   imagePreview?: string;
+  imageUrl?: string;
 }
 
 export interface Coordinates {
@@ -21,12 +22,24 @@ export interface StoreData {
   id: string;
   name: string;
   description?: string;
+  category?: string;
+  country?: string;
+  cuisine?: string;
   location?: StoreLocation;
+  address?: string;  // Legacy field for backward compatibility with StoreSetup
   phone?: string;
   website?: string;
   instagram?: string;
   facebook?: string;
   twitter?: string;
+  deliveryHours?: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  // Legacy field for backwards compatibility - use deliveryHours instead
   businessHours?: {
     [key: string]: {
       open: string;
@@ -47,6 +60,25 @@ export interface StoreData {
   deliveryCostWithDiscount?: number;
   minimumOrder?: number;
   imageUrl?: string;
+  storeImage?: string;
   aboutUsSections: AboutUsSection[];
+  // Firestore About Us fields
+  titleTabAboutFirst?: string;
+  bodyTabAboutFirst?: string;
+  imageTabAboutFirst?: string;
+  titleTabAboutSecond?: string;
+  bodyTabAboutSecond?: string;
+  imageTabAboutSecond?: string;
+  titleTabAboutThird?: string;
+  bodyTabAboutThird?: string;
+  imageTabAboutThird?: string;
   ownerId: string;
+  // Enhanced shopper experience fields
+  averageRating?: number;        // Calculated average rating (0-5)
+  totalReviews?: number;         // Total number of reviews
+  isVerified?: boolean;          // Verified business status
+  createdAt?: Date;              // Store creation timestamp
+  updatedAt?: Date;              // Store last update timestamp
+  // Products field for mock data and test mode
+  products?: unknown[];          // Mock products for testing
 }

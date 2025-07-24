@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="none"/>
+  <!-- Map/location background -->
+  <rect x="50" y="80" width="300" height="140" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2" rx="8"/>
+  <!-- Location pins -->
+  <circle cx="120" cy="150" r="8" fill="#C8E400"/>
+  <path d="M120 142 L120 158" stroke="#C8E400" stroke-width="2"/>
+  <circle cx="180" cy="130" r="8" fill="#C8E400"/>
+  <path d="M180 122 L180 138" stroke="#C8E400" stroke-width="2"/>
+  <circle cx="250" cy="170" r="8" fill="#C8E400"/>
+  <path d="M250 162 L250 178" stroke="#C8E400" stroke-width="2"/>
+  <circle cx="300" cy="140" r="8" fill="#C8E400"/>
+  <path d="M300 132 L300 148" stroke="#C8E400" stroke-width="2"/>
+  <!-- Connection lines -->
+  <path d="M120 150 Q150 120 180 130" stroke="#C8E400" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M180 130 Q215 100 250 170" stroke="#C8E400" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M250 170 Q275 155 300 140" stroke="#C8E400" stroke-width="2" fill="none" opacity="0.6"/>
+  <!-- People icons at pins -->
+  <circle cx="120" cy="140" r="4" fill="#6b7280"/>
+  <circle cx="180" cy="120" r="4" fill="#6b7280"/>
+  <circle cx="250" cy="160" r="4" fill="#6b7280"/>
+  <circle cx="300" cy="130" r="4" fill="#6b7280"/>
+  <!-- Central store -->
+  <rect x="185" y="145" width="30" height="20" fill="#C8E400" rx="4"/>
+  <rect x="190" y="150" width="20" height="3" fill="white"/>
+  <rect x="190" y="155" width="15" height="3" fill="white"/>
+  <!-- Network effect circles -->
+  <circle cx="100" cy="100" r="20" fill="#C8E400" opacity="0.1"/>
+  <circle cx="320" cy="180" r="25" fill="#C8E400" opacity="0.1"/>
+  <circle cx="350" cy="100" r="15" fill="#C8E400" opacity="0.1"/>
+</svg>

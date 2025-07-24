@@ -10,6 +10,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useStore } from '../context/StoreContext';
 import { COMPANY_NAME } from '../config/company';
 
 interface AdminLayoutProps {
@@ -19,6 +21,8 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   const { currentUser, logout } = useAuth();
+  const { t } = useLanguage();
+  const { hasStore } = useStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -36,10 +40,10 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
   };
 
   const menuItems = [
-    { id: 'store', label: 'Store', icon: Store, hash: '#dashboard' },
-    { id: 'products', label: 'Products', icon: Package, hash: '#dashboard/products' },
-    { id: 'metrics', label: 'Metrics', icon: BarChart3, hash: '#dashboard/metrics' },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart, hash: '#dashboard/orders' }
+    { id: 'store', label: t('admin.menu.store'), icon: Store, hash: '#dashboard', disabled: false },
+    { id: 'products', label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products', disabled: !hasStore },
+    { id: 'metrics', label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore },
+    { id: 'orders', label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore }
   ];
 
   return (
@@ -59,7 +63,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
         `}>
           {isCollapsed ? (
             logoError ? (
-              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-bold">
                   {COMPANY_NAME.charAt(0)}
                 </span>
@@ -68,7 +72,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               <img 
                 src="/logo_lulo.png" 
                 alt={COMPANY_NAME}
-                className="h-8 w-8 object-contain"
+                className="h-10 w-10 object-contain"
                 onError={handleLogoError}
               />
             )
@@ -85,13 +89,16 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               <li key={item.id}>
                 <a
                   href={item.hash}
+                  onClick={item.disabled ? (e) => e.preventDefault() : undefined}
                   className={`
                     flex items-center rounded-lg
                     transition-all duration-200
                     ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-4 py-2'}
-                    ${currentPage === item.id 
-                      ? 'bg-primary-50 text-primary-600' 
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+                    ${item.disabled
+                      ? 'text-gray-400 cursor-not-allowed pointer-events-none'
+                      : currentPage === item.id
+                        ? 'bg-primary-50 text-primary-600'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                   `}
                   title={isCollapsed ? item.label : undefined}
                 >
@@ -140,7 +147,7 @@ export const AdminLayout = ({ children, currentPage }: AdminLayoutProps) => {
               ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3'}
             `} />
             <span className={isCollapsed ? 'hidden' : 'block'}>
-              Logout
+              {t('admin.logout')}
             </span>
           </button>
         </div>

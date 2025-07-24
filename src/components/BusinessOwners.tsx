@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Store, MapPin, Truck, ArrowRight, Users, TrendingUp } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { ArrowRight } from 'lucide-react';
 
 export const BusinessOwners = () => {
-  const { t } = useLanguage();
   const sectionRef = useRef<HTMLDivElement>(null);
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -33,124 +31,82 @@ export const BusinessOwners = () => {
 
   const features = [
     {
-      icon: <Store className="w-8 h-8" />,
-      title: 'Quick Setup',
-      description: t('business.benefits.setup'),
-      color: 'bg-primary-400',
-      delay: 'delay-100',
-      bgImage: '/quick_setup.png'
+      title: 'Setup in Minutes',
+      description: 'Get your store online with our simple three-step process. No technical knowledge required.',
+      illustration: '/illustrations/business-setup.svg'
     },
     {
-      icon: <Users className="w-8 h-8" />,
-      title: 'Reach Customers',
-      description: t('business.benefits.discover'),
-      color: 'bg-coral',
-      delay: 'delay-200',
-      bgImage: '/reach_customers.png'
+      title: 'Connect with Customers',
+      description: 'Reach customers in your area who are looking for authentic Latino cuisine.',
+      illustration: '/illustrations/customer-connection.svg'
     },
     {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Grow Sales',
-      description: t('business.benefits.delivery'),
-      color: 'bg-primary-600',
-      delay: 'delay-300',
-      bgImage: '/groth.png'
+      title: 'Grow Your Business',
+      description: 'Track orders, manage inventory, and grow your revenue with our business tools.',
+      illustration: '/illustrations/business-growth.svg'
     }
   ];
 
   return (
     <section 
       id="businesses"
-      className="py-24 bg-white relative overflow-hidden"
+      className="relative py-24 bg-gray-50"
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-y-0 left-0 w-1/2 bg-primary-400/10 transform -skew-x-12" />
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-coral/10 transform skew-x-12" />
-      </div>
-
-      <div className="container mx-auto px-4 relative">
+      <div className="container mx-auto px-4">
+        {/* Header */}
         <div 
           ref={sectionRef}
-          className="text-center mb-20 transform transition-all duration-700 translate-y-12 opacity-0"
+          className="text-center mb-16 transform transition-all duration-1000 translate-y-12 opacity-0"
         >
-          <span className="inline-block text-sm bg-primary-400/10 text-primary-600 px-4 py-1.5 rounded-full mb-4 font-medium tracking-wide">
-            {t('business.badge')}
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text mb-6 leading-tight">
-            {t('business.title')}
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 mb-6">
+            For <span className="font-bold">Business Owners</span>
           </h2>
-          <p className="text-lg md:text-xl text-text/60 max-w-2xl mx-auto leading-relaxed">
-            {t('business.subtitle')}
+          
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Join our marketplace and share your authentic flavors with your community
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        {/* Features Grid */}
+        <div className="grid lg:grid-cols-3 gap-12 mb-16">
           {features.map((feature, index) => (
             <div
-              key={feature.title}
+              key={index}
               ref={el => featureRefs.current[index] = el}
-              className={`
-                relative overflow-hidden rounded-2xl
-                transform transition-all duration-700 ${feature.delay} translate-y-12 opacity-0
-                hover:shadow-xl hover:-translate-y-1 transition-all duration-300
-                group
-              `}
-              style={{
-                minHeight: '400px'
-              }}
+              className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 transform translate-y-12 opacity-0"
             >
-              {/* Background Image with Overlay */}
-              <div 
-                className="absolute inset-0 w-full h-full bg-cover bg-center transform transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  backgroundImage: `url(${feature.bgImage})`,
-                }}
-              >
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity duration-700 group-hover:opacity-60" />
+              {/* Illustration */}
+              <div className="w-full h-48 mb-8 flex items-center justify-center">
+                <img 
+                  src={feature.illustration} 
+                  alt={feature.title}
+                  className="w-full h-full object-contain"
+                />
               </div>
               
-              {/* Content */}
-              <div className="relative h-full p-8 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
-                <div className={`
-                  ${feature.color} w-16 h-16 rounded-xl
-                  flex items-center justify-center text-white
-                  mb-6 transform transition-transform duration-300 group-hover:scale-110
-                  shadow-lg
-                `}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  {feature.title}
-                </h3>
-                <p className="text-white/90 leading-relaxed mb-6">
-                  {feature.description}
-                </p>
-                <a 
-                  href="#" 
-                  className="inline-flex items-center text-white hover:text-primary-400 font-medium transition-colors"
-                >
-                  Learn More
-                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                </a>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {feature.title}
+              </h3>
+              
+              <p className="text-gray-600 leading-relaxed mb-6">
+                {feature.description}
+              </p>
+              
+              <div className="flex items-center text-primary-600 font-medium">
+                <span>Learn more</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
               </div>
             </div>
           ))}
         </div>
-        
-        <div className="text-center transform transition-all duration-700 delay-400 translate-y-12 opacity-0">
+
+        {/* CTA */}
+        <div className="text-center">
           <a 
-            href="#" 
-            className="
-              inline-flex items-center justify-center
-              px-8 py-4 rounded-xl
-              bg-primary-400 text-white font-semibold
-              transition-all duration-200 transform
-              hover:bg-primary-500 hover:scale-[1.02] hover:shadow-lg
-              active:scale-[0.98] text-lg
-            "
+            href="#pricing" 
+            className="inline-flex items-center justify-center px-8 py-4 bg-primary-400 text-black font-semibold rounded-xl text-lg transition-all duration-200 hover:bg-primary-500 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
           >
-            {t('business.cta')}
+            Get Started
             <ArrowRight className="w-5 h-5 ml-2" />
           </a>
         </div>
