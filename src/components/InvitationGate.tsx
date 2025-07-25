@@ -90,20 +90,93 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
     };
   }
 
+  // Latin food images for the animated background
+  const latinFoodImages = [
+    'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', // Tacos
+    'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop', // Empanadas
+    'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=400&h=300&fit=crop', // Paella
+    'https://images.unsplash.com/photo-1541544181051-e46607463f10?w=400&h=300&fit=crop', // Ceviche
+    'https://images.unsplash.com/photo-1567003323695-b69fb4aacbc4?w=400&h=300&fit=crop', // Quesadillas
+    'https://images.unsplash.com/photo-1594741816392-5b6d3cfb70b8?w=400&h=300&fit=crop', // Churros
+    'https://images.unsplash.com/photo-1615870216519-2f9fa2afe556?w=400&h=300&fit=crop', // Arepas
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop', // Tamales
+    'https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&h=300&fit=crop', // Tres leches
+    'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=300&fit=crop', // Mole
+    'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop', // Pupusas
+    'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop', // Fajitas
+    'https://images.unsplash.com/photo-1586511925558-a4c6376fe65f?w=400&h=300&fit=crop', // Tostones
+    'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=400&h=300&fit=crop', // Elote
+    'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=300&fit=crop', // Pozole
+    'https://images.unsplash.com/photo-1573821663912-6df460f9c684?w=400&h=300&fit=crop', // Chilaquiles
+  ];
+
+  // Generate rows of images
+  const generateImageRows = () => {
+    const rows = [];
+    const imagesPerRow = 8;
+    const totalRows = 6;
+
+    for (let row = 0; row < totalRows; row++) {
+      const rowImages = [];
+      const isEvenRow = row % 2 === 0;
+      
+      // Create enough images to fill the row and enable seamless scrolling
+      for (let i = 0; i < imagesPerRow * 2; i++) {
+        const imageIndex = (row * imagesPerRow + i) % latinFoodImages.length;
+        rowImages.push(
+          <div
+            key={`${row}-${i}`}
+            className="flex-shrink-0 w-48 h-32 mx-2 rounded-2xl overflow-hidden shadow-lg transform transition-transform hover:scale-105"
+            style={{
+              transform: `rotate(${Math.random() * 10 - 5}deg)`,
+            }}
+          >
+            <img
+              src={latinFoodImages[imageIndex]}
+              alt="Latin Food"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        );
+      }
+
+      rows.push(
+        <div
+          key={row}
+          className={`absolute flex items-center ${
+            isEvenRow ? 'animate-slide-right' : 'animate-slide-left'
+          }`}
+          style={{
+            top: `${row * 110 + 50}px`,
+            left: isEvenRow ? '-50%' : '50%',
+            animationDelay: `${row * 0.5}s`,
+            animationDuration: '40s',
+          }}
+        >
+          {rowImages}
+        </div>
+      );
+    }
+
+    return rows;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 relative overflow-hidden">
-      {/* Background decorative elements */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+      {/* Animated food background */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
+        {generateImageRows()}
+      </div>
+
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      {/* Ambient light effects */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Geometric shapes inspired by Latin patterns */}
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-orange-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-gradient-to-br from-red-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-gradient-to-br from-yellow-400/20 to-amber-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.1) 0%, transparent 50%), 
-                           radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.1) 0%, transparent 50%)`,
-        }}></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-br from-red-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gradient-to-br from-yellow-400/10 to-amber-400/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       {/* Main content */}
@@ -128,7 +201,7 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
           </div>
 
           {/* Main card */}
-          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 p-8 transition-all duration-500 hover:shadow-3xl">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 transition-all duration-500 hover:shadow-3xl hover:bg-white/98">
             {currentView === 'code' && (
               <div className="space-y-6 animate-slide-up">
                 <div className="text-center">
@@ -317,6 +390,16 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
           75% { transform: translateX(5px); }
         }
         
+        @keyframes slide-right {
+          0% { transform: translateX(-100vw); }
+          100% { transform: translateX(100vw); }
+        }
+        
+        @keyframes slide-left {
+          0% { transform: translateX(100vw); }
+          100% { transform: translateX(-100vw); }
+        }
+        
         .animate-fade-in {
           animation: fade-in 1s ease-out;
         }
@@ -329,8 +412,23 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
           animation: shake 0.5s ease-in-out;
         }
         
+        .animate-slide-right {
+          animation: slide-right linear infinite;
+        }
+        
+        .animate-slide-left {
+          animation: slide-left linear infinite;
+        }
+        
         .shadow-3xl {
           box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Optimize animations for performance */
+        .animate-slide-right, .animate-slide-left {
+          will-change: transform;
+          backface-visibility: hidden;
+          perspective: 1000px;
         }
       `}</style>
     </div>
