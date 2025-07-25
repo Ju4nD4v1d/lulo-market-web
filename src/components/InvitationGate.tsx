@@ -149,7 +149,7 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
           }`}
           style={{
             top: `${row * 220 + 150}px`, // Much more spacing to prevent overlap
-            left: isEvenRow ? '-50%' : '50%',
+            left: isEvenRow ? '0%' : '0%', // Start on screen
             animationDelay: `${row * 2}s`, // Even longer delays between rows
             animationDuration: '300s', // Much slower - 5 minutes per cycle
           }}
@@ -391,13 +391,15 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
         }
         
         @keyframes slide-right {
-          0% { transform: translateX(-100vw); }
-          100% { transform: translateX(100vw); }
+          0% { transform: translateX(-20vw); }
+          50% { transform: translateX(20vw); }
+          100% { transform: translateX(-20vw); }
         }
         
         @keyframes slide-left {
-          0% { transform: translateX(100vw); }
-          100% { transform: translateX(-100vw); }
+          0% { transform: translateX(20vw); }
+          50% { transform: translateX(-20vw); }
+          100% { transform: translateX(20vw); }
         }
         
         .animate-fade-in {
