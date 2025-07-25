@@ -1,4 +1,5 @@
 import { StoreData } from '../types/store';
+import { generateOrderId } from './orderUtils';
 
 // Mock user data
 export const mockUser = {
@@ -210,8 +211,9 @@ export const generateMockOrders = (count: number = 10) => {
   
   for (let i = 0; i < count; i++) {
     const createdDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+    const orderId = generateOrderId(); // Use consistent order ID generation
     orders.push({
-      id: `mock-order-${generateRandomId()}`,
+      id: orderId,
       userId: mockUser.uid,
       storeId: `colombian-store-${Math.floor(Math.random() * 7) + 1}`,
       items: [

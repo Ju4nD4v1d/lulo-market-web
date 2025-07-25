@@ -1,5 +1,6 @@
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { generateOrderId } from './orderUtils';
 
 const mockStores = [
   { id: 'store1', name: 'Latin Delights', address: '123 Main St, Vancouver, BC' },
@@ -82,9 +83,13 @@ const createMockOrders = async () => {
       const platformFee = subtotal * 0.05;
       const totalOrderPrice = subtotal + taxes + platformFee;
 
-      // Create order document
-      const orderDoc = await addDoc(collection(db, 'orders'), {
-        orderId: `ORD${String(i + 1).padStart(4, '0')}`,
+      // Generate consistent order ID
+      const orderId = generateOrderId();
+      
+      // Create order document with the same ID for both document ID and internal field
+      const orderDocRef = doc(db, 'orders', orderId);
+      await setDoc(orderDocRef, {
+        id: orderId, // Same as document ID
         createdDate: Timestamp.fromDate(createdDate),
         delivery: Math.random() > 0.5 ? 1 : 0,
         deliveryAddress: `${Math.floor(Math.random() * 1000) + 1} ${['Maple', 'Oak', 'Cedar', 'Pine'][Math.floor(Math.random() * 4)]} St, Vancouver, BC`,
@@ -108,7 +113,8 @@ const createMockOrders = async () => {
 
       // Create order items in subcollection
       for (const item of orderItems) {
-        await addDoc(collection(db, 'orders', orderDoc.id, 'orderDetails'), item);
+        const itemDocRef = doc(collection(db, 'orders', orderId, 'orderDetails'));
+        await setDoc(itemDocRef, item);
       }
     }
 
