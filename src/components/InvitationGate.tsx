@@ -113,8 +113,8 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
   // Generate rows of images
   const generateImageRows = () => {
     const rows = [];
-    const imagesPerRow = 8;
-    const totalRows = 6;
+    const imagesPerRow = 4; // Fewer images per row for bigger display
+    const totalRows = 3; // Only 3 rows as requested
 
     for (let row = 0; row < totalRows; row++) {
       const rowImages = [];
@@ -126,9 +126,9 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
         rowImages.push(
           <div
             key={`${row}-${i}`}
-            className="flex-shrink-0 w-48 h-32 mx-2 rounded-2xl overflow-hidden shadow-lg transform transition-transform hover:scale-105"
+            className="flex-shrink-0 w-80 h-52 mx-4 rounded-3xl overflow-hidden shadow-2xl transform transition-transform hover:scale-105"
             style={{
-              transform: `rotate(${Math.random() * 10 - 5}deg)`,
+              transform: `rotate(${Math.random() * 8 - 4}deg)`,
             }}
           >
             <img
@@ -148,10 +148,10 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
             isEvenRow ? 'animate-slide-right' : 'animate-slide-left'
           }`}
           style={{
-            top: `${row * 110 + 50}px`,
+            top: `${row * 180 + 100}px`, // More spacing between rows for bigger images
             left: isEvenRow ? '-50%' : '50%',
-            animationDelay: `${row * 0.5}s`,
-            animationDuration: '40s',
+            animationDelay: `${row * 1}s`, // Longer delays between rows
+            animationDuration: '120s', // Much slower - 2 minutes per cycle
           }}
         >
           {rowImages}
