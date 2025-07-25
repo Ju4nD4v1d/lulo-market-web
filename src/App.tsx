@@ -16,6 +16,7 @@ import { Business } from './components/Business';
 import { Home } from './components/Home';
 import { OrderHistory } from './components/OrderHistory';
 import { OrderTracking } from './components/OrderTracking';
+import { InvitationGate } from './components/InvitationGate';
 import { StoreList } from './components/StoreList';
 import { ProductList } from './components/ProductList';
 import { LanguageProvider } from './context/LanguageContext';
@@ -32,6 +33,12 @@ const updateTitle = (title: string) => {
 
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
+  const [hasValidInvitation, setHasValidInvitation] = useState(() => {
+    // Check if user has a valid invitation code stored
+    const storedCode = localStorage.getItem('lulocart_invitation_code');
+    const validCodes = ['LULOCART2024', 'LATINMARKET', 'EXCLUSIVE01', 'BETA2024', 'EARLYACCESS'];
+    return storedCode && validCodes.includes(storedCode.toUpperCase());
+  });
   const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
 
   useEffect(() => {
@@ -72,6 +79,15 @@ const AppRoutes = () => {
   }
 
   const renderRoute = () => {
+    // Check invitation gate first - if user doesn't have valid invitation, show gate
+    if (!hasValidInvitation) {
+      return (
+        <InvitationGate 
+          onValidCode={() => setHasValidInvitation(true)} 
+        />
+      );
+    }
+
     // Check for dashboard routes first
     if (currentRoute.startsWith('#dashboard')) {
       if (!currentUser) {
