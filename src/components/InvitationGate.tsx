@@ -148,10 +148,10 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
             isEvenRow ? 'animate-slide-right' : 'animate-slide-left'
           }`}
           style={{
-            top: `${row * 180 + 100}px`, // More spacing between rows for bigger images
+            top: `${row * 220 + 150}px`, // Much more spacing to prevent overlap
             left: isEvenRow ? '-50%' : '50%',
-            animationDelay: `${row * 1}s`, // Longer delays between rows
-            animationDuration: '120s', // Much slower - 2 minutes per cycle
+            animationDelay: `${row * 2}s`, // Even longer delays between rows
+            animationDuration: '300s', // Much slower - 5 minutes per cycle
           }}
         >
           {rowImages}
@@ -165,7 +165,7 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 relative overflow-hidden">
       {/* Animated food background */}
-      <div className="absolute inset-0 overflow-hidden opacity-30">
+      <div className="absolute inset-0 overflow-hidden opacity-25">
         {generateImageRows()}
       </div>
 
