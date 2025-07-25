@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Package, CheckCircle, XCircle, ArrowLeft, Phone, MapPin, Calendar, Receipt, Search, Filter, SortDesc } from 'lucide-react';
+import { Clock, Package, CheckCircle, XCircle, ArrowLeft, Phone, MapPin, Calendar, Receipt, Search, Filter, SortDesc, Download, Loader2 } from 'lucide-react';
 import { Order, OrderStatus } from '../types/order';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useDataProvider } from '../services/DataProvider';
+import { generateReceiptAPI, isDevelopment, getEnvironmentInfo } from '../config/api';
 
 interface OrderHistoryProps {
   onBack?: () => void;
@@ -21,6 +22,8 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [receiptLoading, setReceiptLoading] = useState(false);
+  const [receiptError, setReceiptError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -68,6 +71,190 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
 
     fetchOrders();
   }, [currentUser, getOrders]);
+
+  // Receipt generation function
+  const generateReceipt = async (orderId: string) => {
+    setReceiptLoading(true);
+    setReceiptError(null);
+
+    try {
+      // Log environment info in development
+      if (isDevelopment) {
+        console.log('🔧 Development environment detected:', getEnvironmentInfo());
+      }
+
+      const response = await generateReceiptAPI(orderId);
+
+      if (!response.ok) {
+        // Parse error response for better error handling
+        let errorMessage = t('orderHistory.receiptError');
+        let errorDetails = null;
+        
+        try {
+          const errorText = await response.text();
+          console.error('📄 Raw error response:', errorText);
+          
+          try {
+            const errorData = JSON.parse(errorText);
+            console.error('🔍 Parsed error response:', errorData);
+            errorDetails = errorData;
+            
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            }
+          } catch (jsonError) {
+            console.error('⚠️ Error response is not valid JSON:', jsonError.message);
+            console.error('📄 Raw text response:', errorText);
+            
+            // For 500 errors, show more helpful message
+            if (response.status === 500) {
+              errorMessage = `Server error (${response.status}). Please check the order status and try again.`;
+            }
+          }
+        } catch (readError) {
+          console.error('❌ Could not read error response:', readError);
+          errorMessage = `API error (${response.status}): ${response.statusText}`;
+        }
+        
+        // Log comprehensive error information
+        console.error('❌ Receipt generation failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          orderId,
+          errorMessage,
+          errorDetails,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw new Error(errorMessage);
+      }
+
+      // Parse response data (works for both development and production)
+      const responseData = await response.json();
+      console.log('✅ Receipt API response:', responseData);
+      
+      // Extract data from the signed URL API response
+      const { receiptUrl, generatedAt, message, success } = responseData;
+      
+      if (success && receiptUrl) {
+        // Calculate expiration time (24 hours from generation)
+        const expirationTime = new Date();
+        expirationTime.setHours(expirationTime.getHours() + 24);
+        
+        // Update the selected order with the signed receipt URL and expiration
+        if (selectedOrder && selectedOrder.id === orderId) {
+          const updatedSelectedOrder = {
+            ...selectedOrder,
+            receiptUrl: receiptUrl,
+            receiptGeneratedAt: new Date(),
+            receiptExpiresAt: expirationTime
+          };
+          setSelectedOrder(updatedSelectedOrder);
+          
+          // Update the orders list as well
+          setOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === orderId 
+                ? { 
+                    ...order, 
+                    receiptUrl: receiptUrl,
+                    receiptGeneratedAt: new Date(),
+                    receiptExpiresAt: expirationTime
+                  }
+                : order
+            )
+          );
+        }
+        
+        if (isDevelopment) {
+          console.log('🔧 Development mode: Mock signed URL updated');
+          console.log(`📄 Mock signed URL: ${receiptUrl}`);
+        } else {
+          console.log(`📄 Receipt signed URL generated and valid for 24 hours!`);
+          console.log(`🔗 Signed URL: ${receiptUrl}`);
+          console.log(`📅 Generated at: ${generatedAt}`);
+          console.log(`⏰ Expires at: ${expirationTime.toISOString()}`);
+          console.log(`💾 Receipt accessible via signed URL`);
+        }
+        
+        if (message) {
+          console.log(`📄 ${message}`);
+        }
+        
+        // Show success notification to user
+        if (!isDevelopment) {
+          console.log('🎉 Receipt generated successfully! Valid for 24 hours.');
+        }
+      } else {
+        throw new Error(message || 'Receipt generation failed - no URL received from server');
+      }
+    } catch (error) {
+      console.error('Error generating receipt:', error);
+      
+      // Use the error message if it's already user-friendly, otherwise use default
+      const errorMessage = error instanceof Error && error.message !== 'Failed to fetch' 
+        ? error.message 
+        : t('orderHistory.receiptError');
+      
+      setReceiptError(errorMessage);
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
+
+  // Check if receipt URL is expired (24-hour signed URL)
+  const isReceiptExpired = (order: Order) => {
+    if (!order.receiptExpiresAt) return false;
+    return new Date() > new Date(order.receiptExpiresAt);
+  };
+
+  // Get time until expiration
+  const getTimeUntilExpiration = (order: Order) => {
+    if (!order.receiptExpiresAt) return null;
+    const now = new Date();
+    const expiration = new Date(order.receiptExpiresAt);
+    const hoursLeft = Math.max(0, Math.ceil((expiration.getTime() - now.getTime()) / (1000 * 60 * 60)));
+    return hoursLeft;
+  };
+
+  // Download receipt function
+  const downloadReceipt = (receiptUrl: string, order: Order) => {
+    // Check if signed URL is expired
+    if (isReceiptExpired(order)) {
+      console.log('⚠️ Receipt URL has expired, regeneration needed');
+      setReceiptError(t('orderHistory.receiptExpired'));
+      return;
+    }
+
+    if (isDevelopment && receiptUrl.includes('example.com')) {
+      // In development, show a notification instead of trying to open a mock URL
+      alert(`📄 Receipt download simulated!\n\nIn production, this would open the signed URL:\n${receiptUrl}`);
+      console.log('🔧 Development mode: Mock signed URL download', receiptUrl);
+    } else {
+      // Production/staging - handle signed URL
+      console.log(`📄 Opening receipt via signed URL: ${receiptUrl}`);
+      
+      // For signed URLs, we can provide better UX
+      const link = document.createElement('a');
+      link.href = receiptUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Try to determine filename from URL for better download experience
+      const urlParts = receiptUrl.split('/');
+      const filename = urlParts[urlParts.length - 1]?.split('?')[0] || 'receipt.pdf';
+      link.download = filename;
+      
+      // Add to document, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log(`💾 Receipt download initiated via signed URL: ${filename}`);
+    }
+  };
 
   // Determine the back handler based on props
   const handleBack = onBack || (() => window.history.back());
@@ -309,6 +496,91 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 <span>{t('cart.total')}</span>
                 <span className="text-[#C8E400]">{formatPrice(selectedOrder.summary.total)}</span>
               </div>
+            </div>
+          </div>
+
+          {/* Receipt Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">{t('orderHistory.receipt')}</h3>
+              {isDevelopment && (
+                <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full border border-orange-200">
+                  🔧 Dev Mode
+                </span>
+              )}
+            </div>
+            {receiptError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{receiptError}</p>
+                {receiptError.includes('expired') && (
+                  <button
+                    onClick={() => {
+                      setReceiptError(null);
+                      // Clear expired receipt URL
+                      setSelectedOrder({ ...selectedOrder, receiptUrl: undefined, receiptExpiresAt: undefined });
+                    }}
+                    className="mt-2 text-red-600 text-sm underline hover:text-red-800"
+                  >
+                    {t('orderHistory.regenerateReceipt')}
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {selectedOrder.receiptUrl && !isReceiptExpired(selectedOrder) ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => downloadReceipt(selectedOrder.receiptUrl!, selectedOrder)}
+                    className="w-full sm:w-auto bg-green-600 text-white rounded-lg px-4 py-2 hover:bg-green-700 transition-colors flex items-center gap-2 justify-center"
+                  >
+                    <Download className="w-4 h-4" />
+                    {t('orderHistory.downloadReceipt')}
+                  </button>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-xs text-green-600 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>{t('orderHistory.receiptAvailable')}</span>
+                    </div>
+                    {(() => {
+                      const hoursLeft = getTimeUntilExpiration(selectedOrder);
+                      return hoursLeft !== null && hoursLeft > 0 ? (
+                        <div className={`text-xs flex items-center gap-1 ${
+                          hoursLeft <= 2 ? 'text-amber-600' : 'text-gray-500'
+                        }`}>
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {hoursLeft <= 2 
+                              ? t('orderHistory.receiptExpiresWarning').replace('{hours}', hoursLeft.toString())
+                              : t('orderHistory.receiptExpires').replace('{hours}', hoursLeft.toString())
+                            }
+                          </span>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => generateReceipt(selectedOrder.id)}
+                  disabled={receiptLoading}
+                  className="bg-[#C8E400] text-gray-900 rounded-lg px-4 py-2 hover:bg-[#B8D400] transition-colors flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {receiptLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t('orderHistory.generatingReceipt')}
+                    </>
+                  ) : (
+                    <>
+                      <Receipt className="w-4 h-4" />
+                      {selectedOrder.receiptUrl && isReceiptExpired(selectedOrder) 
+                        ? t('orderHistory.regenerateReceipt') 
+                        : t('orderHistory.generateReceipt')
+                      }
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

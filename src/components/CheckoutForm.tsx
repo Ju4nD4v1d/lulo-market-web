@@ -10,9 +10,161 @@ import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } 
 import { db } from '../config/firebase';
 import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
+import { generateOrderId, generateReceiptNumber, calculateTaxBreakdown } from '../utils/orderUtils';
 
 // Platform fee configuration
 const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
+
+// Helper function to get store information for receipt
+const getStoreInfoForReceipt = async (storeId: string) => {
+  try {
+    const storeDoc = await getDoc(doc(db, 'stores', storeId));
+    if (storeDoc.exists()) {
+      const storeData = storeDoc.data();
+      return {
+        name: storeData.name || '',
+        address: storeData.location?.address || '',
+        phone: storeData.phone || '',
+        email: storeData.email || '',
+        logo: storeData.logo || storeData.storeImage || '',
+        website: storeData.website || 'https://lulocart.com',
+        businessNumber: storeData.businessNumber || ''
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching store info:', error);
+  }
+  
+  return {
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+    logo: '',
+    website: 'https://lulocart.com',
+    businessNumber: ''
+  };
+};
+
+// Helper function to build enhanced order data
+const buildEnhancedOrderData = async (
+  orderId: string,
+  cart: any,
+  formData: FormData,
+  currentUser: any,
+  locale: string,
+  paymentIntentId?: string,
+  orderStatus: OrderStatus = OrderStatus.PENDING
+) => {
+  // Get store information for receipt
+  const storeInfo = await getStoreInfoForReceipt(cart.storeId || '');
+  
+  // Calculate tax breakdown
+  const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
+  
+  // Generate receipt number
+  const receiptNumber = generateReceiptNumber(orderId);
+  
+  const now = new Date();
+  const orderPlacedAt = now;
+  const preferredDeliveryTime = formData.preferredDeliveryTime 
+    ? new Date(`${formData.deliveryDate}T${formData.preferredDeliveryTime}`)
+    : new Date(formData.deliveryDate);
+
+  return {
+    id: orderId,
+    userId: currentUser?.uid || '',
+    storeId: cart.storeId || '',
+    storeName: cart.storeName || '',
+    customerInfo: {
+      name: formData.customerInfo.name || '',
+      email: formData.customerInfo.email || '',
+      phone: formData.customerInfo.phone || ''
+    },
+    deliveryAddress: {
+      street: formData.deliveryAddress.street || '',
+      city: formData.deliveryAddress.city || '',
+      province: formData.deliveryAddress.province || '',
+      postalCode: formData.deliveryAddress.postalCode || '',
+      country: formData.deliveryAddress.country || 'Canada',
+      deliveryInstructions: formData.deliveryAddress.deliveryInstructions || '',
+      accessInstructions: formData.accessInstructions || '',
+      deliveryZone: formData.deliveryAddress.city || '',
+      estimatedDistance: 0 // Could be calculated later
+    },
+    items: cart.items.map((item: any) => ({
+      id: item.id || '',
+      productId: item.product.id || '',
+      productName: item.product.name || '',
+      productDescription: item.product.description || '',
+      productImage: item.product.images?.[0] || '',
+      productImageUrl: item.product.images?.[0] || '',
+      price: item.priceAtTime || 0,
+      quantity: item.quantity || 1,
+      specialInstructions: item.specialInstructions || '',
+      itemModifications: item.itemModifications || [],
+      itemNotes: item.itemNotes || ''
+    })),
+    summary: {
+      ...cart.summary,
+      storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
+      platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0,
+      discountAmount: cart.summary.discountAmount || 0,
+      tipAmount: formData.tipAmount || 0,
+      serviceFee: 0,
+      taxBreakdown
+    },
+    status: orderStatus,
+    orderNotes: formData.orderNotes || '',
+    
+    // Enhanced: Receipt Information
+    receiptNumber,
+    orderType: formData.isDelivery ? 'delivery' : 'pickup',
+    
+    // Enhanced: Delivery Details
+    preferredDeliveryTime,
+    estimatedDeliveryTime: new Date(formData.deliveryDate),
+    deliveryNotes: '',
+    deliveryZone: formData.deliveryAddress.city || '',
+    
+    // Enhanced: Order Experience
+    customerNotes: formData.customerNotes || '',
+    specialRequests: formData.specialRequests || '',
+    promotionalCodes: formData.promotionalCodes || [],
+    orderSource: 'web',
+    
+    // Enhanced: Store Information for Receipt
+    storeInfo,
+    
+    // Enhanced: Timing Information
+    orderPlacedAt,
+    preparationStartedAt: null,
+    readyForPickupAt: null,
+    
+    // Enhanced: Payment Details for Receipt
+    paymentDetails: paymentIntentId ? {
+      method: 'credit_card',
+      last4Digits: '',
+      cardBrand: '',
+      authorizationCode: '',
+      transactionId: paymentIntentId
+    } : {
+      method: 'cash',
+      last4Digits: '',
+      cardBrand: '',
+      authorizationCode: '',
+      transactionId: orderId
+    },
+    
+    // Existing fields
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    paymentStatus: paymentIntentId ? 'processing' : 'pending',
+    paymentId: paymentIntentId,
+    isDelivery: formData.isDelivery ?? true,
+    language: locale
+  };
+};
 
 interface CheckoutFormProps {
   onBack: () => void;
@@ -26,6 +178,13 @@ interface FormData {
   isDelivery: boolean;
   deliveryDate: string;
   useProfileAsDeliveryContact: boolean;
+  // Enhanced: Receipt fields
+  customerNotes?: string; // General customer notes
+  specialRequests?: string; // Special requests
+  preferredDeliveryTime?: string; // Preferred delivery time
+  promotionalCodes?: string[]; // Applied promo codes
+  tipAmount?: number; // Customer tip
+  accessInstructions?: string; // Building access instructions
 }
 
 interface FormErrors {
@@ -108,7 +267,14 @@ const initialFormData: FormData = {
   orderNotes: '',
   isDelivery: true,
   deliveryDate: getNextAvailableDeliveryDate(),
-  useProfileAsDeliveryContact: true
+  useProfileAsDeliveryContact: true,
+  // Enhanced: Receipt fields
+  customerNotes: '',
+  specialRequests: '',
+  preferredDeliveryTime: '',
+  promotionalCodes: [],
+  tipAmount: 0,
+  accessInstructions: ''
 };
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderComplete }) => {
@@ -407,47 +573,17 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     setIsSubmitting(true);
     
     try {
-      // Create order object with all undefined values replaced
-      const orderData = {
-        userId: currentUser?.uid || '',
-        storeId: cart.storeId || '',
-        storeName: cart.storeName || '',
-        customerInfo: {
-          name: formData.customerInfo.name || '',
-          email: formData.customerInfo.email || '',
-          phone: formData.customerInfo.phone || ''
-        },
-        deliveryAddress: {
-          street: formData.deliveryAddress.street || '',
-          city: formData.deliveryAddress.city || '',
-          province: formData.deliveryAddress.province || '',
-          postalCode: formData.deliveryAddress.postalCode || '',
-          country: formData.deliveryAddress.country || 'Canada',
-          deliveryInstructions: formData.deliveryAddress.deliveryInstructions || ''
-        },
-        items: cart.items.map(item => ({
-          id: item.id || '',
-          productId: item.product.id || '',
-          productName: item.product.name || '',
-          productImage: item.product.images?.[0] || '',
-          price: item.priceAtTime || 0,
-          quantity: item.quantity || 1,
-          specialInstructions: item.specialInstructions || ''
-        })),
-        summary: {
-          ...cart.summary,
-          storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
-          platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0
-        },
-        status: OrderStatus.PENDING,
-        orderNotes: formData.orderNotes || '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        estimatedDeliveryTime: new Date(formData.deliveryDate),
-        paymentStatus: 'pending',
-        isDelivery: formData.isDelivery ?? true,
-        language: locale
-      };
+      // Generate consistent order ID
+      const orderId = generateOrderId();
+      
+      // Create enhanced order data
+      const orderData = await buildEnhancedOrderData(
+        orderId,
+        cart,
+        formData,
+        currentUser,
+        locale
+      );
 
       // Debug: Check for any remaining undefined values
       const checkForUndefined = (obj: Record<string, unknown>, path = ''): void => {
@@ -468,14 +604,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       };
       
       checkForUndefined(orderData);
-
-      // Save order to Firebase
-      const ordersCollection = collection(db, 'orders');
-      const orderDoc = await addDoc(ordersCollection, orderData);
+      
+      // Save order to Firebase with the specific ID (same as document ID)
+      const orderDocRef = doc(db, 'orders', orderId);
+      await setDoc(orderDocRef, orderData);
       
       // Create complete order object for callback
       const order: Order = {
-        id: orderDoc.id,
+        id: orderId,
         ...orderData,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -532,7 +668,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
 
       // Generate a single order ID to use for BOTH Firestore and payment intent
-      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const orderId = generateOrderId();
       
       // Create payment intent via HTTP endpoint
       const amountInCents = Math.round(cart.summary.finalTotal * 100);
@@ -731,37 +867,19 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     try {
       setIsSubmitting(true);
       
-      // Create the order in Firebase with 'processing' status
-      // The webhook will update it to 'paid' when payment confirmation is received
-      const orderData = {
-        userId: currentUser?.uid || '',
-        storeId: cart.storeId || '',
-        storeName: cart.storeName || '',
-        customerInfo: formData.customerInfo,
-        deliveryAddress: formData.deliveryAddress,
-        items: cart.items.map(item => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          productImage: item.product.images?.[0] || '',
-          price: item.priceAtTime,
-          quantity: item.quantity,
-          specialInstructions: item.specialInstructions || ''
-        })),
-        summary: cart.summary,
-        status: OrderStatus.PROCESSING,
-        orderNotes: formData.orderNotes,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        estimatedDeliveryTime: new Date(formData.deliveryDate),
-        paymentStatus: 'processing', // Start with processing, webhook will update to 'paid'
-        paymentId: paymentIntentId,
-        isDelivery: formData.isDelivery,
-        language: locale
-      };
-
       // Use the same order ID that was sent to the payment intent
       const orderIdToUse = pendingOrderId || `fallback_${Date.now()}`;
+      
+      // Create enhanced order data for payment processing
+      const orderData = await buildEnhancedOrderData(
+        orderIdToUse,
+        cart,
+        formData,
+        currentUser,
+        locale,
+        paymentIntentId,
+        OrderStatus.PROCESSING
+      );
       
       // Create the order document with the specific ID (same as payment intent)
       const orderDocRef = doc(db, 'orders', orderIdToUse);
@@ -1033,7 +1151,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
                     {/* Delivery Notice */}
                     <div className="bg-[#C8E400]/10 border border-[#C8E400]/20 p-4 rounded-xl">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start gap-3">
                         <MapPin className="w-5 h-5 text-[#C8E400]" />
                         <div>
                           <p className="font-medium text-gray-900">{t('orderType.delivery')}</p>
@@ -1373,7 +1491,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               <div className="space-y-2 mb-5">
                 {cart.items.map((item) => (
                   <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start gap-3">
                       {/* Product Image */}
                       <div className="w-10 h-10 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.images && item.product.images.length > 0 ? (
@@ -1390,7 +1508,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       </div>
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.product.name}</p>
+                        <p className="font-medium text-gray-900 text-sm leading-tight">{item.product.name}</p>
                       </div>
                       {/* Quantity and Price */}
                       <div className="text-right">
@@ -1807,7 +1925,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               <div className="space-y-2 mb-5">
                 {cart.items.map((item) => (
                   <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start gap-3">
                       {/* Product Image */}
                       <div className="w-10 h-10 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.images && item.product.images.length > 0 ? (
@@ -1824,7 +1942,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       </div>
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.product.name}</p>
+                        <p className="font-medium text-gray-900 text-sm leading-tight">{item.product.name}</p>
                       </div>
                       {/* Quantity and Price */}
                       <div className="text-right">

@@ -15,6 +15,7 @@ import { StoreMenu } from './components/StoreMenu';
 import { Business } from './components/Business';
 import { Home } from './components/Home';
 import { OrderHistory } from './components/OrderHistory';
+import { OrderTracking } from './components/OrderTracking';
 import { StoreList } from './components/StoreList';
 import { ProductList } from './components/ProductList';
 import { LanguageProvider } from './context/LanguageContext';
@@ -92,6 +93,25 @@ const AppRoutes = () => {
       // Redirect to unified home experience
       window.location.hash = '#';
       return <Home />;
+    }
+
+    // Order tracking route (requires authentication)
+    if (currentRoute.startsWith('#order/')) {
+      if (!currentUser) {
+        // Store the intended destination and redirect to login
+        setRedirectAfterLogin(currentRoute);
+        return <Login />;
+      }
+      
+      const orderId = currentRoute.replace('#order/', '');
+      if (orderId) {
+        return (
+          <OrderTracking 
+            orderId={orderId} 
+            onBack={() => window.location.hash = '#'} 
+          />
+        );
+      }
     }
 
     // Then check other routes

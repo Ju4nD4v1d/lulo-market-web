@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '../../test/utils';
 import { OrderHistory } from '../OrderHistory';
 import { mockUser, mockOrder } from '../../test/utils';
 import { OrderStatus } from '../../types/order';
+import { generateReceiptAPI } from '../../config/api';
 
 // Mock the DataProvider
 const mockGetOrders = vi.fn();
@@ -53,6 +54,11 @@ const mockLanguageContext = {
       'cart.total': 'Total',
       'cart.item': 'item',
       'cart.items': 'items',
+      'orderHistory.generateReceipt': 'Generate Receipt',
+      'orderHistory.generatingReceipt': 'Generating...',
+      'orderHistory.downloadReceipt': 'Download Receipt',
+      'orderHistory.receiptError': 'Could not generate receipt. Please try again.',
+      'orderHistory.receipt': 'Receipt',
     };
     return translations[key] || key;
   },
@@ -63,9 +69,19 @@ vi.mock('../../context/LanguageContext', () => ({
   useLanguage: () => mockLanguageContext,
 }));
 
+// Mock API configuration
+vi.mock('../../config/api', () => ({
+  generateReceiptAPI: vi.fn(),
+  isDevelopment: true,
+  getEnvironmentInfo: () => ({
+    environment: 'test',
+    isDevelopment: true,
+    receiptEndpoint: 'mock-endpoint'
+  })
+}));
+
 describe('OrderHistory Component', () => {
   const mockOnBack = vi.fn();
-  const mockOnClose = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -176,8 +192,17 @@ describe('OrderHistory Component', () => {
       await waitFor(() => {
         const storeNames = screen.getAllByText('Test Restaurant');
         expect(storeNames.length).toBeGreaterThanOrEqual(2);
-        expect(screen.getByText('Pending')).toBeInTheDocument();
-        expect(screen.getByText('Delivered')).toBeInTheDocument();
+        
+        // Look for status badges specifically (not dropdown options)
+        const statusBadges = screen.getAllByText('Pending').filter(element => 
+          element.closest('[class*="rounded-full"]')
+        );
+        expect(statusBadges.length).toBeGreaterThan(0);
+        
+        const deliveredBadges = screen.getAllByText('Delivered').filter(element => 
+          element.closest('[class*="rounded-full"]')
+        );
+        expect(deliveredBadges.length).toBeGreaterThan(0);
       });
     });
 
@@ -407,6 +432,581 @@ describe('OrderHistory Component', () => {
       await waitFor(() => {
         // Should show empty state or loading stops
         expect(mockGetOrders).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Receipt Functionality', () => {
+    // Mock the generateReceiptAPI function
+    const mockGenerateReceiptAPI = vi.mocked(generateReceiptAPI);
+
+    beforeEach(() => {
+      mockGenerateReceiptAPI.mockClear();
+    });
+
+    describe('Generate Receipt Button', () => {
+      it('should show Generate Receipt button when no receiptUrl exists', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'order-without-receipt',
+          receiptUrl: undefined,
+        };
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithoutReceipt.id,
+            data: () => orderWithoutReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('Receipt')).toBeInTheDocument();
+          expect(screen.getByText('Generate Receipt')).toBeInTheDocument();
+          expect(screen.queryByText('Download Receipt')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should show Download Receipt button when receiptUrl exists', async () => {
+        const orderWithReceipt = {
+          ...mockOrder,
+          id: 'order-with-receipt',
+          receiptUrl: 'https://example.com/receipt.pdf',
+        };
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithReceipt.id,
+            data: () => orderWithReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('Receipt')).toBeInTheDocument();
+          expect(screen.getByText('Download Receipt')).toBeInTheDocument();
+          expect(screen.queryByText('Generate Receipt')).not.toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('Receipt Generation Process', () => {
+      it('should show loading state when generating receipt', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'order-loading-test',
+          receiptUrl: undefined,
+        };
+
+        // Mock successful API response but slow
+        mockGenerateReceiptAPI.mockImplementation(() => 
+          new Promise(resolve => {
+            setTimeout(() => resolve(new Response('{}', { status: 200 })), 100);
+          })
+        );
+
+        // Mock getOrders to return updated data on second call
+        mockGetOrders
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => orderWithoutReceipt,
+            }],
+          })
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => ({ ...orderWithoutReceipt, receiptUrl: 'https://example.com/receipt.pdf' }),
+            }],
+          });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Generate Receipt button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        // Should show loading state
+        await waitFor(() => {
+          expect(screen.getByText('Generating...')).toBeInTheDocument();
+          const button = screen.getByRole('button', { name: /generating/i });
+          expect(button).toBeDisabled();
+        });
+
+        // Wait for completion
+        await waitFor(() => {
+          expect(screen.getByText('Download Receipt')).toBeInTheDocument();
+        });
+      });
+
+      it('should call receipt generation API with correct parameters', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'test-order-id',
+          receiptUrl: undefined,
+        };
+
+        mockGenerateReceiptAPI.mockResolvedValueOnce(new Response(JSON.stringify({
+          success: true,
+          message: 'Receipt generated successfully',
+          receiptUrl: 'https://example.com/receipt.pdf',
+          orderId: 'test-order-id',
+          generatedAt: new Date().toISOString()
+        }), { status: 200 }));
+        mockGetOrders
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => orderWithoutReceipt,
+            }],
+          })
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => ({ ...orderWithoutReceipt, receiptUrl: 'https://example.com/receipt.pdf' }),
+            }],
+          });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Generate Receipt button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        // Verify API call
+        await waitFor(() => {
+          expect(mockGenerateReceiptAPI).toHaveBeenCalledWith('test-order-id');
+        });
+      });
+
+      it('should update order data after successful receipt generation', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'update-test-order',
+          receiptUrl: undefined,
+        };
+
+        mockGenerateReceiptAPI.mockResolvedValueOnce(new Response(JSON.stringify({
+          success: true,
+          message: 'Receipt generated successfully',
+          receiptUrl: 'https://example.com/receipt.pdf',
+          orderId: 'test-order-id',
+          generatedAt: new Date().toISOString()
+        }), { status: 200 }));
+        mockGetOrders
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => orderWithoutReceipt,
+            }],
+          })
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => ({ ...orderWithoutReceipt, receiptUrl: 'https://example.com/receipt.pdf' }),
+            }],
+          });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Generate Receipt button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        // Should call getOrders again to refresh data
+        await waitFor(() => {
+          expect(mockGetOrders).toHaveBeenCalledTimes(2);
+          expect(screen.getByText('Download Receipt')).toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('Receipt Download', () => {
+      it('should open receipt URL in new window when download button is clicked', async () => {
+        const orderWithReceipt = {
+          ...mockOrder,
+          id: 'download-test-order',
+          receiptUrl: 'https://example.com/receipt.pdf',
+        };
+
+        // Mock window.open
+        const mockWindowOpen = vi.fn();
+        vi.stubGlobal('open', mockWindowOpen);
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithReceipt.id,
+            data: () => orderWithReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Download Receipt button
+        await waitFor(() => {
+          const downloadButton = screen.getByText('Download Receipt');
+          fireEvent.click(downloadButton);
+        });
+
+        expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com/receipt.pdf', '_blank');
+      });
+    });
+
+    describe('Error Handling', () => {
+      it('should show error message when receipt generation fails', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'error-test-order',
+          receiptUrl: undefined,
+        };
+
+        mockGenerateReceiptAPI.mockRejectedValueOnce(new Error('Network error'));
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithoutReceipt.id,
+            data: () => orderWithoutReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Generate Receipt button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        // Should show error message
+        await waitFor(() => {
+          expect(screen.getByText('Could not generate receipt. Please try again.')).toBeInTheDocument();
+          expect(screen.getByText('Generate Receipt')).toBeInTheDocument(); // Button should be enabled again
+        });
+      });
+
+      it('should handle HTTP error responses', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'http-error-test',
+          receiptUrl: undefined,
+        };
+
+        mockGenerateReceiptAPI.mockResolvedValueOnce(new Response('Error', { status: 500 }));
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithoutReceipt.id,
+            data: () => orderWithoutReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Click Generate Receipt button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        // Should show error message
+        await waitFor(() => {
+          expect(screen.getByText('Could not generate receipt. Please try again.')).toBeInTheDocument();
+        });
+      });
+
+      it('should allow retry after error', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'retry-test-order',
+          receiptUrl: undefined,
+        };
+
+        // First call fails, second succeeds
+        mockGenerateReceiptAPI
+          .mockRejectedValueOnce(new Error('Network error'))
+          .mockResolvedValueOnce(new Response('{}', { status: 200 }));
+
+        mockGetOrders
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => orderWithoutReceipt,
+            }],
+          })
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => ({ ...orderWithoutReceipt, receiptUrl: 'https://example.com/receipt.pdf' }),
+            }],
+          });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // First attempt - should fail
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          fireEvent.click(generateButton);
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('Could not generate receipt. Please try again.')).toBeInTheDocument();
+        });
+
+        // Second attempt - should succeed
+        await waitFor(() => {
+          const retryButton = screen.getByText('Generate Receipt');
+          fireEvent.click(retryButton);
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('Download Receipt')).toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('Mobile Responsive Behavior', () => {
+      it('should maintain receipt functionality on mobile viewports', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'mobile-test-order',
+          receiptUrl: undefined,
+        };
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithoutReceipt.id,
+            data: () => orderWithoutReceipt,
+          }],
+        });
+
+        // Mock mobile viewport
+        Object.defineProperty(window, 'innerWidth', {
+          writable: true,
+          configurable: true,
+          value: 375,
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Receipt section should be present and functional
+        await waitFor(() => {
+          const receiptSection = screen.getByText('Receipt');
+          expect(receiptSection).toBeInTheDocument();
+          
+          const generateButton = screen.getByText('Generate Receipt');
+          expect(generateButton).toBeInTheDocument();
+          expect(generateButton).toBeEnabled();
+        });
+      });
+
+      it('should handle touch interactions on mobile', async () => {
+        const orderWithReceipt = {
+          ...mockOrder,
+          id: 'touch-test-order',
+          receiptUrl: 'https://example.com/receipt.pdf',
+        };
+
+        const mockWindowOpen = vi.fn();
+        vi.stubGlobal('open', mockWindowOpen);
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithReceipt.id,
+            data: () => orderWithReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Test touch interaction
+        await waitFor(() => {
+          const downloadButton = screen.getByText('Download Receipt');
+          fireEvent.touchStart(downloadButton);
+          fireEvent.touchEnd(downloadButton);
+          fireEvent.click(downloadButton);
+        });
+
+        expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com/receipt.pdf', '_blank');
+      });
+    });
+
+    describe('Accessibility', () => {
+      it('should have proper ARIA labels and roles', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'a11y-test-order',
+          receiptUrl: undefined,
+        };
+
+        mockGetOrders.mockResolvedValueOnce({
+          docs: [{
+            id: orderWithoutReceipt.id,
+            data: () => orderWithoutReceipt,
+          }],
+        });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        await waitFor(() => {
+          const generateButton = screen.getByRole('button', { name: /generate receipt/i });
+          expect(generateButton).toBeInTheDocument();
+          expect(generateButton).toBeEnabled();
+        });
+      });
+
+      it('should maintain focus management during state changes', async () => {
+        const orderWithoutReceipt = {
+          ...mockOrder,
+          id: 'focus-test-order',
+          receiptUrl: undefined,
+        };
+
+        mockGenerateReceiptAPI.mockResolvedValueOnce(new Response(JSON.stringify({
+          success: true,
+          message: 'Receipt generated successfully',
+          receiptUrl: 'https://example.com/receipt.pdf',
+          orderId: 'test-order-id',
+          generatedAt: new Date().toISOString()
+        }), { status: 200 }));
+        mockGetOrders
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => orderWithoutReceipt,
+            }],
+          })
+          .mockResolvedValueOnce({
+            docs: [{
+              id: orderWithoutReceipt.id,
+              data: () => ({ ...orderWithoutReceipt, receiptUrl: 'https://example.com/receipt.pdf' }),
+            }],
+          });
+
+        render(<OrderHistory onBack={mockOnBack} />);
+
+        // Navigate to order details
+        await waitFor(() => {
+          const orderCard = screen.getAllByText('Test Restaurant')[0].closest('[class*="cursor-pointer"]');
+          if (orderCard) {
+            fireEvent.click(orderCard);
+          }
+        });
+
+        // Focus on generate button
+        await waitFor(() => {
+          const generateButton = screen.getByText('Generate Receipt');
+          generateButton.focus();
+          expect(generateButton).toHaveFocus();
+          fireEvent.click(generateButton);
+        });
+
+        // After state change, download button should be focusable
+        await waitFor(() => {
+          const downloadButton = screen.getByText('Download Receipt');
+          expect(downloadButton).toBeInTheDocument();
+        });
       });
     });
   });
