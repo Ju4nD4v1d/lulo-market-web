@@ -1,19 +1,35 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { translations, Locale } from '../utils/translations';
 
 type LanguageContextType = {
   locale: Locale;
   t: (key: string) => string;
   toggleLanguage: () => void;
+  setLanguage: (locale: Locale) => void;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const LANGUAGE_STORAGE_KEY = 'lulocart_language_preference';
+
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [locale, setLocale] = useState<Locale>('es');
+  // Initialize from localStorage or default to 'en'
+  const [locale, setLocale] = useState<Locale>(() => {
+    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return (savedLanguage === 'en' || savedLanguage === 'es') ? savedLanguage : 'en';
+  });
+
+  // Save language preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+  }, [locale]);
 
   const toggleLanguage = () => {
     setLocale(prevLocale => (prevLocale === 'en' ? 'es' : 'en'));
+  };
+
+  const setLanguage = (newLocale: Locale) => {
+    setLocale(newLocale);
   };
 
   const t = (key: string): string => {
@@ -21,7 +37,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <LanguageContext.Provider value={{ locale, t, toggleLanguage }}>
+    <LanguageContext.Provider value={{ locale, t, toggleLanguage, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

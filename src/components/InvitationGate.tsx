@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
-import { Mail, ChevronRight, CheckCircle, AlertCircle, ShoppingBag, Sparkles } from 'lucide-react';
+import { Mail, ChevronRight, CheckCircle, AlertCircle, Globe } from 'lucide-react';
+import { addToWaitlist } from '../services/waitlistService';
+import { validateInvitationCode } from '../services/invitationService';
+import { useSpotlight } from '../hooks/useSpotlight';
+import { useLanguage } from '../context/LanguageContext';
 
 interface InvitationGateProps {
   onValidCode: () => void;
 }
-
-// Hardcoded invitation codes for now
-const VALID_CODES = [
-  'LULOCART2024',
-  'LATINMARKET',
-  'EXCLUSIVE01',
-  'BETA2024',
-  'EARLYACCESS'
-];
 
 type ViewState = 'code' | 'email' | 'success';
 
@@ -23,9 +18,11 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateCode = (code: string): boolean => {
-    return VALID_CODES.includes(code.toUpperCase());
-  };
+  // Language context
+  const { locale, t, toggleLanguage } = useLanguage();
+
+  // Apply interactive spotlight effect
+  useSpotlight();
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,18 +34,22 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
     setError('');
     setIsLoading(true);
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    if (validateCode(invitationCode)) {
-      // Store valid code in localStorage for future visits
-      localStorage.setItem('lulocart_invitation_code', invitationCode);
-      onValidCode();
-    } else {
-      setError('Invalid invitation code. Please try again or request access below.');
-      setTimeout(() => {
-        setCurrentView('email');
-      }, 2000);
+    try {
+      const isValid = await validateInvitationCode(invitationCode);
+      
+      if (isValid) {
+        // Store valid code in localStorage for future visits
+        localStorage.setItem('lulocart_invitation_code', invitationCode);
+        onValidCode();
+      } else {
+        setError(t('invitation.invalidCode'));
+        setTimeout(() => {
+          setCurrentView('email');
+        }, 2000);
+      }
+    } catch (error) {
+      setError(t('invitation.connectionError'));
+      console.error('Error validating code:', error);
     }
     
     setIsLoading(false);
@@ -60,18 +61,20 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
     setIsLoading(true);
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address.');
+      setError(t('invitation.invalidEmail'));
       setIsLoading(false);
       return;
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // TODO: Replace with actual API call to store email
-    console.log('Email submitted for invitation:', email);
+    try {
+      // Store email in Firebase waitlist collection
+      await addToWaitlist(email);
+      setCurrentView('success');
+    } catch (error) {
+      setError(t('invitation.submitError'));
+      console.error('Error submitting email:', error);
+    }
     
-    setCurrentView('success');
     setIsLoading(false);
   };
 
@@ -90,349 +93,201 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
     };
   }
 
-  // Latin food images for the animated background
-  const latinFoodImages = [
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', // Tacos
-    'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop', // Empanadas
-    'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=400&h=300&fit=crop', // Paella
-    'https://images.unsplash.com/photo-1541544181051-e46607463f10?w=400&h=300&fit=crop', // Ceviche
-    'https://images.unsplash.com/photo-1567003323695-b69fb4aacbc4?w=400&h=300&fit=crop', // Quesadillas
-    'https://images.unsplash.com/photo-1594741816392-5b6d3cfb70b8?w=400&h=300&fit=crop', // Churros
-    'https://images.unsplash.com/photo-1615870216519-2f9fa2afe556?w=400&h=300&fit=crop', // Arepas
-    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop', // Tamales
-    'https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&h=300&fit=crop', // Tres leches
-    'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=300&fit=crop', // Mole
-    'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop', // Pupusas
-    'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop', // Fajitas
-    'https://images.unsplash.com/photo-1586511925558-a4c6376fe65f?w=400&h=300&fit=crop', // Tostones
-    'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=400&h=300&fit=crop', // Elote
-    'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=300&fit=crop', // Pozole
-    'https://images.unsplash.com/photo-1573821663912-6df460f9c684?w=400&h=300&fit=crop', // Chilaquiles
-  ];
-
-  // Generate rows of images
-  const generateImageRows = () => {
-    const rows = [];
-    const imagesPerRow = 4; // Fewer images per row for bigger display
-    const totalRows = 3; // Only 3 rows as requested
-
-    for (let row = 0; row < totalRows; row++) {
-      const rowImages = [];
-      const isEvenRow = row % 2 === 0;
-      
-      // Create enough images to fill the row and enable seamless scrolling
-      for (let i = 0; i < imagesPerRow * 2; i++) {
-        const imageIndex = (row * imagesPerRow + i) % latinFoodImages.length;
-        rowImages.push(
-          <div
-            key={`${row}-${i}`}
-            className="flex-shrink-0 w-80 h-52 mx-4 rounded-3xl overflow-hidden shadow-2xl transform transition-transform hover:scale-105"
-            style={{
-              transform: `rotate(${Math.random() * 8 - 4}deg)`,
-            }}
-          >
-            <img
-              src={latinFoodImages[imageIndex]}
-              alt="Latin Food"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </div>
-        );
-      }
-
-      rows.push(
-        <div
-          key={row}
-          className={`absolute flex items-center ${
-            isEvenRow ? 'animate-slide-right' : 'animate-slide-left'
-          }`}
-          style={{
-            top: `${row * 220 + 150}px`, // Much more spacing to prevent overlap
-            left: isEvenRow ? '0%' : '0%', // Start on screen
-            animationDelay: `${row * 2}s`, // Even longer delays between rows
-            animationDuration: '300s', // Much slower - 5 minutes per cycle
-          }}
-        >
-          {rowImages}
-        </div>
-      );
-    }
-
-    return rows;
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 relative overflow-hidden">
-      {/* Animated food background */}
-      <div className="absolute inset-0 overflow-hidden opacity-25">
-        {generateImageRows()}
-      </div>
+    <main className="relative min-h-screen overflow-hidden bg-lulo text-slate-900 grain-overlay">
+      {/* Animated background layers */}
+      <div className="pointer-events-none absolute inset-0 blobs" />
+      <div className="pointer-events-none absolute inset-0 spotlight" />
 
-      {/* Dark overlay for better readability */}
-      <div className="absolute inset-0 bg-black/50"></div>
-
-      {/* Ambient light effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-br from-red-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gradient-to-br from-yellow-400/10 to-amber-400/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
-
-      {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-md">
-          {/* Logo and branding */}
-          <div className="text-center mb-8 animate-fade-in">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#C8E400] to-[#A3C700] rounded-2xl shadow-lg mb-4">
-              <ShoppingBag className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2">
-              LuloCart
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Exclusive Latin Market Experience
-            </p>
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-sm text-gray-500 font-medium">Curated • Authentic • Premium</span>
-              <Sparkles className="w-4 h-4 text-amber-500" />
-            </div>
+      {/* Language toggle button */}
+      <div className="absolute top-6 right-6 z-20">
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-white/30 hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          aria-label="Toggle language"
+        >
+          <Globe className="w-4 h-4" />
+          <span className="font-medium text-sm">
+            {locale === 'en' ? 'ES' : 'EN'}
+          </span>
+          <div className="flex items-center gap-1">
+            <span className={`text-xs ${locale === 'en' ? 'opacity-100' : 'opacity-50'}`}>
+              🇨🇦
+            </span>
+            <span className={`text-xs ${locale === 'es' ? 'opacity-100' : 'opacity-50'}`}>
+              🇨🇴
+            </span>
           </div>
+        </button>
+      </div>
 
-          {/* Main card */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 transition-all duration-500 hover:shadow-3xl hover:bg-white/98">
-            {currentView === 'code' && (
-              <div className="space-y-6 animate-slide-up">
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Welcome Back
-                  </h2>
-                  <p className="text-gray-600">
-                    Enter your invitation code to access the exclusive marketplace
-                  </p>
+      <section className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-6">
+        {/* Brand Title */}
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-sm">
+          {t('invitation.title')}
+        </h1>
+        
+        {/* Subtitle with welcoming message */}
+        <p className="mt-3 text-base md:text-lg text-slate-700 max-w-2xl text-center">
+          {t('invitation.subtitle')}
+        </p>
+
+        {/* Main card dialog */}
+        <div className="mt-8 w-full max-w-md card-glass rounded-3xl p-6 md:p-8 transition-all duration-200 will-change-transform hover:-translate-y-0.5 hover:shadow-[0_35px_90px_-25px_rgba(15,23,42,.18),0_8px_20px_rgba(15,23,42,.08)]">
+          {currentView === 'code' && (
+            <form onSubmit={handleCodeSubmit} className="space-y-4">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
+                {t('invitation.codeLabel')}
+              </label>
+              <input
+                id="invitation-code"
+                type="text"
+                value={invitationCode}
+                onChange={(e) => setInvitationCode(e.target.value)}
+                placeholder={t('invitation.codePlaceholder')}
+                className="h-12 w-full rounded-2xl border border-slate-300/60 bg-white/80 px-4 text-slate-800 placeholder-slate-400 outline-none transition-all duration-200
+                         focus:border-brand/60 focus:ring-4 focus:ring-brand/25 uppercase tracking-wider text-center font-mono"
+                required
+                disabled={isLoading}
+              />
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/60 rounded-xl">
+                  <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <p className="text-red-700 text-sm">{error}</p>
                 </div>
+              )}
 
-                <form onSubmit={handleCodeSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="invitation-code" className="block text-sm font-medium text-gray-700 mb-2">
-                      Invitation Code
-                    </label>
-                    <input
-                      id="invitation-code"
-                      type="text"
-                      value={invitationCode}
-                      onChange={(e) => setInvitationCode(e.target.value)}
-                      placeholder="Enter your code"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-[#C8E400] focus:border-transparent transition-all duration-200 text-center text-lg font-mono tracking-wider uppercase"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
+              <button
+                type="submit"
+                disabled={isLoading || !invitationCode.trim()}
+                className="mt-4 h-12 w-full rounded-2xl font-semibold tracking-wide text-slate-900
+                         bg-brand shadow-[0_8px_20px_-8px_rgba(133,169,0,.55)] 
+                         active:shadow-[0_6px_16px_-8px_rgba(133,169,0,.55)]
+                         transition-all duration-200 hover:-translate-y-0.5 
+                         focus:outline-none focus:ring-4 focus:ring-brand/35
+                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
+                         flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
+                    {t('invitation.verifying')}
+                  </>
+                ) : (
+                  <>
+                    {t('invitation.accessButton')}
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
-                  {error && (
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl animate-shake">
-                      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                      <p className="text-red-700 text-sm">{error}</p>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isLoading || !invitationCode.trim()}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 px-6 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-[#A3C700] hover:to-[#8AB000] transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        Access Marketplace
-                        <ChevronRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="text-center">
-                  <p className="text-gray-500 text-sm mb-2">Don't have an invitation code?</p>
-                  <button
-                    onClick={() => setCurrentView('email')}
-                    className="text-[#C8E400] hover:text-[#A3C700] font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
-                  >
-                    Request access
-                  </button>
+          {currentView === 'email' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-brand/10 rounded-2xl mb-4">
+                  <Mail className="w-6 h-6 text-slate-700" />
                 </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                  {t('invitation.requestTitle')}
+                </h2>
+                <p className="text-slate-600">
+                  {t('invitation.requestSubtitle')}
+                </p>
               </div>
-            )}
 
-            {currentView === 'email' && (
-              <div className="space-y-6 animate-slide-up">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-[#C8E400]/10 rounded-xl mb-4">
-                    <Mail className="w-6 h-6 text-[#C8E400]" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Request Access
-                  </h2>
-                  <p className="text-gray-600">
-                    Join the waitlist for exclusive access to our curated Latin marketplace
-                  </p>
-                </div>
-
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-[#C8E400] focus:border-transparent transition-all duration-200"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl animate-shake">
-                      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                      <p className="text-red-700 text-sm">{error}</p>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isLoading || !email.trim()}
-                    className="w-full bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 px-6 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-[#A3C700] hover:to-[#8AB000] transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="w-4 h-4" />
-                        Request Invitation
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="text-center">
-                  <button
-                    onClick={resetToCode}
-                    className="text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200"
-                  >
-                    ← Back to invitation code
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {currentView === 'success' && (
-              <div className="text-center space-y-6 animate-slide-up">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </div>
+              <form onSubmit={handleEmailSubmit} className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Request Submitted!
-                  </h2>
-                  <p className="text-gray-600 mb-4">
-                    Thank you for your interest in LuloCart. We'll review your request and send you an invitation code soon.
-                  </p>
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-amber-800 text-sm">
-                      <strong>What's next?</strong> We'll notify you via email once your invitation is ready. 
-                      In the meantime, follow us on social media for updates!
-                    </p>
-                  </div>
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-600 mb-2">
+                    {t('invitation.emailLabel')}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('invitation.emailPlaceholder')}
+                    className="h-12 w-full rounded-2xl border border-slate-300/60 bg-white/80 px-4 text-slate-800 placeholder-slate-400 outline-none transition-all duration-200
+                             focus:border-brand/60 focus:ring-4 focus:ring-brand/25"
+                    required
+                    disabled={isLoading}
+                  />
                 </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/60 rounded-xl">
+                    <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    <p className="text-red-700 text-sm">{error}</p>
+                  </div>
+                )}
 
                 <button
-                  onClick={resetToCode}
-                  className="text-[#C8E400] hover:text-[#A3C700] font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
+                  type="submit"
+                  disabled={isLoading || !email.trim()}
+                  className="h-12 w-full rounded-2xl font-semibold tracking-wide text-slate-900
+                           bg-brand shadow-[0_8px_20px_-8px_rgba(133,169,0,.55)] 
+                           active:shadow-[0_6px_16px_-8px_rgba(133,169,0,.55)]
+                           transition-all duration-200 hover:-translate-y-0.5 
+                           focus:outline-none focus:ring-4 focus:ring-brand/35
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
+                           flex items-center justify-center gap-2"
                 >
-                  Try another invitation code
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
+                      {t('invitation.submitting')}
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4" />
+                      {t('invitation.requestButton')}
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <div className="text-center">
+                <button
+                  onClick={resetToCode}
+                  className="text-slate-500 hover:text-slate-700 text-sm transition-colors"
+                >
+                  {t('invitation.backToCode')}
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Footer */}
-          <div className="text-center mt-8 text-gray-500 text-sm">
-            <p>© 2024 LuloCart. Bringing authentic Latin flavors to your doorstep.</p>
-          </div>
+          {currentView === 'success' && (
+            <div className="text-center space-y-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100/80 backdrop-blur-sm rounded-full mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                  {t('invitation.successTitle')}
+                </h2>
+                <p className="text-slate-600 mb-4">
+                  {t('invitation.successMessage')}
+                </p>
+                <div className="p-4 bg-amber-50/80 backdrop-blur-sm border border-amber-200/60 rounded-xl">
+                  <p className="text-amber-800 text-sm">
+                    <strong>{t('invitation.successNext')}</strong> {t('invitation.successNextMessage')}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={resetToCode}
+                className="text-brand hover:text-[#c7ff3a] font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
+              >
+                {t('invitation.tryAnotherCode')}
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-        
-        @keyframes slide-right {
-          0% { transform: translateX(-20vw); }
-          50% { transform: translateX(20vw); }
-          100% { transform: translateX(-20vw); }
-        }
-        
-        @keyframes slide-left {
-          0% { transform: translateX(20vw); }
-          50% { transform: translateX(-20vw); }
-          100% { transform: translateX(20vw); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-        
-        .animate-slide-up {
-          animation: slide-up 0.5s ease-out;
-        }
-        
-        .animate-shake {
-          animation: shake 0.5s ease-in-out;
-        }
-        
-        .animate-slide-right {
-          animation: slide-right linear infinite;
-        }
-        
-        .animate-slide-left {
-          animation: slide-left linear infinite;
-        }
-        
-        .shadow-3xl {
-          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        /* Optimize animations for performance */
-        .animate-slide-right, .animate-slide-left {
-          will-change: transform;
-          backface-visibility: hidden;
-          perspective: 1000px;
-        }
-      `}</style>
-    </div>
+      </section>
+    </main>
   );
 };

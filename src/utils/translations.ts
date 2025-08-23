@@ -1417,7 +1417,31 @@ export const translations = {
     'empty.noStoresFound': 'No stores found',
     'empty.firstOrderMessage': 'When you place your first order, it will appear here',
     'empty.cartEmpty': 'Your cart is empty',
-    'empty.addItemsMessage': 'Add some items to your cart before checking out.'
+    'empty.addItemsMessage': 'Add some items to your cart before checking out.',
+
+    // Invitation Gate
+    'invitation.title': 'LuloCart',
+    'invitation.subtitle': "Welcome! We've poured our hearts into LuloCart to bring the Latin community in Canada closer to the flavors and traditions we all miss from home.",
+    'invitation.codeLabel': 'Invitation Code',
+    'invitation.codePlaceholder': 'ENTER INVITATION CODE',
+    'invitation.accessButton': 'Access',
+    'invitation.verifying': 'Verifying...',
+    'invitation.invalidCode': 'Invalid or already used invitation code. Please try again or request access below.',
+    'invitation.connectionError': 'Unable to verify code. Please check your connection and try again.',
+    'invitation.requestTitle': 'Request Access',
+    'invitation.requestSubtitle': 'Join the waitlist for exclusive access to our curated Latin marketplace',
+    'invitation.emailLabel': 'Email Address',
+    'invitation.emailPlaceholder': 'your@email.com',
+    'invitation.requestButton': 'Request Invitation',
+    'invitation.submitting': 'Submitting...',
+    'invitation.invalidEmail': 'Please enter a valid email address.',
+    'invitation.submitError': 'Failed to submit request. Please try again.',
+    'invitation.successTitle': 'Request Submitted!',
+    'invitation.successMessage': "Thank you for your interest in LuloCart. We'll review your request and send you an invitation code soon.",
+    'invitation.successNext': "What's next?",
+    'invitation.successNextMessage': "We'll notify you via email once your invitation is ready. In the meantime, follow us on social media for updates!",
+    'invitation.backToCode': '← Back to invitation code',
+    'invitation.tryAnotherCode': 'Try another invitation code'
   },
   es: {
     // Navigation
@@ -2835,6 +2859,30 @@ export const translations = {
     'empty.noStoresFound': 'No se encontraron tiendas',
     'empty.firstOrderMessage': 'Cuando realices tu primer pedido, aparecerá aquí',
     'empty.cartEmpty': 'Tu carrito está vacío',
-    'empty.addItemsMessage': 'Agrega algunos artículos a tu carrito antes de finalizar la compra.'
+    'empty.addItemsMessage': 'Agrega algunos artículos a tu carrito antes de finalizar la compra.',
+
+    // Invitation Gate - Spanish
+    'invitation.title': 'LuloCart',
+    'invitation.subtitle': '¡Bienvenido! Hemos puesto nuestro corazón en LuloCart para acercar a la comunidad latina en Canadá a los sabores y tradiciones que todos extrañamos de casa.',
+    'invitation.codeLabel': 'Código de Invitación',
+    'invitation.codePlaceholder': 'INGRESA EL CÓDIGO DE INVITACIÓN',
+    'invitation.accessButton': 'Acceder',
+    'invitation.verifying': 'Verificando...',
+    'invitation.invalidCode': 'Código de invitación inválido o ya utilizado. Por favor, inténtalo de nuevo o solicita acceso abajo.',
+    'invitation.connectionError': 'No se pudo verificar el código. Por favor, verifica tu conexión e inténtalo de nuevo.',
+    'invitation.requestTitle': 'Solicitar Acceso',
+    'invitation.requestSubtitle': 'Únete a la lista de espera para acceso exclusivo a nuestro mercado latino curado',
+    'invitation.emailLabel': 'Correo Electrónico',
+    'invitation.emailPlaceholder': 'tu@correo.com',
+    'invitation.requestButton': 'Solicitar Invitación',
+    'invitation.submitting': 'Enviando...',
+    'invitation.invalidEmail': 'Por favor, ingresa una dirección de correo válida.',
+    'invitation.submitError': 'Error al enviar la solicitud. Por favor, inténtalo de nuevo.',
+    'invitation.successTitle': '¡Solicitud Enviada!',
+    'invitation.successMessage': 'Gracias por tu interés en LuloCart. Revisaremos tu solicitud y te enviaremos un código de invitación pronto.',
+    'invitation.successNext': '¿Qué sigue?',
+    'invitation.successNextMessage': 'Te notificaremos por correo electrónico cuando tu invitación esté lista. ¡Mientras tanto, síguenos en las redes sociales para obtener actualizaciones!',
+    'invitation.backToCode': '← Volver al código de invitación',
+    'invitation.tryAnotherCode': 'Intentar otro código de invitación'
   }
 };
