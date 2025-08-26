@@ -8,28 +8,18 @@ import {
   Info,
   Sparkles
 } from 'lucide-react';
-import { useProductsTrend } from '../hooks/useProductsTrend';
+import { useCurrentWeekMetrics } from '../hooks/useCurrentWeekMetrics';
 
 interface TotalWeeklyProductsCardProps {
   storeId: string;
 }
 
 const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ storeId }) => {
-  const { data, loading, error } = useProductsTrend(storeId);
+  const { current, previous, loading, error, trend } = useCurrentWeekMetrics(storeId);
 
-  // Compute current week and find current/previous data
-  const currentWeek = Math.ceil(new Date().getDate() / 7);
-  const current = data.find(d => d.week === currentWeek);
-  const previous = data.find(d => d.week === currentWeek - 1);
-
-  // Calculate trend percentage
-  const currentProductsSold = current?.productsSold ?? 0;
-  const previousProductsSold = previous?.productsSold ?? 0;
-  
-  let trend: number | null = null;
-  if (previous && previousProductsSold !== 0) {
-    trend = ((currentProductsSold - previousProductsSold) / previousProductsSold) * 100;
-  }
+  // Extract products data
+  const currentProductsSold = current.totalProducts;
+  const productsTrend = trend.products;
 
   // Loading state
   if (loading) {
@@ -37,7 +27,7 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
       <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
         <div className="flex items-center justify-center h-24">
           <div className="text-center">
-            <Loader2 className="w-6 h-6 text-[#C8E400] animate-spin mx-auto mb-2" />
+            <Loader2 className="w-6 h-6 text-primary-400 animate-spin mx-auto mb-2" />
             <p className="text-xs text-gray-500">Loading products...</p>
           </div>
         </div>
@@ -71,22 +61,22 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-gray-500 text-sm font-medium mb-2">Products Sold This Week</p>
-          <h3 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-[#C8E400] transition-colors">
+          <h3 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-primary-400 transition-colors">
             {currentProductsSold}
           </h3>
           {previous ? (
             <div className="flex items-center gap-2">
               <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                trend !== null && trend >= 0 
+                productsTrend !== null && productsTrend >= 0 
                   ? 'bg-green-100 text-green-700' 
                   : 'bg-red-100 text-red-700'
               }`}>
-                {trend !== null && trend >= 0 ? (
+                {productsTrend !== null && productsTrend >= 0 ? (
                   <TrendingUp className="w-4 h-4" />
                 ) : (
                   <TrendingDown className="w-4 h-4" />
                 )}
-                {trend !== null ? `${trend >= 0 ? '+' : ''}${trend.toFixed(1)}%` : '0%'}
+                {productsTrend !== null ? `${productsTrend >= 0 ? '+' : ''}${productsTrend.toFixed(1)}%` : '0%'}
               </div>
               <span className="text-gray-500 text-sm">from last week</span>
             </div>
@@ -100,10 +90,10 @@ const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ store
           )}
         </div>
         <div className="relative">
-          <div className="p-4 bg-gradient-to-br from-[#C8E400] to-[#A3C700] rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="p-4 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
             <Box className="w-8 h-8 text-white" />
           </div>
-          {trend !== null && trend > 0 && (
+          {productsTrend !== null && productsTrend > 0 && (
             <div className="absolute -top-1 -right-1 p-1 bg-green-500 rounded-full">
               <Sparkles className="w-3 h-3 text-white" />
             </div>

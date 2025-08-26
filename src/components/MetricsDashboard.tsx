@@ -28,6 +28,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { theme } from '../config/theme';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
@@ -37,6 +38,10 @@ import { useOrdersTrend } from '../hooks/useOrdersTrend';
 import { useProductsTrend } from '../hooks/useProductsTrend';
 import { useActiveCustomersTrend } from '../hooks/useActiveCustomersTrend';
 import { loadTopProducts } from '../utils/loadTopProducts';
+// Import test utilities for development debugging
+import '../utils/testAnalytics';
+import { validateAnalyticsData, getCurrentWeekMetrics } from '../utils/analytics';
+import { getCurrentWeekKey } from '../utils/dateUtils';
 
 interface TopProductData {
   label: string;
@@ -44,6 +49,44 @@ interface TopProductData {
   color?: string;
 }
 
+
+// Add debug functions to global scope for development
+if (typeof window !== 'undefined') {
+  (window as any).debugAnalytics = {
+    async checkDataSource(storeId: string) {
+      const validation = await validateAnalyticsData(storeId);
+      console.log('=== ANALYTICS DEBUG ===');
+      console.log('Data source:', validation.dataSource);
+      console.log('Current week metrics:', validation.currentWeekMetrics);
+      console.log('Top products count:', validation.topProducts.byQuantity.length);
+      console.log('Active customers:', validation.activeCustomers);
+      return validation;
+    },
+    
+    async getRawMetrics(storeId: string) {
+      const metrics = await getCurrentWeekMetrics(storeId);
+      console.log('=== RAW METRICS ===');
+      console.log('Total Revenue:', metrics.totalRevenue);
+      console.log('Total Orders:', metrics.totalOrders);
+      console.log('Total Products:', metrics.totalProducts);
+      console.log('Active Customers:', metrics.activeCustomers);
+      console.log('Last Updated:', metrics.lastUpdated);
+      return metrics;
+    },
+    
+    checkWeekCalculation() {
+      console.log('=== WEEK CALCULATION ===');
+      console.log('Current date:', new Date().toISOString());
+      console.log('Current week key:', getCurrentWeekKey());
+      console.log('Expected format: YYYY-WNN (e.g., 2025-W35)');
+    }
+  };
+  
+  console.log('🧪 Debug functions available:');
+  console.log('  window.debugAnalytics.checkDataSource("MxOFNkEGVNrgaNfTaXlN")');
+  console.log('  window.debugAnalytics.getRawMetrics("MxOFNkEGVNrgaNfTaXlN")');
+  console.log('  window.debugAnalytics.checkWeekCalculation()');
+}
 
 export const MetricsDashboard = () => {
   const { t } = useLanguage();
@@ -66,9 +109,9 @@ export const MetricsDashboard = () => {
 
   // Enhanced color palette for professional design
   const colorPalette = {
-    primary: '#C8E400',
-    secondary: '#A3C700',
-    accent: '#7A8B00',
+    primary: theme.colors.primary400,
+    secondary: theme.colors.primary500,
+    accent: theme.colors.primary700,
     success: '#10B981',
     warning: '#F59E0B',
     error: '#EF4444',
@@ -283,7 +326,7 @@ export const MetricsDashboard = () => {
       return (
         <div className="flex items-center justify-center h-80">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-[#C8E400] animate-spin mx-auto mb-4" />
+            <Loader2 className="w-8 h-8 text-primary-400 animate-spin mx-auto mb-4" />
             <p className="text-sm text-gray-600">{t('metrics.loadingRevenue')}</p>
           </div>
         </div>
@@ -300,7 +343,7 @@ export const MetricsDashboard = () => {
           <p className="text-sm text-gray-600 mb-4">{revenueTrendError}</p>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 bg-[#C8E400] text-white rounded-lg hover:bg-[#A3C700] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-400 text-white rounded-lg hover:bg-primary-500 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             {t('metrics.retry')}
@@ -315,8 +358,8 @@ export const MetricsDashboard = () => {
           <AreaChart data={revenueTrendData}>
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#C8E400" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#C8E400" stopOpacity={0.1}/>
+                <stop offset="5%" stopColor={colorPalette.primary} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={colorPalette.primary} stopOpacity={0.1}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
@@ -349,11 +392,11 @@ export const MetricsDashboard = () => {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#C8E400"
+              stroke={colorPalette.primary}
               strokeWidth={3}
               fill="url(#revenueGradient)"
-              dot={{ fill: '#C8E400', strokeWidth: 2, r: 6 }}
-              activeDot={{ r: 8, stroke: '#C8E400', strokeWidth: 3, fill: '#FFF' }}
+              dot={{ fill: colorPalette.primary, strokeWidth: 2, r: 6 }}
+              activeDot={{ r: 8, stroke: colorPalette.primary, strokeWidth: 3, fill: '#FFF' }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -376,7 +419,7 @@ export const MetricsDashboard = () => {
       return (
         <div className="flex items-center justify-center h-80">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-[#C8E400] animate-spin mx-auto mb-4" />
+            <Loader2 className="w-8 h-8 text-primary-400 animate-spin mx-auto mb-4" />
             <p className="text-sm text-gray-600">{t('metrics.loadingProducts')}</p>
           </div>
         </div>
@@ -394,7 +437,7 @@ export const MetricsDashboard = () => {
           <p className="text-sm text-gray-600 mb-4">{topProductsError}</p>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 bg-[#C8E400] text-white rounded-lg hover:bg-[#A3C700] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-400 text-white rounded-lg hover:bg-primary-500 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             {t('metrics.retry')}
@@ -478,7 +521,7 @@ export const MetricsDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-[#C8E400] to-[#A3C700] rounded-2xl shadow-lg">
+              <div className="p-3 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl shadow-lg">
                 <Activity className="w-8 h-8 text-white" />
               </div>
               <div>
@@ -500,7 +543,7 @@ export const MetricsDashboard = () => {
               <button 
                 onClick={handleExport}
                 disabled={isExporting || !storeId}
-                className="flex items-center gap-2 px-4 py-2 bg-[#C8E400] hover:bg-[#A3C700] text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-400 hover:bg-primary-500 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
                 <span className="text-sm font-medium">
@@ -528,8 +571,8 @@ export const MetricsDashboard = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-8 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-xl">
-                    <LineChartIcon className="w-6 h-6 text-[#C8E400]" />
+                  <div className="p-2 bg-gradient-to-br from-primary-400/20 to-primary-500/20 rounded-xl">
+                    <LineChartIcon className="w-6 h-6 text-primary-400" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{t('metrics.revenueTrend')}</h2>
@@ -545,7 +588,7 @@ export const MetricsDashboard = () => {
                       onClick={() => setGranularity(option.id)}
                       className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         granularity === option.id
-                          ? 'bg-[#C8E400] text-white shadow-lg transform scale-105'
+                          ? 'bg-primary-400 text-white shadow-lg transform scale-105'
                           : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -562,8 +605,8 @@ export const MetricsDashboard = () => {
           <div className="xl:col-span-1">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-8 backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-xl">
-                  <PieChartIcon className="w-6 h-6 text-[#C8E400]" />
+                <div className="p-2 bg-gradient-to-br from-primary-400/20 to-primary-500/20 rounded-xl">
+                  <PieChartIcon className="w-6 h-6 text-primary-400" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{t('metrics.topProducts')}</h2>
@@ -576,9 +619,9 @@ export const MetricsDashboard = () => {
         </div>
 
         {/* Insights Section */}
-        <div className="mt-8 bg-gradient-to-r from-[#C8E400]/10 to-[#A3C700]/10 rounded-3xl p-8 border border-[#C8E400]/20">
+        <div className="mt-8 bg-gradient-to-r from-primary-400/10 to-primary-500/10 rounded-3xl p-8 border border-primary-400/20">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-gradient-to-br from-[#C8E400] to-[#A3C700] rounded-xl">
+            <div className="p-2 bg-gradient-to-br from-primary-400 to-primary-500 rounded-xl">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
