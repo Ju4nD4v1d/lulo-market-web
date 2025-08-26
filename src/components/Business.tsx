@@ -357,7 +357,7 @@ export const Business = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-gradient-to-r from-[#C8E400] to-[#A8C400] text-gray-900 py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>
@@ -391,7 +391,7 @@ export const Business = () => {
                 <span className="font-medium">{t('business.backToMarketplace')}</span>
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
-              <img src="/logo_lulo.png" alt="Lulo" className="h-12 w-auto" />
+              <span className="text-xl font-bold text-gray-900">LuloCart</span>
             </div>
             
             {/* Portal Login Button */}
@@ -401,7 +401,7 @@ export const Business = () => {
                 setRedirectAfterLogin(null);
                 setShowPortalLogin(true);
               }}
-              className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+              className="btn-secondary px-6 py-2 flex items-center gap-2"
             >
               <LogIn className="w-4 h-4" />
               {t('business.portalLogin')}
@@ -434,7 +434,7 @@ export const Business = () => {
                   required
                   value={loginData.email}
                   onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                   placeholder={t('business.login.emailPlaceholder')}
                 />
               </div>
@@ -449,7 +449,7 @@ export const Business = () => {
                     required
                     value={loginData.password}
                     onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 pr-12"
                     placeholder={t('business.login.passwordPlaceholder')}
                   />
                   <button
@@ -471,7 +471,7 @@ export const Business = () => {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-secondary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoggingIn ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

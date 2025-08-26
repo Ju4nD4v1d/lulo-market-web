@@ -80,9 +80,9 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
           <div className="flex items-center gap-3 md:gap-4">
             <button
               onClick={onBackToShopping}
-              className="p-2 md:p-3 hover:bg-gray-100 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 group"
+              className="btn-ghost p-2 md:p-3 rounded-lg md:rounded-xl transition-transform duration-300 hover:scale-105 group"
             >
-              <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
+              <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-primary-400 transition-colors" />
             </button>
             <div>
               <h1 className="text-lg md:text-2xl font-bold text-gray-900 tracking-tight">{t('order.confirmation.title')}</h1>
@@ -229,7 +229,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
                 <div className="border-t border-gray-200 pt-2">
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span className="flex-1">{t('order.total')}</span>
-                    <span className="text-[#C8E400] whitespace-nowrap ml-2">{formatPrice(order.summary.finalTotal)}</span>
+                    <span className="text-primary-400 whitespace-nowrap ml-2">{formatPrice(order.summary.finalTotal)}</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -246,7 +246,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
               <h3 className="text-lg font-bold text-gray-900 mb-4">{t('order.nextSteps')}</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
-                  <div className="w-6 h-6 bg-[#C8E400] rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
                     <span className="text-xs font-bold text-white">1</span>
                   </div>
                   <span>{t('order.nextSteps.confirmation')}</span>
@@ -267,7 +267,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
 
               <button
                 onClick={onBackToShopping}
-                className="w-full mt-6 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                className="btn-primary w-full mt-6 font-bold text-sm md:text-base"
               >
                 {t('order.continueShopping')}
               </button>

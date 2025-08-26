@@ -82,7 +82,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Gromuse-style Header */}
-      <div className="bg-[#16726B] text-white sticky top-0 z-50">
+      <div className="bg-slate-900/90 text-slate-100 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-4">
             {/* Back and Logo */}
@@ -90,13 +90,13 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
               {onBack && (
                 <button
                   onClick={onBack}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-2 text-slate-100 hover:text-brand rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               )}
               <div className="flex items-center gap-2">
-                <ShoppingCart className="w-6 h-6 text-[#C8E400]" />
+                <ShoppingCart className="w-6 h-6 text-primary-400" />
                 <span className="text-xl font-bold">All Products</span>
               </div>
             </div>
@@ -110,7 +110,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#C8E400]"
+                  className="w-full pl-10 pr-4 py-2 bg-white rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
             </div>
@@ -194,7 +194,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
                       e.stopPropagation();
                       // Add to cart logic
                     }}
-                    className="w-full py-2 rounded-xl font-medium text-sm transition-colors bg-gray-100 hover:bg-[#C8E400] hover:text-white"
+                    className="w-full py-2 rounded-xl font-medium text-sm transition-colors bg-gray-100 hover:bg-primary-400 hover:text-white"
                   >
                     <span className="text-lg font-bold">+</span>
                   </button>
@@ -222,7 +222,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  className="btn-primary inline-flex items-center gap-2 font-semibold"
                 >
                   <span>Clear Search</span>
                   <ArrowLeft className="w-4 h-4" />

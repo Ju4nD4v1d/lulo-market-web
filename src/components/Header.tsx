@@ -85,13 +85,13 @@ export const Header = () => {
               <NavLink href="#">{t('nav.marketplace')}</NavLink>
               <a
                 href="#business"
-                className="text-gray-900 font-medium transition-all duration-200 ease-out hover:text-[#C8E400]"
+                className="text-gray-900 font-medium transition-all duration-200 ease-out hover:text-primary-400"
               >
                 {t('nav.forBusiness')}
               </a>
               <a
                 href="#login"
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white font-medium rounded-lg text-sm transition-all duration-200 hover:shadow-lg"
+                className="btn-primary inline-flex items-center justify-center text-sm"
               >
                 {t('nav.signIn')}
               </a>
@@ -135,21 +135,21 @@ export const Header = () => {
         <nav className="flex flex-col p-4 space-y-6">
           <a 
             href="#"
-            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-[#C8E400]"
+            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
             onClick={() => setIsOpen(false)}
           >
             {t('nav.marketplace')}
           </a>
           <a 
             href="#business"
-            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-[#C8E400]"
+            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
             onClick={() => setIsOpen(false)}
           >
             {t('nav.forBusiness')}
           </a>
           <a 
             href="#login"
-            className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white font-medium rounded-lg text-lg transition-all duration-200 hover:shadow-lg"
+            className="btn-primary inline-flex items-center justify-center text-lg"
             onClick={() => setIsOpen(false)}
           >
             {t('nav.signIn')}

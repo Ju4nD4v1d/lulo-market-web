@@ -1,10 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* Global fonts and base colors */
+  html { @apply text-[16px]; }
+  body { @apply font-sans text-text bg-background; }
+  h1, h2, h3, h4, h5, h6 { @apply font-heading text-text; }
+  h1 { @apply text-4xl font-semibold; }
+  h2 { @apply text-3xl font-semibold; }
+  h3 { @apply text-2xl font-semibold; }
   /* Base input styles */
   input[type="text"],
   input[type="email"],
@@ -213,35 +220,12 @@
 
   /* Design System Enhancements */
   
-  /* Typography */
-  .heading-font {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-  }
-  
-  .body-font {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 400;
-    line-height: 1.6;
-  }
-  
-  .text-h1 {
-    font-size: 2.5rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-  }
-  
-  .text-h2 {
-    font-size: 2rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-  }
-  
-  .text-h3 {
-    font-size: 1.5rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-  }
+  /* Design system typography helpers (optional) */
+  .heading-font { @apply font-heading font-semibold; }
+  .body-font { @apply font-sans; line-height: 1.6; }
+  .text-h1 { @apply text-4xl font-heading font-semibold; }
+  .text-h2 { @apply text-3xl font-heading font-semibold; }
+  .text-h3 { @apply text-2xl font-heading font-semibold; }
   
   /* Enhanced Header Styling */
   .enhanced-navbar {
@@ -250,28 +234,20 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
-  /* Primary Button Styling */
+  /* Buttons */
   .btn-primary {
-    border-radius: 8px;
-    background: #C8E400;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    color: #1f2937;
-    border: none;
-    padding: 12px 24px;
-    cursor: pointer;
+    @apply rounded-lg bg-gradient-to-r from-primary-400 to-primary-500 text-gray-900
+      px-6 py-3 font-medium shadow-sm hover:shadow-md
+      transition-all duration-200 ease-out hover:-translate-y-px
+      focus:outline-none focus:ring-2 focus:ring-primary-400/30;
   }
-  
-  .btn-primary:hover {
-    background: #A3C700;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(200, 228, 0, 0.25);
+  .btn-secondary {
+    @apply rounded-lg bg-gray-900 text-white px-6 py-3 font-medium shadow-sm
+      hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900/20;
   }
-  
-  .btn-primary:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(231, 255, 1, 0.5);
+  .btn-ghost {
+    @apply rounded-lg bg-transparent text-gray-900 px-4 py-2 hover:bg-gray-100
+      focus:outline-none focus:ring-2 focus:ring-gray-300;
   }
   
   /* Enhanced Search Input */
@@ -286,9 +262,9 @@
   
   .search-input:focus {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(231, 255, 1, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(200, 228, 0, 0.35);
     outline: none;
-    border-color: #E7FF01;
+    border-color: rgb(200 228 0); /* primary-400 */
   }
   
   /* Hero Background Enhancement */
@@ -366,10 +342,7 @@
   }
   
   /* Icon Accent Color */
-  .accent-icon {
-    color: #E7FF01 !important;
-    fill: #E7FF01 !important;
-  }
+  .accent-icon { color: #E7FF01 !important; fill: #E7FF01 !important; }
   
   /* Active Carousel Dot */
   .carousel-dot {
@@ -488,5 +461,19 @@
     opacity: 0.06;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  /* Simple footer grain texture */
+  .footer-grain {
+    position: relative;
+  }
+
+  .footer-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' fill='white'/%3E%3C/svg%3E");
   }
 }

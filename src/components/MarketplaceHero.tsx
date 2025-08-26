@@ -178,53 +178,71 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
           </div>
 
           {/* Enhanced Search Section */}
-          <div className="w-full lg:w-96">
+          <div className="w-full lg:w-[480px]">
             {/* Search Stats */}
-            <div className="flex items-center justify-center lg:justify-end gap-4 mb-4 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
+            <div className="flex items-center justify-center lg:justify-end gap-6 mb-5 text-sm">
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
                 <Users className="w-4 h-4 text-blue-500" />
-                <span>{t('hero.search.stores')}</span>
+                <span className="font-medium text-gray-700">{t('hero.search.stores')}</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
                 <Star className="w-4 h-4 text-orange-500" />
-                <span>{t('hero.search.products')}</span>
+                <span className="font-medium text-gray-700">{t('hero.search.products')}</span>
               </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Search className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                placeholder={t('home.search.placeholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input w-full h-12 lg:h-14 pl-12 pr-4 bg-white/90 backdrop-blur-sm text-base hover:bg-white"
-              />
-              
-              {/* Search Enhancement Badge */}
-              {searchQuery && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
-                    {t('hero.search.searching')}
-                  </span>
+            {/* Enhanced Search Bar */}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-primary-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+              <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-primary-600 transition-colors">
+                  <Search className="w-5 h-5" />
                 </div>
-              )}
+                <input
+                  type="text"
+                  placeholder="Search restaurants, dishes, or cuisines..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-14 lg:h-16 pl-14 pr-5 bg-white rounded-2xl text-base lg:text-lg 
+                           shadow-lg hover:shadow-xl focus:shadow-2xl transition-all duration-300
+                           border-2 border-transparent focus:border-primary-400/30 focus:outline-none
+                           placeholder:text-gray-400"
+                />
+                
+                {/* Search Enhancement Badge */}
+                {searchQuery && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1.5 rounded-full shadow-md">
+                      <div className="animate-pulse w-1.5 h-1.5 bg-white rounded-full"></div>
+                      <span className="font-medium">{t('hero.search.searching')}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Popular Searches */}
-            <div className="mt-3 text-center lg:text-right">
-              <span className="text-xs text-gray-500 mr-2">{t('hero.search.popular')}:</span>
-              <div className="inline-flex gap-2 flex-wrap justify-center lg:justify-end mt-1">
-                {['Arepas', 'Empanadas', 'Tacos'].map((term) => (
+            {/* Popular Searches with Icons */}
+            <div className="mt-4">
+              <div className="flex items-center justify-center lg:justify-end gap-2 mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
+                <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">{t('hero.search.popular')}</span>
+              </div>
+              <div className="flex gap-2 flex-wrap justify-center lg:justify-end">
+                {[
+                  { name: 'Arepas', emoji: '🫓' },
+                  { name: 'Empanadas', emoji: '🥟' },
+                  { name: 'Tacos', emoji: '🌮' }
+                ].map((term) => (
                   <button
-                    key={term}
-                    onClick={() => setSearchQuery(term)}
-                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                    key={term.name}
+                    onClick={() => setSearchQuery(term.name)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white/80 backdrop-blur-sm hover:bg-white 
+                             border border-gray-200/60 hover:border-primary-400/40 rounded-xl 
+                             text-sm font-medium text-gray-700 hover:text-primary-600 
+                             shadow-sm hover:shadow-md transition-all duration-200 group"
                   >
-                    {term}
+                    <span className="text-base group-hover:scale-110 transition-transform">{term.emoji}</span>
+                    <span>{term.name}</span>
                   </button>
                 ))}
               </div>

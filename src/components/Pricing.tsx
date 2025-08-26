@@ -161,7 +161,7 @@ export const Pricing = () => {
 
             <button
               onClick={handlePlanClick}
-              className="w-full bg-gray-900 text-white py-3 px-6 rounded-xl hover:bg-gray-800 transition-all duration-200 font-semibold"
+              className="btn-secondary w-full font-semibold"
             >
               Get Started
             </button>

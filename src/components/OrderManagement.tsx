@@ -540,7 +540,7 @@ export const OrderManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#C8E400]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-400" />
       </div>
     );
   }
@@ -567,7 +567,7 @@ export const OrderManagement = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">{t('admin.orders.totalOrders')}</p>
-            <p className="text-2xl font-bold text-[#C8E400]">{orders.length}</p>
+            <p className="text-2xl font-bold text-primary-400">{orders.length}</p>
           </div>
         </div>
 
@@ -580,7 +580,7 @@ export const OrderManagement = () => {
               placeholder={t('admin.orders.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             />
           </div>
           
@@ -644,7 +644,7 @@ export const OrderManagement = () => {
                     
                     <button
                       onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="btn-ghost p-2"
                     >
                       {expandedOrder === order.id ? (
                         <ChevronDown className="w-5 h-5 text-gray-600" />
@@ -700,7 +700,7 @@ export const OrderManagement = () => {
                             <button
                               onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}
                               disabled={updatingOrders.has(order.id)}
-                              className="bg-[#C8E400] text-white px-4 py-2 rounded-lg hover:bg-[#A3C700] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                              className="bg-primary-400 text-white px-4 py-2 rounded-lg hover:bg-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                               {updatingOrders.has(order.id) ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -779,7 +779,7 @@ export const OrderManagement = () => {
                         </div>
                         <div className="border-t border-gray-300 pt-2 flex justify-between font-bold">
                           <span>{t('cart.total')}</span>
-                          <span className="text-[#C8E400]">{formatPrice(order.summary?.total || 0)}</span>
+                          <span className="text-primary-400">{formatPrice(order.summary?.total || 0)}</span>
                         </div>
                       </div>
                     </div>
@@ -824,7 +824,7 @@ export const OrderManagement = () => {
             <div className="flex gap-3">
               <button
                 onClick={cancelCancelOrder}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="btn-ghost flex-1"
               >
                 {t('button.keepOrder')}
               </button>

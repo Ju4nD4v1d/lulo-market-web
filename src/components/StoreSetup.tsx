@@ -376,11 +376,11 @@ export const StoreSetup = () => {
                       className="w-24 h-24 lg:w-32 lg:h-32 object-cover rounded-2xl shadow-lg border-4 border-white"
                     />
                   ) : (
-                    <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
-                      <Store className="w-8 h-8 lg:w-12 lg:h-12 text-[#C8E400]" />
+                    <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-primary-400/20 to-primary-500/20 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
+                      <Store className="w-8 h-8 lg:w-12 lg:h-12 text-primary-400" />
                     </div>
                   )}
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center shadow-lg">
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center shadow-lg">
                     <CheckCircle2 className="w-5 h-5 text-white" />
                   </div>
                 </div>
@@ -411,7 +411,7 @@ export const StoreSetup = () => {
               {/* Action Button */}
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                className="btn-primary inline-flex items-center gap-2 font-semibold"
               >
                 <Edit3 className="w-5 h-5" />
                 {t('store.dashboard.editStore')}
@@ -494,9 +494,9 @@ export const StoreSetup = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Basic Information Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-[#C8E400]/10 to-[#A3C700]/10 px-6 py-4 border-b border-gray-200">
+                <div className="bg-gradient-to-r from-primary-400/10 to-primary-500/10 px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-500 rounded-xl flex items-center justify-center">
                       <Store className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">{t('store.dashboard.basicInfo')}</h3>
@@ -553,7 +553,7 @@ export const StoreSetup = () => {
                         href={storeData.website} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-[#C8E400] hover:text-[#A3C700] flex items-center gap-1"
+                className="text-primary-400 hover:text-primary-500 flex items-center gap-1"
                       >
                         {storeData.website}
                         <ExternalLink className="w-4 h-4" />
@@ -663,7 +663,7 @@ export const StoreSetup = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-[#C8E400] to-[#A3C700] rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+          <div className="w-16 h-16 bg-gradient-to-r from-primary-400 to-primary-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
             <Store className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">

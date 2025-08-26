@@ -383,7 +383,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="btn-ghost p-2"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -494,7 +494,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between text-lg font-bold text-gray-900">
                 <span>{t('cart.total')}</span>
-                <span className="text-[#C8E400]">{formatPrice(selectedOrder.summary.total)}</span>
+                <span className="text-primary-400">{formatPrice(selectedOrder.summary.total)}</span>
               </div>
             </div>
           </div>
@@ -563,7 +563,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 <button
                   onClick={() => generateReceipt(selectedOrder.id)}
                   disabled={receiptLoading}
-                  className="bg-[#C8E400] text-gray-900 rounded-lg px-4 py-2 hover:bg-[#B8D400] transition-colors flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-primary-400 text-gray-900 rounded-lg px-4 py-2 hover:bg-primary-300 transition-colors flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {receiptLoading ? (
                     <>
@@ -603,7 +603,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
           <div className="flex items-center gap-4">
             <button
               onClick={handleBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="btn-ghost p-2"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -628,7 +628,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 placeholder={t('orderHistory.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
             </div>
             
@@ -640,7 +640,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
-                  className="w-full sm:w-auto pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-transparent appearance-none bg-white sm:min-w-[220px]"
+                  className="w-full sm:w-auto pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent appearance-none bg-white sm:min-w-[220px]"
                 >
                   <option value="all">{t('orderHistory.allStatuses')}</option>
                   {availableStatuses.map(status => (
@@ -654,7 +654,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'date' | 'amount' | 'status')}
-                  className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-transparent sm:min-w-[180px]"
+                  className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent sm:min-w-[180px]"
                 >
                   <option value="date">{t('orderHistory.sortByDate')}</option>
                   <option value="amount">{t('orderHistory.sortByAmount')}</option>
@@ -662,7 +662,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
                 </select>
                 <button
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex-shrink-0"
+                  className="btn-ghost p-2 flex-shrink-0"
                   title={sortOrder === 'asc' ? t('orderHistory.ascending') : t('orderHistory.descending')}
                 >
                   <SortDesc className={`w-4 h-4 text-gray-600 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`} />
@@ -688,7 +688,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div 
-              className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C8E400]"
+              className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"
               role="progressbar"
               aria-label="Loading orders"
               data-testid="loading-spinner"
@@ -701,7 +701,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              className="btn-primary font-semibold"
             >
 {t('orderHistory.tryAgain')}
             </button>
@@ -713,7 +713,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
             <p className="text-gray-600 mb-6">{t('orderHistory.noOrdersDescription')}</p>
             <button
               onClick={handleBack}
-              className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              className="btn-primary font-semibold"
             >
               {t('orderHistory.startShopping')}
             </button>
