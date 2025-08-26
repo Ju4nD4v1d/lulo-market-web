@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { theme } from '../config/theme';
 import { ArrowLeft, User, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
@@ -981,16 +982,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             onClick={handleBack}
             className="p-2 md:p-3 hover:bg-gray-100 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 group"
           >
-            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-[#C8E400] transition-colors" />
+            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-primary-400 transition-colors" />
           </button>
           <div className="flex-1">
             <h1 className="text-lg md:text-2xl font-bold text-gray-900 tracking-tight">{t('order.checkout')}</h1>
             <div className="flex items-center gap-2 mt-1">
               {/* Step indicators */}
-              <div className={`w-2 h-2 rounded-full ${currentStep === 'info' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
-              <div className={`w-2 h-2 rounded-full ${currentStep === 'address' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
-              <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
-              <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-[#C8E400]' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'info' ? 'bg-primary-400' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'address' ? 'bg-primary-400' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-primary-400' : 'bg-gray-300'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-primary-400' : 'bg-gray-300'}`}></div>
             </div>
           </div>
         </div>
@@ -1011,7 +1012,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             <p className="text-gray-600 mb-6">Add some items to your cart before checking out.</p>
             <button
               onClick={onBack}
-              className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              className="btn-primary font-semibold"
             >
               Continue Shopping
             </button>
@@ -1032,10 +1033,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: '#C8E400',
-              colorBackground: '#ffffff',
-              colorText: '#262626',
-              colorDanger: '#df1b41',
+              colorPrimary: theme.colors.primary400,
+              colorBackground: theme.colors.neutralBg,
+              colorText: theme.colors.neutralText,
+              colorDanger: theme.colors.danger,
               fontFamily: 'ui-sans-serif, system-ui, sans-serif',
               spacingUnit: '4px',
               borderRadius: '8px',
@@ -1056,7 +1057,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'info' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <User className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <User className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.customerInfo')}</h2>
                   </div>
 
@@ -1092,7 +1093,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="text"
                         value={formData.customerInfo.name}
                         onChange={(e) => handleInputChange('customerInfo', 'name', e.target.value)}
-                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none ${
                           getErrorMessage('customerInfo.name') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.fullName')}
@@ -1114,7 +1115,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="email"
                         value={formData.customerInfo.email}
                         onChange={(e) => handleInputChange('customerInfo', 'email', e.target.value)}
-                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none ${
                           getErrorMessage('customerInfo.email') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.email')}
@@ -1136,7 +1137,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="tel"
                         value={formData.customerInfo.phone}
                         onChange={(e) => handleInputChange('customerInfo', 'phone', e.target.value)}
-                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none ${
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none ${
                           getErrorMessage('customerInfo.phone') ? 'border-red-300 bg-red-50' : ''
                         }`}
                         placeholder={t('placeholder.phone')}
@@ -1150,9 +1151,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                     </div>
 
                     {/* Delivery Notice */}
-                    <div className="bg-[#C8E400]/10 border border-[#C8E400]/20 p-4 rounded-xl">
+                    <div className="bg-primary-400/10 border border-primary-400/20 p-4 rounded-xl">
                       <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-[#C8E400]" />
+                        <MapPin className="w-5 h-5 text-primary-400" />
                         <div>
                           <p className="font-medium text-gray-900">{t('orderType.delivery')}</p>
                           <p className="text-sm text-gray-600">{t('checkout.deliveryOnly')}</p>
@@ -1174,7 +1175,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'address' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <MapPin className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <MapPin className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.deliveryAddress')}</h2>
                   </div>
 
@@ -1203,7 +1204,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="text"
                         value={formData.deliveryAddress.street}
                         onChange={(e) => handleInputChange('deliveryAddress', 'street', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                           getErrorMessage('deliveryAddress.street') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                         }`}
                         placeholder={t('placeholder.street')}
@@ -1225,7 +1226,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="text"
                         value={formData.deliveryAddress.city}
                         onChange={(e) => handleInputChange('deliveryAddress', 'city', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                           getErrorMessage('deliveryAddress.city') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                         }`}
                         placeholder={t('placeholder.city')}
@@ -1247,7 +1248,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         <select
                           value={formData.deliveryAddress.province}
                           onChange={(e) => handleInputChange('deliveryAddress', 'province', e.target.value)}
-                          className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                          className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                             getErrorMessage('deliveryAddress.province') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                           }`}
                         >
@@ -1281,7 +1282,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                           type="text"
                           value={formData.deliveryAddress.postalCode}
                           onChange={(e) => handleInputChange('deliveryAddress', 'postalCode', e.target.value.toUpperCase())}
-                          className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                          className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                             getErrorMessage('deliveryAddress.postalCode') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                           }`}
                           placeholder={t('placeholder.postalCode')}
@@ -1305,7 +1306,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         value={formData.deliveryAddress.deliveryInstructions}
                         onChange={(e) => handleInputChange('deliveryAddress', 'deliveryInstructions', e.target.value)}
                         rows={3}
-                        className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 resize-none"
+                        className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 resize-none"
                         placeholder={t('placeholder.deliveryInstructions')}
                       />
                     </div>
@@ -1324,7 +1325,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'review' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.orderSummary')}</h2>
                   </div>
 
@@ -1391,7 +1392,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       value={formData.orderNotes}
                       onChange={(e) => setFormData(prev => ({ ...prev, orderNotes: e.target.value }))}
                       rows={3}
-                      className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 resize-none"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 resize-none"
                       placeholder={t('placeholder.orderNotes')}
                     />
                   </div>
@@ -1409,7 +1410,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'payment' && paymentClientSecret && (
                 <div className="space-y-4 md:space-y-6 relative z-10">
                   <div className="flex items-center gap-3 mb-6">
-                    <CreditCard className="w-6 h-6 text-[#C8E400]" />
+                    <CreditCard className="w-6 h-6 text-primary-400" />
                     <h2 className="text-xl font-bold text-gray-900">Método de Pago</h2>
                   </div>
 
@@ -1465,7 +1466,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           <div className="lg:col-span-1">
             <div className="enhanced-card bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-200 p-6 flex flex-col">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 bg-[#C8E400] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary-400 rounded-lg flex items-center justify-center">
                   <ShoppingBag className="w-4 h-4 text-gray-900" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{t('order.orderSummary')}</h3>
@@ -1474,7 +1475,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {/* Store Info */}
               <div className="mb-4 pb-3 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center">
                     <span className="text-gray-900 font-bold text-sm">{cart.storeName?.[0]}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1513,7 +1514,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       {/* Quantity and Price */}
                       <div className="text-right">
                         <p className="text-xs text-gray-500 mb-1">Cant.: {item.quantity}</p>
-                        <p className="font-bold text-[#C8E400] text-sm whitespace-nowrap">
+                        <p className="font-bold text-primary-400 text-sm whitespace-nowrap">
                           {formatPrice(item.priceAtTime * item.quantity)}
                         </p>
                       </div>
@@ -1542,7 +1543,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                 </div>
                 <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-gray-300">
                   <span className="font-bold text-gray-900">{t('order.total')}</span>
-                  <span className="text-[#C8E400] font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
+                  <span className="text-primary-400 font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
                 </div>
               </div>
 
@@ -1599,7 +1600,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'info' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <User className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <User className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.customerInfo')}</h2>
                   </div>
 
@@ -1637,7 +1638,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       type="text"
                       value={formData.customerInfo.name}
                       onChange={(e) => handleInputChange('customerInfo', 'name', e.target.value)}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                         getErrorMessage('customerInfo.name') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       placeholder={t('placeholder.name')}
@@ -1659,7 +1660,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       type="email"
                       value={formData.customerInfo.email}
                       onChange={(e) => handleInputChange('customerInfo', 'email', e.target.value)}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                         getErrorMessage('customerInfo.email') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       placeholder={t('placeholder.email')}
@@ -1681,7 +1682,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       type="tel"
                       value={formData.customerInfo.phone}
                       onChange={(e) => handleInputChange('customerInfo', 'phone', e.target.value)}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                         getErrorMessage('customerInfo.phone') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       placeholder={t('placeholder.phone')}
@@ -1698,7 +1699,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <div className="flex justify-end pt-4 md:pt-6">
                     <button
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                      className="btn-primary font-bold text-sm"
                     >
                       {t('order.continue')}
                     </button>
@@ -1710,7 +1711,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'address' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <MapPin className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <MapPin className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.deliveryAddress')}</h2>
                   </div>
 
@@ -1723,7 +1724,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       type="text"
                       value={formData.deliveryAddress.street}
                       onChange={(e) => handleInputChange('deliveryAddress', 'street', e.target.value)}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                         getErrorMessage('deliveryAddress.street') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       placeholder={t('placeholder.streetAddress')}
@@ -1745,7 +1746,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       type="text"
                       value={formData.deliveryAddress.city}
                       onChange={(e) => handleInputChange('deliveryAddress', 'city', e.target.value)}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                         getErrorMessage('deliveryAddress.city') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       placeholder={t('placeholder.city')}
@@ -1767,7 +1768,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       <select
                         value={formData.deliveryAddress.province}
                         onChange={(e) => handleInputChange('deliveryAddress', 'province', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                           getErrorMessage('deliveryAddress.province') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                         }`}
                       >
@@ -1802,7 +1803,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         type="text"
                         value={formData.deliveryAddress.postalCode}
                         onChange={(e) => handleInputChange('deliveryAddress', 'postalCode', e.target.value)}
-                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300 ${
+                        className={`w-full px-3 md:px-4 py-2 md:py-3 border-2 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300 ${
                           getErrorMessage('deliveryAddress.postalCode') ? 'border-red-300 bg-red-50' : 'border-gray-200'
                         }`}
                         placeholder={t('placeholder.postalCode')}
@@ -1825,7 +1826,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       value={formData.orderNotes}
                       onChange={(e) => setFormData({...formData, orderNotes: e.target.value})}
                       rows={3}
-                      className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] focus:outline-none transition-all duration-300"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 focus:outline-none transition-all duration-300"
                       placeholder={t('placeholder.deliveryInstructions')}
                     />
                   </div>
@@ -1834,13 +1835,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <div className="flex justify-between pt-4 md:pt-6">
                     <button
                       onClick={handleBack}
-                      className="bg-gray-200 text-gray-700 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all duration-300"
+                      className="btn-ghost font-bold text-sm"
                     >
                       {t('order.back')}
                     </button>
                     <button
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                      className="btn-primary font-bold text-sm"
                     >
                       {t('order.continue')}
                     </button>
@@ -1852,7 +1853,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {currentStep === 'review' && (
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-[#C8E400]" />
+                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">{t('order.orderSummary')}</h2>
                   </div>
 
@@ -1884,7 +1885,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <div className="flex justify-between pt-4 md:pt-6">
                     <button
                       onClick={handleBack}
-                      className="bg-gray-200 text-gray-700 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all duration-300"
+                      className="btn-ghost font-bold text-sm"
                     >
                       {t('order.back')}
                     </button>
@@ -1899,7 +1900,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
           <div className="lg:col-span-1">
             <div className="enhanced-card bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-200 p-6 flex flex-col">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 bg-[#C8E400] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary-400 rounded-lg flex items-center justify-center">
                   <ShoppingBag className="w-4 h-4 text-gray-900" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{t('order.orderSummary')}</h3>
@@ -1908,7 +1909,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
               {/* Store Info */}
               <div className="mb-4 pb-3 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#C8E400] rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center">
                     <span className="text-gray-900 font-bold text-sm">{cart.storeName?.[0]}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1947,7 +1948,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                       {/* Quantity and Price */}
                       <div className="text-right">
                         <p className="text-xs text-gray-500 mb-1">Cant.: {item.quantity}</p>
-                        <p className="font-bold text-[#C8E400] text-sm whitespace-nowrap">
+                        <p className="font-bold text-primary-400 text-sm whitespace-nowrap">
                           {formatPrice(item.priceAtTime * item.quantity)}
                         </p>
                       </div>
@@ -1976,7 +1977,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                 </div>
                 <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-gray-300">
                   <span className="font-bold text-gray-900">{t('order.total')}</span>
-                  <span className="text-[#C8E400] font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
+                  <span className="text-primary-400 font-bold text-lg">{formatPrice(cart.summary.finalTotal)}</span>
                 </div>
               </div>
 

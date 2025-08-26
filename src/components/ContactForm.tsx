@@ -344,7 +344,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onBack }) => {
                         type="checkbox"
                         checked={formData.agreeToTerms}
                         onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
-                        className={`mt-1 rounded border-gray-300 text-[#C8E400] focus:ring-[#C8E400] ${
+                        className={`mt-1 rounded border-gray-300 text-primary-400 focus:ring-primary-400 ${
                           errors.agreeToTerms ? 'border-red-300' : ''
                         }`}
                         disabled={isSubmitting}

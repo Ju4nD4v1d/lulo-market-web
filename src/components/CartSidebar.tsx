@@ -136,7 +136,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
         {/* Compact Professional Header */}
         <div className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#C8E400] rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-8 h-8 bg-primary-400 rounded-lg flex items-center justify-center shadow-sm">
               <ShoppingCart className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -148,7 +148,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="btn-ghost p-2"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -173,7 +173,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
                 </div>
                 <button
                   onClick={handleClose}
-                  className="bg-[#C8E400] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[#A3C700] transition-all duration-200 transform hover:scale-105 shadow-md"
+                  className="bg-primary-400 text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-primary-500 transition-all duration-200 transform hover:scale-105 shadow-md"
                 >
                   {t('cart.empty.startShopping')}
                 </button>
@@ -183,9 +183,9 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
             <>
               {/* Store Info Banner */}
               {cart.storeName && (
-                <div className="bg-gradient-to-r from-[#C8E400]/10 to-[#C8E400]/5 border-b border-[#C8E400]/20 px-4 py-3">
+                <div className="bg-gradient-to-r from-primary-400/10 to-primary-400/5 border-b border-primary-400/20 px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-[#C8E400] rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-primary-400 rounded-lg flex items-center justify-center">
                       <Store className="w-3.5 h-3.5 text-white" />
                     </div>
                     <div>
@@ -229,7 +229,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
                   </div>
                   <div className="border-t border-gray-300 pt-3 flex justify-between items-center">
                     <span className="text-gray-900 font-bold text-base">{t('cart.total')}</span>
-                    <span className="text-[#C8E400] font-bold text-lg">CAD ${cart.summary.finalTotal}</span>
+                    <span className="text-primary-400 font-bold text-lg">CAD ${cart.summary.finalTotal}</span>
                   </div>
                 </div>
 
@@ -249,7 +249,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
                     disabled={isLoading || isClearing}
                     className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 transform hover:scale-[1.02] shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                       currentUser 
-                        ? 'bg-[#C8E400] text-white hover:bg-[#A3C700] hover:shadow-lg' 
+                        ? 'bg-primary-400 text-white hover:bg-primary-500 hover:shadow-lg' 
                         : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
                     }`}
                   >
@@ -321,7 +321,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item, onQuantityChange, onR
             <div className="flex-1 min-w-0 mr-3">
               <h4 className="font-semibold text-gray-900 truncate text-base leading-tight">{item.product.name}</h4>
               <div className="flex items-center gap-2 mt-1">
-                <span className="font-bold text-[#C8E400] text-base">CAD ${item.priceAtTime}</span>
+                <span className="font-bold text-primary-400 text-base">CAD ${item.priceAtTime}</span>
                 {item.priceAtTime !== item.product.price && (
                   <span className="text-sm text-gray-500 line-through">CAD ${item.product.price}</span>
                 )}
@@ -366,7 +366,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item, onQuantityChange, onR
             </div>
             <div className="text-right">
               <span className="text-xs sm:text-sm text-gray-600">Total:</span>
-              <p className="font-bold text-[#C8E400] text-base sm:text-lg">CAD ${(item.priceAtTime * item.quantity).toFixed(2)}</p>
+              <p className="font-bold text-primary-400 text-base sm:text-lg">CAD ${(item.priceAtTime * item.quantity).toFixed(2)}</p>
             </div>
           </div>
 

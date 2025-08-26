@@ -32,13 +32,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'hot':
-        return <Flame className="w-5 h-5 text-[#C8E400]" />;
+        return <Flame className="w-5 h-5 text-primary-400" />;
       case 'frozen':
-        return <Snowflake className="w-5 h-5 text-[#C8E400]" />;
+        return <Snowflake className="w-5 h-5 text-primary-400" />;
       case 'baked':
-        return <Cookie className="w-5 h-5 text-[#C8E400]" />;
+        return <Cookie className="w-5 h-5 text-primary-400" />;
       default:
-        return <Package2 className="w-5 h-5 text-[#C8E400]" />;
+        return <Package2 className="w-5 h-5 text-primary-400" />;
     }
   };
 
@@ -93,14 +93,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
           <div className="flex items-center justify-between">
             <button
               onClick={onBack}
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              className="btn-ghost flex items-center"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               {t('products.back')}
             </button>
             <button
               onClick={onEdit}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
+              className="btn-primary inline-flex items-center gap-2 font-semibold"
             >
               <Edit className="w-5 h-5 mr-2" />
               {t('products.edit')}
@@ -136,7 +136,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                         onClick={() => setSelectedImageIndex(index)}
                         className={`
                           relative aspect-square rounded-lg overflow-hidden border-2 transition-all
-                          ${selectedImageIndex === index ? 'border-[#C8E400] ring-2 ring-[#C8E400]/20' : 'border-gray-200 hover:border-gray-300'}
+                          ${selectedImageIndex === index ? 'border-primary-400 ring-2 ring-primary-400/20' : 'border-gray-200 hover:border-gray-300'}
                         `}
                       >
                         <img
@@ -170,9 +170,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(product.status)}`}>
                       {getStatusText(product.status)}
                     </span>
-                    <div className="flex items-center gap-1 px-3 py-1 bg-[#C8E400]/10 rounded-full">
+                    <div className="flex items-center gap-1 px-3 py-1 bg-primary-400/10 rounded-full">
                       {getCategoryIcon(product.category)}
-                      <span className="text-sm font-medium text-[#7A8B00]">
+                      <span className="text-sm font-medium text-primary-700">
                         {getCategoryText(product.category)}
                       </span>
                     </div>
@@ -191,14 +191,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             {/* Pricing & Stock */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-[#C8E400]" />
+                <DollarSign className="w-5 h-5 text-primary-400" />
                 {t('products.pricingStock')}
               </h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">{t('products.basePrice')}</span>
-                  <span className="text-2xl font-bold text-[#C8E400]">
+                  <span className="text-2xl font-bold text-primary-400">
                     CAD ${product.price.toFixed(2)}
                   </span>
                 </div>
@@ -234,7 +234,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-2">
-                    <Boxes className="w-5 h-5 text-[#C8E400]" />
+                    <Boxes className="w-5 h-5 text-primary-400" />
                     <span className="text-gray-600">{t('products.stock')}</span>
                   </div>
                   <div className="flex items-center gap-2">

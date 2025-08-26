@@ -215,10 +215,10 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       <button
         type="submit"
         disabled={!stripe || !elements || isProcessing}
-        className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all duration-300 mt-4 ${
+        className={`w-full mt-4 font-bold ${
           isProcessing || !stripe || !elements
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] hover:shadow-lg transform hover:scale-[1.02]'
+            ? 'bg-gray-400 text-white cursor-not-allowed py-3 px-6 rounded-lg'
+            : 'btn-primary'
         }`}
       >
         <span className="flex items-center justify-center gap-2">

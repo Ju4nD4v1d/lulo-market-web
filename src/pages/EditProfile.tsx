@@ -408,7 +408,7 @@ export const EditProfile = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#C8E400] to-[#A3C700] flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center">
                       <User className="w-12 h-12 text-white" />
                     </div>
                   )}
@@ -452,7 +452,7 @@ export const EditProfile = () => {
                 
                 {/* Mobile-Friendly Upload Button */}
                 <div className="mt-4 md:hidden">
-                  <label className="inline-flex items-center gap-2 bg-[#C8E400] text-gray-800 px-4 py-2 rounded-lg font-medium cursor-pointer touch-manipulation hover:bg-[#A3C700] transition-colors">
+                  <label className="inline-flex items-center gap-2 bg-primary-400 text-gray-800 px-4 py-2 rounded-lg font-medium cursor-pointer touch-manipulation hover:bg-primary-500 transition-colors">
                     <Camera className="w-4 h-4" />
                     <span className="text-sm">
                       {profileImage.preview || profileImage.url ? t('profile.changePhoto') : t('profile.addPhoto')}
@@ -725,7 +725,7 @@ export const EditProfile = () => {
                 className={`w-full flex items-center justify-center gap-2 py-4 px-4 rounded-lg font-medium transition-all duration-200 text-base touch-manipulation ${
                   isLoading
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#C8E400] to-[#A3C700] hover:shadow-lg transform hover:scale-[1.02]'
+                    : 'bg-gradient-to-r from-primary-400 to-primary-500 hover:shadow-lg transform hover:scale-[1.02]'
                 } text-white`}
               >
                 {isLoading ? (

@@ -8,6 +8,7 @@ export default {
         heading: ['Montserrat', 'system-ui', 'sans-serif'],
       },
       colors: {
+        brand: '#e7ff01', // Lulo green
         primary: {
           50: '#F9FBE7',
           100: '#F0F6CF',
@@ -23,6 +24,10 @@ export default {
         coral: '#F05E36',
         background: '#F7F4ED',
         text: '#2E2E2E',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
   },

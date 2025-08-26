@@ -115,7 +115,7 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Enhanced Header */}
-      <div className="bg-[#16726B] text-white sticky top-0 z-50 enhanced-navbar">
+      <div className="bg-teal-800 text-white sticky top-0 z-50 enhanced-navbar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-4">
             {/* Back and Logo */}
@@ -129,7 +129,7 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
                 </button>
               )}
               <div className="flex items-center gap-2">
-                <ShoppingCart className="w-6 h-6 text-[#C8E400]" />
+                <ShoppingCart className="w-6 h-6 text-primary-400" />
                 <span className="text-xl font-bold">All Stores</span>
               </div>
             </div>
@@ -262,7 +262,7 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
                       e.stopPropagation();
                       handleStoreClick(store);
                     }}
-                    className="w-full py-2 rounded-xl font-medium text-sm transition-colors bg-gray-100 hover:bg-[#C8E400] hover:text-white"
+                    className="w-full py-2 rounded-xl font-medium text-sm transition-colors bg-gray-100 hover:bg-primary-400 hover:text-white"
                   >
                     <span className="text-sm font-bold">View Store</span>
                   </button>

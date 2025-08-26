@@ -4,6 +4,7 @@ import { StoreData } from '../types/store';
 import { StoreDetail } from './StoreDetail';
 import { CartSidebar } from './CartSidebar';
 import { MarketplaceHero } from './MarketplaceHero';
+import { Footer } from './Footer';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -306,7 +307,8 @@ export const Home = () => {
   // Function to get city name from coordinates
   const getCityName = async (lat: number, lng: number) => {
     try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyDrqIE1Zs8YVmaZUdrJgCaOiKIczdz5Hag';
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
       const data = await response.json();
       if (data.results && data.results.length > 0) {
         const addressComponents = data.results[0].address_components;
@@ -398,7 +400,7 @@ export const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-100">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#16726B] text-white enhanced-navbar">
+      <header className="sticky top-0 z-50 bg-slate-900/90 text-slate-100 backdrop-blur-md border-b border-white/10">
         {/* Test Mode Banner */}
         {isTestMode && (
           <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center">
@@ -421,28 +423,15 @@ export const Home = () => {
         )}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center">
               <button
                 onClick={() => window.location.hash = '#'}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <span className="text-xl font-bold">Lulo Market</span>
+                <span className="text-xl font-bold">LuloCart</span>
               </button>
-            </div>
-            
-            {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search for Grocery, Stores, Vegetable or Meat"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input w-full pl-4 pr-4 py-2 bg-white text-gray-900 placeholder-gray-500"
-                />
-              </div>
             </div>
             
             {/* Right side actions */}
@@ -450,7 +439,7 @@ export const Home = () => {
               {/* Language Switcher */}
               <button 
                 onClick={toggleLanguage}
-                className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="flex items-center gap-2 p-2 text-slate-100 hover:text-brand rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 <Globe className="w-5 h-5" />
                 <span className="hidden sm:inline text-sm">{t('language.toggle')}</span>
@@ -459,7 +448,7 @@ export const Home = () => {
               {/* For Business Link */}
               <a
                 href="#business"
-                className="nav-link hidden md:flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors text-sm"
+                className="hidden md:flex items-center gap-2 p-2 text-slate-100 hover:text-brand rounded-lg transition-colors text-sm focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 {t('nav.forBusiness')}
               </a>
@@ -467,7 +456,7 @@ export const Home = () => {
               {/* Cart Button */}
               <button
                 onClick={() => setShowCart(true)}
-                className="relative p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                className="relative p-2 text-slate-100 hover:text-brand rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {cart.summary.itemCount > 0 && (
@@ -482,7 +471,7 @@ export const Home = () => {
                 <div className="relative">
                   <button 
                     onClick={handleUserMenuClick}
-                    className="flex items-center gap-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                    className="flex items-center gap-2 p-2 text-slate-100 hover:text-brand rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-brand/40"
                   >
                     <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/20">
                       {userProfile?.avatar ? (
@@ -492,8 +481,8 @@ export const Home = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
-                          <User className="w-4 h-4 text-white" />
+                        <div className="w-full h-full bg-brand flex items-center justify-center">
+                          <User className="w-4 h-4 text-slate-900" />
                         </div>
                       )}
                     </div>
@@ -517,7 +506,7 @@ export const Home = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-[#C8E400] to-[#A3C700] flex items-center justify-center">
+                                <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center">
                                   <User className="w-5 h-5 text-white" />
                                 </div>
                               )}
@@ -589,10 +578,10 @@ export const Home = () => {
                     setRedirectAfterLogin(window.location.hash || '#');
                     window.location.hash = '#login';
                   }}
-                  className="btn-primary focus-ring flex items-center gap-2 text-sm"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-slate-100 hover:text-brand transition-colors focus-visible:ring-2 focus-visible:ring-brand/40"
+                  title="Sign In"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign In</span>
                 </button>
               )}
               
@@ -606,7 +595,7 @@ export const Home = () => {
                       onChange={toggleTestMode}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-400/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-400"></div>
                   </label>
                 </div>
               )}
@@ -629,8 +618,8 @@ export const Home = () => {
       {/* Featured Restaurants Section */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 lg:py-20">
         <div className="text-center mb-8 lg:mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-4">
-            <span className="text-xs font-semibold text-[#C8E400]">✨ {t('home.featuredRestaurants.badge')}</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-400/10 rounded-full border border-primary-400/20 mb-4">
+            <span className="text-xs font-semibold text-primary-400">✨ {t('home.featuredRestaurants.badge')}</span>
           </div>
           <h2 className="text-h2 text-gray-900 mb-3 leading-tight">
             {t('home.featuredRestaurants.title')}
@@ -715,7 +704,7 @@ export const Home = () => {
                     
                     {/* Badge Logic */}
                     {isStoreNew(store.createdAt) ? (
-                      <div className="absolute bottom-2 left-2 bg-[#C8E400] text-gray-800 rounded-full px-2 py-1 shadow-lg">
+                      <div className="absolute bottom-2 left-2 bg-primary-400 text-gray-800 rounded-full px-2 py-1 shadow-lg">
                         <div className="flex items-center text-xs font-semibold">
                           <Star className="w-3 h-3 fill-current mr-1" />
                           <span>{t('store.new')}</span>
@@ -736,7 +725,7 @@ export const Home = () => {
                   {/* Store Info */}
                   <div className="p-2 lg:p-3 space-y-2">
                     <div className="space-y-1">
-                      <h3 className="font-medium text-sm lg:text-base text-gray-900 leading-tight group-hover:text-[#C8E400] transition-colors duration-300 line-clamp-1">
+                      <h3 className="font-medium text-sm lg:text-base text-gray-900 leading-tight group-hover:text-primary-400 transition-colors duration-300 line-clamp-1">
                         {store.name}
                       </h3>
                       <p className="text-gray-600 text-xs leading-relaxed line-clamp-2 font-light">
@@ -746,7 +735,7 @@ export const Home = () => {
 
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center text-gray-500">
-                        <MapPin className="w-3 h-3 mr-1 text-[#C8E400]" />
+                        <MapPin className="w-3 h-3 mr-1 text-primary-400" />
                         <span className="font-medium">{calculateDistance(store)}</span>
                       </div>
                       <div className="flex items-center text-gray-500">
@@ -778,7 +767,7 @@ export const Home = () => {
                     </div>
 
                     <div className="pt-1">
-                      <div className="bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white text-center py-1.5 rounded-lg font-medium text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
+                      <div className="bg-gradient-to-r from-primary-400 to-primary-500 text-white text-center py-1.5 rounded-lg font-medium text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
                         {t('shopper.viewMenuOrder')}
                       </div>
                     </div>
@@ -877,24 +866,24 @@ export const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="w-8 h-8 text-[#C8E400]" />
+              <div className="bg-primary-400/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-8 h-8 text-primary-400" />
               </div>
               <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step1.title')}</h3>
               <p className="body-font text-gray-600">{t('home.howItWorks.step1.description')}</p>
             </div>
 
             <div className="text-center">
-              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-[#C8E400]" />
+              <div className="bg-primary-400/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-primary-400" />
               </div>
               <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step2.title')}</h3>
               <p className="body-font text-gray-600">{t('home.howItWorks.step2.description')}</p>
             </div>
 
             <div className="text-center">
-              <div className="bg-[#C8E400]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-[#C8E400]" />
+              <div className="bg-primary-400/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-primary-400" />
               </div>
               <h3 className="text-h3 text-gray-900 mb-3">{t('home.howItWorks.step3.title')}</h3>
               <p className="body-font text-gray-600">{t('home.howItWorks.step3.description')}</p>
@@ -931,30 +920,14 @@ export const Home = () => {
                 alt="Our Story"
                 className="rounded-2xl shadow-lg"
               />
-              <div className="absolute inset-0 bg-[#C8E400]/10 rounded-2xl"></div>
+              <div className="absolute inset-0 bg-primary-400/10 rounded-2xl"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Partner CTA Section */}
-      <section className="bg-gradient-to-b from-[#16726B] to-[#0f4f47] text-white py-16 lg:py-20">
-        <div className="max-w-4xl mx-auto px-4 lg:px-8 text-center">
-          <h2 className="text-h1 mb-6">
-            {t('home.partnerCta.title')}
-          </h2>
-          <p className="body-font text-lg lg:text-xl text-white/90 max-w-2xl mx-auto mb-8">
-            {t('home.partnerCta.description')}
-          </p>
-          <button
-            onClick={() => window.location.hash = '#business'}
-            className="btn-primary focus-ring inline-flex items-center gap-2 text-lg px-8 py-4"
-          >
-            {t('home.partnerCta.button')}
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </section>
+      {/* Footer with integrated business CTA */}
+      <Footer />
 
       {/* Cart Sidebar */}
       <CartSidebar 

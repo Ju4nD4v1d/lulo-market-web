@@ -19,6 +19,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { theme } from '../config/theme';
 import { StoreData } from '../types/store';
 
 interface StoreFormProps {
@@ -225,7 +226,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 currentStage >= 1 
                   ? isStageComplete(1)
                     ? 'bg-green-500 shadow-lg scale-110'
-                    : 'bg-[#C8E400] shadow-lg scale-110'
+                    : 'bg-primary-400 shadow-lg scale-110'
                   : 'bg-gray-200'
               }`}>
                 {isStageComplete(1) ? (
@@ -244,7 +245,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
             {/* Connector 1 */}
             <div className={`h-1 flex-1 mx-4 rounded transition-colors duration-300 ${
-              currentStage > 1 ? 'bg-[#C8E400]' : 'bg-gray-200'
+              currentStage > 1 ? 'bg-primary-400' : 'bg-gray-200'
             }`}></div>
 
             {/* Stage 2 */}
@@ -253,7 +254,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 currentStage >= 2 
                   ? isStageComplete(2)
                     ? 'bg-green-500 shadow-lg scale-110'
-                    : 'bg-[#C8E400] shadow-lg scale-110'
+                    : 'bg-primary-400 shadow-lg scale-110'
                   : 'bg-gray-200'
               }`}>
                 {isStageComplete(2) ? (
@@ -272,7 +273,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
             {/* Connector 2 */}
             <div className={`h-1 flex-1 mx-4 rounded transition-colors duration-300 ${
-              currentStage > 2 ? 'bg-[#C8E400]' : 'bg-gray-200'
+              currentStage > 2 ? 'bg-primary-400' : 'bg-gray-200'
             }`}></div>
 
             {/* Stage 3 */}
@@ -281,7 +282,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 currentStage >= 3 
                   ? isStageComplete(3)
                     ? 'bg-green-500 shadow-lg scale-110'
-                    : 'bg-[#C8E400] shadow-lg scale-110'
+                    : 'bg-primary-400 shadow-lg scale-110'
                   : 'bg-gray-200'
               }`}>
                 {isStageComplete(3) ? (
@@ -303,9 +304,9 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         {/* Stage 1: Basic Information */}
         {currentStage === 1 && (
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden animate-[slideInRight_0.5s_ease-out]">
-          <div className="bg-gradient-to-r from-[#C8E400]/5 to-[#A3C700]/5 px-6 py-4 border-b border-gray-200/50">
+          <div className="bg-gradient-to-r from-primary-400/5 to-primary-500/5 px-6 py-4 border-b border-gray-200/50">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-[#C8E400] to-[#A3C700] rounded-xl shadow-lg">
+              <div className="p-2 bg-gradient-to-br from-primary-400 to-primary-500 rounded-xl shadow-lg">
                 <Store className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -320,7 +321,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-[#C8E400]" />
+                  <Star className="w-4 h-4 text-primary-400" />
                   {t('store.name')}
                 </label>
                 <div className="relative">
@@ -328,7 +329,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                     type="text"
                     value={storeData.name}
                     onChange={(e) => setStoreData({ ...storeData, name: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 group-hover:shadow-md"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 group-hover:shadow-md"
                     placeholder={t('store.namePlaceholder')}
                   />
                 </div>
@@ -336,14 +337,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#C8E400]" />
+                  <Zap className="w-4 h-4 text-primary-400" />
                   {t('store.category')}
                 </label>
                 <div className="relative">
                   <select
                     value={storeData.category || ''}
                     onChange={(e) => setStoreData({ ...storeData, category: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
                   >
                     <option value="">{t('store.selectCategory')}</option>
                     <option value="restaurant">{t('store.category.restaurant')}</option>
@@ -358,14 +359,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-[#C8E400]" />
+                  <Heart className="w-4 h-4 text-primary-400" />
                   {t('store.cuisine')}
                 </label>
                 <div className="relative">
                   <select
                     value={storeData.cuisine || ''}
                     onChange={(e) => setStoreData({ ...storeData, cuisine: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
                   >
                     <option value="">{t('store.cuisinePlaceholder')}</option>
                     <option value="mexican">{t('store.cuisine.mexican')}</option>
@@ -394,7 +395,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
             <div className="group">
               <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <Heart className="w-4 h-4 text-[#C8E400]" />
+                <Heart className="w-4 h-4 text-primary-400" />
                 {t('store.description')}
               </label>
               <div className="relative">
@@ -402,7 +403,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                   value={storeData.description}
                   onChange={(e) => setStoreData({ ...storeData, description: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 resize-none"
                   placeholder={t('store.descriptionPlaceholder')}
                 />
                 <div className="absolute bottom-3 right-3 text-xs text-gray-400">
@@ -414,14 +415,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             {/* Store Image Upload */}
             <div className="group">
               <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <Camera className="w-4 h-4 text-[#C8E400]" />
+                <Camera className="w-4 h-4 text-primary-400" />
                 {t('store.image')}
               </label>
               <div
                 className={`border-3 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
                   dragActive 
-                    ? 'border-[#C8E400] bg-gradient-to-br from-[#C8E400]/10 to-[#A3C700]/5 shadow-lg' 
-                    : 'border-gray-300 hover:border-[#C8E400]/50 hover:bg-gray-50/50'
+                    ? 'border-primary-400 bg-gradient-to-br from-primary-400/10 to-primary-500/5 shadow-lg' 
+                    : 'border-gray-300 hover:border-primary-400/50 hover:bg-gray-50/50'
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -461,8 +462,8 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#C8E400]/20 to-[#A3C700]/20 rounded-2xl">
-                      <Upload className="w-8 h-8 text-[#C8E400]" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-400/20 to-primary-500/20 rounded-2xl">
+                      <Upload className="w-8 h-8 text-primary-400" />
                     </div>
                     <div>
                       <p className="text-lg font-medium text-gray-900 mb-2">{t('store.uploadImage')}</p>
@@ -477,7 +478,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                     />
                     <label
                       htmlFor="store-image"
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 py-3 rounded-xl cursor-pointer hover:shadow-lg transition-all duration-300 font-medium"
+                      className="btn-primary inline-flex items-center gap-2 cursor-pointer font-medium"
                     >
                       <Camera className="w-4 h-4" />
                       {t('store.selectImage')}
@@ -509,7 +510,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[#C8E400]" />
+                  <Phone className="w-4 h-4 text-primary-400" />
                   {t('store.phone')}
                 </label>
                 <div className="relative">
@@ -517,7 +518,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                     type="tel"
                     value={storeData.phone || ''}
                     onChange={(e) => setStoreData({ ...storeData, phone: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
                     placeholder={t('store.phonePlaceholder')}
                   />
                 </div>
@@ -525,7 +526,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-[#C8E400]" />
+                  <Mail className="w-4 h-4 text-primary-400" />
                   {t('store.email')}
                 </label>
                 <div className="relative">
@@ -533,7 +534,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                     type="email"
                     value={storeData.email || ''}
                     onChange={(e) => setStoreData({ ...storeData, email: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
                     placeholder={t('store.emailPlaceholder')}
                   />
                 </div>
@@ -542,7 +543,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
             <div className="group">
               <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#C8E400]" />
+                <MapPin className="w-4 h-4 text-primary-400" />
                 {t('store.address')}
               </label>
               <div className="relative">
@@ -575,7 +576,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             {/* Delivery Hours */}
             <div className="group">
               <label className="block text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#C8E400]" />
+                <MapPin className="w-4 h-4 text-primary-400" />
                 {t('store.deliveryHours')}
               </label>
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
@@ -595,7 +596,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                           };
                           setStoreData({ ...storeData, deliveryHours: updatedHours });
                         }}
-                        className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400]" style={{accentColor: '#C8E400'}}
+                        className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-primary-400 focus:border-primary-400" style={{accentColor: theme.colors.primary400}}
                       />
                       <span className="text-sm text-gray-600 w-12">{t('store.open')}</span>
                     </div>
@@ -611,7 +612,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                             };
                             setStoreData({ ...storeData, deliveryHours: updatedHours });
                           }}
-                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-colors"
+                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 transition-colors"
                         />
                         <span className="text-gray-500">-</span>
                         <input
@@ -624,7 +625,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                             };
                             setStoreData({ ...storeData, deliveryHours: updatedHours });
                           }}
-                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#C8E400]/20 focus:border-[#C8E400] transition-colors"
+                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 transition-colors"
                         />
                       </>
                     )}
@@ -812,7 +813,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 <button
                   type="button"
                   onClick={prevStage}
-                  className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium text-gray-700"
+                  className="btn-ghost inline-flex items-center gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
 {t('store.previous')}
@@ -823,7 +824,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium text-gray-700"
+                  className="btn-ghost inline-flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   {t('store.cancel')}
@@ -837,7 +838,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                   type="button"
                   onClick={nextStage}
                   disabled={!isStageComplete(currentStage)}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
 {t('store.nextStage')}
                   <ChevronRight className="w-4 h-4" />
@@ -847,7 +848,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                   type="button"
                   onClick={onSave}
                   disabled={saving || !isStageComplete(3)}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   {saving ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

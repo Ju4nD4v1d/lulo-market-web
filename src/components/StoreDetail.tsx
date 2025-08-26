@@ -356,7 +356,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Enhanced Professional Header */}
-      <div className="bg-[#16726B] text-white sticky top-0 z-50 enhanced-navbar shadow-lg">
+      <div className="bg-teal-800 text-white sticky top-0 z-50 enhanced-navbar shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-4">
             {/* Back and Store Name */}
@@ -423,7 +423,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
+                        <div className="w-full h-full bg-primary-400 flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />
                         </div>
                       )}
@@ -448,7 +448,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-[#C8E400] flex items-center justify-center">
+                                <div className="w-full h-full bg-primary-400 flex items-center justify-center">
                                   <User className="w-5 h-5 text-white" />
                                 </div>
                               )}
@@ -520,7 +520,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                     setRedirectAfterLogin(window.location.hash || '#');
                     window.location.hash = '#login';
                   }}
-                  className="flex items-center gap-2 bg-[#C8E400] text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-[#A3C700] transition-colors text-sm"
+                  className="flex items-center gap-2 bg-primary-400 text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-primary-500 transition-colors text-sm"
                 >
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline">Sign In</span>
@@ -537,7 +537,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                       onChange={toggleTestMode}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C8E400]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#C8E400]"></div>
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-400/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-400"></div>
                     <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
                       {t('testMode.active')}
                     </span>
@@ -578,8 +578,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               ) : (
                 <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-24 h-24 bg-[#C8E400]/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <BookOpen className="w-12 h-12 text-[#C8E400]" />
+                    <div className="w-24 h-24 bg-primary-400/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <BookOpen className="w-12 h-12 text-primary-400" />
                     </div>
                     <span className="body-font text-gray-500 font-medium text-lg">{store.name}</span>
                   </div>
@@ -598,7 +598,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   
                   {/* Verification Badge */}
                   {store.isVerified && (
-                    <div className="bg-white/90 backdrop-blur-sm text-[#C8E400] px-4 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/20">
+                    <div className="bg-white/90 backdrop-blur-sm text-primary-400 px-4 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/20">
                       <div className="flex items-center gap-2">
                         <Shield className="w-4 h-4 text-emerald-600" />
                         <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
@@ -779,7 +779,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
           <div className="p-6">
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
-                <Truck className="w-5 h-5 text-[#C8E400]" />
+                <Truck className="w-5 h-5 text-primary-400" />
                 <h2 className="text-lg font-medium text-gray-900">{t('delivery.schedule')}</h2>
               </div>
               <p className="text-gray-600 text-sm">{t('delivery.scheduleDescription')}</p>
@@ -869,9 +869,9 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
         <div data-menu-section className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
           <div className="p-6 md:p-8">
             <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20 mb-6">
-                <Star className="w-4 h-4 text-[#C8E400]" />
-                <span className="text-sm font-medium text-[#C8E400]">{t('storeDetail.menu')}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-400/10 rounded-full border border-primary-400/20 mb-6">
+                <Star className="w-4 h-4 text-primary-400" />
+                <span className="text-sm font-medium text-primary-400">{t('storeDetail.menu')}</span>
               </div>
               <h2 className="text-h2 text-gray-900 mb-4 tracking-tight">{t('storeDetail.ourMenu')}</h2>
               <p className="body-font text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
@@ -904,8 +904,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                       onClick={() => setSelectedCategory(category.id)}
                       className={`premium-pill focus-ring px-6 py-3 flex items-center gap-3 border-2 ${
                         selectedCategory === category.id
-                          ? 'btn-primary text-gray-900 border-[#C8E400] shadow-lg'
-                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C8E400]/50'
+                          ? 'btn-primary text-gray-900 border-primary-400 shadow-lg'
+                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-primary-400/50'
                       }`}
                     >
                       <span className="text-base">{category.icon}</span>
@@ -1015,16 +1015,16 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
               <div className="relative overflow-hidden">
                 {/* Background Elements */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8E400]/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#A3C700]/5 rounded-full blur-3xl"></div>
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-400/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl"></div>
                 
                 <div className="relative bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] lg:rounded-[3rem] shadow-2xl border border-white/20 overflow-hidden">
                   {/* Elegant Header */}
                   <div className="relative text-center py-12 md:py-16 lg:py-20 px-6 md:px-8">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#C8E400]/10 via-white/50 to-[#A3C700]/10"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-400/10 via-white/50 to-primary-500/10"></div>
                     <div className="relative space-y-4 md:space-y-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400]/10 rounded-full border border-[#C8E400]/20">
-                        <BookOpen className="w-4 h-4 text-[#C8E400]" />
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-400/10 rounded-full border border-primary-400/20">
+                        <BookOpen className="w-4 h-4 text-primary-400" />
                         <span className="text-sm font-medium text-gray-700">{t('storeDetail.ourStory')}</span>
                       </div>
                       <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-gray-900 leading-tight">
@@ -1049,11 +1049,11 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                               <div className="p-6 md:p-8 lg:p-12 bg-gradient-to-br from-white to-gray-50 lg:border-r border-gray-200/50">
                                 <div className="h-full flex flex-col justify-center space-y-6">
                                   <div className="space-y-4">
-                                    <div className="text-xs uppercase tracking-wider text-[#C8E400] font-semibold">{t('storeDetail.ourStory')}</div>
+                                    <div className="text-xs uppercase tracking-wider text-primary-400 font-semibold">{t('storeDetail.ourStory')}</div>
                                     <h3 className="text-xl md:text-2xl lg:text-3xl font-light text-gray-900 leading-tight break-words">
                                       {aboutSections[0].title}
                                     </h3>
-                                    <div className="w-16 h-0.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700]"></div>
+                                    <div className="w-16 h-0.5 bg-gradient-to-r from-primary-400 to-primary-500"></div>
                                   </div>
                                   <div className="max-h-64 md:max-h-80 lg:max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                                     <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light break-words pr-2">
@@ -1091,7 +1091,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                                   <div className="h-full flex flex-col justify-center space-y-6">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between">
-                                        <div className="text-xs uppercase tracking-wider text-[#C8E400] font-semibold">{t('storeDetail.ourStory')}</div>
+                                        <div className="text-xs uppercase tracking-wider text-primary-400 font-semibold">{t('storeDetail.ourStory')}</div>
                                         <div className="text-xs text-gray-500">
                                           {activeAboutTab + 1} of {aboutSections.length}
                                         </div>
@@ -1099,7 +1099,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                                       <h3 className="text-xl md:text-2xl lg:text-3xl font-light text-gray-900 leading-tight break-words">
                                         {aboutSections[activeAboutTab]?.title}
                                       </h3>
-                                      <div className="w-16 h-0.5 bg-gradient-to-r from-[#C8E400] to-[#A3C700]"></div>
+                                      <div className="w-16 h-0.5 bg-gradient-to-r from-primary-400 to-primary-500"></div>
                                     </div>
                                     <div className="max-h-64 md:max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                                       <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light break-words pr-2">
@@ -1115,7 +1115,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                                           onClick={() => setActiveAboutTab(index)}
                                           className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                             activeAboutTab === index 
-                                              ? 'bg-[#C8E400] w-6' 
+                                              ? 'bg-primary-400 w-6' 
                                               : 'bg-gray-300 hover:bg-gray-400'
                                           }`}
                                           aria-label={`Go to story ${index + 1}`}
@@ -1171,7 +1171,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   </div>
 
                   {/* Call to Action */}
-                  <div className="text-center py-12 md:py-16 px-6 md:px-8 bg-gradient-to-r from-[#C8E400]/5 via-white/50 to-[#A3C700]/5">
+                  <div className="text-center py-12 md:py-16 px-6 md:px-8 bg-gradient-to-r from-primary-400/5 via-white/50 to-primary-500/5">
                     <div className="space-y-6">
                       <h4 className="text-xl md:text-2xl font-light text-gray-900">
                         {t('storeDetail.readyToTaste')}
@@ -1184,7 +1184,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                           const menuSection = document.querySelector('[data-menu-section]');
                           menuSection?.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl font-medium text-sm md:text-base hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
+                        className="btn-primary inline-flex items-center gap-2 text-sm md:text-base"
                       >
                         <span>{t('storeDetail.viewMenu')}</span>
                         <ChevronRight className="w-4 h-4" />

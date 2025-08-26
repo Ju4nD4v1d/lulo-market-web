@@ -114,7 +114,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         return 'bg-transparent hover:bg-gray-50 text-gray-600 border border-gray-300';
       case 'primary':
       default:
-        return 'bg-[#C8E400] hover:bg-[#A3C700] text-gray-900 shadow-lg hover:shadow-xl';
+        return 'bg-primary-400 hover:bg-primary-500 text-gray-900 shadow-lg hover:shadow-xl';
     }
   };
 
@@ -153,7 +153,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           flex items-center justify-center gap-1 rounded-lg font-medium min-w-0 w-full
           transition-all duration-300
           disabled:opacity-50 disabled:cursor-not-allowed
-          focus:outline-none focus:ring-2 focus:ring-[#C8E400]/30
+          focus:outline-none focus:ring-2 focus:ring-primary-400/30
           ${!canAdd ? 'opacity-50 cursor-not-allowed' : ''}
         `}
         title={!isAvailable ? t('cart.productNotAvailable') : !canAdd ? t('cart.clearCartDifferentStore') : t('cart.addToCart')}

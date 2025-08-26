@@ -122,7 +122,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ orderId, onBack })
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C8E400] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
@@ -138,7 +138,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ orderId, onBack })
           <p className="text-gray-600 mb-6">{error || 'The order you\'re looking for doesn\'t exist or you don\'t have permission to view it.'}</p>
           <button
             onClick={onBack}
-            className="bg-[#C8E400] text-gray-900 px-6 py-2 rounded-lg hover:bg-[#B8D400] transition-colors"
+            className="bg-primary-400 text-gray-900 px-6 py-2 rounded-lg hover:bg-primary-300 transition-colors"
           >
             Go Back
           </button>
@@ -284,7 +284,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ orderId, onBack })
                 <button
                   onClick={generateReceipt}
                   disabled={receiptLoading}
-                  className="w-full bg-[#C8E400] text-gray-900 rounded-lg px-4 py-2 hover:bg-[#B8D400] transition-colors flex items-center gap-2 justify-center disabled:opacity-50"
+                  className="w-full bg-primary-400 text-gray-900 rounded-lg px-4 py-2 hover:bg-primary-300 transition-colors flex items-center gap-2 justify-center disabled:opacity-50"
                 >
                   <Receipt className="w-4 h-4" />
                   {receiptLoading ? 'Generating...' : 'Generate Receipt'}

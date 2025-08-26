@@ -349,7 +349,7 @@ export const Login = () => {
                     <input
                       id="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 border-gray-300 rounded text-[#C8E400] focus:ring-[#C8E400]"
+                      className="h-4 w-4 border-gray-300 rounded text-primary-400 focus:ring-primary-400"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                       {t('auth.rememberMe')}

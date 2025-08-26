@@ -165,7 +165,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+            className="btn-ghost p-2 text-gray-600"
           >
             <X className="w-5 h-5" />
           </button>
@@ -186,8 +186,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             <div
               className={`
                 relative border-2 border-dashed rounded-xl p-8
-                ${dragActive ? 'border-[#C8E400] bg-[#C8E400]/10' : 'border-gray-300'}
-                ${(formData.images?.length || 0) >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#C8E400]/60'}
+                ${dragActive ? 'border-primary-400 bg-primary-400/10' : 'border-gray-300'}
+                ${(formData.images?.length || 0) >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary-400/60'}
                 transition-colors duration-200
                 text-center
               `}
@@ -197,7 +197,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             >
               {isLoading ? (
                 <div className="flex flex-col items-center">
-                  <Loader2 className="w-12 h-12 text-[#C8E400] animate-spin" />
+                  <Loader2 className="w-12 h-12 text-primary-400 animate-spin" />
                   <p className="mt-2 text-sm text-gray-600">{t('store.saveProgress.uploadingImages')}</p>
                 </div>
               ) : (formData.images?.length || 0) >= 5 ? (
@@ -271,7 +271,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                 required
               />
             </div>
@@ -284,7 +284,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 id="category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                 required
               >
                 <option value="">{t('products.selectCategory')}</option>
@@ -323,7 +323,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                   required
                 />
               </div>
@@ -339,7 +339,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 min="0"
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                 required
               />
             </div>
@@ -359,7 +359,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.pstPercentage}
                   onChange={(e) => setFormData({ ...formData, pstPercentage: parseFloat(e.target.value) })}
-                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                   placeholder="0.00"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -381,7 +381,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                   step="0.01"
                   value={formData.gstPercentage}
                   onChange={(e) => setFormData({ ...formData, gstPercentage: parseFloat(e.target.value) })}
-                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400] transition-colors"
+                  className="block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-colors"
                   placeholder="0.00"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -403,7 +403,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     value={status}
                     checked={formData.status === status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as Product['status'] })}
-                    className="form-radio text-[#C8E400] focus:ring-[#C8E400]"
+                    className="form-radio text-primary-400 focus:ring-primary-400"
                   />
                   <span className="ml-2 text-sm text-gray-700 capitalize">
                     {status === 'outOfStock'
@@ -419,13 +419,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+              className="btn-ghost font-medium"
             >
               {t('dialog.cancel')}
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
+              className="btn-primary font-semibold"
             >
               {product ? t('products.update') : t('products.add')}
             </button>
@@ -574,9 +574,7 @@ export const ProductManagement = () => {
             setIsModalOpen(true);
           }}
           disabled={!storeId}
-          className="flex items-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A3C700] text-white rounded-xl 
-            hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          className="btn-primary inline-flex items-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-5 h-5 mr-2" />
           {t('products.add')}
@@ -594,7 +592,7 @@ export const ProductManagement = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-[#C8E400] focus:border-[#C8E400]"
+                  focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
               />
             </div>
             <div className="flex gap-2">
@@ -612,7 +610,7 @@ export const ProductManagement = () => {
                       px-4 py-2 rounded-full text-sm font-medium transition-all
                       flex items-center space-x-2
                       ${selectedCategories.includes(category.id)
-                        ? 'bg-[#C8E400]/20 text-[#7A8B00] ring-2 ring-[#C8E400]'
+                        ? 'bg-primary-400/20 text-primary-700 ring-2 ring-primary-400'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
                       ${((category.id === 'hot' && selectedCategories.includes('frozen')) ||
                          (category.id === 'frozen' && selectedCategories.includes('hot')))
@@ -630,13 +628,13 @@ export const ProductManagement = () => {
           <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-1">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-[#C8E400]/20 text-[#7A8B00]' : 'hover:bg-gray-100'}`}
+              className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-primary-400/20 text-primary-700' : 'hover:bg-gray-100'}`}
             >
               <Grid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-[#C8E400]/20 text-[#7A8B00]' : 'hover:bg-gray-100'}`}
+              className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-primary-400/20 text-primary-700' : 'hover:bg-gray-100'}`}
             >
               <List className="w-5 h-5" />
             </button>
@@ -664,8 +662,7 @@ export const ProductManagement = () => {
             <button
               onClick={() => setIsModalOpen(true)}
               disabled={!storeId}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#C8E400] to-[#A8C400] text-gray-900 rounded-xl 
-                hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn-primary inline-flex items-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-5 h-5 mr-2" />
               {t('products.addFirst')}

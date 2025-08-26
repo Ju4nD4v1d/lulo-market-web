@@ -4,6 +4,7 @@ import { X, MapPin, Truck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { theme } from '../config/theme';
 
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -133,7 +134,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="btn-ghost p-2"
             aria-label="Close modal"
           >
             <X className="w-6 h-6 text-gray-500" />
@@ -160,9 +161,9 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
                   <Polygon
                     positions={area.coordinates}
                     pathOptions={{
-                      fillColor: '#E7FF01',
-                      fillOpacity: 0.4,
-                      color: '#C8E400',
+                      fillColor: theme.colors.brand,
+                      fillOpacity: 0.3,
+                      color: theme.colors.primary400,
                       weight: 2,
                       opacity: 0.8
                     }}

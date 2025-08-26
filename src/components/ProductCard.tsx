@@ -89,7 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Popular Badge */}
         {product.isPopular && (
-          <span className="absolute top-3 right-3 bg-[#C8E400] text-gray-800 text-xs px-2 py-1 rounded-full font-bold shadow-md">
+          <span className="absolute top-3 right-3 bg-primary-400 text-gray-800 text-xs px-2 py-1 rounded-full font-bold shadow-md">
             {t('product.popular')}
           </span>
         )}
@@ -160,7 +160,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Price and Add to Cart */}
         <div className="flex items-end justify-between mt-auto gap-2 min-w-0">
           <div className="flex flex-col flex-1 min-w-0">
-            <span className="text-base md:text-lg font-bold text-[#C8E400] leading-tight truncate">
+            <span className="text-base md:text-lg font-bold text-primary-400 leading-tight truncate">
               {formatPrice(product.price)}
             </span>
             {product.stock > 0 && (
