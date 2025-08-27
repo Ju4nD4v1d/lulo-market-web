@@ -248,7 +248,7 @@ export const Pricing = () => {
             Have questions? We're here to help.
           </p>
           <p className="text-gray-500">
-            Contact us at <span className="font-medium text-gray-900">hello@lulocart.ca</span>
+            Contact us at <span className="font-medium text-gray-900">support@lulocart.com</span>
           </p>
         </div>
       </div>

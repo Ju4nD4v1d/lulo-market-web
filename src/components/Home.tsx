@@ -307,7 +307,11 @@ export const Home = () => {
   // Function to get city name from coordinates
   const getCityName = async (lat: number, lng: number) => {
     try {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyDrqIE1Zs8YVmaZUdrJgCaOiKIczdz5Hag';
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        console.error('Google Maps API key is not configured');
+        return;
+      }
       const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
       const data = await response.json();
       if (data.results && data.results.length > 0) {

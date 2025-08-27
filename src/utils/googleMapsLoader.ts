@@ -31,9 +31,7 @@ export const loadGoogleMapsAPI = async (options: GoogleMapsLoaderOptions = {}): 
   }
 
   // Get API key from options or environment variable
-  const apiKey = options.apiKey || 
-                 import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 
-                 'AIzaSyDrqIE1Zs8YVmaZUdrJgCaOiKIczdz5Hag'; // Fallback
+  const apiKey = options.apiKey || import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
     throw new Error('Google Maps API key is required. Set VITE_GOOGLE_MAPS_API_KEY environment variable.');
