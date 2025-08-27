@@ -35,11 +35,10 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
     setIsLoading(true);
 
     try {
+      // Validate invitation code for this device
       const isValid = await validateInvitationCode(invitationCode);
       
       if (isValid) {
-        // Store valid code in localStorage for future visits
-        localStorage.setItem('lulocart_invitation_code', invitationCode);
         onValidCode();
       } else {
         setError(t('invitation.invalidCode'));
@@ -87,8 +86,9 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
 
   // Development helper - add to window for easy testing
   if (typeof window !== 'undefined') {
-    (window as any).clearInvitationGate = () => {
-      localStorage.removeItem('lulocart_invitation_code');
+    (window as any).clearInvitationGate = async () => {
+      const { clearInvitationData } = await import('../services/invitationService');
+      clearInvitationData();
       window.location.reload();
     };
   }

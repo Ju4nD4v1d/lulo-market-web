@@ -859,7 +859,7 @@ export const translations = {
     'legal.lastUpdated': 'Last updated',
     'legal.contact.title': 'Contact Us',
     'legal.contact.description': 'If you have any questions about these terms or our privacy practices, please contact us:',
-    'legal.contact.email': 'Email: legal@lulocart.com',
+    'legal.contact.email': 'Email: support@lulocart.com',
 
     // Terms of Service
     'legal.terms.title': 'Terms of Service',
@@ -2111,7 +2111,7 @@ export const translations = {
     'legal.lastUpdated': 'Última actualización',
     'legal.contact.title': 'Contáctanos',
     'legal.contact.description': 'Si tienes preguntas sobre estos términos o nuestras prácticas de privacidad, contáctanos:',
-    'legal.contact.email': 'Correo: legal@lulocart.com',
+    'legal.contact.email': 'Correo: support@lulocart.com',
 
     // Terms of Service
     'legal.terms.title': 'Términos de Servicio',

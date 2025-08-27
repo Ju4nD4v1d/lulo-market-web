@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAqJypQXdnA6__A5xDGie-e9rK_UbsCVEE",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "lulop-eds249.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "lulop-eds249",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "lulop-eds249.appspot.com",
@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 // Log warning if using fallback values (for development)
 if (!import.meta.env.VITE_FIREBASE_API_KEY) {
-  console.warn('⚠️ Using fallback Firebase configuration. Set VITE_FIREBASE_* environment variables for production.');
+  console.warn('⚠️ Firebase API key not configured. Set VITE_FIREBASE_API_KEY environment variable.');
 }
 
 if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {

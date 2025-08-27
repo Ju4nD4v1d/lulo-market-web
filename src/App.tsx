@@ -25,6 +25,12 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { TestModeProvider } from './context/TestModeContext';
 import { DataProvider } from './services/DataProvider';
 import { MockAuthProvider } from './services/MockAuthService';
+import { checkDeviceInvitation } from './services/invitationService';
+
+// Import test utilities in development
+if (process.env.NODE_ENV === 'development') {
+  import('./utils/testInvitation');
+}
 
 // Helper function to update document title
 const updateTitle = (title: string) => {
@@ -33,13 +39,19 @@ const updateTitle = (title: string) => {
 
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
-  const [hasValidInvitation, setHasValidInvitation] = useState(() => {
-    // Check if user has a valid invitation code stored
-    const storedCode = localStorage.getItem('lulocart_invitation_code');
-    const validCodes = ['LULOCART2024', 'LATINMARKET', 'EXCLUSIVE01', 'BETA2024', 'EARLYACCESS'];
-    return storedCode && validCodes.includes(storedCode.toUpperCase());
-  });
+  const [hasValidInvitation, setHasValidInvitation] = useState(false);
+  const [invitationChecked, setInvitationChecked] = useState(false);
   const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
+
+  // Check invitation status on mount
+  useEffect(() => {
+    if (!loading) {
+      // Check device-based invitation only
+      const hasDeviceInvitation = checkDeviceInvitation();
+      setHasValidInvitation(hasDeviceInvitation);
+      setInvitationChecked(true);
+    }
+  }, [loading]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -69,8 +81,8 @@ const AppRoutes = () => {
     }
   }, [currentUser, redirectAfterLogin, setRedirectAfterLogin]);
 
-  // Show loading state while auth is being determined
-  if (loading) {
+  // Show loading state while auth or invitation is being determined
+  if (loading || !invitationChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
