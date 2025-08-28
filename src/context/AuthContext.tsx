@@ -109,7 +109,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Check for stores directly without creating a default profile
+    // First check if user has a profile and is a storeOwner
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      
+      // If user is marked as storeOwner, grant access
+      if (userData.userType === 'storeOwner') {
+        // Update last login
+        await updateDoc(doc(db, 'users', user.uid), {
+          lastLoginAt: serverTimestamp()
+        });
+        return true;
+      }
+    }
+    
+    // If no profile exists or not a storeOwner, check for stores
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     const storesRef = collection(db, 'stores');
     const storeQuery = query(storesRef, where('ownerId', '==', user.uid));
@@ -118,25 +134,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const hasStores = !storeSnapshot.empty;
     
     if (hasStores) {
-      // User has stores - check/create proper profile
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        // Create store owner profile
-        const storeOwnerProfileData = {
-          id: user.uid,
-          email: user.email || '',
-          displayName: user.displayName || 'Store Owner',
-          userType: 'storeOwner' as const,
-          createdAt: serverTimestamp(),
-          lastLoginAt: serverTimestamp(),
-          preferences: {},
-        };
-        
-        await setDoc(doc(db, 'users', user.uid), storeOwnerProfileData);
-      }
+      // User has stores - create/update profile as storeOwner
+      const storeOwnerProfileData = {
+        id: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || 'Store Owner',
+        userType: 'storeOwner' as const,
+        createdAt: userDoc.exists() ? userDoc.data().createdAt : serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+        preferences: userDoc.exists() ? userDoc.data().preferences : {},
+      };
+      
+      await setDoc(doc(db, 'users', user.uid), storeOwnerProfileData, { merge: true });
       return true;
     } else {
-      // User doesn't have stores - sign them out
+      // User doesn't have stores and is not marked as storeOwner - deny access
       await signOut(auth);
       return false;
     }

@@ -465,6 +465,11 @@ export const translations = {
     'forgot.success': 'Password reset link sent! Check your email for instructions.',
     'forgot.remember': 'Remember your password?',
     'forgot.signIn': 'Sign in',
+    'forgot.sending': 'Sending...',
+    'forgot.emailRequired': 'Please enter your email address',
+    'forgot.userNotFound': 'No account found with this email address',
+    'forgot.invalidEmail': 'Please enter a valid email address',
+    'forgot.errorGeneric': 'An error occurred. Please try again later.',
 
     // Store Setup
     'store.setup.title': 'Store Setup',
@@ -1717,6 +1722,11 @@ export const translations = {
     'forgot.success': '¡Enlace de restablecimiento enviado! Revisa tu correo para instrucciones.',
     'forgot.remember': '¿Recuerdas tu contraseña?',
     'forgot.signIn': 'Iniciar sesión',
+    'forgot.sending': 'Enviando...',
+    'forgot.emailRequired': 'Por favor ingresa tu correo electrónico',
+    'forgot.userNotFound': 'No se encontró una cuenta con este correo electrónico',
+    'forgot.invalidEmail': 'Por favor ingresa un correo electrónico válido',
+    'forgot.errorGeneric': 'Ocurrió un error. Por favor intenta más tarde.',
 
     // Store Setup
     'store.setup.title': 'Configuración de Tienda',

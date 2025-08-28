@@ -1,18 +1,45 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-
+import { useAuth } from '../context/AuthContext';
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { t } = useLanguage();
+  const { resetPassword } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess(t('forgot.success'));
+    setSuccess('');
+    
+    if (!email) {
+      setError(t('forgot.emailRequired'));
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await resetPassword(email);
+      setSuccess(t('forgot.success'));
+      setEmail(''); // Clear the email field after success
+    } catch (error: any) {
+      // Handle Firebase auth errors
+      if (error.code === 'auth/user-not-found') {
+        setError(t('forgot.userNotFound'));
+      } else if (error.code === 'auth/invalid-email') {
+        setError(t('forgot.invalidEmail'));
+      } else {
+        setError(t('forgot.errorGeneric'));
+      }
+      console.error('Password reset error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -24,7 +51,7 @@ export const ForgotPassword = () => {
             backgroundImage: "url('/registration.png')",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-primary-600/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-400/70 to-primary-500/50" />
           <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
             <h2 className="text-4xl font-bold mb-4 font-heading">
               {t('forgot.heroTitle')}
@@ -39,7 +66,7 @@ export const ForgotPassword = () => {
       <div className="w-full lg:w-1/2 bg-white flex flex-col">
         <a 
           href="#login" 
-          className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
+          className="p-6 text-primary-500 hover:text-primary-600 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft size={20} />
           <span>{t('forgot.back')}</span>
@@ -92,12 +119,14 @@ export const ForgotPassword = () => {
 
               <button
                 type="submit"
-                className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg
-                  hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2
-                  focus:ring-primary-500 font-medium transition-all duration-200
-                  transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={isLoading || !email}
+                className="w-full bg-primary-400 text-gray-900 py-3 px-4 rounded-lg
+                  hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2
+                  focus:ring-primary-400 font-medium transition-all duration-200
+                  transform hover:scale-[1.02] active:scale-[0.98]
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {t('forgot.submit')}
+                {isLoading ? t('forgot.sending') : t('forgot.submit')}
               </button>
 
               <p className="text-center text-sm text-gray-600 mt-4">
