@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ArrowLeft, Star, ShoppingCart, Search } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Product {
   id: string;
@@ -19,6 +20,7 @@ interface ProductListProps {
 }
 
 export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick }) => {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -214,8 +216,8 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
                 </h4>
                 <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                   {searchQuery 
-                    ? `We couldn't find any products matching "${searchQuery}"`
-                    : 'There are no products available at the moment. Check back soon!'
+                    ? `${t('list.noProductsSearch')} "${searchQuery}"`
+                    : t('list.noProducts')
                   }
                 </p>
               </div>
@@ -224,7 +226,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
                   onClick={() => setSearchQuery('')}
                   className="btn-primary inline-flex items-center gap-2 font-semibold"
                 >
-                  <span>Clear Search</span>
+                  <span>{t('home.search.clearSearch')}</span>
                   <ArrowLeft className="w-4 h-4" />
                 </button>
               )}

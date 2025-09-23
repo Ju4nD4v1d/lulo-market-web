@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapPin, Star, User, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, Truck, Users, Clock, ChevronRight, Receipt } from 'lucide-react';
+import { MapPin, Star, User, ShoppingCart, Globe, LogOut, FileText, Shield, Settings, Truck, Users, Clock, Receipt, Search } from 'lucide-react';
 import { StoreData } from '../types/store';
+import { SearchResultStore } from '../types/search';
 import { StoreDetail } from './StoreDetail';
 import { CartSidebar } from './CartSidebar';
 import { MarketplaceHero } from './MarketplaceHero';
@@ -11,7 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTestMode } from '../context/TestModeContext';
 import { useDataProvider } from '../services/DataProvider';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import { generateAllMockStores } from '../utils/mockDataGenerators';
+import { useSearch } from '../hooks/useSearch';
 
 // Helper function to check if a store is new (created less than a month ago)
 const isStoreNew = (createdAt?: Date): boolean => {
@@ -22,100 +23,19 @@ const isStoreNew = (createdAt?: Date): boolean => {
   return createdAt > oneMonthAgo;
 };
 
-// Mock data for testing all badge scenarios
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockStores: StoreData[] = [
-  {
-    id: 'test-old-with-rating',
-    name: 'Sabor Colombiano',
-    description: 'Authentic Colombian cuisine with traditional flavors and family recipes passed down through generations',
-    storeImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&crop=center',
-    imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&crop=center',
-    averageRating: 4.8,
-    totalReviews: 124,
-    location: {
-      address: '123 Main St, Vancouver, BC',
-      coordinates: { lat: 49.2827, lng: -123.1207 }
-    },
-    deliveryOptions: { delivery: true, pickup: true, shipping: false },
-    deliveryCostWithDiscount: 4.99,
-    minimumOrder: 25,
-    aboutUsSections: [],
-    ownerId: 'mock-owner-1',
-    isVerified: true,
-    createdAt: new Date('2024-01-15')
-  },
-  {
-    id: 'test-new-without-rating',
-    name: 'Casa de Arepas',
-    description: 'Venezuelan comfort food with fresh arepas made daily',
-    storeImage: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center',
-    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center',
-    totalReviews: 0,
-    location: {
-      address: '456 Oak Ave, Vancouver, BC',
-      coordinates: { lat: 49.2845, lng: -123.1153 }
-    },
-    deliveryOptions: { delivery: true, pickup: true, shipping: false },
-    deliveryCostWithDiscount: 3.99,
-    minimumOrder: 20,
-    aboutUsSections: [],
-    ownerId: 'mock-owner-2',
-    isVerified: false,
-    createdAt: new Date()
-  },
-  {
-    id: 'test-new-with-rating',
-    name: 'Empanadas del Valle',
-    description: 'Handcrafted empanadas with premium ingredients and bold flavors',
-    storeImage: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop&crop=center',
-    imageUrl: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&h=300&fit=crop&crop=center',
-    averageRating: 4.9,
-    totalReviews: 156,
-    location: {
-      address: '789 Pine St, Vancouver, BC',
-      coordinates: { lat: 49.2750, lng: -123.1350 }
-    },
-    deliveryOptions: { delivery: true, pickup: true, shipping: false },
-    deliveryCostWithDiscount: 5.99,
-    minimumOrder: 30,
-    aboutUsSections: [],
-    ownerId: 'mock-owner-3',
-    isVerified: true,
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
-  },
-  {
-    id: 'test-old-without-rating',
-    name: 'Mercado Latino',
-    description: 'Traditional Latin American grocery and prepared foods - established but still building reputation',
-    storeImage: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop&crop=center',
-    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop&crop=center',
-    totalReviews: 0,
-    location: {
-      address: '321 Cedar Rd, Vancouver, BC',
-      coordinates: { lat: 49.2611, lng: -123.1139 }
-    },
-    deliveryOptions: { delivery: true, pickup: true, shipping: false },
-    deliveryCostWithDiscount: 6.99,
-    minimumOrder: 35,
-    aboutUsSections: [],
-    ownerId: 'mock-owner-4',
-    isVerified: false,
-    createdAt: new Date('2024-05-01')
-  }
-];
 
 export const Home = () => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
   const { setRedirectAfterLogin, currentUser, userProfile, logout, refreshUserProfile } = useAuth();
-  const { isTestMode, toggleTestMode } = useTestMode();
+  const { isTestMode } = useTestMode();
   const dataProvider = useDataProvider();
   const { isOffline, hasNetworkError } = useNetworkStatus();
   const [selectedCountry, setSelectedCountry] = useState('colombia');
   const [searchQuery, setSearchQuery] = useState('');
   const [stores, setStores] = useState<StoreData[]>([]);
   const [filteredStores, setFilteredStores] = useState<StoreData[]>([]);
+  const [isUsingSearch, setIsUsingSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
   const [showStoreDetail, setShowStoreDetail] = useState(false);
@@ -128,27 +48,163 @@ export const Home = () => {
   const [hasDataError, setHasDataError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isFetching, setIsFetching] = useState(false);
+  const [isUsingFallbackSearch, setIsUsingFallbackSearch] = useState(false);
 
-  // Define filterStores function first
-  const filterStores = useCallback(() => {
-    let filtered = stores;
+  // Search functionality
+  const {
+    isSearching,
+    results: searchResults,
+    error: searchError,
+    search,
+    trackClick,
+    clearResults
+  } = useSearch({
+    enableLocation: true,
+    debounceMs: 300,
+    minQueryLength: 2
+  });
 
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(store =>
-        store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        store.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  // Convert search results to StoreData format
+  const convertSearchResultToStoreData = useCallback((searchResult: SearchResultStore): StoreData => {
+    // Find full store data from our stores array
+    const fullStore = stores.find(store => store.id === searchResult.id);
+    
+    if (fullStore) {
+      return {
+        ...fullStore,
+        // Add search-specific metadata
+        searchMetadata: {
+          matchType: searchResult.matchType,
+          relevanceScore: searchResult.relevanceScore,
+          matchedProducts: searchResult.matchedProducts,
+          distance: searchResult.distance
+        }
+      };
+    }
+    
+    // Fallback if store not found in local data
+    return {
+      id: searchResult.id,
+      name: searchResult.name,
+      description: searchResult.description,
+      location: { address: '', coordinates: { lat: 0, lng: 0 } },
+      deliveryOptions: { delivery: false, pickup: false, shipping: false },
+      ownerId: '',
+      searchMetadata: {
+        matchType: searchResult.matchType,
+        relevanceScore: searchResult.relevanceScore,
+        matchedProducts: searchResult.matchedProducts,
+        distance: searchResult.distance
+      }
+    } as StoreData;
+  }, [stores]);
+
+  // Search functionality is handled directly in useEffect below
+
+  // Update filtered stores based on search results or traditional filtering
+  const updateFilteredStores = useCallback(() => {
+    console.log('🔍 Updating filtered stores:', {
+      isUsingSearch,
+      hasSearchResults: !!searchResults,
+      searchResultsCount: searchResults?.stores?.length || 0,
+      storesCount: stores.length
+    });
+
+    if (isUsingSearch && searchResults) {
+      // Use search results
+      console.log('🔍 Using search results:', searchResults.stores.length, 'stores');
+      const searchBasedStores = searchResults.stores.map(convertSearchResultToStoreData);
+      setFilteredStores(searchBasedStores);
+    } else {
+      // Use traditional filtering or all stores
+      let filtered = stores;
+
+      // Traditional client-side filtering for backward compatibility
+      if (searchQuery && !isUsingSearch) {
+        console.log('🔍 Using traditional filtering for:', searchQuery);
+        filtered = filtered.filter(store =>
+          store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          store.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      } else if (!searchQuery) {
+        console.log('🔍 Showing all stores');
+      }
+
+      console.log('🔍 Setting filtered stores:', filtered.length);
+      setFilteredStores(filtered);
+    }
+  }, [stores, searchQuery, isUsingSearch, searchResults, convertSearchResultToStoreData]);
+
+
+  // Handle search query changes
+  useEffect(() => {
+    console.log('🔍 Search query changed:', searchQuery);
+    
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      console.log('🔍 Clearing search - query too short');
+      setIsUsingSearch(false);
+      setIsUsingFallbackSearch(false);
+      clearResults();
+      return;
     }
 
-    setFilteredStores(filtered);
-  }, [stores, searchQuery]);
+    console.log('🔍 Triggering search for:', searchQuery);
+    setIsUsingSearch(true);
+    
+    // Try API search first, fallback to client-side search if it fails
+    search(searchQuery, {
+      filters: {
+        onlyAvailable: true
+      }
+    }).catch(error => {
+      console.warn('🔍 API search failed, falling back to client-side search:', error);
+      setIsUsingFallbackSearch(true);
+      
+      // Fallback to client-side search
+      const query = searchQuery.toLowerCase().trim();
+      const clientSearchResults = stores.filter(store => {
+        // Search in store name
+        if (store.name.toLowerCase().includes(query)) {
+          return true;
+        }
+        
+        // Search in store description
+        if (store.description?.toLowerCase().includes(query)) {
+          return true;
+        }
+        
+        // Search in products if available
+        if (store.products && Array.isArray(store.products)) {
+          return store.products.some((product: any) => 
+            product.name?.toLowerCase().includes(query) ||
+            product.description?.toLowerCase().includes(query)
+          );
+        }
+        
+        return false;
+      });
+      
+      console.log('🔍 Client-side search found:', clientSearchResults.length, 'stores');
+      
+      // Add search metadata to indicate this is a fallback result
+      const enhancedResults = clientSearchResults.map(store => ({
+        ...store,
+        searchMetadata: {
+          matchType: store.name.toLowerCase().includes(query) ? 'partial_name' : 'description' as const,
+          relevanceScore: store.name.toLowerCase().includes(query) ? 80 : 60,
+          matchedProducts: [],
+          distance: undefined
+        }
+      }));
+      
+      setFilteredStores(enhancedResults);
+    });
+  }, [searchQuery, search, clearResults, stores]);
 
-
-  // Filter stores when search or filters change
+  // Update filtered stores when search results or stores change
   useEffect(() => {
-    filterStores();
-  }, [stores, searchQuery, selectedCountry, filterStores]);
+    updateFilteredStores();
+  }, [updateFilteredStores]);
 
   // Listen for checkout event after login redirect
   useEffect(() => {
@@ -190,12 +246,8 @@ export const Home = () => {
       setHasDataError(false);
       setErrorMessage('');
       
-      if (isTestMode) {
-        // Use mock data in test mode
-        const mockStores = generateAllMockStores();
-        setStores(mockStores);
-      } else {
-        // Check network connectivity first
+      // Always use real Firebase data, never mock data
+      // Check network connectivity first
         if (isOffline || hasNetworkError) {
           setHasDataError(true);
           setErrorMessage('No internet connection. Please check your network and try again.');
@@ -222,7 +274,6 @@ export const Home = () => {
         }
         
         setStores(storesData);
-      }
     } catch (error) {
       console.error('Error fetching stores:', error);
       setHasDataError(true);
@@ -247,7 +298,7 @@ export const Home = () => {
       setLoading(false);
       setIsFetching(false);
     }
-  }, [isTestMode, isOffline, hasNetworkError, dataProvider]);
+  }, [isOffline, hasNetworkError, dataProvider]);
 
   // Listen for hash changes to handle order history navigation
   useEffect(() => {
@@ -274,7 +325,22 @@ export const Home = () => {
     fetchStores();
   };
 
-  const handleStoreClick = (store: StoreData) => {
+  const handleStoreClick = async (store: StoreData, position?: number) => {
+    // Track search click if this came from search results
+    if (isUsingSearch && searchResults && store.searchMetadata) {
+      const searchResultStore: SearchResultStore = {
+        id: store.id,
+        name: store.name,
+        description: store.description || '',
+        matchType: store.searchMetadata.matchType,
+        matchedProducts: store.searchMetadata.matchedProducts,
+        relevanceScore: store.searchMetadata.relevanceScore,
+        distance: store.searchMetadata.distance
+      };
+      
+      await trackClick(searchResultStore, position || 0);
+    }
+    
     setSelectedStore(store);
     setShowStoreDetail(true);
   };
@@ -589,20 +655,6 @@ export const Home = () => {
                 </button>
               )}
               
-              {/* Test Mode Toggle */}
-              {isTestMode && (
-                <div className="flex items-center gap-2">
-                  <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
-                    <input
-                      type="checkbox"
-                      checked={isTestMode}
-                      onChange={toggleTestMode}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-400/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-400"></div>
-                  </label>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -623,18 +675,36 @@ export const Home = () => {
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 lg:py-20">
         <div className="text-center mb-8 lg:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-400/10 rounded-full border border-primary-400/20 mb-4">
-            <span className="text-xs font-semibold text-primary-400">✨ {t('home.featuredRestaurants.badge')}</span>
+            <span className="text-xs font-semibold text-primary-400">
+              {isUsingSearch ? '🔍' : '✨'} 
+              {isUsingSearch ? (
+                searchQuery ? `Resultados para "${searchQuery}"` : 'Búsqueda'
+              ) : (
+                t('home.featuredRestaurants.badge')
+              )}
+            </span>
           </div>
           <h2 className="text-h2 text-gray-900 mb-3 leading-tight">
-            {t('home.featuredRestaurants.title')}
+            {isUsingSearch ? (
+              searchResults ? `${searchResults.totalCount} ${searchResults.totalCount === 1 ? 'tienda encontrada' : 'tiendas encontradas'}` : 'Buscando...'
+            ) : (
+              t('home.featuredRestaurants.title')
+            )}
           </h2>
           <p className="body-font text-sm lg:text-base text-gray-600 max-w-xl mx-auto">
-            {t('home.featuredRestaurants.description')}
+            {isUsingSearch ? (
+              isSearching ? 'Buscando productos y tiendas...' : 
+              searchResults?.stores.length === 0 && !isUsingFallbackSearch ? 'No se encontraron resultados. Intenta con otros términos.' :
+              isUsingFallbackSearch ? 'Búsqueda local activada (API temporalmente no disponible)' :
+              'Resultados basados en nombres de tiendas y productos'
+            ) : (
+              t('home.featuredRestaurants.description')
+            )}
           </p>
         </div>
 
         {/* Loading State with Shimmer */}
-        {loading ? (
+        {(loading || isSearching) ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
             {Array.from({ length: 10 }).map((_, index) => (
               <div key={index} className="enhanced-card bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -652,10 +722,10 @@ export const Home = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
             {filteredStores.length > 0 ? (
-              filteredStores.map((store) => (
+              filteredStores.map((store, index) => (
                 <div
                   key={store.id}
-                  onClick={() => handleStoreClick(store)}
+                  onClick={() => handleStoreClick(store, index)}
                   className="enhanced-card focus-ring group bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 overflow-hidden
                     hover:bg-white cursor-pointer transform"
                   tabIndex={0}
@@ -664,7 +734,7 @@ export const Home = () => {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleStoreClick(store);
+                      handleStoreClick(store, index);
                     }
                   }}
                 >
@@ -696,9 +766,24 @@ export const Home = () => {
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                     
+                    {/* Search Match Badge */}
+                    {store.searchMetadata && (
+                      <div className={`absolute top-2 left-2 bg-gradient-to-r ${isUsingFallbackSearch ? 'from-orange-500 to-orange-600' : 'from-blue-500 to-blue-600'} text-white text-xs px-2 py-1 rounded-full shadow-lg font-semibold`}>
+                        <div className="flex items-center gap-1">
+                          <Search className="w-3 h-3" />
+                          <span className="hidden lg:inline text-xs">
+                            {store.searchMetadata.matchType === 'exact_name' && 'Nombre exacto'}
+                            {store.searchMetadata.matchType === 'partial_name' && 'Nombre'}
+                            {store.searchMetadata.matchType === 'description' && 'Descripción'}
+                            {store.searchMetadata.matchType === 'product_match' && 'Producto'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Verification Badge */}
                     {store.isVerified && (
-                      <div className="absolute top-2 left-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs px-2 py-1 rounded-full shadow-lg font-semibold">
+                      <div className={`absolute top-2 ${store.searchMetadata ? 'right-2' : 'left-2'} bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs px-2 py-1 rounded-full shadow-lg font-semibold`}>
                         <div className="flex items-center gap-1">
                           <span>✓</span>
                           <span className="hidden lg:inline text-xs">{t('shopper.verified')}</span>
@@ -733,7 +818,11 @@ export const Home = () => {
                         {store.name}
                       </h3>
                       <p className="text-gray-600 text-xs leading-relaxed line-clamp-2 font-light">
-                        {store.description || 'Experience exceptional cuisine crafted with passion and premium ingredients'}
+                        {store.searchMetadata?.matchType === 'product_match' && store.searchMetadata.matchedProducts.length > 0 ? (
+                          `Productos encontrados: ${store.searchMetadata.matchedProducts.map(p => p.name).join(', ')}`
+                        ) : (
+                          store.description || 'Experience exceptional cuisine crafted with passion and premium ingredients'
+                        )}
                       </p>
                     </div>
 
@@ -780,7 +869,7 @@ export const Home = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                {hasDataError ? (
+                {(hasDataError || searchError) ? (
                   // Network/Data Error State
                   <div className="max-w-md mx-auto">
                     <div className="w-16 h-16 mx-auto mb-4 text-red-400">
@@ -795,10 +884,11 @@ export const Home = () => {
                       )}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {isOffline ? 'You\'re Offline' : 'Connection Problem'}
+                      {searchError ? 'Error de Búsqueda' : 
+                       isOffline ? 'You\'re Offline' : 'Connection Problem'}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      {errorMessage}
+                      {searchError || errorMessage}
                     </p>
                     <div className="space-y-3">
                       <button
@@ -825,15 +915,15 @@ export const Home = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Results Found</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('home.search.noResults')}</h3>
                     <p className="text-gray-600 mb-4">
-                      We couldn't find any stores matching "{searchQuery}"
+                      {t('home.search.noResultsMessage')} "{searchQuery}"
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}
                       className="btn-primary focus-ring px-6 py-2"
                     >
-                      Clear Search
+                      {t('home.search.clearSearch')}
                     </button>
                   </div>
                 ) : (
