@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-// import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ArrowLeft, Star, ShoppingCart, Search } from 'lucide-react';
 import { useTestMode } from '../context/TestModeContext';
 import { useDataProvider } from '../services/DataProvider';
@@ -39,12 +39,12 @@ interface StoreListProps {
 }
 
 export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) => {
+  const { t } = useLanguage();
   const [stores, setStores] = useState<StoreData[]>([]);
   const [filteredStores, setFilteredStores] = useState<StoreData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  // const { t } = useLanguage();
   const { isTestMode } = useTestMode();
   const dataProvider = useDataProvider();
 
@@ -282,8 +282,8 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
                 </h4>
                 <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                   {searchQuery 
-                    ? `We couldn't find any stores matching "${searchQuery}"`
-                    : 'There are no stores available at the moment. Check back soon!'
+                    ? `${t('list.noStoresSearch')} "${searchQuery}"`
+                    : t('list.noStores')
                   }
                 </p>
               </div>
@@ -292,7 +292,7 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
                   onClick={() => setSearchQuery('')}
                   className="btn-primary focus-ring inline-flex items-center gap-2 px-6 py-3"
                 >
-                  <span>Clear Search</span>
+                  <span>{t('home.search.clearSearch')}</span>
                   <ArrowLeft className="w-4 h-4" />
                 </button>
               )}

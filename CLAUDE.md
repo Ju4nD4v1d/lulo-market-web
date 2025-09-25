@@ -68,6 +68,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Firebase real-time listeners for data synchronization
 - **Order state management** with Firebase Firestore integration
 
+### Authentication & Access Control
+- **Invitation system**: Device fingerprinting for access control without user account linking
+- **Portal login**: Business owners access based on userType validation
+- **Forgot password**: Complete Firebase password reset flow with error handling
+- **Environment-based configuration**: All API keys properly externalized
+
 ### Location Services
 - Google Maps integration for store location selection
 - Coordinate-based store discovery
@@ -78,6 +84,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - File preview functionality for store images
 - Multi-image support for About Us sections
 - **Product image integration** in cart and checkout components
+- **Realistic product images**: All demo stores use authentic food photography
 
 ### Business Logic
 - Store setup flow with location, hours, and business details
@@ -89,16 +96,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Badge logic system**: "New" and rating badges for stores
 - Analytics dashboard with metrics visualization
 - **Comprehensive internationalization**: Full Spanish translation support (1,209+ translation keys)
+- **Demo stores**: 5 authentic Latino stores with complete product catalogs for testing
 
 ## Firebase Project
 - Project ID: `lulop-eds249`
 - Authentication domain: `lulop-eds249.firebaseapp.com`
 - Firestore database and Storage bucket configured
+- **Invitation codes**: 10+ active codes for access control
+- **Demo data**: 5 complete stores with 20+ products for testing
+
+## Environment Configuration
+- **Required variables**: `VITE_FIREBASE_API_KEY`, `VITE_GOOGLE_MAPS_API_KEY`
+- **Optional variables**: Stripe keys, platform fees, receipt endpoints
+- **Security**: All API keys externalized from source code for deployment
+- **Development**: Local `.env` file with all required variables
 
 ## Deployment
 - Vite build system optimized for production
 - Static asset handling for Firebase hosting compatibility
 - Lucide React excluded from Vite optimization (vite.config.ts:8)
+- **Netlify deployment**: Environment variables required for secrets scanning compliance
 
 ## E-commerce Features
 - **Complete shopping cart system** with quantity controls and persistence
@@ -109,3 +126,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Bilingual support** (English/Spanish) for all e-commerce flows
 - **Product catalog** with search and filtering capabilities
 - **Store badge system** for new stores and ratings
+- **Invitation gate**: Device-based access control with fingerprinting
+- **Password recovery**: Complete forgot password flow with Firebase
+- **Portal authentication**: Business owner login with userType validation
+
+## Contact Information
+- **Support email**: `support@lulocart.com` (updated across all components)
+- All customer-facing communications use the consolidated support address

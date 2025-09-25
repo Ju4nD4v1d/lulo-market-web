@@ -48,8 +48,8 @@ export const translations = {
     'hero.stats.fresh': 'Always Fresh',
 
     // Hero Search
-    'hero.search.stores': '28+ Stores',
-    'hero.search.products': '500+ Products', 
+    'hero.search.stores': 'Multiple Stores',
+    'hero.search.products': 'Hundreds of Products', 
     'hero.search.searching': 'Searching...',
     'hero.search.popular': 'Popular',
 
@@ -319,6 +319,14 @@ export const translations = {
     'home.hero.slides.delivery.title': 'Fresh Delivery in Minutes',
     'home.hero.slides.delivery.subtitle': 'Get your favorite Latino products delivered fresh to your door with our fast and reliable delivery service.',
     'home.search.placeholder': 'Search restaurants, dishes, or cuisines...',
+    'home.search.noResults': 'No Results Found',
+    'home.search.noResultsMessage': 'We couldn\'t find any stores matching',
+    'home.search.clearSearch': 'Clear Search',
+    // Product and Store Lists
+    'list.noProductsSearch': 'We couldn\'t find any products matching',
+    'list.noStoresSearch': 'We couldn\'t find any stores matching',
+    'list.noProducts': 'There are no products available at the moment. Check back soon!',
+    'list.noStores': 'There are no stores available at the moment. Check back soon!',
     'home.location.getLocation': 'Get Location',
     'home.location.denied': 'Location Denied',
     'home.location.set': 'Set Location',
@@ -465,6 +473,11 @@ export const translations = {
     'forgot.success': 'Password reset link sent! Check your email for instructions.',
     'forgot.remember': 'Remember your password?',
     'forgot.signIn': 'Sign in',
+    'forgot.sending': 'Sending...',
+    'forgot.emailRequired': 'Please enter your email address',
+    'forgot.userNotFound': 'No account found with this email address',
+    'forgot.invalidEmail': 'Please enter a valid email address',
+    'forgot.errorGeneric': 'An error occurred. Please try again later.',
 
     // Store Setup
     'store.setup.title': 'Store Setup',
@@ -1717,6 +1730,11 @@ export const translations = {
     'forgot.success': '¡Enlace de restablecimiento enviado! Revisa tu correo para instrucciones.',
     'forgot.remember': '¿Recuerdas tu contraseña?',
     'forgot.signIn': 'Iniciar sesión',
+    'forgot.sending': 'Enviando...',
+    'forgot.emailRequired': 'Por favor ingresa tu correo electrónico',
+    'forgot.userNotFound': 'No se encontró una cuenta con este correo electrónico',
+    'forgot.invalidEmail': 'Por favor ingresa un correo electrónico válido',
+    'forgot.errorGeneric': 'Ocurrió un error. Por favor intenta más tarde.',
 
     // Store Setup
     'store.setup.title': 'Configuración de Tienda',
@@ -2740,8 +2758,8 @@ export const translations = {
     'hero.stats.fresh': 'Siempre Fresco',
 
     // Hero Search
-    'hero.search.stores': '28+ Tiendas',
-    'hero.search.products': '500+ Productos',
+    'hero.search.stores': 'Múltiples Tiendas',
+    'hero.search.products': 'Cientos de Productos',
     'hero.search.searching': 'Buscando...',
     'hero.search.popular': 'Popular',
 
@@ -2756,6 +2774,14 @@ export const translations = {
     'home.hero.slides.delivery.title': 'Entrega Fresca en Minutos',
     'home.hero.slides.delivery.subtitle': 'Obtén tus productos latinos favoritos entregados frescos a tu puerta con nuestro servicio de entrega rápido y confiable.',
     'home.search.placeholder': 'Buscar tiendas, platos o cocinas...',
+    'home.search.noResults': 'No se encontraron resultados',
+    'home.search.noResultsMessage': 'No pudimos encontrar tiendas que coincidan con',
+    'home.search.clearSearch': 'Limpiar búsqueda',
+    // Product and Store Lists
+    'list.noProductsSearch': 'No pudimos encontrar productos que coincidan con',
+    'list.noStoresSearch': 'No pudimos encontrar tiendas que coincidan con',
+    'list.noProducts': 'No hay productos disponibles en este momento. ¡Vuelve a consultar pronto!',
+    'list.noStores': 'No hay tiendas disponibles en este momento. ¡Vuelve a consultar pronto!',
     'home.location.getLocation': 'Obtener Ubicación',
     'home.location.denied': 'Ubicación Denegada',
     'home.location.set': 'Establecer Ubicación',

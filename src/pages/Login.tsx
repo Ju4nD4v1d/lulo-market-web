@@ -141,7 +141,7 @@ export const Login = () => {
             backgroundImage: "url('/registration.png')",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-primary-600/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-400/70 to-primary-500/50" />
           <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
             <h2 className="text-4xl font-bold mb-4 font-heading">
               {isLogin ? `${t('auth.welcomeHero')} ${COMPANY_NAME}` : `Join ${COMPANY_NAME} Today`}
@@ -159,7 +159,7 @@ export const Login = () => {
       <div className="w-full lg:w-1/2 bg-white flex flex-col">
         <a 
           href="#" 
-          className="p-6 text-primary-600 hover:text-primary-700 flex items-center gap-2 transition-colors"
+          className="p-6 text-primary-500 hover:text-primary-600 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft size={20} />
           <span>{t('auth.backToHome')}</span>
@@ -355,7 +355,7 @@ export const Login = () => {
                       {t('auth.rememberMe')}
                     </label>
                   </div>
-                  <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                  <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-700">
                     {t('auth.forgotPassword')}
                   </a>
                 </div>
@@ -365,9 +365,9 @@ export const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-primary-600 text-white py-3 px-4 rounded-lg
-                  hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2
-                  focus:ring-primary-500 font-medium transition-all duration-200
+                className={`w-full bg-primary-400 text-gray-900 py-3 px-4 rounded-lg
+                  hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2
+                  focus:ring-primary-400 font-medium transition-all duration-200
                   transform hover:scale-[1.02] active:scale-[0.98]
                   ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
