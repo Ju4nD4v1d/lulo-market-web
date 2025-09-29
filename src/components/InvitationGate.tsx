@@ -129,11 +129,11 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
       <section className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6">
         {/* Event badge */}
         <div className="mb-8 flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
-          <span className="text-sm text-white/70">Online launch event</span>
+          <span className="text-sm text-white/70">{t('invitation.eventBadge')}</span>
           <span className="text-white/40">|</span>
-          <span className="text-sm text-white/70">Coming Soon</span>
+          <span className="text-sm text-white/70">{t('invitation.eventStatus')}</span>
           <span className="text-white/40">|</span>
-          <span className="text-sm text-white/70">Vancouver, BC</span>
+          <span className="text-sm text-white/70">{t('invitation.eventLocation')}</span>
         </div>
 
         {/* Brand Title - Large and bold */}
