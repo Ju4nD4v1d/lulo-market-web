@@ -157,8 +157,8 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
                   value={invitationCode}
                   onChange={(e) => setInvitationCode(e.target.value)}
                   placeholder={t('invitation.codePlaceholder')}
-                  className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
-                           focus:border-[#C8E400]/60 focus:bg-white/10 uppercase tracking-wider text-center font-mono text-sm sm:text-base"
+                  className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
+                           focus:border-[#C8E400]/60 focus:bg-white/10 uppercase tracking-wide text-center font-mono text-xs sm:text-base"
                   required
                   disabled={isLoading}
                 />
@@ -217,8 +217,8 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('invitation.emailPlaceholder')}
-                    className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
-                             focus:border-[#C8E400]/60 focus:bg-white/10 text-sm sm:text-base"
+                    className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
+                             focus:border-[#C8E400]/60 focus:bg-white/10 text-xs sm:text-base"
                     required
                     disabled={isLoading}
                   />
