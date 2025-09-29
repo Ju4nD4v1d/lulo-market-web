@@ -280,7 +280,7 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
 
               <button
                 onClick={resetToCode}
-                className="text-brand hover:text-[#c7ff3a] font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
+                className="text-slate-700 hover:text-slate-900 font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
               >
                 {t('invitation.tryAnotherCode')}
               </button>
