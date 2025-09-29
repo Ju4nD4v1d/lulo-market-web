@@ -94,164 +94,170 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-lulo text-slate-900 grain-overlay">
-      {/* Animated background layers */}
-      <div className="pointer-events-none absolute inset-0 blobs" />
-      <div className="pointer-events-none absolute inset-0 spotlight" />
+    <main className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white">
+      {/* Hero background with circuit design */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
+        style={{ backgroundImage: 'url(/images/hero-bg.svg)' }}
+      />
+
+      {/* Subtle animated overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30" />
 
       {/* Language toggle button */}
       <div className="absolute top-6 right-6 z-20">
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-white/30 hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-200"
           aria-label="Toggle language"
         >
-          <Globe className="w-4 h-4" />
-          <span className="font-medium text-sm">
+          <Globe className="w-4 h-4 text-white/80" />
+          <span className="font-medium text-sm text-white/90">
             {locale === 'en' ? 'ES' : 'EN'}
           </span>
           <div className="flex items-center gap-1">
-            <span className={`text-xs ${locale === 'en' ? 'opacity-100' : 'opacity-50'}`}>
+            <span className={`text-xs ${locale === 'en' ? 'opacity-100' : 'opacity-40'}`}>
               🇨🇦
             </span>
-            <span className={`text-xs ${locale === 'es' ? 'opacity-100' : 'opacity-50'}`}>
+            <span className={`text-xs ${locale === 'es' ? 'opacity-100' : 'opacity-40'}`}>
               🇨🇴
             </span>
           </div>
         </button>
       </div>
 
-      <section className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-6">
-        {/* Brand Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-sm">
+      <section className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6">
+        {/* Event badge */}
+        <div className="mb-8 flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
+          <span className="text-sm text-white/70">{t('invitation.eventBadge')}</span>
+          <span className="text-white/40">|</span>
+          <span className="text-sm text-white/70">{t('invitation.eventStatus')}</span>
+          <span className="text-white/40">|</span>
+          <span className="text-sm text-white/70">{t('invitation.eventLocation')}</span>
+        </div>
+
+        {/* Brand Title - Large and bold */}
+        <h1 className="text-6xl md:text-8xl font-black tracking-tight text-white text-center mb-6 leading-none">
           {t('invitation.title')}
         </h1>
-        
+
         {/* Subtitle with welcoming message */}
-        <p className="mt-3 text-base md:text-lg text-slate-700 max-w-2xl text-center">
+        <p className="mt-3 text-lg md:text-xl text-white/70 max-w-3xl text-center mb-12 leading-relaxed">
           {t('invitation.subtitle')}
         </p>
 
         {/* Main card dialog */}
-        <div className="mt-8 w-full max-w-md card-glass rounded-3xl p-6 md:p-8 transition-all duration-200 will-change-transform hover:-translate-y-0.5 hover:shadow-[0_35px_90px_-25px_rgba(15,23,42,.18),0_8px_20px_rgba(15,23,42,.08)]">
+        <div className="mt-4 w-full max-w-xl bg-black/40 backdrop-blur-xl rounded-2xl p-8 md:p-10 border border-white/10 shadow-2xl">
           {currentView === 'code' && (
-            <form onSubmit={handleCodeSubmit} className="space-y-4">
-              <label className="block text-sm font-medium text-slate-600 mb-2">
-                {t('invitation.codeLabel')}
-              </label>
-              <input
-                id="invitation-code"
-                type="text"
-                value={invitationCode}
-                onChange={(e) => setInvitationCode(e.target.value)}
-                placeholder={t('invitation.codePlaceholder')}
-                className="h-12 w-full rounded-2xl border border-slate-300/60 bg-white/80 px-4 text-slate-800 placeholder-slate-400 outline-none transition-all duration-200
-                         focus:border-brand/60 focus:ring-4 focus:ring-brand/25 uppercase tracking-wider text-center font-mono"
-                required
-                disabled={isLoading}
-              />
+            <form onSubmit={handleCodeSubmit} className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <input
+                  id="invitation-code"
+                  type="text"
+                  value={invitationCode}
+                  onChange={(e) => setInvitationCode(e.target.value)}
+                  placeholder={t('invitation.codePlaceholder')}
+                  className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
+                           focus:border-[#C8E400]/60 focus:bg-white/10 uppercase tracking-wide text-center font-mono text-xs sm:text-base"
+                  required
+                  disabled={isLoading}
+                />
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !invitationCode.trim()}
+                  className="h-14 px-6 sm:px-8 rounded-xl font-semibold tracking-wide text-black text-sm sm:text-base
+                           bg-[#C8E400] hover:bg-[#d4f000]
+                           transition-all duration-200 hover:scale-105
+                           focus:outline-none focus:ring-4 focus:ring-[#C8E400]/35
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                           flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                      <span className="hidden sm:inline">{t('invitation.verifying')}</span>
+                    </>
+                  ) : (
+                    <>
+                      {t('invitation.accessButton')}
+                    </>
+                  )}
+                </button>
+              </div>
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/60 rounded-xl">
-                  <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  <p className="text-red-700 text-sm">{error}</p>
+                <div className="flex items-center gap-2 p-4 bg-red-500/10 backdrop-blur-sm border border-red-500/20 rounded-xl">
+                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <p className="text-red-300 text-sm">{error}</p>
                 </div>
               )}
-
-              <button
-                type="submit"
-                disabled={isLoading || !invitationCode.trim()}
-                className="mt-4 h-12 w-full rounded-2xl font-semibold tracking-wide text-slate-900
-                         bg-brand shadow-[0_8px_20px_-8px_rgba(133,169,0,.55)] 
-                         active:shadow-[0_6px_16px_-8px_rgba(133,169,0,.55)]
-                         transition-all duration-200 hover:-translate-y-0.5 
-                         focus:outline-none focus:ring-4 focus:ring-brand/35
-                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
-                         flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
-                    {t('invitation.verifying')}
-                  </>
-                ) : (
-                  <>
-                    {t('invitation.accessButton')}
-                    <ChevronRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
             </form>
           )}
 
           {currentView === 'email' && (
             <div className="space-y-6">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-brand/10 rounded-2xl mb-4">
-                  <Mail className="w-6 h-6 text-slate-700" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#C8E400]/10 rounded-2xl mb-4 border border-[#C8E400]/20">
+                  <Mail className="w-8 h-8 text-[#C8E400]" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                <h2 className="text-3xl font-bold text-white mb-3">
                   {t('invitation.requestTitle')}
                 </h2>
-                <p className="text-slate-600">
+                <p className="text-white/70 text-lg">
                   {t('invitation.requestSubtitle')}
                 </p>
               </div>
 
-              <form onSubmit={handleEmailSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-600 mb-2">
-                    {t('invitation.emailLabel')}
-                  </label>
+              <form onSubmit={handleEmailSubmit} className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('invitation.emailPlaceholder')}
-                    className="h-12 w-full rounded-2xl border border-slate-300/60 bg-white/80 px-4 text-slate-800 placeholder-slate-400 outline-none transition-all duration-200
-                             focus:border-brand/60 focus:ring-4 focus:ring-brand/25"
+                    className="flex-1 h-14 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3 sm:px-5 text-white placeholder-white/40 outline-none transition-all duration-200
+                             focus:border-[#C8E400]/60 focus:bg-white/10 text-xs sm:text-base"
                     required
                     disabled={isLoading}
                   />
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || !email.trim()}
+                    className="h-14 px-6 sm:px-8 rounded-xl font-semibold tracking-wide text-black text-sm sm:text-base
+                             bg-[#C8E400] hover:bg-[#d4f000]
+                             transition-all duration-200 hover:scale-105
+                             focus:outline-none focus:ring-4 focus:ring-[#C8E400]/35
+                             disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                             flex items-center justify-center gap-2 whitespace-nowrap"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                        <span className="hidden sm:inline">{t('invitation.submitting')}</span>
+                      </>
+                    ) : (
+                      <>
+                        {t('invitation.requestButton')}
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/60 rounded-xl">
-                    <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                    <p className="text-red-700 text-sm">{error}</p>
+                  <div className="flex items-center gap-2 p-4 bg-red-500/10 backdrop-blur-sm border border-red-500/20 rounded-xl">
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                    <p className="text-red-300 text-sm">{error}</p>
                   </div>
                 )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading || !email.trim()}
-                  className="h-12 w-full rounded-2xl font-semibold tracking-wide text-slate-900
-                           bg-brand shadow-[0_8px_20px_-8px_rgba(133,169,0,.55)] 
-                           active:shadow-[0_6px_16px_-8px_rgba(133,169,0,.55)]
-                           transition-all duration-200 hover:-translate-y-0.5 
-                           focus:outline-none focus:ring-4 focus:ring-brand/35
-                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
-                           flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
-                      {t('invitation.submitting')}
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="w-4 h-4" />
-                      {t('invitation.requestButton')}
-                    </>
-                  )}
-                </button>
               </form>
 
-              <div className="text-center">
+              <div className="text-center pt-2">
                 <button
                   onClick={resetToCode}
-                  className="text-slate-500 hover:text-slate-700 text-sm transition-colors"
+                  className="text-white/60 hover:text-white text-sm transition-colors"
                 >
                   {t('invitation.backToCode')}
                 </button>
@@ -261,26 +267,26 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
 
           {currentView === 'success' && (
             <div className="text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100/80 backdrop-blur-sm rounded-full mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500/10 backdrop-blur-sm rounded-full mb-4 border border-green-500/20">
+                <CheckCircle className="w-10 h-10 text-green-400" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                <h2 className="text-3xl font-bold text-white mb-3">
                   {t('invitation.successTitle')}
                 </h2>
-                <p className="text-slate-600 mb-4">
+                <p className="text-white/70 mb-6 text-lg">
                   {t('invitation.successMessage')}
                 </p>
-                <div className="p-4 bg-amber-50/80 backdrop-blur-sm border border-amber-200/60 rounded-xl">
-                  <p className="text-amber-800 text-sm">
-                    <strong>{t('invitation.successNext')}</strong> {t('invitation.successNextMessage')}
+                <div className="p-5 bg-[#C8E400]/10 backdrop-blur-sm border border-[#C8E400]/20 rounded-xl">
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    <strong className="text-[#C8E400]">{t('invitation.successNext')}</strong> {t('invitation.successNextMessage')}
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={resetToCode}
-                className="text-slate-700 hover:text-slate-900 font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
+                className="text-white/60 hover:text-white font-medium transition-colors duration-200 underline decoration-2 underline-offset-2"
               >
                 {t('invitation.tryAnotherCode')}
               </button>
