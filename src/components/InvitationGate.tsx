@@ -127,14 +127,6 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
       </div>
 
       <section className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6">
-        {/* Event badge */}
-        <div className="mb-8 flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
-          <span className="text-sm text-white/70">{t('invitation.eventBadge')}</span>
-          <span className="text-white/40">|</span>
-          <span className="text-sm text-white/70">{t('invitation.eventStatus')}</span>
-          <span className="text-white/40">|</span>
-          <span className="text-sm text-white/70">{t('invitation.eventLocation')}</span>
-        </div>
 
         {/* Brand Title - Large and bold */}
         <h1 className="text-6xl md:text-8xl font-black tracking-tight text-white text-center mb-6 leading-none">
@@ -149,6 +141,7 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
         {/* Main card dialog */}
         <div className="mt-4 w-full max-w-xl bg-black/40 backdrop-blur-xl rounded-2xl p-8 md:p-10 border border-white/10 shadow-2xl">
           {currentView === 'code' && (
+            <>
             <form onSubmit={handleCodeSubmit} className="space-y-6">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <input
@@ -193,6 +186,22 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
                 </div>
               )}
             </form>
+
+            {/* Request access option */}
+            <div className="pt-6 border-t border-white/10">
+              <div className="text-center space-y-3">
+                <p className="text-white/60 text-sm">
+                  {t('invitation.noCode')}
+                </p>
+                <button
+                  onClick={() => setCurrentView('email')}
+                  className="text-[#C8E400] hover:text-[#d4f000] font-medium text-sm transition-colors duration-200 underline decoration-2 underline-offset-2"
+                >
+                  {t('invitation.requestAccessLink')}
+                </button>
+              </div>
+            </div>
+            </>
           )}
 
           {currentView === 'email' && (
@@ -279,7 +288,22 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
                 </p>
                 <div className="p-5 bg-[#C8E400]/10 backdrop-blur-sm border border-[#C8E400]/20 rounded-xl">
                   <p className="text-white/80 text-sm leading-relaxed">
-                    <strong className="text-[#C8E400]">{t('invitation.successNext')}</strong> {t('invitation.successNextMessage')}
+                    <strong className="text-[#C8E400]">{t('invitation.successNext')}</strong>{' '}
+                    {t('invitation.successNextMessage').split('@lulocart').map((part, index, array) => (
+                      <React.Fragment key={index}>
+                        {part}
+                        {index < array.length - 1 && (
+                          <a
+                            href="https://www.instagram.com/lulocart/?hl=en"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#C8E400] hover:text-[#d4f000] font-semibold transition-colors underline decoration-2 underline-offset-2"
+                          >
+                            @lulocart
+                          </a>
+                        )}
+                      </React.Fragment>
+                    ))}
                   </p>
                 </div>
               </div>
