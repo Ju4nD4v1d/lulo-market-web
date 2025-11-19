@@ -13,10 +13,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const LANGUAGE_STORAGE_KEY = 'lulocart_language_preference';
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize from localStorage or default to 'en'
+  // Initialize from localStorage or default to 'es' (Spanish for Latino audience)
   const [locale, setLocale] = useState<Locale>(() => {
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    return (savedLanguage === 'en' || savedLanguage === 'es') ? savedLanguage : 'en';
+    return (savedLanguage === 'en' || savedLanguage === 'es') ? savedLanguage : 'es';
   });
 
   // Save language preference to localStorage whenever it changes

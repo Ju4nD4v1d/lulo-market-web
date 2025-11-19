@@ -1435,9 +1435,6 @@ export const translations = {
     // Invitation Gate
     'invitation.title': 'LuloCart',
     'invitation.subtitle': "Welcome! We've poured our hearts into LuloCart to bring the Latin community in Canada closer to the flavors and traditions we all miss from home.",
-    'invitation.eventBadge': 'Online launch event',
-    'invitation.eventStatus': 'Coming Soon',
-    'invitation.eventLocation': 'Vancouver, BC',
     'invitation.codeLabel': 'Invitation Code',
     'invitation.codePlaceholder': 'ENTER INVITATION CODE',
     'invitation.accessButton': 'Access',
@@ -1445,7 +1442,7 @@ export const translations = {
     'invitation.invalidCode': 'Invalid or already used invitation code. Please try again or request access below.',
     'invitation.connectionError': 'Unable to verify code. Please check your connection and try again.',
     'invitation.requestTitle': 'Request Access',
-    'invitation.requestSubtitle': 'Join the waitlist for exclusive access to our curated Latin marketplace',
+    'invitation.requestSubtitle': 'Join the waitlist for exclusive access to our Latin marketplace',
     'invitation.emailLabel': 'Email Address',
     'invitation.emailPlaceholder': 'your@email.com',
     'invitation.requestButton': 'Request Invitation',
@@ -1455,9 +1452,11 @@ export const translations = {
     'invitation.successTitle': 'Request Submitted!',
     'invitation.successMessage': "Thank you for your interest in LuloCart. We'll review your request and send you an invitation code soon.",
     'invitation.successNext': "What's next?",
-    'invitation.successNextMessage': "We'll notify you via email once your invitation is ready. In the meantime, follow us on social media for updates!",
+    'invitation.successNextMessage': "We'll notify you via email once your invitation is ready. In the meantime, follow us on Instagram @lulocart for updates!",
     'invitation.backToCode': '← Back to invitation code',
-    'invitation.tryAnotherCode': 'Try another invitation code'
+    'invitation.tryAnotherCode': 'Try another invitation code',
+    'invitation.noCode': "Don't have an invitation code?",
+    'invitation.requestAccessLink': 'Request access here'
   },
   es: {
     // Navigation
@@ -2893,17 +2892,14 @@ export const translations = {
     // Invitation Gate - Spanish
     'invitation.title': 'LuloCart',
     'invitation.subtitle': '¡Bienvenido! Hemos puesto nuestro corazón en LuloCart para acercar a la comunidad latina en Canadá a los sabores y tradiciones que todos extrañamos de casa.',
-    'invitation.eventBadge': 'Evento de lanzamiento en línea',
-    'invitation.eventStatus': 'Próximamente',
-    'invitation.eventLocation': 'Vancouver, BC',
     'invitation.codeLabel': 'Código de Invitación',
-    'invitation.codePlaceholder': 'INGRESA EL CÓDIGO DE INVITACIÓN',
+    'invitation.codePlaceholder': 'CÓDIGO DE INVITACIÓN',
     'invitation.accessButton': 'Acceder',
     'invitation.verifying': 'Verificando...',
     'invitation.invalidCode': 'Código de invitación inválido o ya utilizado. Por favor, inténtalo de nuevo o solicita acceso abajo.',
     'invitation.connectionError': 'No se pudo verificar el código. Por favor, verifica tu conexión e inténtalo de nuevo.',
     'invitation.requestTitle': 'Solicitar Acceso',
-    'invitation.requestSubtitle': 'Únete a la lista de espera para acceso exclusivo a nuestro mercado latino curado',
+    'invitation.requestSubtitle': 'Únete a la lista de espera para acceso exclusivo a nuestro mercado latino',
     'invitation.emailLabel': 'Correo Electrónico',
     'invitation.emailPlaceholder': 'tu@correo.com',
     'invitation.requestButton': 'Solicitar Invitación',
@@ -2913,8 +2909,10 @@ export const translations = {
     'invitation.successTitle': '¡Solicitud Enviada!',
     'invitation.successMessage': 'Gracias por tu interés en LuloCart. Revisaremos tu solicitud y te enviaremos un código de invitación pronto.',
     'invitation.successNext': '¿Qué sigue?',
-    'invitation.successNextMessage': 'Te notificaremos por correo electrónico cuando tu invitación esté lista. ¡Mientras tanto, síguenos en las redes sociales para obtener actualizaciones!',
+    'invitation.successNextMessage': 'Te notificaremos por correo electrónico cuando tu invitación esté lista. ¡Mientras tanto, síguenos en Instagram @lulocart para obtener actualizaciones!',
     'invitation.backToCode': '← Volver al código de invitación',
-    'invitation.tryAnotherCode': 'Intentar otro código de invitación'
+    'invitation.tryAnotherCode': 'Intentar otro código de invitación',
+    'invitation.noCode': '¿No tienes un código de invitación?',
+    'invitation.requestAccessLink': 'Solicita acceso aquí'
   }
 };
