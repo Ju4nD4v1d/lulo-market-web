@@ -1,0 +1,9 @@
+/**
+ * Home Page Main Styles
+ * Container and layout for the home page
+ */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc, white, #f3f4f6);
+}

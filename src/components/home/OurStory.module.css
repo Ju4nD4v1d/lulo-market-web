@@ -1,0 +1,107 @@
+/**
+ * OurStory Component Styles
+ * Company story section with stats and image
+ */
+
+.section {
+  padding: 64px 0;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 80px 0;
+  }
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 32px;
+  }
+}
+
+/* Grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 48px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Content section */
+.content {
+  /* Content container */
+}
+
+.heading {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.description {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 18px;
+  color: #4b5563;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* Stats grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.stat {
+  /* Individual stat container */
+}
+
+.statNumber {
+  font-size: 24px;
+  font-weight: 300;
+  color: #111827;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.statLabel {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Image section */
+.imageContainer {
+  position: relative;
+}
+
+.image {
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(200, 228, 0, 0.1);
+  border-radius: 16px;
+}
