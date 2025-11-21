@@ -16,12 +16,11 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const EditProfile = lazy(() => import('./pages/EditProfile'));
-const StoreMenu = lazy(() => import('./components/StoreMenu'));
+const StoreMenu = lazy(() => import('./pages/store-menu'));
 const Business = lazy(() => import('./components/Business'));
-const OrderHistory = lazy(() => import('./components/OrderHistory'));
-const OrderTracking = lazy(() => import('./components/OrderTracking'));
-const InvitationGate = lazy(() => import('./components/InvitationGate'));
-const StoreList = lazy(() => import('./components/StoreList'));
+const OrderHistory = lazy(() => import('./pages/order-history'));
+const OrderTracking = lazy(() => import('./pages/order-tracking'));
+const InvitationGate = lazy(() => import('./pages/invitation-gate'));
 const ProductList = lazy(() => import('./components/ProductList'));
 
 // Lazy load static landing page components (rarely used)
@@ -197,11 +196,6 @@ const AppRoutes = () => {
       }
       updateTitle('Lulo Market - Order History');
       return <OrderHistory onBack={() => window.location.hash = '#'} />;
-    }
-
-    if (currentRoute.startsWith('#stores')) {
-      updateTitle('Lulo Market - All Stores');
-      return <StoreList onBack={() => window.location.hash = '#'} />;
     }
 
     if (currentRoute.startsWith('#products')) {

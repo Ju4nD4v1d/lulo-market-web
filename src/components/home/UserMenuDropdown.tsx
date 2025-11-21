@@ -1,9 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
-import { User, Settings, Receipt, FileText, Shield, LogOut } from 'lucide-react';
+import { Settings, Receipt, FileText, Shield, LogOut } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 import styles from './UserMenuDropdown.module.css';
-import avatarStyles from '../../styles/avatar.module.css';
 
 interface UserProfile {
   avatar?: string;
@@ -45,25 +44,7 @@ export const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
       <div className={styles.menu}>
         <div className={styles.header}>
           <div className={styles.userInfo}>
-            <div className={avatarStyles.menu}>
-              {userProfile?.avatar ? (
-                <img
-                  src={userProfile.avatar}
-                  alt="Profile"
-                  className={avatarStyles.image}
-                />
-              ) : (
-                <div className={avatarStyles.placeholder}>
-                  <User style={{ width: '20px', height: '20px', color: 'white' }} />
-                </div>
-              )}
-            </div>
-            <div>
-              <p className={styles.displayName}>
-                {userProfile?.displayName || currentUser.email?.split('@')[0] || 'User'}
-              </p>
-              <p className={styles.email}>{currentUser.email}</p>
-            </div>
+            <p className={styles.email}>{currentUser.email}</p>
           </div>
         </div>
 

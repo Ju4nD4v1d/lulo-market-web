@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { StoreData } from '../../types/store';
 import { SearchResultStore, SearchResults } from '../../types/search';
-import { StoreDetail } from '../../components/StoreDetail';
 import { CartSidebar } from '../../components/CartSidebar';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
@@ -75,8 +74,6 @@ export const HomePage = () => {
     : null;
 
   // Local UI state
-  const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
-  const [showStoreDetail, setShowStoreDetail] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -95,7 +92,7 @@ export const HomePage = () => {
 
   /**
    * Handle store card click
-   * Tracks analytics if from search results
+   * Tracks analytics if from search results and navigates to store page
    */
   const handleStoreClick = useCallback(async (store: StoreData, position?: number) => {
     // Track search click if this came from search results
@@ -114,17 +111,9 @@ export const HomePage = () => {
       // TODO: Implement analytics tracking for search clicks
     }
 
-    setSelectedStore(store);
-    setShowStoreDetail(true);
+    // Navigate to store detail page
+    window.location.hash = `#shopper-dashboard/${store.id}`;
   }, [searchQuery, searchResults]);
-
-  /**
-   * Handle back navigation from store detail
-   */
-  const handleBackToList = useCallback(() => {
-    setShowStoreDetail(false);
-    setSelectedStore(null);
-  }, []);
 
   /**
    * Handle user logout
@@ -190,19 +179,6 @@ export const HomePage = () => {
     setSearchQuery('');
     clearSearch();
   }, [setSearchQuery, clearSearch]);
-
-  // Show store detail view if a store is selected
-  if (showStoreDetail && selectedStore) {
-    return (
-      <StoreDetail
-        store={selectedStore}
-        onBack={handleBackToList}
-        onAddToCart={() => {
-          // Cart context handles adding to cart
-        }}
-      />
-    );
-  }
 
   return (
     <div className={styles.container}>

@@ -1,0 +1,55 @@
+.userButton {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.userButton:hover {
+  transform: scale(1.05);
+}
+
+.userButton:active {
+  transform: scale(0.98);
+}
+
+.withBorder {
+  border: 1px solid #C8E400;
+}
+
+.small {
+  width: 32px;
+  height: 32px;
+}
+
+.medium {
+  width: 40px;
+  height: 40px;
+}
+
+.large {
+  width: 48px;
+  height: 48px;
+}
+
+.userIcon {
+  width: 20px;
+  height: 20px;
+  color: #111827;
+}
+
+.small .userIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.large .userIcon {
+  width: 24px;
+  height: 24px;
+}

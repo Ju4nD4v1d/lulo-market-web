@@ -2,9 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import { User, ShoppingCart, Globe } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
+import { UserButton } from '../UserButton';
 import { UserMenuDropdown } from './UserMenuDropdown';
 import styles from './HomeHeader.module.css';
-import avatarStyles from '../../styles/avatar.module.css';
 import buttonStyles from '../../styles/button.module.css';
 
 interface UserProfile {
@@ -102,28 +102,17 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
             </button>
 
             {/* User Account */}
-            {currentUser ? (
-              <div className={styles.userSection}>
-                <button
-                  onClick={onUserMenuClick}
-                  className={styles.userButton}
-                >
-                  <div className={avatarStyles.header}>
-                    {userProfile?.avatar ? (
-                      <img
-                        src={userProfile.avatar}
-                        alt="Profile"
-                        className={avatarStyles.image}
-                      />
-                    ) : (
-                      <div className={avatarStyles.placeholder}>
-                        <User style={{ width: '16px', height: '16px', color: '#1f2937' }} />
-                      </div>
-                    )}
-                  </div>
-                </button>
+            <div className={styles.userSection}>
+              <UserButton
+                currentUser={currentUser}
+                userProfile={userProfile}
+                onClick={currentUser ? onUserMenuClick : onLoginRedirect}
+                size="medium"
+                showBorder={true}
+              />
 
-                {/* User Menu Dropdown */}
+              {/* User Menu Dropdown */}
+              {currentUser && (
                 <UserMenuDropdown
                   isOpen={showUserMenu}
                   onClose={onUserMenuClose}
@@ -133,16 +122,8 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
                   onNavigate={onMenuNavigate}
                   t={t}
                 />
-              </div>
-            ) : (
-              <button
-                onClick={onLoginRedirect}
-                className={styles.loginButton}
-                title="Sign In"
-              >
-                <User style={{ width: '16px', height: '16px' }} />
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
