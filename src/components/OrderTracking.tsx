@@ -296,4 +296,4 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ orderId, onBack })
       </div>
     </div>
   );
-};
+};export default OrderTracking;

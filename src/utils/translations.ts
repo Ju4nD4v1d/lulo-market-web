@@ -252,7 +252,6 @@ export const translations = {
 
     // Home Page
     'home.search.placeholder': 'Search restaurants, dishes, or cuisines...',
-    'home.search.noResults': 'No Results Found',
     'home.search.noResultsMessage': 'We couldn\'t find any stores matching',
     'home.search.clearSearch': 'Clear Search',
     // Product and Store Lists
@@ -263,15 +262,18 @@ export const translations = {
     'home.location.getLocation': 'Get Location',
     'home.location.denied': 'Location Denied',
     'home.location.set': 'Set Location',
-    'home.filters.title': 'Browse by Country',
-    'home.filters.comingSoon': 'Soon',
-    'home.filters.colombia': 'Colombian',
-    'home.filters.brazil': 'Brazilian',
-    'home.filters.venezuela': 'Venezuelan',
-    'home.filters.mexico': 'Mexican',
     'home.featuredRestaurants.badge': 'Featured Restaurants',
     'home.featuredRestaurants.title': 'Authentic Latino Restaurants Near You',
     'home.featuredRestaurants.description': 'Discover family-owned restaurants serving traditional recipes with fresh, local ingredients',
+    'home.search.badge': 'Search',
+    'home.search.resultsFor': 'Results for',
+    'home.search.storesFound': 'stores found',
+    'home.search.storeFound': 'store found',
+    'home.search.searching': 'Searching...',
+    'home.search.searchingDescription': 'Searching for products and stores...',
+    'home.search.noResults': 'No results found. Try different search terms.',
+    'home.search.fallbackMode': 'Local search activated (API temporarily unavailable)',
+    'home.search.resultsDescription': 'Results based on store names and products',
     'home.howItWorks.title': 'How It Works',
     'home.howItWorks.description': 'Get authentic Latino food delivered in three simple steps',
     'home.howItWorks.step1.title': 'Browse & Order',
@@ -285,13 +287,9 @@ export const translations = {
     'home.ourStory.stat1': 'Latino Restaurants',
     'home.ourStory.stat2': 'Happy Customers',
     'home.partnerCta.title': 'Grow Your Restaurant Business',
-    'home.partnerCta.description': 'Join hundreds of successful Latino restaurant owners who have expanded their reach with our platform',
+    'home.partnerCta.description': 'Join many successful Latino restaurant owners who have expanded their reach with our platform',
     'home.partnerCta.button': 'Become a Partner',
 
-    // Test Mode
-    'testMode.active': 'Test Mode Active - Using mock data for development',
-    'testMode.tooltip': 'Toggle test mode for local testing only',
-    
     'pricing.basic.title': 'Basic Plan',
     'pricing.basic.monthlyPrice': '$29',
     'pricing.basic.yearlyPrice': '$279',
@@ -2561,7 +2559,6 @@ export const translations = {
 
     // Home Page
     'home.search.placeholder': 'Buscar tiendas, platos o cocinas...',
-    'home.search.noResults': 'No se encontraron resultados',
     'home.search.noResultsMessage': 'No pudimos encontrar tiendas que coincidan con',
     'home.search.clearSearch': 'Limpiar búsqueda',
     // Product and Store Lists
@@ -2572,15 +2569,18 @@ export const translations = {
     'home.location.getLocation': 'Obtener Ubicación',
     'home.location.denied': 'Ubicación Denegada',
     'home.location.set': 'Establecer Ubicación',
-    'home.filters.title': 'Navegar por País',
-    'home.filters.comingSoon': 'Pronto',
-    'home.filters.colombia': 'Colombiana',
-    'home.filters.brazil': 'Brasileña',
-    'home.filters.venezuela': 'Venezolana',
-    'home.filters.mexico': 'Mexicana',
     'home.featuredRestaurants.badge': 'Tiendas Destacadas',
     'home.featuredRestaurants.title': 'Tiendas Latinas Auténticas Cerca de Ti',
     'home.featuredRestaurants.description': 'Descubre tiendas familiares que sirven recetas tradicionales con ingredientes frescos y locales',
+    'home.search.badge': 'Búsqueda',
+    'home.search.resultsFor': 'Resultados para',
+    'home.search.storesFound': 'tiendas encontradas',
+    'home.search.storeFound': 'tienda encontrada',
+    'home.search.searching': 'Buscando...',
+    'home.search.searchingDescription': 'Buscando productos y tiendas...',
+    'home.search.noResults': 'No se encontraron resultados. Intenta con otros términos.',
+    'home.search.fallbackMode': 'Búsqueda local activada (API temporalmente no disponible)',
+    'home.search.resultsDescription': 'Resultados basados en nombres de tiendas y productos',
     'home.howItWorks.title': 'Cómo Funciona',
     'home.howItWorks.description': 'Obtén comida latina auténtica entregada en tres simples pasos',
     'home.howItWorks.step1.title': 'Navegar y Pedir',
@@ -2593,13 +2593,9 @@ export const translations = {
     'home.ourStory.description': 'Somos más que una plataforma de entrega. Somos una comunidad que celebra la cultura latina conectando tiendas auténticas con amantes de la comida que aprecian sabores tradicionales y recetas familiares.',
     'home.ourStory.stat1': 'Tiendas Latinas',
     'home.ourStory.stat2': 'Clientes Satisfechos',
-    'home.partnerCta.title': 'Haz Crecer Tu Negocio de Tienda',
-    'home.partnerCta.description': 'Únete a cientos de dueños exitosos de tiendas latinas que han expandido su alcance con nuestra plataforma',
+    'home.partnerCta.title': 'Haz Crecer Tu Negocio',
+    'home.partnerCta.description': 'Únete a otros dueños exitosos de tiendas latinas que han expandido su alcance con nuestra plataforma',
     'home.partnerCta.button': 'Conviértete en Socio',
-
-    // Test Mode
-    'testMode.active': 'Modo de Prueba Activo - Usando datos simulados para desarrollo',
-    'testMode.tooltip': 'Alternar modo de prueba solo para pruebas locales',
 
     // Additional Critical Missing Translations - Spanish
     'checkout': 'Finalizar Compra',

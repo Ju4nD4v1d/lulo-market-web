@@ -13,7 +13,6 @@ interface UserProfile {
 }
 
 interface HomeHeaderProps {
-  isTestMode: boolean;
   isOffline: boolean;
   currentUser: FirebaseUser | null;
   userProfile?: UserProfile;
@@ -30,7 +29,6 @@ interface HomeHeaderProps {
 }
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({
-  isTestMode,
   isOffline,
   currentUser,
   userProfile,
@@ -47,15 +45,6 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
 }) => {
   return (
     <header className={styles.header}>
-      {/* Test Mode Banner */}
-      {isTestMode && (
-        <div className={clsx(styles.banner, styles.testModeBanner)}>
-          <span className={styles.testModeText}>
-            🧪 {t('testMode.active')}
-          </span>
-        </div>
-      )}
-
       {/* Offline Banner */}
       {isOffline && (
         <div className={clsx(styles.banner, styles.offlineBanner)}>

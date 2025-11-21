@@ -748,3 +748,4 @@ export const Business = () => {
     </div>
   );
 };
+export default Business;

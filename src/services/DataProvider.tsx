@@ -1,40 +1,36 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useTestMode } from '../context/TestModeContext';
-import { 
-  generateAllMockStores, 
-  generateMockOrders, 
-  generateMockReviews, 
-  mockUser, 
-  mockUserProfile 
-} from '../utils/mockDataGenerators';
-import { collection, getDocs, doc, getDoc, query, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { StoreData } from '../types/store';
+import * as api from './api';
 
-// Mock Firebase-like API responses
-const createMockResponse = (data: unknown) => ({
-  docs: Array.isArray(data) ? data.map((item, index) => ({
-    id: item.id || `mock-${index}`,
-    data: () => item,
-    exists: () => true
-  })) : [],
-  empty: Array.isArray(data) ? data.length === 0 : false,
-  size: Array.isArray(data) ? data.length : 0
-});
+/**
+ * DataProvider - Legacy compatibility layer
+ *
+ * This provider maintains the existing DataProvider interface used throughout the app,
+ * but now delegates all operations to the centralized API service.
+ *
+ * Note: New code should import functions directly from './api' instead of using this provider.
+ * This provider exists for backward compatibility with existing code.
+ */
 
 interface DataProviderType {
-  // Firestore operations
-  getStores: () => Promise<unknown>;
-  getStore: (storeId: string) => Promise<unknown>;
-  getOrders: (userId?: string) => Promise<unknown>;
-  getReviews: (storeId: string) => Promise<unknown>;
-  getProducts: (storeId: string) => Promise<unknown>;
-  
+  // Store operations
+  getStores: () => Promise<{ docs: unknown[]; empty: boolean; size: number }>;
+  getStore: (storeId: string) => Promise<{ exists: () => boolean; data: () => unknown; id: string }>;
+
+  // Order operations
+  getOrders: (userId?: string) => Promise<{ docs: unknown[]; empty: boolean; size: number }>;
+
+  // Review operations
+  getReviews: (storeId: string) => Promise<{ docs: unknown[]; empty: boolean; size: number }>;
+
+  // Product operations
+  getProducts: (storeId: string) => Promise<{ docs: unknown[]; empty: boolean; size: number }>;
+
   // Auth operations
   getCurrentUser: () => unknown;
-  getUserProfile: (uid: string) => Promise<unknown>;
-  
-  // Real-time listeners (simplified for mock)
+  getUserProfile: (uid: string) => Promise<{ exists: () => boolean; data: () => unknown; id: string }>;
+
+  // Real-time listeners
   listenToStores: (callback: (stores: StoreData[]) => void) => () => void;
   listenToOrders: (userId: string, callback: (orders: unknown[]) => void) => () => void;
 }
@@ -53,197 +49,97 @@ interface DataProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Helper to convert API responses to Firestore-like format
+ * This maintains compatibility with existing code expecting Firestore response format
+ */
+const createFirestoreLikeResponse = (data: unknown[]) => ({
+  docs: data.map((item: { id: string }) => ({
+    id: item.id,
+    data: () => item,
+    exists: () => true,
+  })),
+  empty: data.length === 0,
+  size: data.length,
+});
+
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const { isTestMode } = useTestMode();
-
-  // Initialize mock data
-  const mockStores = generateAllMockStores();
-  const mockOrders = generateMockOrders(15);
-
   const dataProvider: DataProviderType = {
     // Get all stores
     getStores: async () => {
-      if (isTestMode) {
-        console.log('🧪 Mock: Fetching stores');
-        return createMockResponse(mockStores);
-      } else {
-        const storesCollection = collection(db, 'stores');
-        return await getDocs(storesCollection);
-      }
+      const stores = await api.getAllStores();
+      return createFirestoreLikeResponse(stores);
     },
 
     // Get single store
     getStore: async (storeId: string) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Fetching store ${storeId}`);
-        const store = mockStores.find(s => s.id === storeId);
+      try {
+        const store = await api.getStoreById(storeId);
         return {
-          exists: () => !!store,
+          exists: () => true,
           data: () => store,
-          id: storeId
+          id: storeId,
         };
-      } else {
-        const storeDoc = doc(db, 'stores', storeId);
-        return await getDoc(storeDoc);
+      } catch (error) {
+        return {
+          exists: () => false,
+          data: () => null,
+          id: storeId,
+        };
       }
     },
 
     // Get orders
     getOrders: async (userId?: string) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Fetching orders for user ${userId || 'all'}`);
-        const filteredOrders = userId 
-          ? mockOrders.filter(order => order.userId === userId)
-          : mockOrders;
-        return createMockResponse(filteredOrders);
-      } else {
-        let ordersQuery;
-        if (userId) {
-          // Try compound query with index
-          try {
-            ordersQuery = query(
-              collection(db, 'orders'),
-              where('userId', '==', userId),
-              orderBy('createdAt', 'desc')
-            );
-            return await getDocs(ordersQuery);
-          } catch (error) {
-            // Fallback to simple query without orderBy if index doesn't exist
-            console.warn('Firestore compound query failed, using simple query:', error);
-            ordersQuery = query(
-              collection(db, 'orders'),
-              where('userId', '==', userId)
-            );
-            return await getDocs(ordersQuery);
-          }
-        } else {
-          ordersQuery = query(
-            collection(db, 'orders'),
-            orderBy('createdAt', 'desc'),
-            limit(50)
-          );
-          return await getDocs(ordersQuery);
-        }
-      }
+      const orders = await api.getOrders({ userId, limitCount: userId ? undefined : 50 });
+      return createFirestoreLikeResponse(orders);
     },
 
     // Get reviews for a store
     getReviews: async (storeId: string) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Fetching reviews for store ${storeId}`);
-        const reviews = generateMockReviews(storeId, 10);
-        return createMockResponse(reviews);
-      } else {
-        const reviewsQuery = query(
-          collection(db, 'reviews'),
-          where('storeId', '==', storeId),
-          orderBy('createdAt', 'desc')
-        );
-        return await getDocs(reviewsQuery);
-      }
+      const reviews = await api.getReviewsByStoreId(storeId);
+      return createFirestoreLikeResponse(reviews);
     },
 
     // Get products for a store
     getProducts: async (storeId: string) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Fetching products for store ${storeId}`);
-        const store = mockStores.find(s => s.id === storeId);
-        const products = store?.products || [];
-        return createMockResponse(products);
-      } else {
-        const productsQuery = query(
-          collection(db, 'products'),
-          where('storeId', '==', storeId)
-        );
-        return await getDocs(productsQuery);
-      }
+      const products = await api.getProductsByStoreId(storeId);
+      return createFirestoreLikeResponse(products);
     },
 
     // Auth operations
     getCurrentUser: () => {
-      if (isTestMode) {
-        console.log('🧪 Mock: Getting current user');
-        return mockUser;
-      } else {
-        // This would normally come from Firebase Auth context
-        return null;
-      }
+      // This would normally come from Firebase Auth context
+      return null;
     },
 
     getUserProfile: async (uid: string) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Fetching user profile for ${uid}`);
-        return {
-          exists: () => true,
-          data: () => mockUserProfile,
-          id: uid
-        };
-      } else {
-        const userDoc = doc(db, 'users', uid);
-        return await getDoc(userDoc);
-      }
+      const profile = await api.getUserProfile(uid);
+      return {
+        exists: () => !!profile,
+        data: () => profile,
+        id: uid,
+      };
     },
 
-    // Real-time listeners (simplified)
+    // Real-time listeners - simplified implementation
+    // For true real-time updates, consider using onSnapshot from Firestore
     listenToStores: (callback: (stores: StoreData[]) => void) => {
-      if (isTestMode) {
-        console.log('🧪 Mock: Setting up stores listener');
-        // Immediately call with mock data
-        setTimeout(() => callback(mockStores), 100);
-        
-        // Return unsubscribe function
-        return () => {
-          console.log('🧪 Mock: Unsubscribing from stores listener');
-        };
-      } else {
-        // Real Firebase listener would go here
-        // This is a simplified implementation
-        const storesCollection = collection(db, 'stores');
-        getDocs(storesCollection).then(snapshot => {
-          const stores = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
-          })) as StoreData[];
-          callback(stores);
-        });
-        
-        return () => {}; // Placeholder unsubscribe
-      }
+      api.getAllStores().then((stores) => {
+        callback(stores);
+      });
+
+      return () => {}; // Placeholder unsubscribe
     },
 
     listenToOrders: (userId: string, callback: (orders: unknown[]) => void) => {
-      if (isTestMode) {
-        console.log(`🧪 Mock: Setting up orders listener for user ${userId}`);
-        const userOrders = mockOrders.filter(order => order.userId === userId);
-        setTimeout(() => callback(userOrders), 100);
-        
-        return () => {
-          console.log('🧪 Mock: Unsubscribing from orders listener');
-        };
-      } else {
-        // Real Firebase listener would go here
-        const ordersQuery = query(
-          collection(db, 'orders'),
-          where('userId', '==', userId),
-          orderBy('createdAt', 'desc')
-        );
-        getDocs(ordersQuery).then(snapshot => {
-          const orders = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          callback(orders);
-        });
-        
-        return () => {}; // Placeholder unsubscribe
-      }
-    }
+      api.getOrders({ userId }).then((orders) => {
+        callback(orders);
+      });
+
+      return () => {}; // Placeholder unsubscribe
+    },
   };
 
-  return (
-    <DataContext.Provider value={dataProvider}>
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={dataProvider}>{children}</DataContext.Provider>;
 };

@@ -208,4 +208,4 @@ export const ConversionPricing = () => {
       </div>
     </section>
   );
-};
+};export default ConversionPricing;

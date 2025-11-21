@@ -1,3 +1,6 @@
+import { Product } from './product';
+import { SearchMetadata } from './search';
+
 export interface AboutUsSection {
   id: string;
   title: string;
@@ -80,5 +83,7 @@ export interface StoreData {
   createdAt?: Date;              // Store creation timestamp
   updatedAt?: Date;              // Store last update timestamp
   // Products field for mock data and test mode
-  products?: unknown[];          // Mock products for testing
+  products?: Product[];          // Products available in this store
+  // Search metadata (added when store comes from search results)
+  searchMetadata?: SearchMetadata;
 }

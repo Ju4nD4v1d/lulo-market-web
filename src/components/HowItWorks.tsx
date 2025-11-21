@@ -162,4 +162,4 @@ export const HowItWorks = () => {
       </div>
     </section>
   );
-};
+};export default HowItWorks;

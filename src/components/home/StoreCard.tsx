@@ -11,7 +11,7 @@ interface StoreCardProps {
   isUsingFallbackSearch: boolean;
   onStoreClick: (store: StoreData, index: number) => void;
   calculateDistance: (store: StoreData) => string;
-  isStoreNew: (createdAt?: Date) => boolean;
+  isStoreNew: (store: StoreData) => boolean;
   t: (key: string) => string;
 }
 
@@ -99,7 +99,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({
         )}
 
         {/* Badge Logic */}
-        {isStoreNew(store.createdAt) ? (
+        {isStoreNew(store) ? (
           <div className={clsx(badgeStyles.badge, badgeStyles.positioned, badgeStyles.bottomLeft, badgeStyles.new)}>
             <Star style={{ width: '12px', height: '12px' }} fill="currentColor" />
             <span>{t('store.new')}</span>

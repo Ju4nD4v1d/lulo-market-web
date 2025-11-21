@@ -16,6 +16,16 @@ export interface SearchResultStore {
   distance?: number;
 }
 
+/**
+ * Search results wrapper containing stores and metadata
+ * Used by search API to return results with count information
+ */
+export interface SearchResults {
+  stores: SearchResultStore[];
+  totalCount: number;
+  query: string;
+}
+
 export interface SearchOptions {
   enableLocation?: boolean;
   debounceMs?: number;

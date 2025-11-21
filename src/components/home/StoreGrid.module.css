@@ -126,3 +126,33 @@
     background-position: calc(200px + 100%) 0;
   }
 }
+
+/* Virtual scrolling container */
+.virtualScrollContainer {
+  height: 100vh;
+  overflow: auto;
+  contain: strict;
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar on Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 228, 0, 0.3) transparent;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.virtualScrollContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtualScrollContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.virtualScrollContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(200, 228, 0, 0.3);
+  border-radius: 4px;
+}
+
+.virtualScrollContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(200, 228, 0, 0.5);
+}

@@ -6,7 +6,6 @@ import { ProductCard } from './ProductCard';
 import { CartSidebar } from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useTestMode } from '../context/TestModeContext';
 import { useDataProvider } from '../services/DataProvider';
 import { useAuth } from '../context/AuthContext';
 
@@ -133,15 +132,13 @@ interface StoreDetailProps {
 export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
-  const { isTestMode, toggleTestMode } = useTestMode();
   const { getProducts } = useDataProvider();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
-  
+
   // Debug log to check store location data
   console.log('Store data in StoreDetail:', store);
   console.log('Store location:', store.location);
   console.log('Store delivery hours:', store.deliveryHours || store.businessHours);
-  console.log('Test mode:', isTestMode);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,14 +160,14 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      console.log(`Fetching products for store ${store.id} (Test mode: ${isTestMode})`);
-      
+      console.log(`Fetching products for store ${store.id}`);
+
       // Use DataProvider which handles both test mode and real data
       const querySnapshot = await getProducts(store.id);
-      
+
       // Handle different response formats
       let productsData: Product[] = [];
-      
+
       if (querySnapshot.docs) {
         // Firebase format
         productsData = querySnapshot.docs.map(doc => ({
@@ -181,11 +178,11 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
         // Direct array format (from DataProvider mock)
         productsData = querySnapshot as Product[];
       }
-      
+
       console.log(`Found ${productsData.length} products for store ${store.id}:`, productsData);
-      
-      // If no products found and not in test mode, fallback to mock data
-      if (productsData.length === 0 && !isTestMode) {
+
+      // If no products found, fallback to mock data
+      if (productsData.length === 0) {
         console.log('No products found, using mock data fallback');
         const storeProducts = mockProducts.filter(product => product.storeId === store.id);
         setProducts(storeProducts);
@@ -200,7 +197,7 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     } finally {
       setLoading(false);
     }
-  }, [store.id, isTestMode, getProducts]);
+  }, [store.id, getProducts]);
 
   const filterProducts = useCallback(() => {
     let filtered = products;
@@ -525,24 +522,6 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline">Sign In</span>
                 </button>
-              )}
-              
-              {/* Test Mode Toggle */}
-              {isTestMode && (
-                <div className="flex items-center gap-2">
-                  <label className="relative inline-flex items-center cursor-pointer" title={t('testMode.tooltip')}>
-                    <input
-                      type="checkbox"
-                      checked={isTestMode}
-                      onChange={toggleTestMode}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-400/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-400"></div>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                      {t('testMode.active')}
-                    </span>
-                  </label>
-                </div>
               )}
             </div>
           </div>

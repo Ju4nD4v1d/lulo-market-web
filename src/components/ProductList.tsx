@@ -237,3 +237,4 @@ export const ProductList: React.FC<ProductListProps> = ({ onBack, onProductClick
     </div>
   );
 };
+export default ProductList;

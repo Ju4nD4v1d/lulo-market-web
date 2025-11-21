@@ -22,17 +22,6 @@
   border-bottom: 1px solid;
 }
 
-.testModeBanner {
-  background: #fef3c7;
-  border-color: #fde68a;
-}
-
-.testModeText {
-  color: #92400e;
-  font-size: 14px;
-  font-weight: 500;
-}
-
 .offlineBanner {
   background: #fee2e2;
   border-color: #fecaca;

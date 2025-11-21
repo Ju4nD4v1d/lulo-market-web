@@ -756,3 +756,4 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onBack }) => {
 
   return content;
 };
+export default OrderHistory;

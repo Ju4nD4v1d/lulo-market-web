@@ -109,11 +109,6 @@ vi.mock('../../context/LanguageContext', () => ({
   useLanguage: () => mockLanguageContext,
 }));
 
-// Mock mock data generators
-vi.mock('../../utils/mockDataGenerators', () => ({
-  generateAllMockStores: () => [mockStore],
-}));
-
 describe('Home Component', () => {
   const mockStores = [
     mockStore,

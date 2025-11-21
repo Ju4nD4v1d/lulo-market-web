@@ -105,4 +105,4 @@ export const Dashboard = () => {
       {renderContent()}
     </AdminLayout>
   );
-};
+};export default Dashboard;

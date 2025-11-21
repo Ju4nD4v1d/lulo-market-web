@@ -170,4 +170,4 @@ export const SocialProof = () => {
       </div>
     </section>
   );
-};
+};export default SocialProof;

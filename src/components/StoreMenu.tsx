@@ -350,4 +350,4 @@ export const StoreMenu: React.FC = () => {
       )}
     </div>
   );
-};
+};export default StoreMenu;

@@ -1,0 +1,98 @@
+/**
+ * SearchResultsInfo Component Styles
+ * Displays search feedback banner
+ */
+
+.container {
+  background: rgba(200, 228, 0, 0.1);
+  border: 1px solid rgba(200, 228, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.query {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.fallbackBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: linear-gradient(to right, #f97316, #ea580c);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+.clearButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.clearButton:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+.clearButton:active {
+  transform: scale(0.98);
+}
+
+.clearIcon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .clearButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

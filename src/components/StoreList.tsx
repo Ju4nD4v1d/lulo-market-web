@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowLeft, Star, ShoppingCart, Search } from 'lucide-react';
-import { useTestMode } from '../context/TestModeContext';
 import { useDataProvider } from '../services/DataProvider';
-import { generateAllMockStores } from '../utils/mockDataGenerators';
 
 interface StoreData {
   id: string;
@@ -45,39 +43,32 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const { isTestMode } = useTestMode();
   const dataProvider = useDataProvider();
 
   const fetchStores = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      if (isTestMode) {
-        // Use mock data in test mode
-        const mockStores = generateAllMockStores();
-        setStores(mockStores);
-      } else {
-        // Use real Firebase data
-        const storesSnapshot = await dataProvider.getStores();
-        const storesData = storesSnapshot.docs.map((doc: { id: string; data: () => Record<string, unknown> }) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            createdAt: (data.createdAt as { toDate?: () => Date })?.toDate ? (data.createdAt as { toDate: () => Date }).toDate() : data.createdAt
-          };
-        }) as StoreData[];
-        
-        setStores(storesData);
-      }
+
+      // Use real Firebase data
+      const storesSnapshot = await dataProvider.getStores();
+      const storesData = storesSnapshot.docs.map((doc: { id: string; data: () => Record<string, unknown> }) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: (data.createdAt as { toDate?: () => Date })?.toDate ? (data.createdAt as { toDate: () => Date }).toDate() : data.createdAt
+        };
+      }) as StoreData[];
+
+      setStores(storesData);
     } catch (err) {
       console.error('Error fetching stores:', err);
       setError('Failed to fetch stores. Please try again later.');
     } finally {
       setLoading(false);
     }
-  }, [isTestMode, dataProvider]);
+  }, [dataProvider]);
 
   const filterStores = useCallback(() => {
     let filtered = stores;
@@ -303,3 +294,4 @@ export const StoreList: React.FC<StoreListProps> = ({ onBack, onStoreClick }) =>
     </div>
   );
 };
+export default StoreList;

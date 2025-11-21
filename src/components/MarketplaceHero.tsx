@@ -5,8 +5,6 @@ import { useLanguage } from '../context/LanguageContext';
 interface MarketplaceHeroProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
   onLocationRequest: () => void;
   locationStatus: 'idle' | 'requesting' | 'granted' | 'denied';
   locationName: string;
@@ -15,8 +13,6 @@ interface MarketplaceHeroProps {
 export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
   searchQuery,
   setSearchQuery,
-  selectedCountry,
-  setSelectedCountry,
   onLocationRequest,
   locationStatus,
   locationName
@@ -24,13 +20,6 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  const countries = [
-    { id: 'colombia', name: t('home.filters.colombia'), active: true },
-    { id: 'brazil', name: t('home.filters.brazil'), active: false },
-    { id: 'venezuela', name: t('home.filters.venezuela'), active: false },
-    { id: 'mexico', name: t('home.filters.mexico'), active: false }
-  ];
 
   // Carousel slides with dynamic content
   const heroSlides = [
@@ -158,22 +147,6 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                   }
                 </span>
               </button>
-
-              <div className="flex gap-2">
-                {countries.filter(c => c.active).map((country) => (
-                  <button
-                    key={country.id}
-                    onClick={() => setSelectedCountry(country.id)}
-                    className={`px-4 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
-                      selectedCountry === country.id
-                        ? `bg-gradient-to-r ${currentSlideData.accent} text-white shadow-lg`
-                        : 'bg-white/60 backdrop-blur-sm border border-gray-200/60 text-gray-700 hover:shadow-md'
-                    }`}
-                  >
-                    {country.name}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 

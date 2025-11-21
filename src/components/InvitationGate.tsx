@@ -320,4 +320,4 @@ export const InvitationGate: React.FC<InvitationGateProps> = ({ onValidCode }) =
       </section>
     </main>
   );
-};
+};export default InvitationGate;
