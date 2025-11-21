@@ -1,0 +1,128 @@
+/**
+ * Shared Badge Styles
+ * Reusable badge variants used for status indicators, labels, and tags
+ */
+
+/* Base badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* Search match badge - fallback (orange) */
+.searchFallback {
+  background: linear-gradient(to right, #f97316, #ea580c);
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+}
+
+/* Search match badge - exact (blue) */
+.searchExact {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
+/* Verification badge (emerald) */
+.verification {
+  background: linear-gradient(to right, #10b981, #059669);
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+/* New store badge (brand yellow) */
+.new {
+  background: #C8E400;
+  color: #1f2937;
+  box-shadow: 0 10px 15px -3px rgba(200, 228, 0, 0.3);
+  font-weight: 700;
+}
+
+/* Rating badge (white with backdrop blur) */
+.rating {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #1f2937;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Positioned badge variants */
+.positioned {
+  position: absolute;
+}
+
+.topLeft {
+  top: 8px;
+  left: 8px;
+}
+
+.topRight {
+  top: 8px;
+  right: 8px;
+}
+
+.bottomLeft {
+  bottom: 8px;
+  left: 8px;
+}
+
+.bottomRight {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* Status badge - primary */
+.statusPrimary {
+  background: rgba(200, 228, 0, 0.1);
+  border: 1px solid rgba(200, 228, 0, 0.2);
+  color: #C8E400;
+  font-weight: 600;
+}
+
+/* Delivery option badges */
+.delivery {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+  font-weight: 500;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.pickup {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  font-weight: 500;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+/* Cart count badge */
+.cartCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
