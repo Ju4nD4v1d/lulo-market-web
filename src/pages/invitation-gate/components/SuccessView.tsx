@@ -1,5 +1,4 @@
-import type * as React from 'react';
-
+import { Fragment } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './SuccessView.module.css';
@@ -8,7 +7,7 @@ interface SuccessViewProps {
   onTryAnotherCode: () => void;
 }
 
-export const SuccessView: React.FC<SuccessViewProps> = ({ onTryAnotherCode }) => {
+export const SuccessView = ({ onTryAnotherCode }: SuccessViewProps) => {
   const { t } = useLanguage();
 
   return (
@@ -25,7 +24,7 @@ export const SuccessView: React.FC<SuccessViewProps> = ({ onTryAnotherCode }) =>
             {t('invitation.successNextMessage')
               .split('@lulocart')
               .map((part, index, array) => (
-                <React.Fragment key={index}>
+                <Fragment key={index}>
                   {part}
                   {index < array.length - 1 && (
                     <a
@@ -37,7 +36,7 @@ export const SuccessView: React.FC<SuccessViewProps> = ({ onTryAnotherCode }) =>
                       @lulocart
                     </a>
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
           </p>
         </div>

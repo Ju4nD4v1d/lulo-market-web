@@ -36,11 +36,11 @@ export const LoginPage: React.FC = () => {
 
   return (
     <AuthLayout
-      heroTitle={isLogin ? `${t('auth.welcomeHero')} ${COMPANY_NAME}` : `Join ${COMPANY_NAME} Today`}
+      heroTitle={isLogin ? `${t('auth.welcomeHero')} ${COMPANY_NAME}` : t('auth.joinTitle')}
       heroSubtitle={
         isLogin
           ? t('auth.welcomeSubtitle')
-          : 'Start your journey with us and connect with authentic Latin businesses in your community.'
+          : t('auth.joinSubtitle')
       }
       backLink="#"
       backText={t('auth.backToHome')}
@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
       {/* Tab Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6 font-heading text-center">
-          Welcome to {COMPANY_NAME}
+          {t('auth.welcomeTitle')}
         </h1>
 
         {/* Tab Navigation */}
@@ -63,7 +63,7 @@ export const LoginPage: React.FC = () => {
               }
             `}
           >
-            Sign In
+            {t('auth.signIn')}
           </button>
           <button
             onClick={() => switchTab(false)}
@@ -75,14 +75,14 @@ export const LoginPage: React.FC = () => {
               }
             `}
           >
-            Create Account
+            {t('auth.createAccount')}
           </button>
         </div>
 
         <p className="text-gray-600 text-center">
           {isLogin
             ? t('auth.subtitle')
-            : 'Join our community of Latin entrepreneurs and start growing your business today.'
+            : t('auth.registerSubtitle')
           }
         </p>
       </div>
@@ -132,8 +132,8 @@ export const LoginPage: React.FC = () => {
             ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
           {isLoading
-            ? (isLogin ? t('auth.loading') : 'Creating Account...')
-            : (isLogin ? t('auth.loginButton') : 'Create Account')
+            ? (isLogin ? t('auth.loading') : t('auth.creatingAccount'))
+            : (isLogin ? t('auth.loginButton') : t('auth.createAccount'))
           }
         </button>
 
@@ -141,7 +141,7 @@ export const LoginPage: React.FC = () => {
         <p className="text-center text-sm text-gray-600 mt-4">
           {isLogin
             ? t('auth.trustMessage')
-            : 'By creating an account, you agree to our Terms of Service and Privacy Policy.'
+            : t('auth.agreeToTerms')
           }
         </p>
       </form>

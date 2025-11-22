@@ -11,12 +11,13 @@ interface OrderCardProps {
 }
 
 export const OrderCard: React.FC<OrderCardProps> = ({ order, onClick }) => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const formatPrice = (price: number | undefined) => `CAD $${(price || 0).toFixed(2)}`;
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-CA', {
+    const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
+    return new Intl.DateTimeFormat(dateLocale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

@@ -10,12 +10,14 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useCurrentWeekMetrics } from '../../../../../hooks/useCurrentWeekMetrics';
+import { useLanguage } from '../../../../../context/LanguageContext';
 
 interface TotalWeeklyRevenueCardProps {
   storeId: string;
 }
 
 const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId }) => {
+  const { t } = useLanguage();
   const { current, loading, error, trend } = useCurrentWeekMetrics(storeId);
 
   // Extract revenue data
@@ -33,7 +35,7 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
         <div className="flex items-center justify-center h-24">
           <div className="text-center">
             <Loader2 className="w-6 h-6 text-primary-400 animate-spin mx-auto mb-2" />
-            <p className="text-xs text-gray-500">Loading revenue...</p>
+            <p className="text-xs text-gray-500">{t('metrics.loadingRevenue')}</p>
           </div>
         </div>
       </div>
@@ -45,10 +47,10 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
       <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-gray-500 text-sm font-medium">Total Revenue This Week</p>
+            <p className="text-gray-500 text-sm font-medium">{t('metrics.revenueThisWeek')}</p>
             <div className="flex items-center text-red-600 space-x-2 mt-2">
               <AlertCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">Couldn't load data</span>
+              <span className="text-sm font-medium">{t('metrics.couldNotLoadData')}</span>
             </div>
           </div>
           <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl">
@@ -63,7 +65,7 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
     <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-gray-500 text-sm font-medium mb-2">Total Revenue This Week</p>
+          <p className="text-gray-500 text-sm font-medium mb-2">{t('metrics.revenueThisWeek')}</p>
           <h3 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-primary-400 transition-colors">
             {formatter.format(currentRevenue)}
           </h3>
@@ -81,13 +83,13 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
                 )}
                 {`${revenueTrend >= 0 ? '+' : ''}${revenueTrend.toFixed(1)}%`}
               </div>
-              <span className="text-gray-500 text-sm">from last week</span>
+              <span className="text-gray-500 text-sm">{t('metrics.fromLastWeek')}</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-gray-400">
               <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 rounded-full">
                 <Info className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-600">Building insights</span>
+                <span className="text-sm font-medium text-blue-600">{t('metrics.buildingInsights')}</span>
               </div>
             </div>
           )}

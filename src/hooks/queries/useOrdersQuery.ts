@@ -132,7 +132,8 @@ const transformOrderDocument = (doc: any): Order => {
 };
 
 interface UseOrdersQueryOptions {
-  storeId: string | null;
+  storeId?: string | null;
+  userId?: string | null;
   pageSize?: number;
   enabled?: boolean;
 }
@@ -146,35 +147,51 @@ interface OrdersQueryResult {
 
 export const useOrdersQuery = ({
   storeId,
+  userId,
   pageSize = 50,
   enabled = true
 }: UseOrdersQueryOptions): OrdersQueryResult => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: queryKeys.orders.byStore(storeId || ''),
+    queryKey: storeId
+      ? queryKeys.orders.byStore(storeId)
+      : queryKeys.orders.byUser(userId || ''),
     queryFn: async () => {
-      if (!storeId) {
-        throw new Error('Store ID is required');
+      if (!storeId && !userId) {
+        throw new Error('Either Store ID or User ID is required');
       }
 
-      console.log('🔍 Loading orders for storeId:', storeId);
-
       const ordersRef = collection(db, 'orders');
-      const ordersQuery = query(
-        ordersRef,
-        where('storeId', '==', storeId),
-        orderBy('createdAt', 'desc'),
-        limit(pageSize)
-      );
+      let ordersQuery;
+
+      if (storeId) {
+        console.log('🔍 Loading orders for storeId:', storeId);
+        ordersQuery = query(
+          ordersRef,
+          where('storeId', '==', storeId),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        );
+      } else if (userId) {
+        console.log('🔍 Loading orders for userId:', userId);
+        ordersQuery = query(
+          ordersRef,
+          where('userId', '==', userId),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        );
+      } else {
+        throw new Error('Either Store ID or User ID is required');
+      }
 
       const ordersSnapshot = await getDocs(ordersQuery);
 
-      console.log('🎯 Orders found for this store:', ordersSnapshot.size);
+      console.log('🎯 Orders found:', ordersSnapshot.size);
 
       const ordersData: Order[] = ordersSnapshot.docs.map(transformOrderDocument);
 
       return ordersData;
     },
-    enabled: enabled && !!storeId,
+    enabled: enabled && (!!storeId || !!userId),
     staleTime: 2 * 60 * 1000, // 2 minutes - orders change frequently
     gcTime: 10 * 60 * 1000, // 10 minutes cache
     refetchOnWindowFocus: true, // Refetch when user returns to tab

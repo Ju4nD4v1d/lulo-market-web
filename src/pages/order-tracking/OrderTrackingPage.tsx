@@ -2,6 +2,7 @@ import type * as React from 'react';
 
 import { ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useOrderTrackingQuery } from '../../hooks/queries/useOrderTrackingQuery';
 import { useReceipt } from './hooks';
 import {
@@ -20,6 +21,7 @@ interface OrderTrackingPageProps {
 
 export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, onBack }) => {
   const { currentUser } = useAuth();
+  const { t, locale } = useLanguage();
   const { order, isLoading: loading, error } = useOrderTrackingQuery({
     orderId,
     userEmail: currentUser?.email || '',
@@ -30,23 +32,37 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
   // Use updated order if receipt was generated
   const displayOrder = updatedOrder || order;
 
-  // Helper function to safely format date from Firestore Timestamp or Date
+  // Helper function to safely format date from Firestore Timestamp or Date with proper locale
   const formatOrderDate = (date: any): string => {
     if (!date) return 'Unknown';
 
+    const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
+
     // Check if it's a Firestore Timestamp
     if (date.toDate && typeof date.toDate === 'function') {
-      return date.toDate().toLocaleDateString();
+      return date.toDate().toLocaleDateString(dateLocale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     }
 
     // Check if it's already a Date object
     if (date instanceof Date) {
-      return date.toLocaleDateString();
+      return date.toLocaleDateString(dateLocale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     }
 
     // Fallback: try to create a Date from the value
     try {
-      return new Date(date).toLocaleDateString();
+      return new Date(date).toLocaleDateString(dateLocale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     } catch {
       return 'Unknown';
     }
@@ -57,7 +73,7 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
       <div className={styles.loadingContainer}>
         <div className={styles.loadingContent}>
           <div className={styles.spinner}></div>
-          <p className={styles.loadingText}>Loading order details...</p>
+          <p className={styles.loadingText}>{t('order.loading')}</p>
         </div>
       </div>
     );
@@ -68,12 +84,12 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
       <div className={styles.errorContainer}>
         <div className={styles.errorContent}>
           <Package className={styles.errorIcon} />
-          <h2 className={styles.errorTitle}>Order Not Found</h2>
+          <h2 className={styles.errorTitle}>{t('order.notFound')}</h2>
           <p className={styles.errorMessage}>
-            {error || 'The order you\'re looking for doesn\'t exist or you don\'t have permission to view it.'}
+            {error || t('order.notFoundMessage')}
           </p>
           <button onClick={onBack} className={styles.backButton}>
-            Go Back
+            {t('order.goBack')}
           </button>
         </div>
       </div>
@@ -87,10 +103,10 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
         <div className={styles.header}>
           <button onClick={onBack} className={styles.backLink}>
             <ArrowLeft className={styles.backIcon} />
-            Back
+            {t('order.back')}
           </button>
-          <h1 className={styles.title}>Order #{displayOrder.id.slice(-8)}</h1>
-          <p className={styles.subtitle}>Placed on {formatOrderDate(displayOrder.createdAt)}</p>
+          <h1 className={styles.title}>{t('order.id')}{displayOrder.id.slice(-8)}</h1>
+          <p className={styles.subtitle}>{t('order.placedOn')} {formatOrderDate(displayOrder.createdAt)}</p>
         </div>
 
         <div className={styles.grid}>

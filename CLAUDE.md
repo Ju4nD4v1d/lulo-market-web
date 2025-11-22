@@ -1,175 +1,394 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guide for Claude Code when working with the LuloCart codebase.
 
-## Development Commands
+## ⚠️ Critical Requirements
 
-- `npm run dev` - Start development server (Vite)
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint linting
-- `npm run preview` - Preview production build locally
-- `npm test` - Run tests with Vitest
-- `npm run test:ui` - Run tests with UI interface
-- `npm run test:coverage` - Generate test coverage report
-- `npm run test:watch` - Run tests in watch mode
+**Before writing ANY code, remember:**
+
+1. **Mobile-First Design is MANDATORY**
+   - Start with mobile styles (320px-375px width)
+   - Use `@media (min-width: XXXpx)` for larger screens
+   - Test on mobile viewport first
+
+2. **All Text Must Be Bilingual (English + Spanish)**
+   - NO hardcoded strings in any language
+   - Every text must use `t('translation.key')`
+   - Add keys to BOTH `en` and `es` sections in translations.ts
+   - Use locale-aware date/number formatting
+
+3. **CSS Modules Only**
+   - No inline styles
+   - No Tailwind classes
+   - Scoped `.module.css` files
 
 ## Technology Stack
 
-**Frontend:** React 18.3.1 with TypeScript, Vite build system
-**Styling:** Tailwind CSS with custom green theme (#C8E400 primary, coral accents)
-**Backend:** Firebase (Authentication, Firestore, Storage)
-**Maps:** Google Maps API (@react-google-maps/api) and Leaflet
-**Charts:** Recharts for analytics dashboards
-**Icons:** Lucide React
-**Testing:** Vitest with Testing Library and jsdom
+**Frontend:** React 18 + TypeScript + Vite
+**Styling:** CSS Modules (scoped styles)
+**Backend:** Firebase (Auth, Firestore, Storage)
+**State:** TanStack Query + React Context
+**Maps:** Google Maps + Leaflet
+**Payments:** Stripe
+**Testing:** Vitest + Testing Library
 
-## Architecture Overview
+## Development Commands
 
-### Routing System
-- Hash-based routing implemented in src/App.tsx
-- Main route patterns:
-  - `#dashboard/*` - Business owner dashboard (requires authentication)
-  - `#shopper-dashboard/*` - Redirects to unified home experience
-  - `#order/*` - Order tracking (requires authentication)
-  - `#order-history` - User's order history (requires authentication)
-  - `#stores` - Browse all stores
-  - `#products` - Browse all products
-  - `#business` - Business owner information and signup
-  - `#login`, `#forgot-password` - Authentication flows
-  - `#profile/edit` - User profile editing (requires authentication)
-  - `#terms`, `#privacy` - Legal pages
-- Dashboard routes render `<Dashboard />`, store browsing uses `<Home />`, `<StoreMenu />`, `<StoreList />`
+```bash
+npm run dev          # Start development server
+npm run build        # Production build
+npm run lint         # ESLint check
+npm test             # Run Vitest tests
+npm run test:ui      # Test UI
+npm run test:coverage # Coverage report
+```
 
-### Context Architecture
-- **AuthContext** (src/context/AuthContext.tsx): Firebase authentication state management
-- **StoreContext** (src/context/StoreContext.tsx): Store ownership status and data
-- **LanguageContext** (src/context/LanguageContext.tsx): Internationalization support
-- **CartContext** (src/context/CartContext.tsx): Shopping cart state management with localStorage persistence
-- **TestModeContext** (src/context/TestModeContext.tsx): Toggle between real Firebase data and mock data for development
-- All contexts follow the provider pattern with custom hooks (`useAuth`, `useCart`, `useTestMode`, etc.)
+## Project Architecture
 
-### Data Models
-- **StoreData** (src/types/store.ts): Comprehensive store entity with location, business hours, delivery options, social media links
-- **StoreLocation**: Address with Google Maps coordinates and placeId
-- **AboutUsSection**: Multi-section content management for store descriptions
-- **CartItem** (src/types/cart.ts): Shopping cart item with product details, quantities, and pricing
-- **CartSummary**: Financial calculations including subtotal, tax (12% HST), delivery fees
-- **Order** (src/types/order.ts): Complete order structure with customer info, delivery address, and order lifecycle
-- **OrderStatus**: Enum for order states (pending, confirmed, preparing, ready, delivered, cancelled)
-- **CustomerInfo**: Customer contact information for orders
-- **DeliveryAddress**: Canadian address structure with postal codes and provinces
-- **Product** (src/types/product.ts): Product details with pricing, categories, and images
-- **Review** (src/types/review.ts): Customer reviews and ratings
+### Pages-Based Structure
 
-### Firebase Integration
-- Configuration in src/config/firebase.ts with fallback values for development
-- Services: Authentication, Firestore database, Storage for images
-- Firebase config includes validation for required environment variables
-- All Firebase credentials should be provided via environment variables
+All route-level components live in `src/pages/[page-name]/`:
 
-### Component Architecture
-Key component categories:
-- **Dashboard Components**: AdminLayout, MetricsDashboard, OrderManagement, ProductManagement, StoreSetup
-- **Shopping Experience**: Home, StoreMenu, StoreList, ProductList, ProductCard, StoreDetail
-- **Cart & Checkout**: CartSidebar, AddToCartButton, CheckoutForm, OrderConfirmation, OrderTracking
-- **Authentication**: Login, ForgotPassword, InvitationGate
-- **Business Pages**: Business, Pricing, ConversionPricing
-- **Shared**: Header, Footer, LocationPicker, ConfirmDialog
+```
+src/pages/
+├── home/                    # Landing (stores, products, search)
+├── business/                # Business signup/info
+├── checkout/                # Multi-step checkout
+├── dashboard/               # Business owner portal
+│   └── sections/           # metrics, orders, products, store-setup
+├── invitation-gate/         # Access control
+├── login-page/              # Auth (login/register)
+├── forgot-password-page/    # Password reset
+├── edit-profile/            # User profile
+├── order-history/           # User's past orders
+├── order-tracking/          # Track specific order
+├── store-menu/              # Store product catalog
+├── privacy-policy/          # Legal
+└── terms-of-service/        # Legal
+```
 
-All components are in src/components/ with clear separation of concerns and modular design.
+**Standard page structure:**
+```
+page-name/
+├── PageName.tsx             # Main component (<200 lines)
+├── PageName.module.css      # Scoped styles
+├── index.tsx                # Export
+├── components/              # Page-specific components
+│   ├── Component.tsx
+│   └── Component.module.css
+├── hooks/                   # Page-specific hooks
+│   └── usePageLogic.ts
+└── utils/                   # Page-specific utilities
+```
 
-### Testing Infrastructure
-- **Framework**: Vitest with jsdom environment for React component testing
-- **Testing Libraries**: @testing-library/react, @testing-library/user-event, @testing-library/jest-dom
-- **Coverage**: V8 coverage provider with HTML, JSON, and text reporters
-- **Test Files**: Located in `src/**/__tests__/*.test.tsx`
-- **Setup**: Test configuration in vitest.config.ts and setup files in src/test/
+### Data Fetching (TanStack Query)
 
-### Development Utilities
-- **DataProvider** (src/services/DataProvider.tsx): Abstraction layer that switches between real Firebase data and mock data based on TestModeContext
-- **MockAuthService** (src/services/MockAuthService.tsx): Mock authentication service for development
-- **Mock Data Generators** (src/utils/mockDataGenerators.ts): Generates realistic mock stores, products, orders, and reviews for testing
-- **Test Mode**: Toggle test mode to work with mock data without affecting production Firebase
+All server state managed via TanStack Query:
 
-## Key Development Patterns
+**Queries** (`src/hooks/queries/`):
+```typescript
+import { useOrdersQuery } from '@/hooks/queries/useOrdersQuery';
+const { orders, isLoading, error } = useOrdersQuery({ storeId });
+```
 
-### State Management
-- React Context for global state (auth, store, language, cart, test mode)
-- **CartContext with localStorage persistence** for shopping cart state
-- Local state with useState for component-specific data
-- Firebase real-time listeners for data synchronization
-- **Order state management** with Firebase Firestore integration
+**Mutations** (`src/hooks/mutations/`):
+```typescript
+import { useOrderMutations } from '@/hooks/mutations/useOrderMutations';
+const { updateOrderStatus } = useOrderMutations(storeId);
+await updateOrderStatus.mutateAsync({ orderId, newStatus });
+```
 
-### Authentication & Access Control
-- **Invitation system**: Device fingerprinting for access control (src/services/invitationService.ts)
-- **Portal login**: Business owners access based on userType validation
-- **Forgot password**: Complete Firebase password reset flow with error handling
-- **Environment-based configuration**: All API keys properly externalized
+### Global State Management
 
-### Location Services
-- Google Maps integration for store location selection
-- Coordinate-based store discovery
-- Address geocoding and reverse geocoding
+**Two state management approaches based on use case:**
 
-### Image Handling
-- Firebase Storage for image uploads
-- File preview functionality for store images
-- Multi-image support for About Us sections
-- Product image integration in cart and checkout components
+#### React Context (`src/context/`) - App-wide shared state
+Use for state that needs Provider wrapper and affects entire app:
+- **AuthContext** - User authentication & authorization
+- **CartContext** - Shopping cart (localStorage persisted)
+- **LanguageContext** - i18n (English/Spanish)
+- **StoreContext** - Store ownership
 
-### Business Logic
-- Store setup flow with location, hours, and business details
-- **Complete e-commerce system**: Shopping cart, checkout, order processing
-- **Canadian tax system**: 12% HST calculation for British Columbia (defined in src/context/CartContext.tsx)
-- **Delivery fee structure**: $3.00 base delivery fee (defined in src/context/CartContext.tsx)
-- **Single-store cart restriction**: Users can only order from one store at a time
-- **Order lifecycle management**: Complete order status tracking
-- **Badge logic system**: "New" and rating badges for stores
-- **Analytics dashboard**: Business metrics and performance tracking
-- **Comprehensive internationalization**: Full Spanish translation support (1,200+ translation keys in src/utils/translations.ts)
+#### Zustand Stores (`src/stores/`) - Lightweight UI state
+Use for simple client-side state that doesn't need providers:
+- **searchStore** - Search query & filtered results (home page)
+- **checkoutStore** - Checkout flow triggers
 
-## Environment Configuration
+```typescript
+// Zustand - No provider needed, import and use anywhere
+import { useSearchStore } from '@/stores/searchStore';
 
-### Required Variables
-- `VITE_FIREBASE_API_KEY` - Firebase API key
-- `VITE_GOOGLE_MAPS_API_KEY` - Google Maps API key
+const Component = () => {
+  const { searchQuery, setSearchQuery } = useSearchStore();
+  return <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />;
+};
+```
 
-### Optional Variables
-- `VITE_FIREBASE_AUTH_DOMAIN` - Firebase auth domain (has fallback)
-- `VITE_FIREBASE_PROJECT_ID` - Firebase project ID (has fallback)
-- `VITE_FIREBASE_STORAGE_BUCKET` - Firebase storage bucket (has fallback)
-- `VITE_FIREBASE_MESSAGING_SENDER_ID` - Firebase messaging sender ID (has fallback)
-- `VITE_FIREBASE_APP_ID` - Firebase app ID (has fallback)
-- `VITE_FIREBASE_MEASUREMENT_ID` - Firebase measurement ID (has fallback)
-- Stripe-related keys for payment processing
-- Platform fee configuration
-- Receipt endpoint configuration
+**When to use which:**
+- **React Context:** Auth, cart, i18n, data that needs provider setup
+- **Zustand:** Simple UI state, flags, temporary data, cross-component communication
 
-### Security
-- All API keys must be externalized from source code
-- .env file is gitignored
-- Environment variables required for deployment (Netlify/Firebase hosting)
+### Styling (CSS Modules Only)
+
+**CRITICAL: Mobile-First Design is Mandatory**
+
+All styles must be designed for mobile screens first (320px-375px), then enhanced for larger screens.
+
+**No inline styles. No Tailwind.** Use CSS Modules with mobile-first media queries:
+
+```tsx
+import styles from './Component.module.css';
+
+export const Component = () => (
+  <div className={styles.container}>
+    <h1 className={styles.title}>Title</h1>
+  </div>
+);
+```
+
+```css
+/* Component.module.css - ALWAYS start with mobile styles */
+
+/* Mobile first (default, no media query) */
+.container {
+  padding: 1rem;
+  background: white;
+  width: 100%;
+}
+
+.title {
+  font-size: 1.25rem;  /* Smaller for mobile */
+  font-weight: bold;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}
+```
+
+**Common breakpoints:**
+- Mobile: default (no media query)
+- Tablet: `@media (min-width: 768px)`
+- Desktop: `@media (min-width: 1024px)`
+- Large: `@media (min-width: 1280px)`
+
+### Internationalization
+
+**CRITICAL: All Text Must Be Translated**
+
+Every single piece of user-facing text MUST support both English and Spanish. No hardcoded strings allowed.
+
+```typescript
+import { useLanguage } from '@/context/LanguageContext';
+
+const { t, locale } = useLanguage();
+
+// ✅ CORRECT - Translated text
+return <button>{t('cart.addToCart')}</button>;
+
+// ❌ WRONG - Hardcoded English
+return <button>Add to Cart</button>;
+
+// ✅ CORRECT - Date formatting with locale
+const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
+date.toLocaleDateString(dateLocale, { month: 'long', day: 'numeric' });
+
+// ❌ WRONG - Date without locale
+date.toLocaleDateString('en-US', { month: 'long' }); // Always English!
+```
+
+**Adding new translations** in `src/utils/translations.ts`:
+
+```typescript
+// English section
+export const translations = {
+  en: {
+    'cart.addToCart': 'Add to Cart',
+    'cart.remove': 'Remove',
+    'cart.total': 'Total',
+    // ... more keys
+  },
+
+  // Spanish section - MUST MATCH English keys
+  es: {
+    'cart.addToCart': 'Agregar al Carrito',
+    'cart.remove': 'Eliminar',
+    'cart.total': 'Total',
+    // ... same keys, translated
+  }
+};
+```
+
+**Translation rules:**
+- Use dot notation: `'section.component.action'`
+- Add to BOTH English AND Spanish sections
+- Keep keys descriptive and consistent
+- Test in both languages before committing
+
+## Code Standards
+
+### TypeScript
+
+- Strict mode enabled
+- Explicit types at public boundaries
+- Prefer `interface` over `type` for objects
+- No `any` - use proper generics
+
+```typescript
+// ✅ Good
+interface StoreData {
+  id: string;
+  name: string;
+}
+
+const fetchStore = async (id: string): Promise<StoreData> => { }
+
+// ❌ Avoid
+const fetchStore = async (id: any): Promise<any> => { }
+```
+
+### React Patterns
+
+- Function components with hooks
+- No type-only React imports when using JSX runtime features
+- Extract business logic to custom hooks
+- Keep components under 200 lines
+
+```typescript
+// ✅ Good - Proper imports for runtime usage
+import { useState, Fragment } from 'react';
+
+// ❌ Avoid - Type-only import fails at runtime
+import type * as React from 'react';
+<React.Fragment> // This will fail
+```
+
+### File Naming
+
+- **Components:** `ComponentName.tsx` (PascalCase)
+- **Utils/Types:** `fileName.ts` (camelCase)
+- **Hooks:** `useHookName.ts` (camelCase with `use` prefix)
+- **CSS Modules:** `Component.module.css`
+
+## Business Logic
+
+### E-commerce Rules
+
+- **Tax:** 12% HST (British Columbia)
+- **Delivery Fee:** $3.00 base
+- **Currency:** CAD only
+- **Cart:** Single store per cart
+- **Order Flow:** `pending` → `processing` → `confirmed` → `preparing` → `ready` → `out_for_delivery` → `delivered` (or `cancelled`)
+
+### Order Status Handling
+
+Order statuses use **snake_case** enum values but **camelCase** translation keys:
+
+```typescript
+// Enum definition (snake_case)
+enum OrderStatus {
+  OUT_FOR_DELIVERY = 'out_for_delivery',
+}
+
+// Translation helper (converts to camelCase for key)
+const getStatusText = (status: OrderStatus, t: Function) => {
+  switch (status) {
+    case OrderStatus.OUT_FOR_DELIVERY:
+      return t('order.status.outForDelivery');  // camelCase key
+  }
+};
+```
+
+## Common Patterns
+
+### Error Handling
+
+```typescript
+try {
+  await operation();
+} catch (error) {
+  console.error('Operation failed:', error);
+  // Don't throw if non-critical (e.g., analytics, notifications)
+}
+```
+
+### Loading States
+
+```typescript
+if (loading) return <Loader2 className="animate-spin" />;
+if (error) return <div>{t('error.message')}</div>;
+return <Content data={data} />;
+```
+
+### Form Submission
+
+```typescript
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+
+  try {
+    await submitData(formData);
+    onSuccess();
+  } catch (err) {
+    setError(t('form.error'));
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+## Key Files
+
+- **Routing:** `src/App.tsx` - Hash-based routing
+- **Translations:** `src/utils/translations.ts` - All i18n keys (1,200+)
+- **Types:** `src/types/` - Shared TypeScript types
+- **Services:** `src/services/` - Firebase, Stripe, etc.
+
+## Firebase
+
+- Config: `src/config/firebase.ts`
+- All credentials via env vars (`VITE_*`)
+- Collections: `stores`, `products`, `orders`, `users`, `waitlist`
+- Storage: Store/product images
+
+## Environment Variables
+
+**Required:**
+- `VITE_FIREBASE_API_KEY`
+- `VITE_GOOGLE_MAPS_API_KEY`
+
+**Optional:** Stripe keys, Firebase config overrides
+
+## Testing
+
+- Test files: `*.test.tsx` or `*.test.ts`
+- Use Testing Library for components
+- Focus on user interactions
+- Mock external services
 
 ## Deployment
-- Vite build system optimized for production
-- Static asset handling for hosting compatibility
-- Environment variables must be configured in deployment platform
-- Build output in `dist/` directory
 
-## E-commerce Features
-- **Complete shopping cart system** with quantity controls and localStorage persistence
-- **Multi-step checkout process** with form validation
-- **Canadian tax calculation** (12% HST) and delivery fee ($3.00)
-- **Order confirmation and tracking** with real-time status updates
-- **Mobile-first responsive design** throughout the application
-- **Bilingual support** (English/Spanish) for all e-commerce flows
-- **Product catalog** with search and filtering capabilities
-- **Store badge system** for highlighting new stores and ratings
-- **Invitation gate**: Device-based access control with fingerprinting
-- **Password recovery**: Complete forgot password flow with Firebase
-- **Portal authentication**: Business owner login with userType validation
-- **Stripe integration**: Payment processing with secure checkout
+- Build output: `dist/`
+- Set env vars in deployment platform
+- Required env vars must be configured
 
-## Contact Information
-- **Support email**: `support@lulocart.com`
-- All customer-facing communications use the consolidated support address
+## Contact
+
+Customer support: `support@lulocart.com`

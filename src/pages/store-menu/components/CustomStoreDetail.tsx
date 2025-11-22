@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { Product } from '../../../types/product';
@@ -159,7 +159,8 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
   ];
 
-  const filterProducts = useCallback(() => {
+  // Filter products whenever dependencies change
+  useEffect(() => {
     let filtered = products;
 
     filtered = filtered.filter(product => product.status !== 'draft');
@@ -177,10 +178,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
 
     setFilteredProducts(filtered);
   }, [products, searchTerm, selectedCategory]);
-
-  useEffect(() => {
-    filterProducts();
-  }, [filterProducts]);
 
   const formatTime12Hour = (time24: string): string => {
     const [hours, minutes] = time24.split(':').map(Number);
