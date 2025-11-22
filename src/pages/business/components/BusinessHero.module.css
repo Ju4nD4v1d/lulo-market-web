@@ -1,0 +1,352 @@
+.section {
+  padding: 4rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.backgroundGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.03) 0%, white 50%, rgba(59, 130, 246, 0.03) 100%);
+}
+
+.backgroundCircle1 {
+  position: absolute;
+  top: -10rem;
+  right: -10rem;
+  width: 20rem;
+  height: 20rem;
+  background: rgba(251, 146, 60, 0.1);
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.backgroundCircle2 {
+  position: absolute;
+  bottom: -10rem;
+  left: -10rem;
+  width: 20rem;
+  height: 20rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.container {
+  position: relative;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.content {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    text-align: left;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 9999px;
+  margin-bottom: 1.5rem;
+}
+
+.badgeIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #ea580c;
+}
+
+.badgeText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ea580c;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 300;
+  color: #111827;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .title {
+    font-size: 3.75rem;
+  }
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #4b5563;
+  max-width: 42rem;
+  margin: 0 auto 2rem auto;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+@media (min-width: 1024px) {
+  .description {
+    font-size: 1.25rem;
+    margin: 0 0 2rem 0;
+  }
+}
+
+.features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .features {
+    margin: 0;
+  }
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.featureDot1,
+.featureDot2,
+.featureDot3,
+.featureDot4 {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.featureDot1 {
+  background: #f97316;
+}
+
+.featureDot2 {
+  background: #3b82f6;
+}
+
+.featureDot3 {
+  background: #10b981;
+}
+
+.featureDot4 {
+  background: #8b5cf6;
+}
+
+.visual {
+  position: relative;
+}
+
+.appInterface {
+  background: linear-gradient(135deg, #fed7aa 0%, #bfdbfe 100%);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.appCard {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.appHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.appIcon {
+  width: 2rem;
+  height: 2rem;
+  background: #f97316;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storeIcon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+.storeName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.storeType {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.statValueGreen {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #059669;
+}
+
+.statValueBlue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2563eb;
+}
+
+.statValuePurple {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #7c3aed;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.metricCard {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.metricIconOrange {
+  width: 1rem;
+  height: 1rem;
+  color: #ea580c;
+}
+
+.metricIconBlue {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+}
+
+.metricTitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.metricDesc {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.floatingCheck {
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  width: 4rem;
+  height: 4rem;
+  background: #f97316;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.checkIcon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.floatingStar {
+  position: absolute;
+  bottom: -1rem;
+  left: -1rem;
+  width: 3rem;
+  height: 3rem;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.starIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}

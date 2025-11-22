@@ -1,7 +1,8 @@
 import React from 'react';
 import { ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useOrderTracking, useReceipt } from './hooks';
+import { useOrderTrackingQuery } from '../../hooks/queries/useOrderTrackingQuery';
+import { useReceipt } from './hooks';
 import {
   OrderStatus,
   OrderItems,
@@ -18,7 +19,11 @@ interface OrderTrackingPageProps {
 
 export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, onBack }) => {
   const { currentUser } = useAuth();
-  const { order, loading, error } = useOrderTracking(orderId, currentUser?.uid);
+  const { order, isLoading: loading, error } = useOrderTrackingQuery({
+    orderId,
+    userEmail: currentUser?.email || '',
+    enabled: !!currentUser?.email
+  });
   const { receiptLoading, generateReceipt, downloadReceipt, updatedOrder } = useReceipt(order);
 
   // Use updated order if receipt was generated

@@ -1,4 +1,6 @@
 import { StoreData } from '../types/store';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 /**
  * Check if a store is new (created less than a month ago)
@@ -9,6 +11,29 @@ export const isStoreNew = (createdAt?: Date): boolean => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(now.getMonth() - 1);
   return createdAt > oneMonthAgo;
+};
+
+/**
+ * Fetch store ID by owner ID
+ * @param ownerId - The owner's user ID
+ * @returns The store ID if found, null otherwise
+ * @throws Error if there's a Firebase error
+ */
+export const fetchStoreIdByOwnerId = async (ownerId: string): Promise<string | null> => {
+  try {
+    const storesRef = collection(db, 'stores');
+    const q = query(storesRef, where('ownerId', '==', ownerId));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    return snapshot.docs[0].id;
+  } catch (error) {
+    console.error('Error fetching store by owner ID:', error);
+    throw error;
+  }
 };
 
 /**

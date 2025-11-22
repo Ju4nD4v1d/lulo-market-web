@@ -1,0 +1,170 @@
+.card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 2rem;
+  backdrop-filter: blur(4px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.iconWrapper {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, rgba(200, 228, 0, 0.2), rgba(163, 199, 0, 0.2));
+  border-radius: 12px;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #C8E400;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.subtitle {
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.chartContainer {
+  height: 20rem;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20rem;
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  color: #C8E400;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 20rem;
+  color: #DC2626;
+}
+
+.errorIconWrapper {
+  padding: 1rem;
+  background: #FEF2F2;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.errorIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #EF4444;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem;
+}
+
+.errorMessage {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0 0 1rem;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #C8E400;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover {
+  background: #A3C700;
+}
+
+.retryIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.noDataContainer {
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.noDataIconWrapper {
+  padding: 1rem;
+  background: #EFF6FF;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.noDataIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #3B82F6;
+}
+
+.noDataTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem;
+}
+
+.noDataMessage {
+  font-size: 0.875rem;
+  color: #6B7280;
+  text-align: center;
+  margin: 0;
+}

@@ -1,0 +1,260 @@
+.section {
+  padding: 4rem 0 5rem;
+  background: #f9fafb;
+}
+
+.container {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+.textCenter {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 1.875rem;
+  }
+}
+
+.description {
+  color: #4b5563;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.formCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid rgba(229, 231, 235, 0.6);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.scheduleCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(229, 231, 235, 0.6);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.scheduleContent {
+  text-align: center;
+}
+
+.calendarIcon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.scheduleTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.scheduleDescription {
+  color: #4b5563;
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.scheduleButton {
+  width: 100%;
+  background: linear-gradient(to right, #ea580c, #c2410c);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+}
+
+.scheduleButton:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.buttonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.quickCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(229, 231, 235, 0.6);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.quickTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.quickOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quickOption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.quickIconOrange,
+.quickIconGreen,
+.quickIconPurple {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quickIconOrange {
+  background: #fff7ed;
+}
+
+.quickIconGreen {
+  background: #f0fdf4;
+}
+
+.quickIconPurple {
+  background: #faf5ff;
+}
+
+.quickIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.quickIconOrange .quickIcon {
+  color: #ea580c;
+}
+
+.quickIconGreen .quickIcon {
+  color: #059669;
+}
+
+.quickIconPurple .quickIcon {
+  color: #7c3aed;
+}
+
+.quickLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.quickDesc {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.responseCard {
+  background: linear-gradient(135deg, #fff7ed, #fed7aa);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(253, 186, 116, 0.6);
+}
+
+.responseContent {
+  text-align: center;
+}
+
+.clockIcon {
+  width: 3rem;
+  height: 3rem;
+  background: #f97316;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem auto;
+}
+
+.clockIcon .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.responseTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.responseDescription {
+  font-size: 0.75rem;
+  color: #4b5563;
+  margin: 0;
+}

@@ -64,7 +64,8 @@ export interface StoreData {
   minimumOrder?: number;
   imageUrl?: string;
   storeImage?: string;
-  aboutUsSections: AboutUsSection[];
+  aboutUsSections?: AboutUsSection[];
+  aboutUs?: AboutUsSection[];  // Alternative field name for backward compatibility
   // Firestore About Us fields
   titleTabAboutFirst?: string;
   bodyTabAboutFirst?: string;

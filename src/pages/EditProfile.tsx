@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Mail, Phone, Save, AlertCircle, CheckCircle2, Eye, EyeOff, Camera, X, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useProfileMutations } from '../hooks/mutations/useProfileMutations';
 import { UserProfile } from '../types/user';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { storage, db } from '../config/firebase';
 
 // Helper function to get friendly error messages
 const getFirebaseErrorMessage = (errorCode: string, t: (key: string) => string): string => {
@@ -29,7 +26,8 @@ const getFirebaseErrorMessage = (errorCode: string, t: (key: string) => string):
 export const EditProfile = () => {
   const { currentUser, userProfile, updateProfile, refreshUserProfile } = useAuth();
   const { t } = useLanguage();
-  
+  const { uploadAvatar, deleteAvatar, deleteAccount } = useProfileMutations(currentUser?.uid || '');
+
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
@@ -55,6 +53,7 @@ export const EditProfile = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Initialize form data with current user profile
+  // Only sync when user ID changes to prevent infinite loops
   useEffect(() => {
     if (userProfile && currentUser) {
       setFormData({
@@ -65,13 +64,14 @@ export const EditProfile = () => {
         newPassword: '',
         confirmPassword: ''
       });
-      
+
       // Initialize profile image
       if (userProfile.avatar) {
         setProfileImage({ url: userProfile.avatar });
       }
     }
-  }, [userProfile, currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.uid]); // Only depend on uid, not the full objects
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -290,9 +290,7 @@ export const EditProfile = () => {
     if (!profileImage.file || !currentUser) return null;
 
     try {
-      const storageRef = ref(storage, `profiles/${currentUser.uid}/avatar.jpg`);
-      await uploadBytes(storageRef, profileImage.file);
-      const downloadURL = await getDownloadURL(storageRef);
+      const downloadURL = await uploadAvatar.mutateAsync(profileImage.file);
       return downloadURL;
     } catch (error) {
       console.error('Error uploading profile image:', error);
@@ -304,8 +302,7 @@ export const EditProfile = () => {
     if (!userProfile?.avatar || !currentUser) return;
 
     try {
-      const storageRef = ref(storage, `profiles/${currentUser.uid}/avatar.jpg`);
-      await deleteObject(storageRef);
+      await deleteAvatar.mutateAsync();
     } catch {
       // Image might not exist, that's okay
       console.log('Profile image not found in storage, continuing...');
@@ -317,28 +314,10 @@ export const EditProfile = () => {
 
     setIsDeleting(true);
     try {
-      // Reauthenticate user before deleting account
-      const credential = EmailAuthProvider.credential(
-        currentUser.email!,
-        deletePassword
-      );
-      await reauthenticateWithCredential(currentUser, credential);
-
-      // Delete user profile document from Firestore
-      await deleteDoc(doc(db, 'users', currentUser.uid));
-
-      // Delete profile image from storage if it exists
-      if (userProfile?.avatar) {
-        try {
-          const storageRef = ref(storage, `profiles/${currentUser.uid}/avatar.jpg`);
-          await deleteObject(storageRef);
-        } catch {
-          console.log('Profile image not found in storage, continuing...');
-        }
-      }
-
-      // Delete user account from Firebase Auth
-      await deleteUser(currentUser);
+      await deleteAccount.mutateAsync({
+        password: deletePassword,
+        hasAvatar: !!userProfile?.avatar
+      });
 
       // Redirect to landing page
       window.location.hash = '#';
