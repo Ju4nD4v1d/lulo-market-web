@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import type * as React from 'react';
+import { useEffect, useState } from 'react';
 import { CustomStoreDetail } from './components/CustomStoreDetail';
 import { StoreData } from '../../types/store';
 import { useStoreData } from '../../hooks/useStoreData';

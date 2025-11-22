@@ -52,7 +52,6 @@ const getStatusIcon = (status: OrderStatus) => {
 };
 
 export const OrdersPage = () => {
-  const { currentUser } = useAuth();
   const { t } = useLanguage();
   const { storeId } = useStore();
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -61,8 +60,8 @@ export const OrdersPage = () => {
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
   // Use TanStack Query hooks
-  const { orders, isLoading: loading, error, refetch } = useOrdersQuery({ storeId });
-  const { updateOrderStatus: updateOrderStatusMutation, isUpdating } = useOrderMutations(storeId || '');
+  const { orders, isLoading: loading, error } = useOrdersQuery({ storeId });
+  const { updateOrderStatus: updateOrderStatusMutation } = useOrderMutations(storeId || '');
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, filteredOrders } = useOrderFilters(orders);
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {

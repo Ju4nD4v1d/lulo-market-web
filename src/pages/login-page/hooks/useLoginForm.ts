@@ -1,0 +1,136 @@
+/**
+ * Custom hook for login/register form management
+ */
+
+import { useState, useCallback, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { validateLoginForm, validateRegisterForm } from '../utils/validation';
+
+interface UseLoginFormOptions {
+  t: (key: string) => string;
+  locale: string;
+}
+
+export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
+  const { login, register, currentUser, redirectAfterLogin } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Handle redirect after login
+  useEffect(() => {
+    if (currentUser) {
+      if (!redirectAfterLogin) {
+        window.location.hash = '#';
+      }
+    }
+  }, [currentUser, redirectAfterLogin]);
+
+  // Check URL parameters to determine initial mode
+  useEffect(() => {
+    const checkMode = () => {
+      const hash = window.location.hash;
+      if (hash.includes('mode=register')) {
+        setIsLogin(false);
+      } else {
+        setIsLogin(true);
+      }
+    };
+
+    checkMode();
+
+    const handleHashChange = () => {
+      checkMode();
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    // Validate form
+    const validationError = isLogin
+      ? validateLoginForm(email, password, t)
+      : validateRegisterForm(fullName, email, password, confirmPassword, t);
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (isLogin) {
+        await login(email, password);
+        // Redirect will be handled by the useEffect above
+      } else {
+        await register(email, password, fullName);
+        setSuccess('Account created successfully! You can now access your dashboard.');
+        setTimeout(() => {
+          window.location.hash = '#';
+        }, 1500);
+      }
+    } catch (err: unknown) {
+      const errorMessage = (err as any)?.message || t('auth.errors.default');
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLogin, email, password, fullName, confirmPassword, login, register, t]);
+
+  const switchTab = useCallback((loginMode: boolean) => {
+    setIsLogin(loginMode);
+    setError('');
+    setSuccess('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setFullName('');
+
+    // Update URL to reflect current mode
+    if (loginMode) {
+      window.location.hash = '#login';
+    } else {
+      window.location.hash = '#login?mode=register';
+    }
+  }, []);
+
+  const clearMessages = useCallback(() => {
+    setError('');
+    setSuccess('');
+  }, []);
+
+  return {
+    isLogin,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    fullName,
+    setFullName,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    error,
+    success,
+    isLoading,
+    handleSubmit,
+    switchTab,
+    clearMessages
+  };
+};

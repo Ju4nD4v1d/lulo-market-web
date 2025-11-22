@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { TrendingUp, Users, Shield } from 'lucide-react';
 import styles from './BenefitsSection.module.css';
 

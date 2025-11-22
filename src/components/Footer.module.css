@@ -1,0 +1,257 @@
+.footer {
+  background-color: rgba(15, 23, 42, 0.9);
+  color: #f1f5f9;
+  backdrop-filter: blur(12px);
+}
+
+.footerGrain {
+  background-image:
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)),
+    url('/noise.png');
+  background-blend-mode: normal;
+}
+
+.businessCtaSection {
+  padding: 4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .businessCtaSection {
+    padding: 5rem 0;
+  }
+}
+
+.businessCtaContainer {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .businessCtaContainer {
+    padding: 0 2rem;
+  }
+}
+
+.businessCtaTitle {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .businessCtaTitle {
+    font-size: 3rem;
+  }
+}
+
+.businessCtaDescription {
+  font-size: 1.125rem;
+  color: #cbd5e1;
+  max-width: 42rem;
+  margin: 0 auto 2rem;
+  line-height: 1.75;
+}
+
+@media (min-width: 1024px) {
+  .businessCtaDescription {
+    font-size: 1.25rem;
+  }
+}
+
+.businessCtaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  padding: 1rem 2rem;
+}
+
+.businessCtaIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.brandAccent {
+  height: 0.25rem;
+  background-color: var(--color-primary-400);
+}
+
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  color: #cbd5e1;
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.brandSection {
+  grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+  .brandSection {
+    grid-column: span 1;
+  }
+}
+
+.brandTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+.brandDescription {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  line-height: 1.75;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.socialLink {
+  color: #94a3b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.socialLink:hover {
+  color: var(--color-primary-400);
+}
+
+.socialLink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  border-radius: 0.25rem;
+}
+
+.columnTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+.columnList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.columnLink {
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-size: 1rem;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.columnLink:hover {
+  color: var(--color-primary-400);
+}
+
+.columnLink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  border-radius: 0.25rem;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #94a3b8;
+}
+
+.contactIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary-400);
+}
+
+.contactText {
+  font-size: 0.875rem;
+}
+
+.bottomSection {
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 768px) {
+  .bottomSection {
+    flex-direction: row;
+  }
+}
+
+.copyright {
+  color: #94a3b8;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .copyright {
+    margin-bottom: 0;
+  }
+}
+
+.legalLinks {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.legalLink {
+  color: #94a3b8;
+  transition: color 0.2s;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.legalLink:hover {
+  color: var(--color-primary-400);
+}
+
+.legalLink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  border-radius: 0.25rem;
+}

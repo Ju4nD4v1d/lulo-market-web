@@ -1,10 +1,8 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { DataProvider } from './services/DataProvider';
 import { queryClient } from './services/queryClient';
 import { checkDeviceInvitation } from './services/invitationService';
 
@@ -26,7 +24,6 @@ const ProductList = lazy(() => import('./components/ProductList'));
 // Lazy load static landing page components (rarely used)
 const Header = lazy(() => import('./components/Header'));
 const Hero = lazy(() => import('./components/Hero'));
-const HowItWorks = lazy(() => import('./components/HowItWorks'));
 const SocialProof = lazy(() => import('./components/SocialProof'));
 const ConversionPricing = lazy(() => import('./components/ConversionPricing'));
 const Footer = lazy(() => import('./components/Footer'));
@@ -210,7 +207,6 @@ const AppRoutes = () => {
           <Header />
           <main>
             <Hero />
-            <HowItWorks />
             <SocialProof />
             <ConversionPricing />
           </main>
@@ -238,17 +234,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <DataProvider>
-            <CartProvider>
-              <AppRoutes />
-            </CartProvider>
-          </DataProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
         </AuthProvider>
       </LanguageProvider>
-      {/* React Query DevTools - Only visible in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
     </QueryClientProvider>
   );
 }

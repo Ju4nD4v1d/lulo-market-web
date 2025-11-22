@@ -45,4 +45,12 @@ export const queryKeys = {
     all: ['reviews'] as const,
     byStore: (storeId: string) => [...queryKeys.reviews.all, 'store', storeId] as const,
   },
+
+  // Checkout queries
+  checkout: {
+    all: ['checkout'] as const,
+    storeReceipt: (storeId: string) => [...queryKeys.checkout.all, 'receipt', storeId] as const,
+    stripeAccount: (storeId: string) => [...queryKeys.checkout.all, 'stripe', storeId] as const,
+    orderMonitoring: (orderId: string) => [...queryKeys.checkout.all, 'monitoring', orderId] as const,
+  },
 } as const;

@@ -4,9 +4,9 @@ import { SearchResultStore, SearchResults } from '../../types/search';
 import { CartSidebar } from '../../components/CartSidebar';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
-import { HomeHeader } from '../../components/home/HomeHeader';
-import { HowItWorks } from '../../components/home/HowItWorks';
-import { OurStory } from '../../components/home/OurStory';
+import { HomeHeader } from './components/HomeHeader';
+import { HowItWorks } from './components/HowItWorks';
+import { OurStory } from './components/OurStory';
 import { StoreListContainer } from './components';
 import { useStoreSearch, useStoreFilters, useCheckoutFlow } from './hooks';
 import { useCart } from '../../context/CartContext';
@@ -94,18 +94,11 @@ export const HomePage = () => {
    * Handle store card click
    * Tracks analytics if from search results and navigates to store page
    */
-  const handleStoreClick = useCallback(async (store: StoreData, position?: number) => {
+  const handleStoreClick = useCallback(async (store: StoreData) => {
     // Track search click if this came from search results
     if (searchQuery && searchResults && store.searchMetadata) {
-      const searchResultStore: SearchResultStore = {
-        id: store.id,
-        name: store.name,
-        description: store.description || '',
-        matchType: store.searchMetadata.matchType,
-        matchedProducts: store.searchMetadata.matchedProducts,
-        relevanceScore: store.searchMetadata.relevanceScore,
-        distance: store.searchMetadata.distance,
-      };
+      // Tracking logic would go here
+      // (placeholder implementation)
 
       // Track click (placeholder implementation)
       // TODO: Implement analytics tracking for search clicks

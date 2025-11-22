@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import type * as React from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { 
   User,
   onAuthStateChanged,

@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { ArrowLeft, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';

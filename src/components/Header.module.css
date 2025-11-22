@@ -1,0 +1,229 @@
+.header {
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+  top: 0;
+}
+
+.nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s;
+}
+
+.navScrolled {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.navContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 3rem;
+  width: auto;
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .desktopNav {
+    display: flex;
+  }
+}
+
+.navLink {
+  position: relative;
+  color: #111827;
+  font-weight: 500;
+  transition: all 0.2s ease-out;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--color-primary-600);
+}
+
+.navLinkActive {
+  color: var(--color-primary-600);
+}
+
+.navLinkInner {
+  position: relative;
+}
+
+.navLinkUnderline {
+  position: absolute;
+  bottom: -0.25rem;
+  left: 0;
+  width: 100%;
+  height: 0.125rem;
+  background-color: var(--color-primary-400);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-out;
+}
+
+.navLink:hover .navLinkUnderline,
+.navLinkActive .navLinkUnderline {
+  transform: scaleX(1);
+}
+
+.businessLink {
+  color: #111827;
+  font-weight: 500;
+  transition: all 0.2s ease-out;
+  text-decoration: none;
+}
+
+.businessLink:hover {
+  color: var(--color-primary-400);
+}
+
+.languageButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.languageButton:hover {
+  color: #111827;
+}
+
+.languageButtonText {
+  font-size: 0.875rem;
+}
+
+.userButtonWrapper {
+  position: relative;
+}
+
+.mobileNav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .mobileNav {
+    display: none;
+  }
+}
+
+.mobileLanguageButton {
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mobileLanguageButton:hover {
+  color: #111827;
+}
+
+.mobileMenuButton {
+  color: #111827;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mobileMenuButton:hover {
+  color: var(--color-primary-600);
+}
+
+.mobileMenuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: white;
+  padding-top: 4rem;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (min-width: 768px) {
+  .mobileMenuOverlay {
+    display: none;
+  }
+}
+
+.mobileMenuOverlayOpen {
+  transform: translateX(0);
+}
+
+.mobileMenuNav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1.5rem;
+}
+
+.mobileMenuLink {
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 500;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.mobileMenuLink:hover {
+  color: var(--color-primary-400);
+}
+
+.mobileMenuButton {
+  text-align: left;
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 500;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mobileMenuButton:hover {
+  color: var(--color-primary-400);
+}
+
+.mobileMenuButtonDanger {
+  color: #dc2626;
+}
+
+.mobileMenuButtonDanger:hover {
+  color: #b91c1c;
+}
+
+.mobileMenuSignIn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+}

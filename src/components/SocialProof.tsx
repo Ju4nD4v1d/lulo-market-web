@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Quote } from 'lucide-react';
+import styles from './SocialProof.module.css';
 
 export const SocialProof = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -10,7 +11,11 @@ export const SocialProof = () => {
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('translate-y-0', 'opacity-100');
+            if (entry.target === sectionRef.current) {
+              entry.target.classList.add(styles.headerVisible);
+            } else {
+              entry.target.classList.add(styles.testimonialCardVisible);
+            }
           }
         });
       },
@@ -65,79 +70,79 @@ export const SocialProof = () => {
   ];
 
   return (
-    <section id="social-proof" className="relative py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
+    <section id="social-proof" className={styles.section}>
+      <div className={styles.container}>
         {/* Header */}
-        <div 
+        <div
           ref={sectionRef}
-          className="text-center mb-16 transform transition-all duration-1000 translate-y-12 opacity-0"
+          className={styles.header}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Loved by <span className="text-primary-600">Thousands</span> Across Canada
+          <h2 className={styles.title}>
+            Loved by <span className={styles.titleHighlight}>Thousands</span> Across Canada
           </h2>
-          
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+
+          <p className={styles.subtitle}>
             Join the growing community enjoying authentic Latino cuisine delivered fresh to their door
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div className={styles.statsGrid}>
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
-              className="text-center bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+            <div
+              key={index}
+              className={styles.statCard}
             >
-              <div className="text-3xl font-bold text-primary-600 mb-2">{stat.number}</div>
-              <div className="font-semibold text-gray-900 mb-1">{stat.label}</div>
-              <div className="text-sm text-gray-600">{stat.description}</div>
+              <div className={styles.statNumber}>{stat.number}</div>
+              <div className={styles.statLabel}>{stat.label}</div>
+              <div className={styles.statDescription}>{stat.description}</div>
             </div>
           ))}
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
+        <div className={styles.testimonialsGrid}>
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
               ref={el => testimonialRefs.current[index] = el}
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 transform translate-y-12 opacity-0"
+              className={styles.testimonialCard}
               style={{ transitionDelay: `${index * 150}ms` }}
             >
               {/* Quote Icon */}
-              <Quote className="w-8 h-8 text-primary-400 mb-4" />
-              
+              <Quote className={styles.quoteIcon} />
+
               {/* Review Text */}
-              <p className="text-gray-700 leading-relaxed mb-6 italic">
+              <p className={styles.reviewText}>
                 "{testimonial.text}"
               </p>
-              
+
               {/* Rating - Simplified */}
-              <div className="mb-4">
-                <span className="text-yellow-400 font-bold">★★★★★</span>
-                <span className="text-sm text-gray-600 ml-2">5/5</span>
+              <div className={styles.rating}>
+                <span className={styles.stars}>★★★★★</span>
+                <span className={styles.ratingText}>5/5</span>
               </div>
-              
+
               {/* Customer Info */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className={styles.customerInfo}>
+                <div className={styles.avatar}>
                   {testimonial.initial}
                 </div>
-                <div>
-                  <div className="font-semibold text-gray-900 flex items-center gap-2">
+                <div className={styles.customerDetails}>
+                  <div className={styles.customerName}>
                     {testimonial.name}
                     {testimonial.verified && (
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                      <span className={styles.verifiedBadge}>
                         ✓ Verified
                       </span>
                     )}
                     {testimonial.isBusiness && (
-                      <span className="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full font-medium">
+                      <span className={styles.businessBadge}>
                         Cook Partner
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className={styles.customerLocation}>
                     {testimonial.location}
                   </div>
                 </div>
@@ -147,22 +152,22 @@ export const SocialProof = () => {
         </div>
 
         {/* Trust Badges - Simplified */}
-        <div className="text-center">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-center">
-              <div>
-                <div className="font-bold text-gray-900">Health & Safety Certified</div>
-                <div className="text-sm text-gray-600">All cooks verified</div>
+        <div className={styles.trustSection}>
+          <div className={styles.trustCard}>
+            <div className={styles.trustContent}>
+              <div className={styles.trustItem}>
+                <div className={styles.trustTitle}>Health & Safety Certified</div>
+                <div className={styles.trustDescription}>All cooks verified</div>
               </div>
-              <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
-              <div>
-                <div className="font-bold text-gray-900">Secure Payments</div>
-                <div className="text-sm text-gray-600">Your data protected</div>
+              <div className={styles.trustDivider}></div>
+              <div className={styles.trustItem}>
+                <div className={styles.trustTitle}>Secure Payments</div>
+                <div className={styles.trustDescription}>Your data protected</div>
               </div>
-              <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
-              <div>
-                <div className="font-bold text-gray-900">Canadian Business</div>
-                <div className="text-sm text-gray-600">Proudly Canadian</div>
+              <div className={styles.trustDivider}></div>
+              <div className={styles.trustItem}>
+                <div className={styles.trustTitle}>Canadian Business</div>
+                <div className={styles.trustDescription}>Proudly Canadian</div>
               </div>
             </div>
           </div>

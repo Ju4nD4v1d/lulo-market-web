@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState, useEffect } from 'react';
 import { X, ShoppingCart, Plus, Minus, Trash2, Store, User } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { CartItem } from '../types/cart';
-import { CheckoutForm } from './CheckoutForm';
+import { CheckoutPage } from '../pages/checkout';
 import { OrderConfirmation } from './OrderConfirmation';
 import { Order } from '../types/order';
 
@@ -16,7 +17,7 @@ interface CartSidebarProps {
 
 type CartView = 'cart' | 'checkout' | 'confirmation';
 
-export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openInCheckoutMode = false }) => {
+export const CartSidebar = ({ isOpen, onClose, openInCheckoutMode = false }: CartSidebarProps) => {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const { t } = useLanguage();
   const { currentUser, setRedirectAfterLogin } = useAuth();
@@ -26,7 +27,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle opening in checkout mode
-  React.useEffect(() => {
+  useEffect(() => {
     if (openInCheckoutMode && isOpen && currentUser && cart.items.length > 0) {
       setCurrentView('checkout');
     }
@@ -103,7 +104,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   if (currentView === 'checkout') {
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto">
-        <CheckoutForm 
+        <CheckoutPage
           onBack={handleBackToCart}
           onOrderComplete={handleOrderComplete}
         />

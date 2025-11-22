@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Order } from '../../../types/order';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getStatusIcon, getStatusColor, getStatusText } from '../utils/orderStatus';

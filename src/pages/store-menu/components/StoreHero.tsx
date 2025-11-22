@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { StoreInfo } from '../types';
 import styles from './StoreHero.module.css';
 

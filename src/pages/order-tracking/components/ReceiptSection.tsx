@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Receipt, Download } from 'lucide-react';
 import { Order } from '../../../types/order';
 import styles from './ReceiptSection.module.css';

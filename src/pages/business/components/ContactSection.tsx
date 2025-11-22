@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Calendar, Mail, Phone, Users, Clock } from 'lucide-react';
 import { BusinessContactForm } from './BusinessContactForm';
 import styles from './ContactSection.module.css';

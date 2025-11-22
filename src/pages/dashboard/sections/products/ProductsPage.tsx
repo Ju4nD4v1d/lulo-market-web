@@ -18,7 +18,7 @@ import {
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useAuth } from '../../../../context/AuthContext';
 import { useStore } from '../../../../context/StoreContext';
-import { ProductDetails } from '../../../../components/ProductDetails';
+import { ProductDetails } from './components/ProductDetails';
 import { ProductModal } from './components/ProductModal';
 import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
 import { useProductMutations } from '../../../../hooks/mutations/useProductMutations';
@@ -27,7 +27,6 @@ import { Product } from '../../../../types/product';
 import styles from './ProductsPage.module.css';
 
 export const ProductsPage = () => {
-  const { currentUser } = useAuth();
   const { t } = useLanguage();
   const { storeId } = useStore();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -37,7 +36,7 @@ export const ProductsPage = () => {
 
   // Use TanStack Query hooks
   const { products, isLoading, error } = useProductsQuery({ storeId });
-  const { saveProduct, isLoading: isSaving } = useProductMutations(storeId || '');
+  const { saveProduct } = useProductMutations(storeId || '');
   const { searchTerm, setSearchTerm, selectedCategories, toggleCategory, filteredProducts } = useProductFilters(products);
 
   const categories = [

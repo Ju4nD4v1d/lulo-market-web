@@ -1,0 +1,154 @@
+/* Shared styles for checkout step components */
+
+.stepContainer {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgb(243 244 246);
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .stepContainer {
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .stepHeader {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.stepIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-400, #C8E400);
+}
+
+@media (min-width: 768px) {
+  .stepIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.stepTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: rgb(17 24 39);
+}
+
+@media (min-width: 768px) {
+  .stepTitle {
+    font-size: 1.25rem;
+  }
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .formFields {
+    gap: 1rem;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(55 65 81);
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: rgb(239 68 68);
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--primary-400, #C8E400);
+  ring: 2px;
+  ring-color: rgba(200, 228, 0, 0.2);
+}
+
+.inputError {
+  border-color: rgb(252 165 165);
+  background-color: rgb(254 242 242);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: rgb(220 38 38);
+  font-size: 0.875rem;
+}
+
+.errorIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.button {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buttonPrimary {
+  background-color: var(--primary-400, #C8E400);
+  color: rgb(17 24 39);
+}
+
+.buttonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.buttonSecondary {
+  background-color: rgb(243 244 246);
+  color: rgb(55 65 81);
+}
+
+.buttonSecondary:hover {
+  background-color: rgb(229 231 235);
+}

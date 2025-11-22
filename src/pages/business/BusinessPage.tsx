@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { ArrowLeft, LogIn } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';

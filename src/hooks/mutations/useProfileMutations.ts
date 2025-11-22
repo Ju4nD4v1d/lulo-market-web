@@ -1,37 +1,35 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider, User } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { storage, db } from '../../config/firebase';
 import { queryKeys } from '../queries/queryKeys';
 
-interface UploadAvatarVariables {
-  file: File;
-  userId: string;
-}
-
 interface DeleteAccountVariables {
-  userId: string;
-  currentUser: any;
+  currentUser: User;
   profileImageUrl?: string;
   password: string;
+  hasAvatar?: boolean;
 }
 
-export const useProfileMutations = () => {
+export const useProfileMutations = (userId: string) => {
   const queryClient = useQueryClient();
 
   const uploadAvatar = useMutation({
-    mutationFn: async ({ file, userId }: UploadAvatarVariables) => {
+    mutationFn: async (file: File) => {
+      if (!userId) {
+        throw new Error('User ID is required for avatar upload');
+      }
       const storageRef = ref(storage, `avatars/${userId}/${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
 
       return downloadURL;
     },
-    onSuccess: (downloadURL, variables) => {
+    onSuccess: () => {
       // Invalidate user profile query
       queryClient.invalidateQueries({
-        queryKey: queryKeys.user.profile(variables.userId),
+        queryKey: queryKeys.user.profile(userId),
       });
     },
   });
@@ -47,7 +45,11 @@ export const useProfileMutations = () => {
   });
 
   const deleteAccount = useMutation({
-    mutationFn: async ({ userId, currentUser, profileImageUrl, password }: DeleteAccountVariables) => {
+    mutationFn: async ({ currentUser, profileImageUrl, password }: DeleteAccountVariables) => {
+      if (!userId) {
+        throw new Error('User ID is required for account deletion');
+      }
+
       // Re-authenticate user before deletion
       const credential = EmailAuthProvider.credential(currentUser.email, password);
       await reauthenticateWithCredential(currentUser, credential);

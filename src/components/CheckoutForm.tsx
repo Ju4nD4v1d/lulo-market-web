@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import type * as React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { theme } from '../config/theme';
 import { ArrowLeft, User, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';

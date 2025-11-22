@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Mail, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './EmailView.module.css';

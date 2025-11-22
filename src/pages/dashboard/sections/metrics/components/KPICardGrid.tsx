@@ -1,8 +1,9 @@
-import React from 'react';
-import TotalWeeklyProductsCard from '../../../../../components/TotalWeeklyProductsCard';
-import TotalActiveCustomersCard from '../../../../../components/TotalActiveCustomersCard';
-import TotalWeeklyRevenueCard from '../../../../../components/TotalWeeklyRevenueCard';
-import TotalWeeklyOrdersCard from '../../../../../components/TotalWeeklyOrdersCard';
+import type * as React from 'react';
+
+import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
+import TotalActiveCustomersCard from './TotalActiveCustomersCard';
+import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
+import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
 import styles from './KPICardGrid.module.css';
 
 interface KPICardGridProps {

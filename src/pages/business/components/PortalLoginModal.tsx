@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { LogIn, Eye, EyeOff } from 'lucide-react';
 import styles from './PortalLoginModal.module.css';
 

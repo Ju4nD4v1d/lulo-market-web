@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Globe } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './LanguageToggle.module.css';

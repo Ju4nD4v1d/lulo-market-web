@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Facebook, Twitter, Instagram, Globe, Mail, MapPin, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { DeliveryAreasModal } from './DeliveryAreasModal';
+import styles from './Footer.module.css';
 
 export const Footer = () => {
   const { toggleLanguage, t } = useLanguage();
@@ -13,52 +14,52 @@ export const Footer = () => {
 
   return (
     <>
-      <footer className="bg-slate-900/90 text-slate-100 backdrop-blur-md footer-grain">
+      <footer className={`${styles.footer} ${styles.footerGrain}`}>
         {/* Business CTA Section - integrated at top of footer */}
-        <div className="py-16 lg:py-20 border-b border-white/10">
-          <div className="max-w-4xl mx-auto px-4 lg:px-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+        <div className={styles.businessCtaSection}>
+          <div className={styles.businessCtaContainer}>
+            <h2 className={styles.businessCtaTitle}>
               {t('home.partnerCta.title')}
             </h2>
-            <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className={styles.businessCtaDescription}>
               {t('home.partnerCta.description')}
             </p>
             <button
               onClick={() => window.location.hash = '#business'}
-              className="btn-primary focus-ring inline-flex items-center gap-2 text-lg px-8 py-4"
+              className={`btn-primary focus-ring ${styles.businessCtaButton}`}
             >
               {t('home.partnerCta.button')}
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className={styles.businessCtaIcon} />
             </button>
           </div>
         </div>
 
         {/* Brand accent line */}
-        <div className="h-1 bg-brand"></div>        
-        <div className="container mx-auto px-4 py-16 text-slate-300">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
+        <div className={styles.brandAccent}></div>        
+        <div className={styles.container}>
+          <div className={styles.grid}>
             {/* Brand */}
-            <div className="md:col-span-1">
-              <h3 className="text-2xl font-bold text-slate-100 mb-6">
+            <div className={styles.brandSection}>
+              <h3 className={styles.brandTitle}>
                 LuloCart
               </h3>
-              <p className="text-slate-400 mb-6 leading-relaxed">
-                Connecting communities through authentic Latino cuisine, one meal at a time.
+              <p className={styles.brandDescription}>
+                {t('footer.tagline')}
               </p>
-              
-              <div className="flex space-x-4">
-                <a href="#" className="text-slate-400 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
+
+              <div className={styles.socialLinks}>
+                <a href="#" className={styles.socialLink}>
                   <Facebook size={20} />
                 </a>
-                <a href="#" className="text-slate-400 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
+                <a href="#" className={styles.socialLink}>
                   <Twitter size={20} />
                 </a>
-                <a href="#" className="text-slate-400 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
+                <a href="#" className={styles.socialLink}>
                   <Instagram size={20} />
                 </a>
                 <button
                   onClick={toggleLanguage}
-                  className="text-slate-400 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded"
+                  className={styles.socialLink}
                 >
                   <Globe size={20} />
                 </button>
@@ -67,86 +68,86 @@ export const Footer = () => {
           
             {/* Business */}
             <div>
-              <h4 className="text-lg font-semibold text-slate-100 mb-4">
-                For Business
+              <h4 className={styles.columnTitle}>
+                {t('footer.business')}
               </h4>
-              <ul className="space-y-3">
+              <ul className={styles.columnList}>
                 <li>
                   <button
                     onClick={handleCreateAccountClick}
-                    className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded"
+                    className={styles.columnLink}
                   >
-                    Create Account
+                    {t('footer.createAccount')}
                   </button>
                 </li>
                 <li>
-                  <a href="#login" className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                    Seller Dashboard
+                  <a href="#login" className={styles.columnLink}>
+                    {t('footer.sellerDashboard')}
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                    Pricing
+                  <a href="#pricing" className={styles.columnLink}>
+                    {t('footer.pricing')}
                   </a>
                 </li>
               </ul>
             </div>
-            
+
             {/* Shoppers */}
             <div>
-              <h4 className="text-lg font-semibold text-slate-100 mb-4">
-                For Shoppers
+              <h4 className={styles.columnTitle}>
+                {t('footer.shopper')}
               </h4>
-              <ul className="space-y-3">
+              <ul className={styles.columnList}>
                 <li>
-                  <a href="#" className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                    Browse Stores
+                  <a href="#" className={styles.columnLink}>
+                    {t('footer.browseStores')}
                   </a>
                 </li>
                 <li>
-                  <button 
+                  <button
                     onClick={() => setShowDeliveryMap(true)}
-                    className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded"
+                    className={styles.columnLink}
                   >
-                    Delivery Areas
+                    {t('footer.deliveryAreas')}
                   </button>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-300 hover:text-brand transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                    Help & Support
+                  <a href="#" className={styles.columnLink}>
+                    {t('footer.helpSupport')}
                   </a>
                 </li>
               </ul>
             </div>
-            
+
             {/* Contact */}
             <div>
-              <h4 className="text-lg font-semibold text-slate-100 mb-4">
-                Contact
+              <h4 className={styles.columnTitle}>
+                {t('footer.contact')}
               </h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Mail className="w-4 h-4 text-brand" />
-                  <span className="text-sm">support@lulocart.com</span>
+              <div className={styles.contactInfo}>
+                <div className={styles.contactItem}>
+                  <Mail className={styles.contactIcon} />
+                  <span className={styles.contactText}>support@lulocart.com</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-400">
-                  <MapPin className="w-4 h-4 text-brand" />
-                  <span className="text-sm">Vancouver, BC Canada</span>
+                <div className={styles.contactItem}>
+                  <MapPin className={styles.contactIcon} />
+                  <span className={styles.contactText}>Vancouver, BC Canada</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-slate-400 mb-4 md:mb-0 text-sm">
-              © 2024 LuloCart. All rights reserved.
+          <div className={styles.bottomSection}>
+            <p className={styles.copyright}>
+              {t('footer.copyright')}
             </p>
-            <div className="flex space-x-6">
-              <a href="#" className="text-slate-400 hover:text-brand transition-colors text-sm focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                Privacy Policy
+            <div className={styles.legalLinks}>
+              <a href="#privacy" className={styles.legalLink}>
+                {t('footer.privacy')}
               </a>
-              <a href="#" className="text-slate-400 hover:text-brand transition-colors text-sm focus-visible:ring-2 focus-visible:ring-brand/40 rounded">
-                Terms of Service
+              <a href="#terms" className={styles.legalLink}>
+                {t('footer.terms')}
               </a>
             </div>
           </div>

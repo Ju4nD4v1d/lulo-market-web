@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Star, Clock, Users } from 'lucide-react';
 import { Product } from '../../../types/product';
 import { AddToCartButton } from '../../../components/AddToCartButton';

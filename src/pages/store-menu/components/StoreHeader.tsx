@@ -1,8 +1,9 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { ArrowLeft, Star, Clock, MapPin, Search, ShoppingCart, Globe } from 'lucide-react';
 import { StoreInfo } from '../types';
 import { UserButton } from '../../../components/UserButton';
-import { UserMenuDropdown } from '../../../components/home/UserMenuDropdown';
+import { UserMenuDropdown } from '../../../components/shared/user/UserMenuDropdown';
 import styles from './StoreHeader.module.css';
 
 interface StoreHeaderProps {
@@ -80,7 +81,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({
               <Search className={styles.searchIcon} />
               <input
                 type="text"
-                placeholder="Search dishes..."
+                placeholder={t('storeDetail.searchDishes')}
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className={styles.searchInput}

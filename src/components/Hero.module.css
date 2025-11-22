@@ -1,0 +1,235 @@
+.section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(249, 250, 251, 0.3);
+}
+
+.container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.content {
+  max-width: 56rem;
+  margin: 0 auto;
+  text-align: center;
+  transform: translateY(3rem);
+  opacity: 0;
+  transition: all 1s;
+}
+
+.contentVisible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(200, 228, 0, 0.1);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.badgeIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary-600);
+  fill: currentColor;
+}
+
+.badgeText {
+  color: rgb(74, 85, 104);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: 3.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 4.5rem;
+  }
+}
+
+.titleHighlight {
+  color: var(--color-primary-600);
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #4b5563;
+  margin-bottom: 2rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+  .subtitle {
+    font-size: 1.5rem;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 28rem;
+  margin: 0 auto 2rem;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary-600);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.ctaSection {
+  margin-bottom: 2rem;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background-color: var(--color-primary-400);
+  color: black;
+  font-weight: bold;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  transition: all 0.2s;
+  margin-bottom: 1rem;
+  text-decoration: none;
+}
+
+.ctaButton:hover {
+  background-color: var(--color-primary-500);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-0.25rem);
+}
+
+.ctaButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--color-primary-400), 0 0 0 6px white;
+}
+
+.ctaIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.ctaSubtext {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.trustSignals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.reviewSection {
+  margin-top: 3rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.reviewCard {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reviewAvatar {
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(to bottom right, var(--color-primary-400), var(--color-primary-600));
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+.reviewAuthor {
+  font-weight: 600;
+  color: #111827;
+}
+
+.reviewStars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reviewStar {
+  width: 1rem;
+  height: 1rem;
+  color: #fbbf24;
+  fill: currentColor;
+}
+
+.reviewBadge {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-left: 0.5rem;
+}
+
+.reviewText {
+  color: #374151;
+  font-style: italic;
+}

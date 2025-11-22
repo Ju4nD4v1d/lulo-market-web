@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { collection, query, where, getDocs, orderBy, limit, startAfter, DocumentSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Order, OrderStatus } from '../../types/order';
 import { queryKeys } from './queryKeys';

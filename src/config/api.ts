@@ -81,7 +81,8 @@ export const apiCall = async (
           const errorData = JSON.parse(errorText);
           console.error(`🔍 Parsed error data:`, errorData);
         } catch (jsonError) {
-          console.error(`⚠️ Response is not JSON:`, jsonError.message);
+          const errorMessage = jsonError instanceof Error ? jsonError.message : 'Unknown error';
+          console.error(`⚠️ Response is not JSON:`, errorMessage);
         }
         
         // Create a new response with the error body for further processing

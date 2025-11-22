@@ -1,0 +1,28 @@
+.container {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.error {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.success {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.message {
+  font-size: 0.875rem;
+}

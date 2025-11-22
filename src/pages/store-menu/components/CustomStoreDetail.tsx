@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import type * as React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { Product } from '../../../types/product';
@@ -6,7 +7,7 @@ import { StoreProductCard } from './StoreProductCard';
 import { CartSidebar } from '../../../components/CartSidebar';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import { useDataProvider } from '../../../services/DataProvider';
+import { useProductsQuery } from '../../../hooks/queries/useProductsQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { StoreHeader } from './StoreHeader';
 
@@ -133,17 +134,22 @@ interface CustomStoreDetailProps {
 export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
-  const { getProducts } = useDataProvider();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
 
-  const [products, setProducts] = useState<Product[]>([]);
+  // Use TanStack Query to fetch products
+  const { products: fetchedProducts, isLoading: loading } = useProductsQuery({ storeId: store.id });
+
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Use fetched products or fallback to mock data
+  const products = fetchedProducts && fetchedProducts.length > 0
+    ? fetchedProducts
+    : mockProducts.filter(product => product.storeId === store.id);
 
   const categories = [
     { id: 'all', name: t('category.all'), icon: <BookOpen className="w-4 h-4" /> },
@@ -152,37 +158,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     { id: 'baked', name: t('category.baked'), icon: <Star className="w-4 h-4" /> },
     { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
   ];
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const querySnapshot = await getProducts(store.id);
-
-      let productsData: Product[] = [];
-
-      if (querySnapshot.docs) {
-        productsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[];
-      } else if (Array.isArray(querySnapshot)) {
-        productsData = querySnapshot as Product[];
-      }
-
-      if (productsData.length === 0) {
-        const storeProducts = mockProducts.filter(product => product.storeId === store.id);
-        setProducts(storeProducts);
-      } else {
-        setProducts(productsData);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      const storeProducts = mockProducts.filter(product => product.storeId === store.id);
-      setProducts(storeProducts);
-    } finally {
-      setLoading(false);
-    }
-  }, [store.id, getProducts]);
 
   const filterProducts = useCallback(() => {
     let filtered = products;
@@ -204,12 +179,8 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
   }, [products, searchTerm, selectedCategory]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  useEffect(() => {
     filterProducts();
-  }, [products, searchTerm, selectedCategory, filterProducts]);
+  }, [filterProducts]);
 
   const formatTime12Hour = (time24: string): string => {
     const [hours, minutes] = time24.split(':').map(Number);

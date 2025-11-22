@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2, AlertCircle, Info, RefreshCw, LineChart as LineChartIcon } from 'lucide-react';
 import { colorPalette, currencyFormatter } from '../utils/chartConfig';

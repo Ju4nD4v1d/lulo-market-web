@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useOrderTrackingQuery } from '../../hooks/queries/useOrderTrackingQuery';
@@ -28,6 +29,28 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
 
   // Use updated order if receipt was generated
   const displayOrder = updatedOrder || order;
+
+  // Helper function to safely format date from Firestore Timestamp or Date
+  const formatOrderDate = (date: any): string => {
+    if (!date) return 'Unknown';
+
+    // Check if it's a Firestore Timestamp
+    if (date.toDate && typeof date.toDate === 'function') {
+      return date.toDate().toLocaleDateString();
+    }
+
+    // Check if it's already a Date object
+    if (date instanceof Date) {
+      return date.toLocaleDateString();
+    }
+
+    // Fallback: try to create a Date from the value
+    try {
+      return new Date(date).toLocaleDateString();
+    } catch {
+      return 'Unknown';
+    }
+  };
 
   if (loading) {
     return (
@@ -67,7 +90,7 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
             Back
           </button>
           <h1 className={styles.title}>Order #{displayOrder.id.slice(-8)}</h1>
-          <p className={styles.subtitle}>Placed on {displayOrder.createdAt.toLocaleDateString()}</p>
+          <p className={styles.subtitle}>Placed on {formatOrderDate(displayOrder.createdAt)}</p>
         </div>
 
         <div className={styles.grid}>

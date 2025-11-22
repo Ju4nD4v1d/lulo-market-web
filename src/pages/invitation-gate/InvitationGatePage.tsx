@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import type * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSpotlight } from '../../hooks/useSpotlight';
 import { useInvitationCode, useWaitlistEmail } from './hooks';

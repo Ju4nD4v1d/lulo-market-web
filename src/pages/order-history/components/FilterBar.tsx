@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Filter, SortDesc } from 'lucide-react';
 import { OrderStatus } from '../../../types/order';
 import { useLanguage } from '../../../context/LanguageContext';

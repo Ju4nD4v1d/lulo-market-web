@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
 
-interface LocationState {
-  location: { lat: number; lng: number } | null;
-  locationName: string;
-  locationStatus: 'idle' | 'requesting' | 'granted' | 'denied';
-}
-
 /**
  * Custom hook for managing geolocation state and functionality
  */

@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { User } from 'lucide-react';
 import styles from './UserButton.module.css';
 import avatarStyles from '../styles/avatar.module.css';

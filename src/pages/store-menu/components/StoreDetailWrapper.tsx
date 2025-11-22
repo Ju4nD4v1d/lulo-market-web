@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { StoreData } from '../../../types/store';
 import { StoreDetail } from '../../../components/StoreDetail';
 import { StoreHeader } from './StoreHeader';

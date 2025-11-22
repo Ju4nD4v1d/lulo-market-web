@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Loader2, AlertCircle, RefreshCw, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import styles from './TopProductsChart.module.css';

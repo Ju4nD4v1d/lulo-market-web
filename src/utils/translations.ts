@@ -21,8 +21,8 @@ export const translations = {
     'hero.slides.taste.subtitle': 'Discover authentic Latino products that bring back cherished memories of family traditions and grandmother\'s recipes.',
     'hero.slides.community.title': 'Support Local Latino Businesses',
     'hero.slides.community.subtitle': 'Connect with Latino entrepreneurs in your community and help them share their authentic culture and flavors.',
-    'hero.slides.delivery.title': 'Fresh Delivery in Minutes',
-    'hero.slides.delivery.subtitle': 'Get your favorite Latino products delivered fresh to your door with our fast and reliable delivery service.',
+    'hero.slides.delivery.title': 'Schedule Your Deliveries',
+    'hero.slides.delivery.subtitle': 'Schedule your orders and receive them fresh at your doorstep with our fast and reliable delivery service.',
 
     // Hero Stats
     'hero.stats.authentic': '100% Authentic',
@@ -313,10 +313,12 @@ export const translations = {
     'footer.sellerDashboard': 'Seller Dashboard',
     'footer.sellerResources': 'Seller Resources',
     'footer.successStories': 'Success Stories',
+    'footer.pricing': 'Pricing',
     'footer.shopper': 'For Shoppers',
     'footer.downloadApp': 'Download App',
     'footer.browseStores': 'Browse Stores',
     'footer.deliveryAreas': 'Delivery Areas',
+    'footer.helpSupport': 'Help & Support',
     'footer.faqs': 'FAQs',
     'footer.about': 'Company',
     'footer.ourStory': 'Our Story',
@@ -993,6 +995,7 @@ export const translations = {
     'order.checkout': 'Checkout',
     'order.placeOrder': 'Place Order',
     'order.orderSummary': 'Order Summary',
+    'order.reviewOrder': 'Review Your Order',
     'order.customerInfo': 'Customer Information',
     'order.deliveryAddress': 'Delivery Address',
     'order.orderNotes': 'Order Notes',
@@ -1159,6 +1162,7 @@ export const translations = {
     'checkout.useProfileAsDeliveryContact': 'Use my profile information as delivery contact details',
     'checkout.useProfileAsContact': 'Use my profile information as contact details',
     'checkout.useProfileAsDeliveryAddress': 'Use my profile address as delivery address',
+    'checkout.reviewBeforePayment': 'Please review your order details before proceeding to payment',
     
     // Form placeholders
     'placeholder.fullName': 'Enter your full name',
@@ -1171,17 +1175,20 @@ export const translations = {
     'placeholder.postalCode': 'V6B 1A1',
     'placeholder.deliveryInstructions': 'Apartment number, gate code, special instructions...',
     'placeholder.orderNotes': 'Any special requests or notes for the restaurant...',
-    'placeholder.selectProvince': 'Select Province',
+    'placeholder.selectProvince': 'Province',
     
     // Buttons
     'button.continueToDeliveryAddress': 'Continue to Delivery Address',
+    'button.continueToReview': 'Continue to Review',
     'button.reviewOrder': 'Review Order',
+    'button.proceedToPayment': 'Proceed to Payment',
     'button.keepOrder': 'Keep Order',
     'button.confirmCancel': 'Yes, Cancel Order',
     'button.canceling': 'Canceling...',
 
     // Profile Management
     'profile.editProfile': 'Edit Profile',
+    'profile.editProfileDescription': 'Manage your account settings and preferences',
     'profile.back': 'Back',
     'profile.basicInfo': 'Basic Information',
     'profile.displayName': 'Display Name',
@@ -1311,6 +1318,14 @@ export const translations = {
     'error.validPhone': 'Please enter a valid phone number',
     'error.validPostalCode': 'Please enter a valid postal code',
     'error.fieldRequired': 'This field is required',
+    'error.searchError': 'Search Error',
+    'error.offline': 'You\'re Offline',
+    'error.connection': 'Connection Problem',
+    'error.retrying': 'Retrying...',
+    'error.tryAgain': 'Try Again',
+    'error.checkConnection': 'Check your internet connection',
+    'error.checkWifi': 'Make sure you\'re connected to Wi-Fi or mobile data',
+    'error.tryRefresh': 'Try refreshing the page',
 
     // Additional Placeholders
 
@@ -1318,6 +1333,7 @@ export const translations = {
     'empty.noOrders': 'No orders yet',
     'empty.noStores': 'No stores available',
     'empty.noStoresFound': 'No stores found',
+    'empty.noStoresMessage': 'There are no stores available in your area at the moment. Check back soon!',
     'empty.firstOrderMessage': 'When you place your first order, it will appear here',
     'empty.cartEmpty': 'Your cart is empty',
     'empty.addItemsMessage': 'Add some items to your cart before checking out.',
@@ -1474,10 +1490,12 @@ export const translations = {
     'footer.sellerDashboard': 'Panel de Vendedor',
     'footer.sellerResources': 'Recursos para Vendedores',
     'footer.successStories': 'Historias de Éxito',
+    'footer.pricing': 'Precios',
     'footer.shopper': 'Para Compradores',
     'footer.downloadApp': 'Descargar App',
     'footer.browseStores': 'Explorar Tiendas',
     'footer.deliveryAreas': 'Áreas de Entrega',
+    'footer.helpSupport': 'Ayuda y Soporte',
     'footer.faqs': 'Preguntas Frecuentes',
     'footer.about': 'Empresa',
     'footer.ourStory': 'Nuestra Historia',
@@ -2154,6 +2172,7 @@ export const translations = {
     'order.checkout': 'Finalizar Compra',
     'order.placeOrder': 'Realizar Pedido',
     'order.orderSummary': 'Resumen del Pedido',
+    'order.reviewOrder': 'Revisa tu Pedido',
     'order.customerInfo': 'Información del Cliente',
     'order.deliveryAddress': 'Dirección de Entrega',
     'order.orderNotes': 'Notas del Pedido',
@@ -2320,6 +2339,7 @@ export const translations = {
     'checkout.useProfileAsDeliveryContact': 'Usar mi información de perfil como datos de contacto de entrega',
     'checkout.useProfileAsContact': 'Usar mi información de perfil como datos de contacto',
     'checkout.useProfileAsDeliveryAddress': 'Usar mi dirección de perfil como dirección de entrega',
+    'checkout.reviewBeforePayment': 'Por favor revisa los detalles de tu pedido antes de proceder al pago',
     
     // Form placeholders
     'placeholder.fullName': 'Ingresa tu nombre completo',
@@ -2332,17 +2352,20 @@ export const translations = {
     'placeholder.postalCode': 'V6B 1A1',
     'placeholder.deliveryInstructions': 'Número de apartamento, código de acceso, instrucciones especiales...',
     'placeholder.orderNotes': 'Cualquier solicitud especial o notas para la tienda...',
-    'placeholder.selectProvince': 'Seleccionar Provincia',
+    'placeholder.selectProvince': 'Provincia',
     
     // Buttons
     'button.continueToDeliveryAddress': 'Continuar a Dirección de Entrega',
+    'button.continueToReview': 'Continuar a Revisión',
     'button.reviewOrder': 'Revisar Pedido',
+    'button.proceedToPayment': 'Proceder al Pago',
     'button.keepOrder': 'Mantener Pedido',
     'button.confirmCancel': 'Sí, Cancelar Pedido',
     'button.canceling': 'Cancelando...',
 
     // Profile Management
     'profile.editProfile': 'Editar Perfil',
+    'profile.editProfileDescription': 'Administra la configuración y preferencias de tu cuenta',
     'profile.back': 'Atrás',
     'profile.basicInfo': 'Información Básica',
     'profile.displayName': 'Nombre de Usuario',
@@ -2540,8 +2563,8 @@ export const translations = {
     'hero.slides.taste.subtitle': 'Descubre productos latinos auténticos que traen de vuelta recuerdos queridos de tradiciones familiares y recetas de la abuela.',
     'hero.slides.community.title': 'Apoya Negocios Latinos Locales',
     'hero.slides.community.subtitle': 'Conecta con emprendedores latinos en tu comunidad y ayúdales a compartir su cultura y sabores auténticos.',
-    'hero.slides.delivery.title': 'Entrega Fresca en Minutos',
-    'hero.slides.delivery.subtitle': 'Obtén tus productos latinos favoritos entregados frescos a tu puerta con nuestro servicio de entrega rápido y confiable.',
+    'hero.slides.delivery.title': 'Agenda tus Pedidos',
+    'hero.slides.delivery.subtitle': 'Programa tus pedidos y recíbelos frescos en la puerta de tu casa con nuestro servicio de entrega rápido y confiable.',
 
     // Hero Stats
     'hero.stats.authentic': '100% Auténtico',
@@ -2658,6 +2681,14 @@ export const translations = {
     'error.validPhone': 'Por favor, ingresa un número de teléfono válido',
     'error.validPostalCode': 'Por favor, ingresa un código postal válido',
     'error.fieldRequired': 'Este campo es obligatorio',
+    'error.searchError': 'Error de Búsqueda',
+    'error.offline': 'Sin Conexión',
+    'error.connection': 'Problema de Conexión',
+    'error.retrying': 'Reintentando...',
+    'error.tryAgain': 'Intentar de Nuevo',
+    'error.checkConnection': 'Verifica tu conexión a internet',
+    'error.checkWifi': 'Asegúrate de estar conectado a Wi-Fi o datos móviles',
+    'error.tryRefresh': 'Intenta refrescar la página',
 
     // Additional Placeholders - Spanish
 
@@ -2665,6 +2696,7 @@ export const translations = {
     'empty.noOrders': 'Aún no hay pedidos',
     'empty.noStores': 'No hay tiendas disponibles',
     'empty.noStoresFound': 'No se encontraron tiendas',
+    'empty.noStoresMessage': 'No hay tiendas disponibles en tu área en este momento. ¡Vuelve pronto!',
     'empty.firstOrderMessage': 'Cuando realices tu primer pedido, aparecerá aquí',
     'empty.cartEmpty': 'Tu carrito está vacío',
     'empty.addItemsMessage': 'Agrega algunos artículos a tu carrito antes de finalizar la compra.',

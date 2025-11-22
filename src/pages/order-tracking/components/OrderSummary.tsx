@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { CreditCard } from 'lucide-react';
 import { Order } from '../../../types/order';
 import { formatPrice } from '../../../utils/formatters';

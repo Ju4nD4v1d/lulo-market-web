@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Check, AlertTriangle } from 'lucide-react';
 import { Product } from '../types/product';
 import { useCart } from '../context/CartContext';

@@ -1,7 +1,8 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { StoreData } from '../../../types/store';
 import { SearchResults } from '../../../types/search';
-import { VirtualStoreGrid } from '../../../components/home/VirtualStoreGrid';
+import { VirtualStoreGrid } from './VirtualStoreGrid';
 import { SearchResultsInfo } from './SearchResultsInfo';
 import { useVirtualStoreList } from '../hooks/useVirtualStoreList';
 import styles from './StoreListContainer.module.css';

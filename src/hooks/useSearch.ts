@@ -12,7 +12,6 @@ interface UseSearchReturn {
 
 export const useSearch = (options: SearchOptions = {}): UseSearchReturn => {
   const {
-    enableLocation = true,
     debounceMs = 300,
     minQueryLength = 2
   } = options;
@@ -36,7 +35,7 @@ export const useSearch = (options: SearchOptions = {}): UseSearchReturn => {
   }, []);
 
   const search = useCallback(
-    async (query: string, userLocation?: { lat: number; lng: number }) => {
+    async (query: string) => {
       // Clear previous debounce timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);

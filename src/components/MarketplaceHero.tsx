@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import type * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Navigation, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -173,10 +174,10 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                 </div>
                 <input
                   type="text"
-                  placeholder="Search restaurants, dishes, or cuisines..."
+                  placeholder={t('home.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-14 lg:h-16 pl-14 pr-5 bg-white rounded-2xl text-base lg:text-lg 
+                  className="w-full h-14 lg:h-16 pl-14 pr-5 bg-white rounded-2xl text-base lg:text-lg
                            shadow-lg hover:shadow-xl focus:shadow-2xl transition-all duration-300
                            border-2 border-transparent focus:border-primary-400/30 focus:outline-none
                            placeholder:text-gray-400"

@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { DashboardSidebar } from './DashboardSidebar';
 import styles from './DashboardLayout.module.css';
 

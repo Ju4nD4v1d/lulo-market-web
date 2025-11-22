@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Plus, Minus } from 'lucide-react';
 import { MenuItem as MenuItemType } from '../types';
 import styles from './MenuItem.module.css';

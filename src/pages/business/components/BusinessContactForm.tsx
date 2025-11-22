@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Check, ArrowRight } from 'lucide-react';
 import styles from './BusinessContactForm.module.css';
 

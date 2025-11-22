@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { ShoppingCart } from 'lucide-react';
 import styles from './FloatingCartButton.module.css';
 

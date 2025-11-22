@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Clock } from 'lucide-react';
 import { Order } from '../../../types/order';
 import styles from './OrderStatus.module.css';

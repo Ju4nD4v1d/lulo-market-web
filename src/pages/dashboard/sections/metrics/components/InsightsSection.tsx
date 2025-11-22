@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Sparkles, TrendingUp, Target, Award } from 'lucide-react';
 import styles from './InsightsSection.module.css';
 

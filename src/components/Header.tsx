@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import type * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { UserButton } from './UserButton';
-import { UserMenuDropdown } from './home/UserMenuDropdown';
+import { UserMenuDropdown } from './shared/user/UserMenuDropdown';
+import styles from './Header.module.css';
 
 export const Header = () => {
   const { t, toggleLanguage } = useLanguage();
@@ -74,60 +76,38 @@ export const Header = () => {
     return (
       <a
         href={href}
-        className={`
-          relative text-gray-900 font-medium
-          transition-all duration-200 ease-out
-          hover:text-primary-600
-          ${isActive ? 'text-primary-600' : ''}
-        `}
+        className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
       >
-        <span className="relative">
+        <span className={styles.navLinkInner}>
           {children}
-          <span className={`
-            absolute -bottom-1 left-0 w-full h-0.5
-            bg-primary-400 origin-left
-            transform scale-x-0 transition-transform duration-200 ease-out
-            hover:scale-x-100
-            ${isActive ? 'scale-x-100' : ''}
-          `} />
+          <span className={styles.navLinkUnderline} />
         </span>
       </a>
     );
   };
 
   return (
-    <header className="fixed w-full z-50 top-0">
-      <nav className={`
-        bg-white/95 backdrop-blur-sm
-        border-b border-gray-200/50
-        transition-all duration-300
-        ${isScrolled ? 'shadow-sm' : ''}
-      `}>
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
-            <a href="#" className="flex items-center">
-              <img src="/logo_lulo.png" alt="Lulo" className="h-12 w-auto" />
+    <header className={styles.header}>
+      <nav className={`${styles.nav} ${isScrolled ? styles.navScrolled : ''}`}>
+        <div className={styles.navContainer}>
+          <div className={styles.navInner}>
+            <a href="#" className={styles.logoLink}>
+              <img src="/logo_lulo.png" alt="Lulo" className={styles.logo} />
             </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className={styles.desktopNav}>
               <NavLink href="#">{t('nav.marketplace')}</NavLink>
-              <a
-                href="#business"
-                className="text-gray-900 font-medium transition-all duration-200 ease-out hover:text-primary-400"
-              >
+              <a href="#business" className={styles.businessLink}>
                 {t('nav.forBusiness')}
               </a>
-              <button
-                onClick={toggleLanguage}
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-              >
+              <button onClick={toggleLanguage} className={styles.languageButton}>
                 <Globe size={16} />
-                <span className="text-sm">{t('language.toggle')}</span>
+                <span className={styles.languageButtonText}>{t('language.toggle')}</span>
               </button>
 
               {/* User Button */}
-              <div className="relative">
+              <div className={styles.userButtonWrapper}>
                 <UserButton
                   currentUser={currentUser}
                   userProfile={userProfile}
@@ -152,11 +132,8 @@ export const Header = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center gap-3">
-              <button
-                onClick={toggleLanguage}
-                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
-              >
+            <div className={styles.mobileNav}>
+              <button onClick={toggleLanguage} className={styles.mobileLanguageButton}>
                 <Globe size={20} />
               </button>
 
@@ -169,10 +146,7 @@ export const Header = () => {
                 showBorder={true}
               />
 
-              <button
-                onClick={toggleMenu}
-                className="text-gray-900 hover:text-primary-600 transition-colors duration-200"
-              >
+              <button onClick={toggleMenu} className={styles.mobileMenuButton}>
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
@@ -181,25 +155,18 @@ export const Header = () => {
       </nav>
 
       {/* Mobile Menu */}
-      <div
-        className={`
-          md:hidden fixed inset-0 z-40
-          bg-white
-          transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-          transition-transform duration-300 ease-in-out pt-16
-        `}
-      >
-        <nav className="flex flex-col p-4 space-y-6">
+      <div className={`${styles.mobileMenuOverlay} ${isOpen ? styles.mobileMenuOverlayOpen : ''}`}>
+        <nav className={styles.mobileMenuNav}>
           <a
             href="#"
-            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
+            className={styles.mobileMenuLink}
             onClick={() => setIsOpen(false)}
           >
             {t('nav.marketplace')}
           </a>
           <a
             href="#business"
-            className="text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
+            className={styles.mobileMenuLink}
             onClick={() => setIsOpen(false)}
           >
             {t('nav.forBusiness')}
@@ -212,7 +179,7 @@ export const Header = () => {
                   setIsOpen(false);
                   handleMenuNavigation('#profile/edit');
                 }}
-                className="text-left text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
+                className={styles.mobileMenuButton}
               >
                 {t('profile.editProfile')}
               </button>
@@ -221,7 +188,7 @@ export const Header = () => {
                   setIsOpen(false);
                   handleMenuNavigation('#order-history');
                 }}
-                className="text-left text-xl text-gray-900 font-medium transition-colors duration-200 hover:text-primary-400"
+                className={styles.mobileMenuButton}
               >
                 {t('orderHistory.title') || 'My Orders'}
               </button>
@@ -230,7 +197,7 @@ export const Header = () => {
                   setIsOpen(false);
                   handleLogout();
                 }}
-                className="text-left text-xl text-red-600 font-medium transition-colors duration-200 hover:text-red-700"
+                className={`${styles.mobileMenuButton} ${styles.mobileMenuButtonDanger}`}
               >
                 Sign Out
               </button>
@@ -238,7 +205,7 @@ export const Header = () => {
           ) : (
             <a
               href="#login"
-              className="btn-primary inline-flex items-center justify-center text-lg"
+              className={`btn-primary ${styles.mobileMenuSignIn}`}
               onClick={() => setIsOpen(false)}
             >
               {t('nav.signIn')}
@@ -249,4 +216,5 @@ export const Header = () => {
     </header>
   );
 };
+
 export default Header;

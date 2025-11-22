@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import type * as React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
 import { StoreData } from '../types/store';
 import { Product } from '../types/product';
@@ -6,7 +7,7 @@ import { ProductCard } from './ProductCard';
 import { CartSidebar } from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useDataProvider } from '../services/DataProvider';
+import { useProductsQuery } from '../hooks/queries/useProductsQuery';
 import { useAuth } from '../context/AuthContext';
 
 // Mock products for testing cart functionality
@@ -132,21 +133,27 @@ interface StoreDetailProps {
 export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddToCart }) => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
-  const { getProducts } = useDataProvider();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
+
+  // Use TanStack Query to fetch products
+  const { products: fetchedProducts, isLoading: loading } = useProductsQuery({ storeId: store.id });
 
   // Debug log to check store location data
   console.log('Store data in StoreDetail:', store);
   console.log('Store location:', store.location);
   console.log('Store delivery hours:', store.deliveryHours || store.businessHours);
-  const [products, setProducts] = useState<Product[]>([]);
+
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Use fetched products or fallback to mock data
+  const products = fetchedProducts && fetchedProducts.length > 0
+    ? fetchedProducts
+    : mockProducts.filter(product => product.storeId === store.id);
 
   const categories = [
     { id: 'all', name: t('category.all'), icon: <BookOpen className="w-4 h-4" /> },
@@ -155,49 +162,6 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
     { id: 'baked', name: t('category.baked'), icon: <Star className="w-4 h-4" /> },
     { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
   ];
-
-  // Define functions first
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      console.log(`Fetching products for store ${store.id}`);
-
-      // Use DataProvider which handles both test mode and real data
-      const querySnapshot = await getProducts(store.id);
-
-      // Handle different response formats
-      let productsData: Product[] = [];
-
-      if (querySnapshot.docs) {
-        // Firebase format
-        productsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[];
-      } else if (Array.isArray(querySnapshot)) {
-        // Direct array format (from DataProvider mock)
-        productsData = querySnapshot as Product[];
-      }
-
-      console.log(`Found ${productsData.length} products for store ${store.id}:`, productsData);
-
-      // If no products found, fallback to mock data
-      if (productsData.length === 0) {
-        console.log('No products found, using mock data fallback');
-        const storeProducts = mockProducts.filter(product => product.storeId === store.id);
-        setProducts(storeProducts);
-      } else {
-        setProducts(productsData);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      // Fallback to mock data on error
-      const storeProducts = mockProducts.filter(product => product.storeId === store.id);
-      setProducts(storeProducts);
-    } finally {
-      setLoading(false);
-    }
-  }, [store.id, getProducts]);
 
   const filterProducts = useCallback(() => {
     let filtered = products;
@@ -222,12 +186,8 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
   }, [products, searchTerm, selectedCategory]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  useEffect(() => {
     filterProducts();
-  }, [products, searchTerm, selectedCategory, filterProducts]);
+  }, [filterProducts]);
 
 
   // Convert 24-hour time to 12-hour AM/PM format
@@ -481,30 +441,30 @@ export const StoreDetail: React.FC<StoreDetailProps> = ({ store, onBack, onAddTo
 
                           <div className="border-t border-gray-100 my-2"></div>
 
-                          <button 
+                          <button
                             onClick={() => handleMenuNavigation('#terms')}
                             className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
                             <FileText className="w-4 h-4" />
-                            <span>Terms of Service</span>
+                            <span>{t('termsOfService')}</span>
                           </button>
 
-                          <button 
+                          <button
                             onClick={() => handleMenuNavigation('#privacy')}
                             className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
                             <Shield className="w-4 h-4" />
-                            <span>Privacy Policy</span>
+                            <span>{t('privacyPolicy')}</span>
                           </button>
 
                           <div className="border-t border-gray-100 my-2"></div>
 
-                          <button 
+                          <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <LogOut className="w-4 h-4" />
-                            <span>Sign Out</span>
+                            <span>{t('signOut')}</span>
                           </button>
                         </div>
                       </div>

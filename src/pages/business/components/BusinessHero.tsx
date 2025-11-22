@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Star, Store, TrendingUp, Users, Check } from 'lucide-react';
 import styles from './BusinessHero.module.css';
 

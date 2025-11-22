@@ -4,11 +4,6 @@ import { db } from '../../config/firebase';
 import { Product } from '../../types/product';
 import { queryKeys } from '../queries/queryKeys';
 
-interface ProductMutationVariables {
-  product: Partial<Product>;
-  productId?: string;
-}
-
 export const useProductMutations = (storeId: string) => {
   const queryClient = useQueryClient();
 
