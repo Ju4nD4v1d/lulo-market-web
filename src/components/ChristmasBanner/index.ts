@@ -1,0 +1,1 @@
+export { ChristmasBanner } from './ChristmasBanner';

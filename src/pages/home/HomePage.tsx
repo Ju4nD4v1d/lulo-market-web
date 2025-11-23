@@ -4,6 +4,7 @@ import { SearchResultStore, SearchResults } from '../../types/search';
 import { CartSidebar } from '../../components/CartSidebar';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
+import { ChristmasBanner } from '../../components/ChristmasBanner';
 import { HomeHeader } from './components/HomeHeader';
 import { HowItWorks } from './components/HowItWorks';
 import { OurStory } from './components/OurStory';
@@ -194,6 +195,9 @@ export const HomePage = () => {
         }}
         t={t}
       />
+
+      {/* Christmas Banner */}
+      <ChristmasBanner />
 
       {/* Hero Section */}
       <MarketplaceHero

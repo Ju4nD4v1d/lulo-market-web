@@ -15,6 +15,11 @@ export const translations = {
 
     // Hero Section
 
+    // Christmas Banner
+    'christmas.title': 'Merry Christmas!',
+    'christmas.subtitle': 'Spreading Joy & Flavor This Holiday Season',
+    'christmas.message': 'Order your favorite dishes and celebrate with family',
+
     // Hero Carousel Slides
     'hero.badge': 'Latino Marketplace',
     'hero.slides.taste.title': 'Reconnect with Childhood Flavors',
@@ -327,6 +332,64 @@ export const translations = {
     'footer.terms': 'Terms of Service',
     'footer.privacy': 'Privacy Policy',
     'footer.copyright': '© 2024 LuloCart. All rights reserved.',
+
+    // Help & Support
+    'help.title': 'Help & Support',
+    'help.subtitle': 'Find answers to common questions and get help with your orders',
+    'help.searchPlaceholder': 'Search for help...',
+    'help.categories.all': 'All Topics',
+    'help.categories.orders': 'Orders',
+    'help.categories.stores': 'Stores',
+    'help.categories.payments': 'Payments',
+    'help.categories.account': 'Account',
+    'help.faqTitle': 'Frequently Asked Questions',
+    'help.troubleshootingTitle': 'Common Issues',
+    'help.troubleshooting.common': 'COMMON',
+    'help.contact.title': 'Still need help?',
+    'help.contact.description': 'Our support team is here to help you with any questions or issues.',
+    'help.contact.button': 'Contact Support',
+
+    // FAQ - Orders
+    'help.faq.order1.question': 'How do I track my order?',
+    'help.faq.order1.answer': 'Once your order is confirmed, you\'ll receive an email with a tracking link. You can also view your order status in the Order History section of your account.',
+    'help.faq.order2.question': 'Can I cancel or modify my order?',
+    'help.faq.order2.answer': 'You can cancel or modify your order within 5 minutes of placing it. After that, please contact the store directly through the order details page or reach out to our support team.',
+    'help.faq.order3.question': 'What is the delivery time?',
+    'help.faq.order3.answer': 'Delivery times vary by store and location. Most orders are delivered within 30-60 minutes. You can see the estimated delivery time during checkout.',
+
+    // FAQ - Stores
+    'help.faq.store1.question': 'How do I find stores near me?',
+    'help.faq.store1.answer': 'On the home page, you can use your location to find nearby stores. We automatically show stores closest to you, or you can search for specific cuisines or products.',
+    'help.faq.store2.question': 'How do I become a store partner?',
+    'help.faq.store2.answer': 'Click on "For Business" in the navigation menu to learn more about our partnership program. You can sign up directly or contact our team for more information.',
+
+    // FAQ - Payments
+    'help.faq.payment1.question': 'What payment methods do you accept?',
+    'help.faq.payment1.answer': 'We accept all major credit and debit cards through our secure Stripe payment system. Your payment information is encrypted and never stored on our servers.',
+    'help.faq.payment2.question': 'Is my payment information secure?',
+    'help.faq.payment2.answer': 'Yes! We use Stripe, a industry-leading payment processor, to handle all transactions securely. Your payment details are encrypted and protected with the highest security standards.',
+
+    // FAQ - Account
+    'help.faq.account1.question': 'How do I reset my password?',
+    'help.faq.account1.answer': 'Click on "Forgot Password" on the login page. Enter your email address and we\'ll send you a link to reset your password.',
+
+    // Troubleshooting
+    'help.troubleshooting.issue1.title': 'Order not showing up',
+    'help.troubleshooting.issue1.description': 'If you can\'t find your order, try these steps:',
+    'help.troubleshooting.issue1.step1': 'Check your email for the order confirmation - it may have gone to your spam folder',
+    'help.troubleshooting.issue1.step2': 'Make sure you\'re logged into the correct account',
+    'help.troubleshooting.issue1.step3': 'Check your Order History page - orders may take a few moments to appear',
+    'help.troubleshooting.issue1.step4': 'If you still can\'t find it, contact support with your email address',
+    'help.troubleshooting.issue2.title': 'Payment declined',
+    'help.troubleshooting.issue2.description': 'If your payment was declined:',
+    'help.troubleshooting.issue2.step1': 'Verify that your card details are correct (number, expiry date, CVV)',
+    'help.troubleshooting.issue2.step2': 'Check with your bank to ensure there are no restrictions on your card',
+    'help.troubleshooting.issue2.step3': 'Try using a different payment method or card',
+    'help.troubleshooting.issue3.title': 'Can\'t add items to cart',
+    'help.troubleshooting.issue3.description': 'If you\'re having trouble adding items:',
+    'help.troubleshooting.issue3.step1': 'Make sure the store is currently open and accepting orders',
+    'help.troubleshooting.issue3.step2': 'Clear your browser cache and cookies, then try again',
+    'help.troubleshooting.issue3.step3': 'Try using a different browser or device',
 
     // Authentication
     'auth.login': 'Sign In',
@@ -648,6 +711,7 @@ export const translations = {
     'admin.menu.products': 'Products',
     'admin.menu.metrics': 'Analytics',
     'admin.menu.orders': 'Orders',
+    'admin.menu.messages': 'Messages',
     'admin.logout': 'Sign Out',
     
     // Admin Orders
@@ -683,6 +747,42 @@ export const translations = {
     'order.timeline.ready': 'Ready for Delivery',
     'order.timeline.outForDelivery': 'Out for Delivery',
     'order.timeline.delivered': 'Delivered',
+
+    // Messages
+    'messages.title': 'Messages',
+    'messages.search': 'Search conversations...',
+    'messages.all': 'All',
+    'messages.active': 'Active',
+    'messages.unread': 'Unread',
+    'messages.noChats': 'No conversations yet',
+    'messages.noChatsDescription': 'Messages from customers will appear here',
+    'messages.selectChat': 'Select a conversation to start messaging',
+    'messages.order': 'Order',
+    'messages.you': 'You',
+    'messages.typeMessage': 'Type a message...',
+    'messages.send': 'Send',
+    'messages.attachFile': 'Attach file',
+    'messages.attachment': 'Attachment',
+    'messages.viewAttachment': 'View attachment',
+    'messages.fileTooLarge': 'File is too large. Maximum size is 5MB.',
+    'messages.justNow': 'Just now',
+    'messages.minAgo': 'm ago',
+    'messages.hourAgo': 'h ago',
+    'messages.dayAgo': 'd ago',
+    'messages.today': 'Today',
+    'messages.yesterday': 'Yesterday',
+    'messages.orderDelivered': 'This order has been delivered. Messaging is disabled.',
+    'messages.orderCancelled': 'This order has been cancelled. Messaging is disabled.',
+    'messages.quickReply.preparing': 'We\'re preparing your order now!',
+    'messages.quickReply.readyIn30': 'Your order will be ready in 30 minutes',
+    'messages.quickReply.readyIn45': 'Your order will be ready in 45 minutes',
+    'messages.quickReply.readyIn15': 'Almost ready! Just 15 more minutes',
+    'messages.quickReply.almostReady': 'Your order is almost ready!',
+    'messages.quickReply.delayApology': 'Sorry for the delay, we\'re working on it',
+    'messages.quickReply.readyForPickup': 'Your order is ready for pickup!',
+    'messages.quickReply.onTheWay': 'Your order is on the way!',
+    'messages.quickReply.thankYou': 'Thank you for your order!',
+    'messages.quickReply.enjoyMeal': 'Enjoy your meal!',
     
     // Store Dashboard
     'store.dashboard.editStore': 'Edit Store',
@@ -1084,6 +1184,7 @@ export const translations = {
     // Common Actions
     'common.tryAgain': 'Try Again',
     'common.close': 'Close',
+    'common.back': 'Back',
     
     // Validation Messages
     'validation.required': 'This field is required',
@@ -1416,6 +1517,11 @@ export const translations = {
 
     // Hero Section
 
+    // Christmas Banner
+    'christmas.title': '¡Feliz Navidad!',
+    'christmas.subtitle': 'Compartiendo Alegría y Sabor en Esta Temporada Navideña',
+    'christmas.message': 'Ordena tus platillos favoritos y celebra con tu familia',
+
     // Business Owners Section
     'business.portalLogin': 'Portal de Acceso',
     'business.badge': 'Para Dueños de Negocios',
@@ -1542,6 +1648,64 @@ export const translations = {
     'footer.terms': 'Términos de Servicio',
     'footer.privacy': 'Política de Privacidad',
     'footer.copyright': '© 2024 LuloCart. Todos los derechos reservados.',
+
+    // Help & Support
+    'help.title': 'Ayuda y Soporte',
+    'help.subtitle': 'Encuentra respuestas a preguntas comunes y obtén ayuda con tus pedidos',
+    'help.searchPlaceholder': 'Buscar ayuda...',
+    'help.categories.all': 'Todos los Temas',
+    'help.categories.orders': 'Pedidos',
+    'help.categories.stores': 'Tiendas',
+    'help.categories.payments': 'Pagos',
+    'help.categories.account': 'Cuenta',
+    'help.faqTitle': 'Preguntas Frecuentes',
+    'help.troubleshootingTitle': 'Problemas Comunes',
+    'help.troubleshooting.common': 'COMÚN',
+    'help.contact.title': '¿Aún necesitas ayuda?',
+    'help.contact.description': 'Nuestro equipo de soporte está aquí para ayudarte con cualquier pregunta o problema.',
+    'help.contact.button': 'Contactar Soporte',
+
+    // FAQ - Orders
+    'help.faq.order1.question': '¿Cómo rastreo mi pedido?',
+    'help.faq.order1.answer': 'Una vez confirmado tu pedido, recibirás un correo electrónico con un enlace de seguimiento. También puedes ver el estado de tu pedido en la sección Historial de Pedidos de tu cuenta.',
+    'help.faq.order2.question': '¿Puedo cancelar o modificar mi pedido?',
+    'help.faq.order2.answer': 'Puedes cancelar o modificar tu pedido dentro de los 5 minutos posteriores a realizarlo. Después de eso, comunícate directamente con la tienda a través de la página de detalles del pedido o contacta a nuestro equipo de soporte.',
+    'help.faq.order3.question': '¿Cuál es el tiempo de entrega?',
+    'help.faq.order3.answer': 'Los tiempos de entrega varían según la tienda y la ubicación. La mayoría de los pedidos se entregan en 30-60 minutos. Puedes ver el tiempo estimado de entrega durante el proceso de pago.',
+
+    // FAQ - Stores
+    'help.faq.store1.question': '¿Cómo encuentro tiendas cerca de mí?',
+    'help.faq.store1.answer': 'En la página de inicio, puedes usar tu ubicación para encontrar tiendas cercanas. Mostramos automáticamente las tiendas más cercanas a ti, o puedes buscar cocinas o productos específicos.',
+    'help.faq.store2.question': '¿Cómo me convierto en socio de tienda?',
+    'help.faq.store2.answer': 'Haz clic en "Para Negocios" en el menú de navegación para conocer más sobre nuestro programa de asociación. Puedes registrarte directamente o contactar a nuestro equipo para más información.',
+
+    // FAQ - Payments
+    'help.faq.payment1.question': '¿Qué métodos de pago aceptan?',
+    'help.faq.payment1.answer': 'Aceptamos todas las tarjetas de crédito y débito principales a través de nuestro sistema de pago seguro Stripe. Tu información de pago está encriptada y nunca se almacena en nuestros servidores.',
+    'help.faq.payment2.question': '¿Es segura mi información de pago?',
+    'help.faq.payment2.answer': '¡Sí! Utilizamos Stripe, un procesador de pagos líder en la industria, para manejar todas las transacciones de forma segura. Tus detalles de pago están encriptados y protegidos con los más altos estándares de seguridad.',
+
+    // FAQ - Account
+    'help.faq.account1.question': '¿Cómo restablezco mi contraseña?',
+    'help.faq.account1.answer': 'Haz clic en "Olvidé mi contraseña" en la página de inicio de sesión. Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.',
+
+    // Troubleshooting
+    'help.troubleshooting.issue1.title': 'El pedido no aparece',
+    'help.troubleshooting.issue1.description': 'Si no puedes encontrar tu pedido, prueba estos pasos:',
+    'help.troubleshooting.issue1.step1': 'Revisa tu correo electrónico para la confirmación del pedido - puede haber ido a tu carpeta de spam',
+    'help.troubleshooting.issue1.step2': 'Asegúrate de haber iniciado sesión en la cuenta correcta',
+    'help.troubleshooting.issue1.step3': 'Revisa tu página de Historial de Pedidos - los pedidos pueden tardar unos momentos en aparecer',
+    'help.troubleshooting.issue1.step4': 'Si aún no lo encuentras, contacta a soporte con tu dirección de correo electrónico',
+    'help.troubleshooting.issue2.title': 'Pago rechazado',
+    'help.troubleshooting.issue2.description': 'Si tu pago fue rechazado:',
+    'help.troubleshooting.issue2.step1': 'Verifica que los detalles de tu tarjeta sean correctos (número, fecha de vencimiento, CVV)',
+    'help.troubleshooting.issue2.step2': 'Consulta con tu banco para asegurarte de que no haya restricciones en tu tarjeta',
+    'help.troubleshooting.issue2.step3': 'Intenta usar un método de pago o tarjeta diferente',
+    'help.troubleshooting.issue3.title': 'No puedo agregar artículos al carrito',
+    'help.troubleshooting.issue3.description': 'Si tienes problemas para agregar artículos:',
+    'help.troubleshooting.issue3.step1': 'Asegúrate de que la tienda esté actualmente abierta y aceptando pedidos',
+    'help.troubleshooting.issue3.step2': 'Limpia la caché y las cookies de tu navegador, luego intenta nuevamente',
+    'help.troubleshooting.issue3.step3': 'Intenta usar un navegador o dispositivo diferente',
 
     // Authentication
     'auth.login': 'Iniciar Sesión',
@@ -1870,6 +2034,7 @@ export const translations = {
     'admin.menu.products': 'Productos',
     'admin.menu.metrics': 'Análisis',
     'admin.menu.orders': 'Pedidos',
+    'admin.menu.messages': 'Mensajes',
     'admin.logout': 'Cerrar Sesión',
     
     // Admin Orders
@@ -1905,6 +2070,42 @@ export const translations = {
     'order.timeline.ready': 'Listo para Entrega',
     'order.timeline.outForDelivery': 'En Camino',
     'order.timeline.delivered': 'Entregado',
+
+    // Messages
+    'messages.title': 'Mensajes',
+    'messages.search': 'Buscar conversaciones...',
+    'messages.all': 'Todos',
+    'messages.active': 'Activos',
+    'messages.unread': 'No leídos',
+    'messages.noChats': 'Aún no hay conversaciones',
+    'messages.noChatsDescription': 'Los mensajes de clientes aparecerán aquí',
+    'messages.selectChat': 'Selecciona una conversación para comenzar a chatear',
+    'messages.order': 'Pedido',
+    'messages.you': 'Tú',
+    'messages.typeMessage': 'Escribe un mensaje...',
+    'messages.send': 'Enviar',
+    'messages.attachFile': 'Adjuntar archivo',
+    'messages.attachment': 'Archivo adjunto',
+    'messages.viewAttachment': 'Ver archivo adjunto',
+    'messages.fileTooLarge': 'El archivo es demasiado grande. El tamaño máximo es 5MB.',
+    'messages.justNow': 'Justo ahora',
+    'messages.minAgo': 'm',
+    'messages.hourAgo': 'h',
+    'messages.dayAgo': 'd',
+    'messages.today': 'Hoy',
+    'messages.yesterday': 'Ayer',
+    'messages.orderDelivered': 'Este pedido ha sido entregado. Los mensajes están deshabilitados.',
+    'messages.orderCancelled': 'Este pedido ha sido cancelado. Los mensajes están deshabilitados.',
+    'messages.quickReply.preparing': '¡Estamos preparando tu pedido ahora!',
+    'messages.quickReply.readyIn30': 'Tu pedido estará listo en 30 minutos',
+    'messages.quickReply.readyIn45': 'Tu pedido estará listo en 45 minutos',
+    'messages.quickReply.readyIn15': '¡Casi listo! Solo 15 minutos más',
+    'messages.quickReply.almostReady': '¡Tu pedido está casi listo!',
+    'messages.quickReply.delayApology': 'Disculpa la demora, estamos trabajando en ello',
+    'messages.quickReply.readyForPickup': '¡Tu pedido está listo para recoger!',
+    'messages.quickReply.onTheWay': '¡Tu pedido está en camino!',
+    'messages.quickReply.thankYou': '¡Gracias por tu pedido!',
+    'messages.quickReply.enjoyMeal': '¡Disfruta tu comida!',
     
     // Store Dashboard
     'store.dashboard.editStore': 'Editar Tienda',
@@ -2306,6 +2507,7 @@ export const translations = {
     // Common Actions
     'common.tryAgain': 'Intentar de Nuevo',
     'common.close': 'Cerrar',
+    'common.back': 'Volver',
     
     // Validation Messages
     'validation.required': 'Este campo es obligatorio',

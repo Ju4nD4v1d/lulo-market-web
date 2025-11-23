@@ -73,14 +73,6 @@ export const Footer = () => {
               </h4>
               <ul className={styles.columnList}>
                 <li>
-                  <button
-                    onClick={handleCreateAccountClick}
-                    className={styles.columnLink}
-                  >
-                    {t('footer.createAccount')}
-                  </button>
-                </li>
-                <li>
                   <a href="#business?portal=true" className={styles.columnLink}>
                     {t('footer.sellerDashboard')}
                   </a>
@@ -108,7 +100,7 @@ export const Footer = () => {
                   </button>
                 </li>
                 <li>
-                  <a href="#" className={styles.columnLink}>
+                  <a href="#help" className={styles.columnLink}>
                     {t('footer.helpSupport')}
                   </a>
                 </li>

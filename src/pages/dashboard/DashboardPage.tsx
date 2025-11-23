@@ -8,6 +8,7 @@ import { MetricsPage } from './sections/metrics';
 import { StoreSetupPage } from './sections/store-setup';
 import { ProductsPage } from './sections/products';
 import { OrdersPage } from './sections/orders';
+import { MessagesSection } from './sections/messages';
 
 export const DashboardPage = () => {
   const { currentUser, userType } = useAuth();
@@ -39,7 +40,7 @@ export const DashboardPage = () => {
 
   // Determine current page from hash
   const hash = window.location.hash;
-  let currentPage: 'store' | 'products' | 'metrics' | 'orders' = 'store';
+  let currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages' = 'store';
 
   if (hash.includes('/products')) {
     currentPage = 'products';
@@ -47,6 +48,8 @@ export const DashboardPage = () => {
     currentPage = 'metrics';
   } else if (hash.includes('/orders')) {
     currentPage = 'orders';
+  } else if (hash.includes('/messages')) {
+    currentPage = 'messages';
   }
 
   // Show loading state
@@ -92,6 +95,8 @@ export const DashboardPage = () => {
         return <MetricsPage />;
       case 'orders':
         return <OrdersPage />;
+      case 'messages':
+        return <MessagesSection />;
       case 'store':
       default:
         return <StoreSetupPage />;

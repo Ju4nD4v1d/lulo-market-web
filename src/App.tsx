@@ -20,6 +20,7 @@ const OrderHistory = lazy(() => import('./pages/order-history'));
 const OrderTracking = lazy(() => import('./pages/order-tracking'));
 const InvitationGate = lazy(() => import('./pages/invitation-gate'));
 const ProductList = lazy(() => import('./components/ProductList'));
+const HelpPage = lazy(() => import('./pages/help'));
 
 // Lazy load static landing page components (rarely used)
 const Header = lazy(() => import('./components/Header'));
@@ -171,6 +172,11 @@ const AppRoutes = () => {
 
     if (currentRoute.startsWith('#privacy')) {
       return <PrivacyPolicy />;
+    }
+
+    if (currentRoute.startsWith('#help')) {
+      updateTitle('Lulo Market - Help & Support');
+      return <HelpPage />;
     }
 
     if (currentRoute.startsWith('#profile/edit')) {

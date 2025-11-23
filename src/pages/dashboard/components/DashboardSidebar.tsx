@@ -5,6 +5,7 @@ import {
   Package,
   BarChart3,
   ShoppingCart,
+  MessageCircle,
   LogOut,
   User,
   ChevronLeft,
@@ -17,7 +18,7 @@ import { COMPANY_NAME } from '../../../config/company';
 import styles from './DashboardSidebar.module.css';
 
 interface DashboardSidebarProps {
-  currentPage: 'store' | 'products' | 'metrics' | 'orders';
+  currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages';
 }
 
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ currentPage }) => {
@@ -43,8 +44,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ currentPage 
   const menuItems = [
     { id: 'store' as const, label: t('admin.menu.store'), icon: Store, hash: '#dashboard', disabled: false },
     { id: 'products' as const, label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products', disabled: !hasStore },
-    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore },
-    { id: 'orders' as const, label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore }
+    { id: 'orders' as const, label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore },
+    { id: 'messages' as const, label: t('admin.menu.messages'), icon: MessageCircle, hash: '#dashboard/messages', disabled: !hasStore },
+    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore }
   ];
 
   return (
