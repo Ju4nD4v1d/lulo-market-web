@@ -17,6 +17,9 @@ export interface Coordinates {
 
 export interface StoreLocation {
   address: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
   coordinates: Coordinates;
   placeId?: string;
 }
@@ -31,6 +34,7 @@ export interface StoreData {
   location?: StoreLocation;
   address?: string;  // Legacy field for backward compatibility with StoreSetup
   phone?: string;
+  email?: string;
   website?: string;
   instagram?: string;
   facebook?: string;

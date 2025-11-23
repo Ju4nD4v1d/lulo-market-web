@@ -9,17 +9,34 @@ export const useProductMutations = (storeId: string) => {
 
   const createProduct = useMutation({
     mutationFn: async (product: Partial<Product>) => {
+      if (!product.name || !product.category || !storeId) {
+        throw new Error('Product name, category, and store ID are required');
+      }
+
       const productsRef = collection(db, 'products');
-      const docRef = await addDoc(productsRef, {
-        ...product,
+
+      // Explicitly define fields to avoid serialization issues
+      const productData = {
+        name: product.name,
+        description: product.description || '',
+        price: product.price || 0,
+        category: product.category,
+        stock: product.stock || 0,
+        status: product.status || 'active',
+        images: product.images || [],
+        pstPercentage: product.pstPercentage || 0,
+        gstPercentage: product.gstPercentage || 0,
+        ownerId: product.ownerId,
+        storeId: product.storeId || storeId,
         createdAt: new Date(),
         updatedAt: new Date(),
-      });
+      };
 
-      return { id: docRef.id, ...product } as Product;
+      const docRef = await addDoc(productsRef, productData);
+
+      return { id: docRef.id, ...productData } as Product;
     },
     onSuccess: () => {
-      // Invalidate products queries to refetch
       queryClient.invalidateQueries({
         queryKey: queryKeys.products.byStore(storeId),
       });
@@ -28,16 +45,31 @@ export const useProductMutations = (storeId: string) => {
 
   const updateProduct = useMutation({
     mutationFn: async ({ productId, product }: { productId: string; product: Partial<Product> }) => {
-      const productRef = doc(db, 'products', productId);
-      await updateDoc(productRef, {
-        ...product,
-        updatedAt: new Date(),
-      });
+      if (!productId) {
+        throw new Error('Product ID is required for updates');
+      }
 
-      return { id: productId, ...product } as Product;
+      const productRef = doc(db, 'products', productId);
+
+      // Explicitly define fields to avoid serialization issues
+      const updateData = {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: product.category,
+        stock: product.stock,
+        status: product.status,
+        images: product.images,
+        pstPercentage: product.pstPercentage,
+        gstPercentage: product.gstPercentage,
+        updatedAt: new Date(),
+      };
+
+      await updateDoc(productRef, updateData);
+
+      return { id: productId, ...updateData } as Product;
     },
     onSuccess: () => {
-      // Invalidate products queries to refetch
       queryClient.invalidateQueries({
         queryKey: queryKeys.products.byStore(storeId),
       });

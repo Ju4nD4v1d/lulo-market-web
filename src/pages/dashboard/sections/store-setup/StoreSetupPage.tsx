@@ -10,6 +10,8 @@ import { useStoreByOwnerQuery } from '../../../../hooks/queries/useStoreByOwnerQ
 import { useStoreStatsQuery } from '../../../../hooks/queries/useStoreStatsQuery';
 import { useStoreMutations } from '../../../../hooks/mutations/useStoreMutations';
 import { StoreData } from '../../../../types/store';
+import { useAddressGeocoding } from './hooks/useAddressGeocoding';
+import { isAddressComplete } from '../../../../utils/geocoding';
 import styles from './StoreSetupPage.module.css';
 
 const initialStoreData: StoreData = {
@@ -22,7 +24,6 @@ const initialStoreData: StoreData = {
     city: '',
     province: 'BC',
     postalCode: '',
-    country: 'Canada',
     coordinates: { lat: 0, lng: 0 }
   },
   phone: '',
@@ -42,6 +43,7 @@ const initialStoreData: StoreData = {
   reviewCount: 0,
   images: [],
   aboutUs: [],
+  aboutUsSections: [],
   verified: false,
   featured: false,
   ownerId: '',
@@ -56,12 +58,15 @@ export const StoreSetupPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [localStoreData, setLocalStoreData] = useState<StoreData>(initialStoreData);
   const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string; url?: string }>({});
-  const [saveStep, setSaveStep] = useState(1);
+  const [modalStep, setModalStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete' | 'error'>('saving');
+  const [showModal, setShowModal] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Use TanStack Query hooks
   const { storeData: queriedStoreData, storeId: queriedStoreId, isLoading: dataLoading } = useStoreByOwnerQuery({ ownerId: currentUser?.uid });
   const storeStats = useStoreStatsQuery(storeId);
   const { saveStore, isSaving, error } = useStoreMutations(currentUser?.uid || '');
+  const { geocode, isGeocoding } = useAddressGeocoding();
 
   // Sync queried data with local state
   // Only sync when queriedStoreId changes (indicates new store data loaded)
@@ -69,6 +74,10 @@ export const StoreSetupPage = () => {
   useEffect(() => {
     if (queriedStoreData && queriedStoreId) {
       setLocalStoreData(queriedStoreData);
+      // Set the existing store image if available
+      if (queriedStoreData.images && queriedStoreData.images.length > 0) {
+        setStoreImage({ url: queriedStoreData.images[0] });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queriedStoreId]); // Only depend on storeId, not the data object itself
@@ -82,22 +91,53 @@ export const StoreSetupPage = () => {
     setStoreImage({});
   };
 
-  const updateAboutSection = (index: number, field: string, value: any) => {
-    setLocalStoreData(prev => ({
-      ...prev,
-      aboutUs: prev.aboutUs.map((section, i) =>
-        i === index ? { ...section, [field]: value } : section
-      )
-    }));
-  };
-
   const handleSave = async () => {
     try {
-      setSaveStep(1);
-      await saveStore(localStoreData, storeImage, currentUser!.uid, queriedStoreId || undefined);
-      setSaveStep(3);
+      // Clear previous errors and show modal
+      setSaveError(null);
+      setShowModal(true);
+      setModalStep('saving');
+
+      // Validate address completeness
+      if (!localStoreData.location || !isAddressComplete(localStoreData.location)) {
+        throw new Error(t('store.address.geocodingError'));
+      }
+
+      // Geocode address
+      const geocodeResult = await geocode({
+        street: localStoreData.location.address,
+        city: localStoreData.location.city!,
+        province: localStoreData.location.province!,
+        postalCode: localStoreData.location.postalCode!,
+        country: 'Canada'
+      });
+
+      if (!geocodeResult.success) {
+        throw new Error(geocodeResult.error || t('store.address.geocodingError'));
+      }
+
+      // Update store data with geocoded coordinates
+      const updatedStoreData = {
+        ...localStoreData,
+        location: {
+          ...localStoreData.location,
+          coordinates: geocodeResult.coordinates!,
+          placeId: geocodeResult.placeId
+        }
+      };
+
+      // Save to Firestore
+      setModalStep('uploading');
+      await saveStore(updatedStoreData, storeImage, currentUser!.uid, queriedStoreId || undefined);
+
+      // Finalize
+      setModalStep('finalizing');
       await refreshStoreStatus();
+
+      // Complete
+      setModalStep('complete');
       setTimeout(() => {
+        setShowModal(false);
         setIsEditing(false);
         if (!hasStore) {
           window.location.hash = '#dashboard/products';
@@ -105,16 +145,33 @@ export const StoreSetupPage = () => {
       }, 1500);
     } catch (err) {
       console.error('Error saving store:', err);
+      const errorMessage = err instanceof Error ? err.message : t('store.saveProgress.errorDesc');
+      setSaveError(errorMessage);
+      setModalStep('error');
     }
   };
 
+  const handleRetry = () => {
+    setShowModal(false);
+    setSaveError(null);
+    // User can try saving again
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSaveError(null);
+  };
+
   // Show save progress modal
-  if (isSaving) {
+  if (showModal) {
     return (
       <SaveProgressModal
-        isOpen={isSaving}
-        currentStep={saveStep}
-        onComplete={() => {}}
+        isOpen={showModal}
+        currentStep={modalStep}
+        error={saveError}
+        onComplete={handleCloseModal}
+        onRetry={handleRetry}
+        onClose={handleCloseModal}
       />
     );
   }
@@ -166,11 +223,10 @@ export const StoreSetupPage = () => {
             storeImage={storeImage}
             handleImageUpload={handleImageUpload}
             removeStoreImage={removeStoreImage}
-            updateAboutSection={updateAboutSection}
             onSave={handleSave}
             onCancel={hasStore ? () => setIsEditing(false) : undefined}
-            saving={isSaving}
-            error={error}
+            saving={isSaving || isGeocoding}
+            error={null}
           />
         </div>
       </div>

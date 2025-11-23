@@ -85,10 +85,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUserProfile(defaultUserData);
             setUserType('shopper');
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error fetching user profile:', error);
-          setUserProfile(null);
-          setUserType(null);
+
+          // Handle offline gracefully - don't clear user profile
+          if (error?.code === 'unavailable' || error?.message?.includes('offline')) {
+            console.warn('⚠️ Offline mode: User profile fetch failed, will retry when online');
+          } else {
+            setUserProfile(null);
+            setUserType(null);
+          }
         }
       } else {
         setUserProfile(null);

@@ -36,7 +36,12 @@ export const useProductsQuery = ({
         ...doc.data()
       })) as Product[];
 
-      return productsData;
+      // Deduplicate products by ID to prevent duplicate key errors
+      const uniqueProducts = Array.from(
+        new Map(productsData.map(product => [product.id, product])).values()
+      );
+
+      return uniqueProducts;
     },
     enabled: enabled && !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes - products don't change as often

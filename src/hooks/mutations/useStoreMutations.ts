@@ -73,18 +73,27 @@ export const useStoreMutations = (ownerId: string) => {
         name: storeData.name,
         description: storeData.description,
         category: storeData.category,
+        cuisine: storeData.cuisine,
         location: {
-          ...storeData.location,
+          address: storeData.location.address,
+          city: storeData.location?.city,
+          province: storeData.location?.province,
+          postalCode: storeData.location?.postalCode,
           coordinates: new GeoPoint(
             storeData.location.coordinates.lat,
             storeData.location.coordinates.lng
           ),
+          placeId: storeData.location?.placeId,
         },
         phone: storeData.phone,
         email: storeData.email,
         website: storeData.website,
+        instagram: storeData.instagram,
+        facebook: storeData.facebook,
+        twitter: storeData.twitter,
         socialMedia: storeData.socialMedia,
         businessHours: storeData.businessHours,
+        deliveryHours: storeData.deliveryHours,
         deliveryOptions: storeData.deliveryOptions,
         paymentMethods: storeData.paymentMethods || [],
         cuisineType: storeData.cuisineType || [],
@@ -130,16 +139,32 @@ export const useStoreMutations = (ownerId: string) => {
         currentUserId
       );
 
-      // Prepare update data
+      // Prepare update data - explicitly list fields to avoid File objects
       const updateData = {
-        ...storeData,
+        name: storeData.name,
+        description: storeData.description,
+        category: storeData.category,
+        cuisine: storeData.cuisine,
         location: {
-          ...storeData.location,
+          address: storeData.location.address,
+          city: storeData.location?.city,
+          province: storeData.location?.province,
+          postalCode: storeData.location?.postalCode,
           coordinates: new GeoPoint(
             storeData.location.coordinates.lat,
             storeData.location.coordinates.lng
           ),
+          placeId: storeData.location?.placeId,
         },
+        phone: storeData.phone,
+        email: storeData.email,
+        website: storeData.website,
+        instagram: storeData.instagram,
+        facebook: storeData.facebook,
+        twitter: storeData.twitter,
+        deliveryHours: storeData.deliveryHours,
+        deliveryOptions: storeData.deliveryOptions,
+        paymentMethods: storeData.paymentMethods,
         images: mainImageUrl ? [mainImageUrl] : storeData.images,
         aboutUs: processedAboutUs,
         updatedAt: new Date(),

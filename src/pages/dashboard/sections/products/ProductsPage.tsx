@@ -36,7 +36,7 @@ export const ProductsPage = () => {
 
   // Use TanStack Query hooks
   const { products, isLoading, error } = useProductsQuery({ storeId });
-  const { saveProduct } = useProductMutations(storeId || '');
+  const { saveProduct, isLoading: isSaving } = useProductMutations(storeId || '');
   const { searchTerm, setSearchTerm, selectedCategories, toggleCategory, filteredProducts } = useProductFilters(products);
 
   const categories = [
@@ -243,6 +243,7 @@ export const ProductsPage = () => {
           onSave={saveProduct}
           product={selectedProduct || undefined}
           storeId={storeId}
+          isSaving={isSaving}
           t={t}
         />
       )}

@@ -20,6 +20,26 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+@media (max-width: 640px) {
+  .modal {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .header {
+    padding: 1rem;
+  }
+
+  .form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 1.125rem;
+  }
+}
+
 .header {
   border-bottom: 1px solid #E5E7EB;
   padding: 1rem 1.5rem;
@@ -188,6 +208,18 @@
   gap: 1rem;
 }
 
+@media (max-width: 768px) {
+  .imageGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .imageGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .imagePreview {
   position: relative;
 }
@@ -217,6 +249,12 @@
   cursor: pointer;
 }
 
+@media (max-width: 768px) {
+  .removeButton {
+    opacity: 1; /* Always visible on mobile for easier removal */
+  }
+}
+
 .removeIcon {
   width: 1rem;
   height: 1rem;
@@ -226,6 +264,13 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .fieldGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .input,
@@ -293,6 +338,7 @@
 .radioGroup {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .radioLabel {
@@ -320,6 +366,18 @@
   padding-top: 1.5rem;
 }
 
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .cancelButton {
   padding: 0.5rem 1.5rem;
   color: #6B7280;
@@ -344,9 +402,28 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.saveButton:hover {
+.saveButton:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonSpinner {
+  width: 1rem;
+  height: 1rem;
+  animation: spin 1s linear infinite;
 }

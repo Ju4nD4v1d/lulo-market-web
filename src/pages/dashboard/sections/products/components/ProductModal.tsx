@@ -27,9 +27,10 @@ const defaultFormData = {
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (product: Partial<Product>) => Promise<void>;
+  onSave: (product: Partial<Product>, productId?: string) => Promise<void>;
   product?: Product;
   storeId: string;
+  isSaving?: boolean;
   t: (key: string) => string;
 }
 
@@ -39,6 +40,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onSave,
   product,
   storeId,
+  isSaving = false,
   t
 }) => {
   const { currentUser } = useAuth();
@@ -106,14 +108,16 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     if (!currentUser || !storeId) return;
 
     try {
+      setSaveError('');
       await onSave({
         ...formData,
         ownerId: currentUser.uid,
         storeId: storeId
-      });
+      }, product?.id); // Pass the product ID for updates
       onClose();
     } catch (err) {
-      setSaveError('Failed to save product. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save product. Please try again.';
+      setSaveError(errorMessage);
       console.error('Error saving product:', err);
     }
   };
@@ -341,11 +345,27 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* Actions */}
           <div className={styles.actions}>
-            <button type="button" onClick={onClose} className={styles.cancelButton}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.cancelButton}
+              disabled={isSaving}
+            >
               {t('dialog.cancel')}
             </button>
-            <button type="submit" className={styles.saveButton}>
-              {product ? t('products.update') : t('products.add')}
+            <button
+              type="submit"
+              className={styles.saveButton}
+              disabled={isSaving || isLoading}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className={styles.buttonSpinner} />
+                  {t('store.saving')}
+                </>
+              ) : (
+                product ? t('products.update') : t('products.add')
+              )}
             </button>
           </div>
         </form>
