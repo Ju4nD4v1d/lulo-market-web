@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, LogIn } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +16,18 @@ export const BusinessPage = () => {
   const { t } = useLanguage();
   const { setRedirectAfterLogin } = useAuth();
   const [showPortalLogin, setShowPortalLogin] = useState(false);
+
+  // Check for portal=true query parameter to auto-open login modal
+  useEffect(() => {
+    const hash = window.location.hash;
+    const urlParams = new URLSearchParams(hash.split('?')[1] || '');
+    if (urlParams.get('portal') === 'true') {
+      setRedirectAfterLogin(null);
+      setShowPortalLogin(true);
+      // Clean up URL by removing the query parameter
+      window.history.replaceState(null, '', '#business');
+    }
+  }, [setRedirectAfterLogin]);
 
   // Portal login hook
   const {

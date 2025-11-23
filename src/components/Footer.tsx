@@ -81,13 +81,8 @@ export const Footer = () => {
                   </button>
                 </li>
                 <li>
-                  <a href="#login" className={styles.columnLink}>
+                  <a href="#business?portal=true" className={styles.columnLink}>
                     {t('footer.sellerDashboard')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#pricing" className={styles.columnLink}>
-                    {t('footer.pricing')}
                   </a>
                 </li>
               </ul>

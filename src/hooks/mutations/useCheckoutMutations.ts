@@ -94,10 +94,16 @@ export const useCheckoutMutations = () => {
    */
   const createPaymentIntent = useMutation({
     mutationFn: async (request: CreatePaymentIntentRequest): Promise<CreatePaymentIntentResponse> => {
-      const receiptEndpoint = import.meta.env.VITE_RECEIPT_ENDPOINT ||
-        'https://us-central1-lulo-market.cloudfunctions.net/createpaymentintent';
+      const paymentIntentEndpoint = import.meta.env.VITE_PAYMENT_INTENT_ENDPOINT ||
+        'https://createpaymentintent-6v2n7ecudq-uc.a.run.app';
 
-      const response = await fetch(receiptEndpoint, {
+      console.log('🔄 Creating payment intent...', {
+        endpoint: paymentIntentEndpoint,
+        amount: request.amount,
+        orderId: request.orderId
+      });
+
+      const response = await fetch(paymentIntentEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,19 +119,27 @@ export const useCheckoutMutations = () => {
         }),
       });
 
+      console.log('📡 Payment intent response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Payment intent error:', errorData);
         throw new Error(errorData.error || 'Failed to create payment intent');
       }
 
       const data = await response.json();
+      console.log('✅ Payment intent created:', data);
+
+      // Backend returns { data: { clientSecret, paymentIntentId } }
+      const responseData = data.data || data;
+
       return {
-        clientSecret: data.clientSecret,
-        paymentIntentId: data.paymentIntentId
+        clientSecret: responseData.clientSecret,
+        paymentIntentId: responseData.paymentIntentId
       };
     },
     onError: (error) => {
-      console.error('Error creating payment intent:', error);
+      console.error('❌ Error creating payment intent:', error);
     }
   });
 

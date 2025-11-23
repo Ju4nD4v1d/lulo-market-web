@@ -1,5 +1,6 @@
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   background-color: rgb(249 250 251);
 }
 

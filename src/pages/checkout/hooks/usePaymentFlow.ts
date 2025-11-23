@@ -103,16 +103,19 @@ export const usePaymentFlow = ({
    * Create payment intent and proceed to payment step
    */
   const proceedToPayment = useCallback(async () => {
+    console.log('💳 proceedToPayment called');
     setIsCreatingPaymentIntent(true);
 
     try {
       // Validate Stripe account
+      console.log('🔍 Stripe account:', stripeAccount);
       if (!stripeAccount?.stripeAccountId) {
         throw new Error('Store payment processing is not set up. Please contact the store owner.');
       }
 
       // Generate order ID that will be used for both payment intent and Firestore
       const orderId = generateOrderId();
+      console.log('📝 Generated order ID:', orderId);
       setPendingOrderId(orderId);
 
       // Calculate platform fee

@@ -33,6 +33,16 @@ export const CartSidebar = ({ isOpen, onClose, openInCheckoutMode = false }: Car
     }
   }, [openInCheckoutMode, isOpen, currentUser, cart.items.length]);
 
+  // Prevent body scroll when checkout is open
+  useEffect(() => {
+    if (currentView === 'checkout') {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [currentView]);
+
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (isLoading) return;
     
@@ -103,7 +113,7 @@ export const CartSidebar = ({ isOpen, onClose, openInCheckoutMode = false }: Car
   // Render checkout form as full-screen modal
   if (currentView === 'checkout') {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 z-50 bg-gray-50">
         <CheckoutPage
           onBack={handleBackToCart}
           onOrderComplete={handleOrderComplete}

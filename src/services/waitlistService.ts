@@ -31,7 +31,8 @@ export const addToWaitlist = async (email: string): Promise<void> => {
 };
 
 export const sendInvitationRequestNotification = async (email: string): Promise<void> => {
-  const endpoint = import.meta.env.VITE_API_INVITATION_REQUEST_ENDPOINT;
+  const endpoint = import.meta.env.VITE_API_INVITATION_REQUEST_ENDPOINT ||
+    'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app';
 
   if (!endpoint) {
     console.warn('⚠️ Invitation request endpoint not configured');

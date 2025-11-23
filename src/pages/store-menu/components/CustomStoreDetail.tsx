@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { Product } from '../../../types/product';
@@ -139,17 +139,20 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
   // Use TanStack Query to fetch products
   const { products: fetchedProducts, isLoading: loading } = useProductsQuery({ storeId: store.id });
 
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Use fetched products or fallback to mock data
-  const products = fetchedProducts && fetchedProducts.length > 0
-    ? fetchedProducts
-    : mockProducts.filter(product => product.storeId === store.id);
+  // Use fetched products or fallback to mock data - memoized to prevent infinite loop
+  const products = useMemo(() => {
+    if (fetchedProducts && fetchedProducts.length > 0) {
+      return fetchedProducts;
+    }
+    // Cache the filtered mock products to avoid creating new array on every render
+    return mockProducts.filter(product => product.storeId === store.id);
+  }, [fetchedProducts, store.id]);
 
   const categories = [
     { id: 'all', name: t('category.all'), icon: <BookOpen className="w-4 h-4" /> },
@@ -159,11 +162,9 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
   ];
 
-  // Filter products whenever dependencies change
-  useEffect(() => {
-    let filtered = products;
-
-    filtered = filtered.filter(product => product.status !== 'draft');
+  // Filter products using useMemo instead of useEffect to avoid infinite loops
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter(product => product.status !== 'draft');
 
     if (searchTerm) {
       filtered = filtered.filter(product =>
@@ -176,7 +177,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
-    setFilteredProducts(filtered);
+    return filtered;
   }, [products, searchTerm, selectedCategory]);
 
   const formatTime12Hour = (time24: string): string => {

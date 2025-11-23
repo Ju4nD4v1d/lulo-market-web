@@ -1003,6 +1003,9 @@ export const translations = {
     'cart.addedToCart': 'Added to cart!',
     'cart.adding': 'Adding...',
     'cart.unavailable': 'Unavailable',
+    'cart.yourOrder': 'Your Order',
+    'cart.quantity': 'Quantity',
+    'cart.each': 'each',
 
     // Product Rating and General
     'product.noRating': 'No rating',
@@ -1107,6 +1110,7 @@ export const translations = {
     'order.deliveryFee': 'Delivery Fee',
     'order.platformFee': 'Platform Fee',
     'order.total': 'Total',
+    'order.payment': 'Payment',
     'order.back': 'Back',
     'order.loading': 'Loading order details...',
     'order.notFound': 'Order Not Found',
@@ -1191,6 +1195,12 @@ export const translations = {
     'checkout.useProfileAsContact': 'Use my profile information as contact details',
     'checkout.useProfileAsDeliveryAddress': 'Use my profile address as delivery address',
     'checkout.reviewBeforePayment': 'Please review your order details before proceeding to payment',
+    'checkout.customerInfo': 'Customer Information',
+    'checkout.name': 'Name',
+    'checkout.email': 'Email',
+    'checkout.phone': 'Phone',
+    'checkout.deliveryAddress': 'Delivery Address',
+    'checkout.deliveryInstructions': 'Delivery Instructions',
     
     // Form placeholders
     'placeholder.fullName': 'Enter your full name',
@@ -2215,6 +2225,9 @@ export const translations = {
     'cart.addedToCart': '¡Agregado al carrito!',
     'cart.adding': 'Agregando...',
     'cart.unavailable': 'No disponible',
+    'cart.yourOrder': 'Tu Pedido',
+    'cart.quantity': 'Cantidad',
+    'cart.each': 'c/u',
 
     // Product Rating and General
     'product.noRating': 'Sin calificación',
@@ -2319,6 +2332,7 @@ export const translations = {
     'order.deliveryFee': 'Costo de Envío',
     'order.platformFee': 'Comisión de Plataforma',
     'order.total': 'Total',
+    'order.payment': 'Pago',
     'order.back': 'Volver',
     'order.loading': 'Cargando detalles del pedido...',
     'order.notFound': 'Pedido No Encontrado',
@@ -2403,6 +2417,12 @@ export const translations = {
     'checkout.useProfileAsContact': 'Usar mi información de perfil como datos de contacto',
     'checkout.useProfileAsDeliveryAddress': 'Usar mi dirección de perfil como dirección de entrega',
     'checkout.reviewBeforePayment': 'Por favor revisa los detalles de tu pedido antes de proceder al pago',
+    'checkout.customerInfo': 'Información del Cliente',
+    'checkout.name': 'Nombre',
+    'checkout.email': 'Correo Electrónico',
+    'checkout.phone': 'Teléfono',
+    'checkout.deliveryAddress': 'Dirección de Entrega',
+    'checkout.deliveryInstructions': 'Instrucciones de Entrega',
     
     // Form placeholders
     'placeholder.fullName': 'Ingresa tu nombre completo',
