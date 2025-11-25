@@ -1,0 +1,66 @@
+.container {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.confirmed {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.preparing {
+  color: #c2410c;
+  background: #fed7aa;
+}
+
+.ready {
+  color: #7c3aed;
+  background: #e9d5ff;
+}
+
+.delivered {
+  color: #059669;
+  background: #d1fae5;
+}
+
+.cancelled {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.pending {
+  color: #4b5563;
+  background: #f3f4f6;
+}
+
+.estimatedTime {
+  color: #4b5563;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}

@@ -1,4 +1,5 @@
-import React from 'react';
+import type * as React from 'react';
+
 import { Check, Clock, MapPin, Package, Phone, Mail, ArrowLeft, FileText, Eye } from 'lucide-react';
 import { Order, OrderStatus } from '../types/order';
 import { useLanguage } from '../context/LanguageContext';

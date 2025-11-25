@@ -1,0 +1,76 @@
+/**
+ * Shared Avatar Styles
+ * Reusable avatar container patterns for user profile images
+ */
+
+/* Base avatar container */
+.avatar,
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Avatar image */
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Avatar placeholder (when no image) */
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #C8E400, #A3C700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f2937;
+}
+
+/* Size variants */
+.small {
+  width: 32px;
+  height: 32px;
+}
+
+.medium {
+  width: 40px;
+  height: 40px;
+}
+
+.large {
+  width: 48px;
+  height: 48px;
+}
+
+/* Border variants */
+.borderLight {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.borderGray {
+  border: 1px solid #e5e7eb;
+}
+
+.borderNone {
+  border: none;
+}
+
+/* Header avatar (specific use case) */
+.header {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Menu avatar (larger, for dropdown) */
+.menu {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+}

@@ -1,0 +1,298 @@
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: #C8E400;
+}
+
+.card:active {
+  transform: translateY(-2px);
+}
+
+.outOfStock {
+  opacity: 0.6;
+}
+
+.imageContainer {
+  position: relative;
+  height: 12rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.08);
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fafafa 0%, #f3f4f6 50%, #e5e7eb 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.noImageIcon {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.noImageText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.statusBadge,
+.draftBadge,
+.popularBadge {
+  position: absolute;
+  top: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusBadge {
+  left: 0.75rem;
+  background: #ef4444;
+  color: white;
+}
+
+.draftBadge {
+  left: 0.75rem;
+  background: #6b7280;
+  color: white;
+}
+
+.popularBadge {
+  right: 0.75rem;
+  background: #C8E400;
+  color: #111827;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.name {
+  font-weight: 700;
+  color: #111827;
+  font-size: 1rem;
+  margin: 0 0 0.375rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+  .name {
+    font-size: 1.125rem;
+  }
+}
+
+.description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 0.75rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.metadata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .metadata {
+    gap: 0.75rem;
+  }
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.starIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: #fbbf24;
+  color: #fbbf24;
+}
+
+.icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.rating {
+  font-weight: 600;
+}
+
+.reviewCount {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .reviewCount {
+    display: none;
+  }
+}
+
+.metaText {
+  font-weight: 500;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hideOnMobile {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hideOnMobile {
+    display: flex;
+  }
+}
+
+.allergens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.allergenTag {
+  font-size: 0.75rem;
+  background: #fed7aa;
+  color: #c2410c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.allergenMore {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 0.25rem 0.5rem;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: auto;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.priceSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.price {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #C8E400;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .price {
+    font-size: 1.25rem;
+  }
+}
+
+.stock {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .stock {
+    display: block;
+  }
+}
+
+.cartButton {
+  flex-shrink: 0;
+  max-width: 120px;
+}
+
+.addButton {
+  width: 100%;
+}
+
+.unavailable {
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: #fee2e2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}

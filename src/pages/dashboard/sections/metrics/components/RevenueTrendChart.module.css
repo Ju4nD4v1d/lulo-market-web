@@ -1,0 +1,314 @@
+/* Mobile-first card */
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+@media (min-width: 768px) {
+  .card {
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Mobile-first header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .titleSection {
+    gap: 0.75rem;
+  }
+}
+
+.iconWrapper {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, rgba(200, 228, 0, 0.2), rgba(163, 199, 0, 0.2));
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .iconWrapper {
+    border-radius: 12px;
+  }
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #C8E400;
+}
+
+@media (min-width: 768px) {
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}
+
+.subtitle {
+  color: #6B7280;
+  font-size: 0.75rem;
+  margin: 0;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .subtitle {
+    display: block;
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile-first chart container */
+.chartContainer {
+  position: relative;
+  height: 16rem;
+}
+
+@media (min-width: 640px) {
+  .chartContainer {
+    height: 18rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .chartContainer {
+    height: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chartContainer {
+    height: 22rem;
+  }
+}
+
+/* Mobile-first loading container */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+}
+
+@media (min-width: 640px) {
+  .loadingContainer {
+    height: 18rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .loadingContainer {
+    height: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .loadingContainer {
+    height: 22rem;
+  }
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #C8E400;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .loadingSpinner {
+    width: 2rem;
+    height: 2rem;
+    margin: 0 auto 1rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Mobile-first error container */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+  color: #DC2626;
+}
+
+@media (min-width: 640px) {
+  .errorContainer {
+    height: 18rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .errorContainer {
+    height: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .errorContainer {
+    height: 22rem;
+  }
+}
+
+.errorIconWrapper {
+  padding: 1rem;
+  background: #FEF2F2;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.errorIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #EF4444;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem;
+}
+
+.errorMessage {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0 0 1rem;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #C8E400;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover {
+  background: #A3C700;
+}
+
+.retryIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.noDataOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+}
+
+.infoIconWrapper {
+  padding: 1rem;
+  background: #EFF6FF;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.infoIcon {
+  width: 2rem;
+  height: 2rem;
+  color: #3B82F6;
+}
+
+.noDataTitle {
+  color: #111827;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.noDataMessage {
+  color: #6B7280;
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0;
+}

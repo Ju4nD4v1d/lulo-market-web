@@ -1,0 +1,225 @@
+.successContainer {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.successIcon {
+  width: 4rem;
+  height: 4rem;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.checkIcon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.successTitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.successMessage {
+  color: #4b5563;
+  margin: 0 0 1rem 0;
+}
+
+.successResponse {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.formHeader {
+  margin-bottom: 1.5rem;
+}
+
+.formTitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.formDescription {
+  color: #4b5563;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #111827;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #f97316;
+  ring: 2px;
+  ring-color: rgba(249, 115, 22, 0.2);
+}
+
+.input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.inputError {
+  border-color: #fca5a5;
+}
+
+.errorText {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radio {
+  width: 1rem;
+  height: 1rem;
+  color: #ea580c;
+  border-color: #d1d5db;
+  cursor: pointer;
+}
+
+.radio:focus {
+  ring: 2px;
+  ring-color: rgba(249, 115, 22, 0.5);
+}
+
+.radioText {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.checkbox {
+  margin-top: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  color: #ea580c;
+  border-color: #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkbox:focus {
+  ring: 2px;
+  ring-color: rgba(249, 115, 22, 0.5);
+}
+
+.checkboxError {
+  border-color: #fca5a5;
+}
+
+.checkboxText {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.link {
+  color: #ea580c;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #c2410c;
+}
+
+.submitButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to right, #C8E400, #A3C700);
+  color: #1f2937;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(to right, #A3C700, #8BAA00);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #1f2937;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.arrowIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}

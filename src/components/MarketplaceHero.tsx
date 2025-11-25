@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, type FC } from 'react';
 import { Search, Navigation, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface MarketplaceHeroProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
   onLocationRequest: () => void;
   locationStatus: 'idle' | 'requesting' | 'granted' | 'denied';
   locationName: string;
 }
 
-export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
+export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
   searchQuery,
   setSearchQuery,
-  selectedCountry,
-  setSelectedCountry,
   onLocationRequest,
   locationStatus,
   locationName
@@ -25,15 +21,8 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const countries = [
-    { id: 'colombia', name: t('home.filters.colombia'), active: true },
-    { id: 'brazil', name: t('home.filters.brazil'), active: false },
-    { id: 'venezuela', name: t('home.filters.venezuela'), active: false },
-    { id: 'mexico', name: t('home.filters.mexico'), active: false }
-  ];
-
-  // Carousel slides with dynamic content
-  const heroSlides = [
+  // Carousel slides with dynamic content - memoized to prevent recreation on every render
+  const heroSlides = useMemo(() => [
     {
       title: t('hero.slides.taste.title'),
       subtitle: t('hero.slides.taste.subtitle'),
@@ -67,7 +56,7 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
         { icon: <Sparkles className="w-4 h-4" />, text: t('hero.stats.fresh'), color: 'text-teal-600' }
       ]
     }
-  ];
+  ], [t]);
 
   // Auto-play carousel
   useEffect(() => {
@@ -158,22 +147,6 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                   }
                 </span>
               </button>
-
-              <div className="flex gap-2">
-                {countries.filter(c => c.active).map((country) => (
-                  <button
-                    key={country.id}
-                    onClick={() => setSelectedCountry(country.id)}
-                    className={`px-4 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
-                      selectedCountry === country.id
-                        ? `bg-gradient-to-r ${currentSlideData.accent} text-white shadow-lg`
-                        : 'bg-white/60 backdrop-blur-sm border border-gray-200/60 text-gray-700 hover:shadow-md'
-                    }`}
-                  >
-                    {country.name}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -200,51 +173,14 @@ export const MarketplaceHero: React.FC<MarketplaceHeroProps> = ({
                 </div>
                 <input
                   type="text"
-                  placeholder="Search restaurants, dishes, or cuisines..."
+                  placeholder={t('home.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-14 lg:h-16 pl-14 pr-5 bg-white rounded-2xl text-base lg:text-lg 
+                  className="w-full h-14 lg:h-16 pl-14 pr-5 bg-white rounded-2xl text-base lg:text-lg
                            shadow-lg hover:shadow-xl focus:shadow-2xl transition-all duration-300
                            border-2 border-transparent focus:border-primary-400/30 focus:outline-none
                            placeholder:text-gray-400"
                 />
-                
-                {/* Search Enhancement Badge */}
-                {searchQuery && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1.5 rounded-full shadow-md">
-                      <div className="animate-pulse w-1.5 h-1.5 bg-white rounded-full"></div>
-                      <span className="font-medium">{t('hero.search.searching')}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Popular Searches with Icons */}
-            <div className="mt-4">
-              <div className="flex items-center justify-center lg:justify-end gap-2 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
-                <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">{t('hero.search.popular')}</span>
-              </div>
-              <div className="flex gap-2 flex-wrap justify-center lg:justify-end">
-                {[
-                  { name: 'Arepas', emoji: '🫓' },
-                  { name: 'Empanadas', emoji: '🥟' },
-                  { name: 'Tacos', emoji: '🌮' }
-                ].map((term) => (
-                  <button
-                    key={term.name}
-                    onClick={() => setSearchQuery(term.name)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-white/80 backdrop-blur-sm hover:bg-white 
-                             border border-gray-200/60 hover:border-primary-400/40 rounded-xl 
-                             text-sm font-medium text-gray-700 hover:text-primary-600 
-                             shadow-sm hover:shadow-md transition-all duration-200 group"
-                  >
-                    <span className="text-base group-hover:scale-110 transition-transform">{term.emoji}</span>
-                    <span>{term.name}</span>
-                  </button>
-                ))}
               </div>
             </div>
           </div>

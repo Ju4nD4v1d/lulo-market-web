@@ -1,0 +1,229 @@
+/**
+ * HomeHeader Component Styles
+ * Sticky navigation header with banners, logo, actions, and user menu
+ */
+
+/* Header element */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.9);
+  color: #f1f5f9;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Banner styles */
+.banner {
+  padding: 8px 16px;
+  text-align: center;
+  border-bottom: 1px solid;
+}
+
+.offlineBanner {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.offlineBannerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pulseIndicator {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 9999px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.offlineText {
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Container */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 16px;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logoButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 200ms ease;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.logoButton:hover {
+  opacity: 0.8;
+}
+
+/* Actions container */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Language button text (responsive) */
+.languageText {
+  display: none;
+  font-size: 14px;
+}
+
+@media (min-width: 640px) {
+  .languageText {
+    display: inline;
+  }
+}
+
+/* Business link (responsive) */
+.businessLink {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .businessLink {
+    display: flex;
+  }
+}
+
+/* Cart button */
+.cartButton {
+  position: relative;
+  padding: 8px;
+  color: #f1f5f9;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.cartButton:hover {
+  color: #e7ff01;
+}
+
+.cartButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+}
+
+/* Cart badge */
+.cartBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* User section */
+.userSection {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: #f1f5f9;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.userButton:hover {
+  color: #e7ff01;
+}
+
+.userButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+}
+
+/* Login button */
+.loginButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f1f5f9;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.loginButton:hover {
+  color: #e7ff01;
+}
+
+.loginButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+}

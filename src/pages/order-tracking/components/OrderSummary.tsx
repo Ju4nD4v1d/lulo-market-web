@@ -1,0 +1,49 @@
+import type * as React from 'react';
+
+import { CreditCard } from 'lucide-react';
+import { Order } from '../../../types/order';
+import { formatPrice } from '../../../utils/formatters';
+import { useLanguage } from '../../../context/LanguageContext';
+import styles from './OrderSummary.module.css';
+
+interface OrderSummaryProps {
+  order: Order;
+}
+
+export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
+  const { t } = useLanguage();
+
+  return (
+    <div className={styles.container}>
+      <h2 className={styles.title}>
+        <CreditCard className={styles.icon} />
+        {t('order.summary')}
+      </h2>
+      <div className={styles.summary}>
+        <div className={styles.row}>
+          <span className={styles.label}>{t('order.subtotal')}</span>
+          <span className={styles.value}>{formatPrice(order.summary.subtotal)}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>{t('order.tax')}</span>
+          <span className={styles.value}>{formatPrice(order.summary.tax)}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>{t('order.deliveryFee')}</span>
+          <span className={styles.value}>{formatPrice(order.summary.deliveryFee)}</span>
+        </div>
+        {order.summary.platformFee && (
+          <div className={styles.row}>
+            <span className={styles.label}>{t('order.platformFee')}</span>
+            <span className={styles.value}>{formatPrice(order.summary.platformFee)}</span>
+          </div>
+        )}
+        <div className={styles.divider}></div>
+        <div className={`${styles.row} ${styles.total}`}>
+          <span className={styles.totalLabel}>{t('order.total')}</span>
+          <span className={styles.totalValue}>{formatPrice(order.summary.total)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};

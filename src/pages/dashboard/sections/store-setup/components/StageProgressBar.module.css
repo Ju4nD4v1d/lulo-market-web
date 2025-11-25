@@ -1,0 +1,174 @@
+/* StageProgressBar Component Styles */
+
+.container {
+  background: white;
+  border-radius: 1rem;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.stageBadge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.progressBarContainer {
+  margin-bottom: 1.5rem;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 0.5rem;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(to right, #C8E400, #a3b800);
+  border-radius: 9999px;
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stageIndicators {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .stageIndicators {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stageItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .stageCircle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    transition: all 300ms ease;
+  }
+
+  .stageInactive {
+    background: #e5e7eb;
+  }
+
+  .stageActive {
+    background: #C8E400;
+    box-shadow: 0 4px 12px rgba(200, 228, 0, 0.3);
+  }
+
+  .stageCurrent {
+    background: #C8E400;
+    box-shadow: 0 4px 12px rgba(200, 228, 0, 0.3);
+    transform: scale(1.1);
+  }
+
+  .stageComplete {
+    background: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .stageIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .stageInactive .stageIcon {
+    color: #9ca3af;
+  }
+
+  .stageActive .stageIcon,
+  .stageCurrent .stageIcon {
+    color: white;
+  }
+
+  .checkIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: white;
+  }
+
+  .stageLabel {
+    text-align: center;
+  }
+
+  .stageName {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #9ca3af;
+    margin: 0 0 0.25rem 0;
+    transition: color 300ms ease;
+  }
+
+  .activeText {
+    color: #111827;
+  }
+
+  .stageSubtitle {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  .connector {
+    height: 0.25rem;
+    flex: 1;
+    background: #e5e7eb;
+    margin: 0 0.5rem 2rem 0.5rem;
+    border-radius: 9999px;
+    transition: background 300ms ease;
+  }
+
+  .connectorActive {
+    background: #C8E400;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.125rem;
+  }
+
+  .stageBadge {
+    font-size: 0.8125rem;
+  }
+}

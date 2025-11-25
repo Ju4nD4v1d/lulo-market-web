@@ -6,6 +6,7 @@ export interface Product {
   category: string;
   stock: number;
   images: string[];
+  imageUrl?: string;                 // Primary product image URL
   status: 'active' | 'draft' | 'outOfStock';
   available?: boolean;               // Product availability status
   ownerId: string;

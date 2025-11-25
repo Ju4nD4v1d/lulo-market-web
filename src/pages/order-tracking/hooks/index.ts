@@ -1,0 +1,1 @@
+export { useReceipt } from './useReceipt';

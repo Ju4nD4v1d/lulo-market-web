@@ -1,3 +1,6 @@
+import { Product } from './product';
+import { SearchMetadata } from './search';
+
 export interface AboutUsSection {
   id: string;
   title: string;
@@ -14,6 +17,9 @@ export interface Coordinates {
 
 export interface StoreLocation {
   address: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
   coordinates: Coordinates;
   placeId?: string;
 }
@@ -28,6 +34,7 @@ export interface StoreData {
   location?: StoreLocation;
   address?: string;  // Legacy field for backward compatibility with StoreSetup
   phone?: string;
+  email?: string;
   website?: string;
   instagram?: string;
   facebook?: string;
@@ -61,7 +68,8 @@ export interface StoreData {
   minimumOrder?: number;
   imageUrl?: string;
   storeImage?: string;
-  aboutUsSections: AboutUsSection[];
+  aboutUsSections?: AboutUsSection[];
+  aboutUs?: AboutUsSection[];  // Alternative field name for backward compatibility
   // Firestore About Us fields
   titleTabAboutFirst?: string;
   bodyTabAboutFirst?: string;
@@ -77,8 +85,11 @@ export interface StoreData {
   averageRating?: number;        // Calculated average rating (0-5)
   totalReviews?: number;         // Total number of reviews
   isVerified?: boolean;          // Verified business status
+  status?: 'active' | 'inactive' | 'pending';  // Store operational status
   createdAt?: Date;              // Store creation timestamp
   updatedAt?: Date;              // Store last update timestamp
   // Products field for mock data and test mode
-  products?: unknown[];          // Mock products for testing
+  products?: Product[];          // Products available in this store
+  // Search metadata (added when store comes from search results)
+  searchMetadata?: SearchMetadata;
 }

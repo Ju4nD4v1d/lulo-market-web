@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState, useEffect } from 'react';
 import { X, ShoppingCart, Plus, Minus, Trash2, Store, User } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { CartItem } from '../types/cart';
-import { CheckoutForm } from './CheckoutForm';
+import { CheckoutPage } from '../pages/checkout';
 import { OrderConfirmation } from './OrderConfirmation';
 import { Order } from '../types/order';
 
@@ -16,7 +17,7 @@ interface CartSidebarProps {
 
 type CartView = 'cart' | 'checkout' | 'confirmation';
 
-export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openInCheckoutMode = false }) => {
+export const CartSidebar = ({ isOpen, onClose, openInCheckoutMode = false }: CartSidebarProps) => {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const { t } = useLanguage();
   const { currentUser, setRedirectAfterLogin } = useAuth();
@@ -26,11 +27,21 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle opening in checkout mode
-  React.useEffect(() => {
+  useEffect(() => {
     if (openInCheckoutMode && isOpen && currentUser && cart.items.length > 0) {
       setCurrentView('checkout');
     }
   }, [openInCheckoutMode, isOpen, currentUser, cart.items.length]);
+
+  // Prevent body scroll when checkout is open
+  useEffect(() => {
+    if (currentView === 'checkout') {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [currentView]);
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (isLoading) return;
@@ -102,8 +113,8 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, openI
   // Render checkout form as full-screen modal
   if (currentView === 'checkout') {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
-        <CheckoutForm 
+      <div className="fixed inset-0 z-50 bg-gray-50">
+        <CheckoutPage
           onBack={handleBackToCart}
           onOrderComplete={handleOrderComplete}
         />

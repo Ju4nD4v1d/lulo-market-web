@@ -25,14 +25,19 @@ const getCurrentBaseURL = (): string => {
 // API Endpoints configuration
 export const API_ENDPOINTS = {
   // Receipt generation endpoint
-  receiptGeneration: import.meta.env.VITE_RECEIPT_GENERATION_ENDPOINT || 
-                     `${getCurrentBaseURL()}/generateReceiptManually`,
-  
-  // Payment intent endpoint (existing)
-  paymentIntent: 'https://createpaymentintent-6v2n7ecudq-uc.a.run.app',
-  
-  // Webhook endpoint (existing)
-  webhook: import.meta.env.VITE_STRIPE_WEBHOOK_ENDPOINT || 
+  receiptGeneration: import.meta.env.VITE_RECEIPT_ENDPOINT ||
+                     'https://generatereceiptmanually-6v2n7ecudq-uc.a.run.app',
+
+  // Payment intent endpoint
+  paymentIntent: import.meta.env.VITE_PAYMENT_INTENT_ENDPOINT ||
+                 'https://createpaymentintent-6v2n7ecudq-uc.a.run.app',
+
+  // Invitation request endpoint
+  invitationRequest: import.meta.env.VITE_INVITATION_ENDPOINT ||
+                     'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app',
+
+  // Webhook endpoint
+  webhook: import.meta.env.VITE_STRIPE_WEBHOOK_ENDPOINT ||
            'https://handlepaymentwebhook-6v2n7ecudq-uc.a.run.app'
 };
 
@@ -81,7 +86,8 @@ export const apiCall = async (
           const errorData = JSON.parse(errorText);
           console.error(`🔍 Parsed error data:`, errorData);
         } catch (jsonError) {
-          console.error(`⚠️ Response is not JSON:`, jsonError.message);
+          const errorMessage = jsonError instanceof Error ? jsonError.message : 'Unknown error';
+          console.error(`⚠️ Response is not JSON:`, errorMessage);
         }
         
         // Create a new response with the error body for further processing

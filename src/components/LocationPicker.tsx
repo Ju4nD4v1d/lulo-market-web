@@ -1,1 +1,0 @@
-// Content from the diff above, but with enhanced input styling

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import type * as React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { theme } from '../config/theme';
 import { ArrowLeft, User, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { useTestMode } from '../context/TestModeContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
 import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -282,7 +282,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const { cart, clearCart } = useCart();
   const { t, locale } = useLanguage();
   const { currentUser, userProfile } = useAuth();
-  const { isTestMode } = useTestMode();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [, setIsSubmitting] = useState(false);
@@ -632,23 +631,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
   const handleProceedToPayment = async () => {
     if (!validateStep('review')) return;
-
-    // Handle test mode - skip Stripe payment
-    if (isTestMode) {
-      setCurrentStep('payment');
-      
-      // Generate test order ID and store it
-      const testOrderId = `test_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      setPendingOrderId(testOrderId);
-      
-      // Show processing modal for test mode
-      
-      // Simulate payment success after a short delay
-      setTimeout(() => {
-        handlePaymentSuccess('test_payment_intent_' + Date.now());
-      }, 2000);
-      return;
-    }
 
     setIsCreatingPaymentIntent(true);
     setErrors({});

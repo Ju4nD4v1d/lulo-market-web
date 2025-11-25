@@ -1,0 +1,77 @@
+.section {
+  /* Section spacing handled by parent */
+}
+
+.header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.iconWrapper {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+}
+
+.iconWrapperPrimary {
+  background-color: rgba(200, 228, 0, 0.1);
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.iconPrimary {
+  color: var(--color-primary-600);
+}
+
+.number {
+  font-weight: bold;
+}
+
+.numberPrimary {
+  color: var(--color-primary-600);
+}
+
+.content {
+  color: #4b5563;
+  max-width: none;
+  line-height: 1.75;
+}
+
+.content p {
+  margin-bottom: 1rem;
+}
+
+.content ul,
+.content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.content li {
+  margin-bottom: 0.5rem;
+}
+
+.content strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.content a {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.content a:hover {
+  color: var(--color-primary-700);
+}

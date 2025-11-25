@@ -1,0 +1,148 @@
+/**
+ * Shared Button Styles
+ * Reusable button variants used across the application
+ */
+
+/* Base button styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 200ms ease-out;
+  outline: none;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary button - brand gradient */
+.primary {
+  background: linear-gradient(to right, #C8E400, #A3C700);
+  color: #1f2937;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.primary:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.primary:focus-visible {
+  ring: 2px solid rgba(200, 228, 0, 0.3);
+  ring-offset: 2px;
+}
+
+.primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary button - dark */
+.secondary {
+  background: #1f2937;
+  color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.secondary:hover {
+  background: #374151;
+}
+
+.secondary:focus-visible {
+  ring: 2px solid rgba(31, 41, 55, 0.2);
+  ring-offset: 2px;
+}
+
+/* Ghost button - transparent */
+.ghost {
+  background: transparent;
+  color: #1f2937;
+}
+
+.ghost:hover {
+  background: #f3f4f6;
+}
+
+.ghost:focus-visible {
+  ring: 2px solid rgba(209, 213, 219, 1);
+  ring-offset: 2px;
+}
+
+/* Icon button - minimal padding */
+.icon {
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.icon:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Header button - for navigation/header actions */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: #f1f5f9;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 200ms ease;
+  font-size: 14px;
+}
+
+.header:hover {
+  color: #e7ff01;
+}
+
+.header:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+}
+
+/* Size variants */
+.small {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.medium {
+  padding: 12px 24px;
+  font-size: 14px;
+}
+
+.large {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+/* Full width variant */
+.fullWidth {
+  width: 100%;
+}
+
+/* Danger variant */
+.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.danger:hover {
+  background: #b91c1c;
+}

@@ -1,0 +1,100 @@
+/**
+ * HowItWorks Component Styles
+ * Three-step process section explaining how the platform works
+ */
+
+.section {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 64px 0;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 80px 0;
+  }
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 32px;
+  }
+}
+
+/* Title section */
+.titleSection {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.heading {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.description {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #4b5563;
+  max-width: 672px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Steps grid */
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .stepsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Individual step */
+.step {
+  text-align: center;
+}
+
+.iconContainer {
+  background: rgba(200, 228, 0, 0.1);
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  color: #C8E400;
+}
+
+.stepTitle {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.stepDescription {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #4b5563;
+  line-height: 1.6;
+}

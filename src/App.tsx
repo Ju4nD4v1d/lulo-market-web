@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { HowItWorks } from './components/HowItWorks';
-import { SocialProof } from './components/SocialProof';
-import { ConversionPricing } from './components/ConversionPricing';
-import { Footer } from './components/Footer';
-import { Login } from './pages/Login';
-import { ForgotPassword } from './pages/ForgotPassword';
-import { Dashboard } from './pages/Dashboard';
-import { TermsOfService } from './pages/TermsOfService';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { EditProfile } from './pages/EditProfile';
-import { StoreMenu } from './components/StoreMenu';
-import { Business } from './components/Business';
-import { Home } from './components/Home';
-import { OrderHistory } from './components/OrderHistory';
-import { OrderTracking } from './components/OrderTracking';
-import { InvitationGate } from './components/InvitationGate';
-import { StoreList } from './components/StoreList';
-import { ProductList } from './components/ProductList';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { TestModeProvider } from './context/TestModeContext';
-import { DataProvider } from './services/DataProvider';
-import { MockAuthProvider } from './services/MockAuthService';
+import { queryClient } from './services/queryClient';
 import { checkDeviceInvitation } from './services/invitationService';
+
+// Lazy load route components for code splitting
+const Home = lazy(() => import('./pages/home'));
+const Login = lazy(() => import('./pages/Login'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const Dashboard = lazy(() => import('./pages/dashboard'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const EditProfile = lazy(() => import('./pages/EditProfile'));
+const StoreMenu = lazy(() => import('./pages/store-menu'));
+const Business = lazy(() => import('./pages/business'));
+const OrderHistory = lazy(() => import('./pages/order-history'));
+const OrderTracking = lazy(() => import('./pages/order-tracking'));
+const InvitationGate = lazy(() => import('./pages/invitation-gate'));
+const ProductList = lazy(() => import('./components/ProductList'));
+const HelpPage = lazy(() => import('./pages/help'));
+
+// Lazy load static landing page components (rarely used)
+const Header = lazy(() => import('./components/Header'));
+const Hero = lazy(() => import('./components/Hero'));
+const SocialProof = lazy(() => import('./components/SocialProof'));
+const ConversionPricing = lazy(() => import('./components/ConversionPricing'));
+const Footer = lazy(() => import('./components/Footer'));
 
 // Import test utilities in development
 if (process.env.NODE_ENV === 'development') {
@@ -36,6 +38,19 @@ if (process.env.NODE_ENV === 'development') {
 const updateTitle = (title: string) => {
   document.title = title;
 };
+
+/**
+ * Loading fallback component for lazy-loaded routes
+ * Displays a centered spinner while components are loading
+ */
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
+      <p className="mt-4 text-gray-600 text-sm">Loading...</p>
+    </div>
+  </div>
+);
 
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
@@ -159,6 +174,11 @@ const AppRoutes = () => {
       return <PrivacyPolicy />;
     }
 
+    if (currentRoute.startsWith('#help')) {
+      updateTitle('Lulo Market - Help & Support');
+      return <HelpPage />;
+    }
+
     if (currentRoute.startsWith('#profile/edit')) {
       if (!currentUser) {
         window.location.hash = '#login';
@@ -181,11 +201,6 @@ const AppRoutes = () => {
       return <OrderHistory onBack={() => window.location.hash = '#'} />;
     }
 
-    if (currentRoute.startsWith('#stores')) {
-      updateTitle('Lulo Market - All Stores');
-      return <StoreList onBack={() => window.location.hash = '#'} />;
-    }
-
     if (currentRoute.startsWith('#products')) {
       updateTitle('Lulo Market - All Products');
       return <ProductList onBack={() => window.location.hash = '#'} />;
@@ -198,7 +213,6 @@ const AppRoutes = () => {
           <Header />
           <main>
             <Hero />
-            <HowItWorks />
             <SocialProof />
             <ConversionPricing />
           </main>
@@ -214,26 +228,24 @@ const AppRoutes = () => {
 
   return (
     <div className="font-sans">
-      {renderRoute()}
+      <Suspense fallback={<LoadingFallback />}>
+        {renderRoute()}
+      </Suspense>
     </div>
   );
 };
 
 function App() {
   return (
-    <TestModeProvider>
+    <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <MockAuthProvider>
-            <DataProvider>
-              <CartProvider>
-                <AppRoutes />
-              </CartProvider>
-            </DataProvider>
-          </MockAuthProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
         </AuthProvider>
       </LanguageProvider>
-    </TestModeProvider>
+    </QueryClientProvider>
   );
 }
 

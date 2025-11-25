@@ -1,0 +1,70 @@
+/**
+ * EmptyState Component Styles
+ * Three state variants: error, no-search-results, no-stores
+ */
+
+/* Container spans full grid width */
+.container {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 0;
+}
+
+/* Inner content wrapper with max-width */
+.content {
+  max-width: 448px;
+  margin: 0 auto;
+}
+
+/* Icon containers */
+.iconContainer {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+}
+
+.iconError {
+  color: #f87171;
+}
+
+.iconGray {
+  color: #9ca3af;
+}
+
+/* Typography */
+.heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.description {
+  color: #4b5563;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.descriptionLarge {
+  color: #4b5563;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+/* Button container */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Helper text section */
+.helperText {
+  font-size: 14px;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}

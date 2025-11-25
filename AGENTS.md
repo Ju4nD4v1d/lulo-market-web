@@ -1,311 +1,394 @@
-# Development Guidelines - LuloCart
+# AGENTS.md
 
-This document provides comprehensive guidelines for developers and AI assistants working on the LuloCart web application.
+Guide for Codex when working with the LuloCart codebase.
 
-## 🏗 Project Overview
+## ⚠️ Critical Requirements
 
-LuloCart is a bilingual Latino marketplace built with modern web technologies:
-- **Frontend**: Vite + React 18 + TypeScript
-- **Styling**: Tailwind CSS with Latino-inspired theme
-- **Backend**: Firebase (Auth, Firestore, Storage)
-- **Integrations**: Google Maps, Stripe, Leaflet
-- **Testing**: Vitest + Testing Library
+**Before writing ANY code, remember:**
 
-## 📁 Project Structure & Organization
+1. **Mobile-First Design is MANDATORY**
+   - Start with mobile styles (320px-375px width)
+   - Use `@media (min-width: XXXpx)` for larger screens
+   - Test on mobile viewport first
 
-```
-src/
-├── components/         # React components (PascalCase)
-├── pages/             # Route-level components (PascalCase)
-├── context/           # React context providers
-├── services/          # API/SDK wrappers (Firebase, Stripe, etc.)
-├── utils/            # Pure helper functions
-├── types/            # TypeScript type definitions
-├── test/             # Test setup and utilities
-├── config/           # Configuration files
-└── hooks/            # Custom React hooks
-```
+2. **All Text Must Be Bilingual (English + Spanish)**
+   - NO hardcoded strings in any language
+   - Every text must use `t('translation.key')`
+   - Add keys to BOTH `en` and `es` sections in translations.ts
+   - Use locale-aware date/number formatting
 
-### File Naming Conventions
-- **Components**: `PascalCase.tsx` (e.g., `StoreDetail.tsx`)
-- **Utils/Types**: `camelCase.ts` or `lowercase.ts` (e.g., `order.ts`, `badgeLogic.ts`)
-- **Variables/Functions**: `camelCase`
-- **Constants**: `UPPER_CASE`
-- **CSS Classes**: Follow Tailwind utility patterns
+3. **CSS Modules Only**
+   - No inline styles
+   - No Tailwind classes
+   - Scoped `.module.css` files
 
-## 🛠 Development Commands
+## Technology Stack
+
+**Frontend:** React 18 + TypeScript + Vite
+**Styling:** CSS Modules (scoped styles)
+**Backend:** Firebase (Auth, Firestore, Storage)
+**State:** TanStack Query + React Context
+**Maps:** Google Maps + Leaflet
+**Payments:** Stripe
+**Testing:** Vitest + Testing Library
+
+## Development Commands
 
 ```bash
-# Development
-npm run dev              # Start local development server
-npm run build            # Production build to dist/
-npm run preview          # Preview production build locally
-
-# Code Quality
-npm run lint             # ESLint TypeScript/JavaScript
-npm run lint:fix         # Auto-fix linting issues
-
-# Testing
-npm test                 # Run all tests with Vitest
-npm run test:coverage    # Generate coverage reports
-npm run test:ui          # Launch Vitest UI
-npm run test:watch       # Run tests in watch mode
+npm run dev          # Start development server
+npm run build        # Production build
+npm run lint         # ESLint check
+npm test             # Run Vitest tests
+npm run test:ui      # Test UI
+npm run test:coverage # Coverage report
 ```
 
-## 📝 Coding Standards
+## Project Architecture
+
+### Pages-Based Structure
+
+All route-level components live in `src/pages/[page-name]/`:
+
+```
+src/pages/
+├── home/                    # Landing (stores, products, search)
+├── business/                # Business signup/info
+├── checkout/                # Multi-step checkout
+├── dashboard/               # Business owner portal
+│   └── sections/           # metrics, orders, products, store-setup
+├── invitation-gate/         # Access control
+├── login-page/              # Auth (login/register)
+├── forgot-password-page/    # Password reset
+├── edit-profile/            # User profile
+├── order-history/           # User's past orders
+├── order-tracking/          # Track specific order
+├── store-menu/              # Store product catalog
+├── privacy-policy/          # Legal
+└── terms-of-service/        # Legal
+```
+
+**Standard page structure:**
+```
+page-name/
+├── PageName.tsx             # Main component (<200 lines)
+├── PageName.module.css      # Scoped styles
+├── index.tsx                # Export
+├── components/              # Page-specific components
+│   ├── Component.tsx
+│   └── Component.module.css
+├── hooks/                   # Page-specific hooks
+│   └── usePageLogic.ts
+└── utils/                   # Page-specific utilities
+```
+
+### Data Fetching (TanStack Query)
+
+All server state managed via TanStack Query:
+
+**Queries** (`src/hooks/queries/`):
+```typescript
+import { useOrdersQuery } from '@/hooks/queries/useOrdersQuery';
+const { orders, isLoading, error } = useOrdersQuery({ storeId });
+```
+
+**Mutations** (`src/hooks/mutations/`):
+```typescript
+import { useOrderMutations } from '@/hooks/mutations/useOrderMutations';
+const { updateOrderStatus } = useOrderMutations(storeId);
+await updateOrderStatus.mutateAsync({ orderId, newStatus });
+```
+
+### Global State Management
+
+**Two state management approaches based on use case:**
+
+#### React Context (`src/context/`) - App-wide shared state
+Use for state that needs Provider wrapper and affects entire app:
+- **AuthContext** - User authentication & authorization
+- **CartContext** - Shopping cart (localStorage persisted)
+- **LanguageContext** - i18n (English/Spanish)
+- **StoreContext** - Store ownership
+
+#### Zustand Stores (`src/stores/`) - Lightweight UI state
+Use for simple client-side state that doesn't need providers:
+- **searchStore** - Search query & filtered results (home page)
+- **checkoutStore** - Checkout flow triggers
+
+```typescript
+// Zustand - No provider needed, import and use anywhere
+import { useSearchStore } from '@/stores/searchStore';
+
+const Component = () => {
+  const { searchQuery, setSearchQuery } = useSearchStore();
+  return <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />;
+};
+```
+
+**When to use which:**
+- **React Context:** Auth, cart, i18n, data that needs provider setup
+- **Zustand:** Simple UI state, flags, temporary data, cross-component communication
+
+### Styling (CSS Modules Only)
+
+**CRITICAL: Mobile-First Design is Mandatory**
+
+All styles must be designed for mobile screens first (320px-375px), then enhanced for larger screens.
+
+**No inline styles. No Tailwind.** Use CSS Modules with mobile-first media queries:
+
+```tsx
+import styles from './Component.module.css';
+
+export const Component = () => (
+  <div className={styles.container}>
+    <h1 className={styles.title}>Title</h1>
+  </div>
+);
+```
+
+```css
+/* Component.module.css - ALWAYS start with mobile styles */
+
+/* Mobile first (default, no media query) */
+.container {
+  padding: 1rem;
+  background: white;
+  width: 100%;
+}
+
+.title {
+  font-size: 1.25rem;  /* Smaller for mobile */
+  font-weight: bold;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}
+```
+
+**Common breakpoints:**
+- Mobile: default (no media query)
+- Tablet: `@media (min-width: 768px)`
+- Desktop: `@media (min-width: 1024px)`
+- Large: `@media (min-width: 1280px)`
+
+### Internationalization
+
+**CRITICAL: All Text Must Be Translated**
+
+Every single piece of user-facing text MUST support both English and Spanish. No hardcoded strings allowed.
+
+```typescript
+import { useLanguage } from '@/context/LanguageContext';
+
+const { t, locale } = useLanguage();
+
+// ✅ CORRECT - Translated text
+return <button>{t('cart.addToCart')}</button>;
+
+// ❌ WRONG - Hardcoded English
+return <button>Add to Cart</button>;
+
+// ✅ CORRECT - Date formatting with locale
+const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
+date.toLocaleDateString(dateLocale, { month: 'long', day: 'numeric' });
+
+// ❌ WRONG - Date without locale
+date.toLocaleDateString('en-US', { month: 'long' }); // Always English!
+```
+
+**Adding new translations** in `src/utils/translations.ts`:
+
+```typescript
+// English section
+export const translations = {
+  en: {
+    'cart.addToCart': 'Add to Cart',
+    'cart.remove': 'Remove',
+    'cart.total': 'Total',
+    // ... more keys
+  },
+
+  // Spanish section - MUST MATCH English keys
+  es: {
+    'cart.addToCart': 'Agregar al Carrito',
+    'cart.remove': 'Eliminar',
+    'cart.total': 'Total',
+    // ... same keys, translated
+  }
+};
+```
+
+**Translation rules:**
+- Use dot notation: `'section.component.action'`
+- Add to BOTH English AND Spanish sections
+- Keep keys descriptive and consistent
+- Test in both languages before committing
+
+## Code Standards
 
 ### TypeScript
-- Use **strict mode** with explicit types at public boundaries
-- Prefer interfaces over types for object shapes
-- Use proper generics instead of `any` types
-- Add return types to functions for clarity
+
+- Strict mode enabled
+- Explicit types at public boundaries
+- Prefer `interface` over `type` for objects
+- No `any` - use proper generics
 
 ```typescript
 // ✅ Good
 interface StoreData {
   id: string;
   name: string;
-  location: StoreLocation;
 }
 
-const fetchStore = async (id: string): Promise<StoreData> => {
-  // implementation
-}
+const fetchStore = async (id: string): Promise<StoreData> => { }
 
 // ❌ Avoid
-const fetchStore = async (id: any): Promise<any> => {
-  // implementation
-}
+const fetchStore = async (id: any): Promise<any> => { }
 ```
 
 ### React Patterns
-- Use **function components** with hooks
-- Follow hooks rules (ESLint will enforce)
-- Prefer composition over inheritance
-- Use React Context for global state
+
+- Function components with hooks
+- No type-only React imports when using JSX runtime features
+- Extract business logic to custom hooks
+- Keep components under 200 lines
 
 ```typescript
-// ✅ Good
-const StoreDetail: React.FC<StoreDetailProps> = ({ storeId }) => {
-  const [store, setStore] = useState<StoreData | null>(null);
-  // ...
+// ✅ Good - Proper imports for runtime usage
+import { useState, Fragment } from 'react';
+
+// ❌ Avoid - Type-only import fails at runtime
+import type * as React from 'react';
+<React.Fragment> // This will fail
+```
+
+### File Naming
+
+- **Components:** `ComponentName.tsx` (PascalCase)
+- **Utils/Types:** `fileName.ts` (camelCase)
+- **Hooks:** `useHookName.ts` (camelCase with `use` prefix)
+- **CSS Modules:** `Component.module.css`
+
+## Business Logic
+
+### E-commerce Rules
+
+- **Tax:** 12% HST (British Columbia)
+- **Delivery Fee:** $3.00 base
+- **Currency:** CAD only
+- **Cart:** Single store per cart
+- **Order Flow:** `pending` → `processing` → `confirmed` → `preparing` → `ready` → `out_for_delivery` → `delivered` (or `cancelled`)
+
+### Order Status Handling
+
+Order statuses use **snake_case** enum values but **camelCase** translation keys:
+
+```typescript
+// Enum definition (snake_case)
+enum OrderStatus {
+  OUT_FOR_DELIVERY = 'out_for_delivery',
 }
 
-// Use custom hooks for business logic
-const useStoreData = (storeId: string) => {
-  // logic here
+// Translation helper (converts to camelCase for key)
+const getStatusText = (status: OrderStatus, t: Function) => {
+  switch (status) {
+    case OrderStatus.OUT_FOR_DELIVERY:
+      return t('order.status.outForDelivery');  // camelCase key
+  }
+};
+```
+
+## Common Patterns
+
+### Error Handling
+
+```typescript
+try {
+  await operation();
+} catch (error) {
+  console.error('Operation failed:', error);
+  // Don't throw if non-critical (e.g., analytics, notifications)
 }
 ```
 
-### Styling Guidelines
-- Use **Tailwind CSS** utility classes
-- Follow mobile-first responsive design
-- Use theme tokens from `tailwind.config.js`
-- Prefer utility classes over custom CSS
-
-```tsx
-// ✅ Good - Mobile-first responsive
-<div className="w-full max-w-md mx-auto p-4 md:max-w-lg lg:max-w-xl">
-  <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-    Store Name
-  </h1>
-</div>
-```
-
-## 🧪 Testing Guidelines
-
-### Framework Setup
-- **Vitest** for unit/integration tests
-- **Testing Library** for React component testing
-- **jsdom** environment for DOM testing
-- Global test setup in `src/test/setup.ts`
-
-### Test Organization
-- Co-locate simple tests: `src/utils/badgeLogic.test.ts`
-- Complex tests in: `src/test/components/`
-- Use descriptive test names
+### Loading States
 
 ```typescript
-// ✅ Good test structure
-describe('badgeLogic', () => {
-  describe('shouldShowNewBadge', () => {
-    it('should show new badge for stores created within 30 days', () => {
-      const recentStore = { createdAt: new Date() };
-      expect(shouldShowNewBadge(recentStore)).toBe(true);
-    });
-  });
-});
+if (loading) return <Loader2 className="animate-spin" />;
+if (error) return <div>{t('error.message')}</div>;
+return <Content data={data} />;
 ```
 
-### Testing Priorities
-1. **Core business logic** (cart calculations, badge logic)
-2. **User interactions** (form submissions, button clicks)
-3. **Error handling** (API failures, validation errors)
-4. **Edge cases** (empty states, boundary conditions)
+### Form Submission
 
-## 🔧 Code Quality
-
-### ESLint Configuration
-Follow the existing ESLint setup with these key rules:
-- `@typescript-eslint/no-explicit-any`: Prevent `any` usage
-- `react-hooks/exhaustive-deps`: Ensure proper hook dependencies
-- `@typescript-eslint/no-unused-vars`: Remove unused variables
-
-### Pre-commit Standards
-- All code must pass linting
-- TypeScript must compile without errors
-- Tests must pass
-- Commit messages must follow conventional format
-
-## 📦 State Management
-
-### Context Architecture
-- **AuthContext**: User authentication and authorization
-- **CartContext**: Shopping cart state with localStorage persistence
-- **LanguageContext**: Internationalization (English/Spanish)
-- **StoreContext**: Store ownership and management
-
-### Local State Guidelines
 ```typescript
-// ✅ Good - Use proper typing
-const [orders, setOrders] = useState<Order[]>([]);
-const [loading, setLoading] = useState<boolean>(false);
-const [error, setError] = useState<string | null>(null);
-
-// ✅ Good - Handle loading and error states
-const fetchOrders = async () => {
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
   setLoading(true);
-  setError(null);
+
   try {
-    const data = await orderService.getOrders();
-    setOrders(data);
+    await submitData(formData);
+    onSuccess();
   } catch (err) {
-    setError(err.message);
+    setError(t('form.error'));
   } finally {
     setLoading(false);
   }
 };
 ```
 
-## 🌍 Internationalization
+## Key Files
 
-### Translation System
-- All user-facing text must be translatable
-- Use the `useLanguage` hook: `const { t } = useLanguage();`
-- Add translations to both English and Spanish sections
-- Use descriptive translation keys
+- **Routing:** `src/App.tsx` - Hash-based routing
+- **Translations:** `src/utils/translations.ts` - All i18n keys (1,200+)
+- **Types:** `src/types/` - Shared TypeScript types
+- **Services:** `src/services/` - Firebase, Stripe, etc.
 
-```typescript
-// ✅ Good
-const { t } = useLanguage();
-return (
-  <button>{t('cart.addToCart')}</button>
-);
+## Firebase
 
-// ❌ Avoid hardcoded strings
-return (
-  <button>Add to Cart</button>
-);
-```
+- Config: `src/config/firebase.ts`
+- All credentials via env vars (`VITE_*`)
+- Collections: `stores`, `products`, `orders`, `users`, `waitlist`
+- Storage: Store/product images
 
-### Translation Key Structure
-- Use dot notation: `'section.component.action'`
-- Be descriptive: `'orderHistory.errorTitle'` not `'error'`
-- Group related translations together
+## Environment Variables
 
-## 🔐 Security & Environment
+**Required:**
+- `VITE_FIREBASE_API_KEY`
+- `VITE_GOOGLE_MAPS_API_KEY`
 
-### Environment Variables
-- Use `VITE_*` prefix for client-side variables
-- Never commit secrets to the repository
-- Required variables: `VITE_FIREBASE_API_KEY`, `VITE_GOOGLE_MAPS_API_KEY`
-- Optional variables: Stripe keys, platform fees
+**Optional:** Stripe keys, Firebase config overrides
 
-### Firebase Security
-- Follow Firebase Security Rules best practices
-- Validate data on both client and server
-- Use proper authentication checks
-- Implement proper error handling
+## Testing
 
-## 📋 Commit Guidelines
+- Test files: `*.test.tsx` or `*.test.ts`
+- Use Testing Library for components
+- Focus on user interactions
+- Mock external services
 
-### Conventional Commits
-Use these prefixes:
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `refactor:` - Code refactoring
-- `chore:` - Maintenance tasks
-- `docs:` - Documentation updates
-- `style:` - Code style changes
-- `test:` - Testing improvements
+## Deployment
 
-### Commit Message Format
-```
-type(scope): description
+- Build output: `dist/`
+- Set env vars in deployment platform
+- Required env vars must be configured
 
-- Keep the description concise and in imperative mood
-- Include the scope when relevant (e.g., auth, cart, ui)
-- Add breaking change notes if applicable
+## Contact
 
-Examples:
-feat(cart): add quantity controls to cart sidebar
-fix(auth): resolve portal login for storeOwners
-refactor(i18n): consolidate translation keys
-```
-
-## 🚀 Deployment Guidelines
-
-### Build Process
-- Ensure all environment variables are set
-- Run `npm run build` to create production build
-- Test production build with `npm run preview`
-- Verify no hardcoded API keys in build output
-
-### Environment Setup
-- **Development**: Use local `.env` file
-- **Production**: Configure environment variables in deployment platform
-- **Testing**: Use Firebase emulators when possible
-
-## 🎯 Business Logic
-
-### E-commerce Features
-- **Canadian compliance**: 12% HST tax calculation
-- **Single-store cart**: Users can only order from one store at a time
-- **Delivery fees**: $4.99 base fee structure
-- **Currency**: All prices in CAD
-
-### Authentication Flow
-- **Invitation system**: Device fingerprinting for access control
-- **Portal login**: Business owners verified by userType
-- **Password recovery**: Complete Firebase password reset flow
-
-## 📞 Support & Communication
-
-### Contact Information
-- All customer-facing communications use: `support@lulocart.com`
-- Update email addresses consistently across all components
-- Maintain bilingual support for all communications
-
-### Error Handling
-- Provide clear, actionable error messages
-- Include both English and Spanish error text
-- Log errors appropriately for debugging
-- Implement graceful degradation
-
-## 🔍 Code Review Checklist
-
-Before submitting code:
-- [ ] TypeScript compiles without errors
-- [ ] ESLint passes without warnings
-- [ ] Tests pass and cover new functionality
-- [ ] Translations added for any new user-facing text
-- [ ] Mobile responsiveness verified
-- [ ] Error handling implemented
-- [ ] Environment variables properly configured
-- [ ] No hardcoded strings or secrets
-- [ ] Commit message follows conventional format
-- [ ] Documentation updated if needed
-
----
-
-**Remember**: This is a platform built for the Latino community. Always consider cultural context, language preferences, and inclusive design in your implementations.
+Customer support: `support@lulocart.com`

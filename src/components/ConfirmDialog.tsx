@@ -1,48 +1,86 @@
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { useState, useEffect, Fragment } from 'react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import styles from './ConfirmDialog.module.css';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
+  onClose: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
+  confirmText: string;
+  cancelText: string;
+  variant?: 'danger' | 'warning' | 'info';
 }
 
-export const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, message }: ConfirmDialogProps) => {
-  const { t } = useLanguage();
+export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText,
+  cancelText,
+  variant = 'danger'
+}) => {
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsConfirming(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
+  const handleConfirm = async () => {
+    setIsConfirming(true);
+    try {
+      await onConfirm();
+      onClose();
+    } catch (error) {
+      console.error('Confirmation action failed:', error);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-        <div className="flex items-start space-x-4">
-          <div className="p-2 bg-primary-50 rounded-full">
-            <AlertCircle className="w-6 h-6 text-primary-600" />
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.header}>
+          <div className={`${styles.iconWrapper} ${styles[variant]}`}>
+            <AlertCircle className={styles.icon} />
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {title}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {message}
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={onCancel}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                {t('dialog.cancel')}
-              </button>
-              <button
-                onClick={onConfirm}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                {t('dialog.confirmSave')}
-              </button>
-            </div>
-          </div>
+          <h2 className={styles.title}>{title}</h2>
+        </div>
+
+        <p className={styles.message}>{message}</p>
+
+        <div className={styles.actions}>
+          <button
+            type="button"
+            onClick={onClose}
+            className={styles.cancelButton}
+            disabled={isConfirming}
+          >
+            {cancelText}
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className={`${styles.confirmButton} ${styles[`confirm${variant.charAt(0).toUpperCase()}${variant.slice(1)}`]}`}
+            disabled={isConfirming}
+          >
+            {isConfirming ? (
+              <Fragment>
+                <Loader2 className={styles.spinner} />
+                {confirmText}
+              </Fragment>
+            ) : (
+              confirmText
+            )}
+          </button>
         </div>
       </div>
     </div>

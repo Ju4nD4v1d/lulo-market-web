@@ -1,0 +1,277 @@
+/* Mobile-first Horizontal Row Styles */
+
+.section {
+  padding: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 2rem 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 2.5rem 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 3rem 0;
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .header {
+    margin-bottom: 1.25rem;
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .header {
+    margin-bottom: 1.5rem;
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: 0 3rem;
+  }
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.1), rgba(163, 199, 0, 0.05));
+  border: 1px solid rgba(200, 228, 0, 0.2);
+  padding: 0.375rem 0.75rem;
+  border-radius: 2rem;
+  margin-bottom: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .badge {
+    padding: 0.4375rem 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.badgeIcon {
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .badgeIcon {
+    font-size: 1rem;
+  }
+}
+
+.badgeText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 640px) {
+  .badgeText {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Title */
+.title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 0.375rem 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 2.25rem;
+  }
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .subtitle {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* View All Button */
+.viewAllButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  color: #6B7280;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .viewAllButton {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+.viewAllButton:hover {
+  background: #C8E400;
+  border-color: #C8E400;
+  color: #111827;
+  transform: translateX(2px);
+}
+
+.viewAllButton:active {
+  transform: translateX(0);
+}
+
+.viewAllText {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .viewAllText {
+    display: inline;
+  }
+}
+
+.chevronIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .chevronIcon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+/* Scroll Container */
+.scrollContainer {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollContent {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .scrollContent {
+    gap: 1.25rem;
+    padding: 0.5rem 1.5rem 1rem 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .scrollContent {
+    gap: 1.5rem;
+    padding: 0.5rem 2rem 1rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scrollContent {
+    padding: 0.5rem 3rem 1rem 3rem;
+  }
+}
+
+/* Skeleton Loading */
+.skeletonCard {
+  width: 13rem;
+  height: 18rem;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 1rem;
+}
+
+@media (min-width: 640px) {
+  .skeletonCard {
+    width: 14rem;
+    height: 19rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .skeletonCard {
+    width: 15rem;
+    height: 20rem;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

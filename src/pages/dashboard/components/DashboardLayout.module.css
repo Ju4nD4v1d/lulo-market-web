@@ -1,0 +1,41 @@
+/* Mobile-first layout */
+.container {
+  min-height: 100vh;
+  background: #f9fafb;
+  display: flex;
+}
+
+/* Main content area - flexes to fill available space */
+.main {
+  flex: 1;
+  min-width: 0; /* Prevent flex item from overflowing */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Main content when sidebar is collapsed (5rem width) */
+.mainCollapsed {
+  /* Flex: 1 already handles the space filling */
+}
+
+/* Main content when sidebar is expanded (16rem width on tablet+) */
+.mainExpanded {
+  /* Flex: 1 already handles the space filling */
+}
+
+.content {
+  padding: 0.75rem;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .content {
+    padding: 1.5rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .content {
+    padding: 2rem;
+  }
+}

@@ -1,0 +1,69 @@
+/**
+ * Shared Grid Styles
+ * Reusable responsive grid layouts for store cards and other content
+ */
+
+/* Store grid - responsive 2-5 columns */
+.storeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .storeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .storeGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .storeGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Generic 2-column grid */
+.grid2Col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Generic 3-column grid (responsive) */
+.grid3Col {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid3Col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Generic 4-column grid (responsive) */
+.grid4Col {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .grid4Col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid4Col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
