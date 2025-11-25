@@ -148,15 +148,14 @@
   align-items: center;
   gap: 0.5rem;
   border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
 }
 
 @media (min-width: 768px) {
   .viewToggle {
     display: flex;
   }
-}
-  border-radius: 0.5rem;
-  padding: 0.25rem;
 }
 
 .viewButton {
