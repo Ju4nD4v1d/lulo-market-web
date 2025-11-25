@@ -1641,8 +1641,8 @@ export const translations = {
     // Navigation
     'nav.home': 'Inicio',
     'nav.marketplace': 'Mercado',
-    'nav.forBusiness': 'Para Negocios',
-    'nav.forBusinesses': 'Para Negocios',
+    'nav.forBusiness': 'Negocios',
+    'nav.forBusinesses': 'Negocios',
     'nav.forShoppers': 'Para Compradores',
     'nav.prices': 'Precios',
     'nav.about': 'Acerca de',

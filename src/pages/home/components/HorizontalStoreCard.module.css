@@ -181,7 +181,7 @@
 
 .locationText {
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: #6B7280;
   line-height: 1.4;
   overflow: hidden;
@@ -193,7 +193,7 @@
 
 @media (min-width: 640px) {
   .locationText {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 }
 

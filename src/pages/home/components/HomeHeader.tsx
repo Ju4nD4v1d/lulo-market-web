@@ -19,6 +19,7 @@ interface HomeHeaderProps {
   userProfile?: UserProfile;
   cartItemCount: number;
   showUserMenu: boolean;
+  locale: string;
   onToggleLanguage: () => void;
   onCartClick: () => void;
   onUserMenuClick: () => void;
@@ -35,6 +36,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
   userProfile,
   cartItemCount,
   showUserMenu,
+  locale,
   onToggleLanguage,
   onCartClick,
   onUserMenuClick,
@@ -78,7 +80,9 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
               className={buttonStyles.header}
             >
               <Globe style={{ width: '20px', height: '20px' }} />
-              <span className={styles.languageText}>{t('language.toggle')}</span>
+              <span className={styles.languageText}>
+                {locale === 'es' ? 'ES' : 'EN'}
+              </span>
             </button>
 
             {/* For Business Link */}

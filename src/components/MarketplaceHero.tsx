@@ -82,7 +82,7 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
   const currentSlideData = heroSlides[currentSlide];
 
   return (
-    <section className={`hero-background relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-4 sm:py-6 lg:py-10`}>
+    <section className={`hero-background relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-3 sm:py-4 lg:py-6`}>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -92,7 +92,7 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
 
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         {/* Compact Hero Banner */}
-        <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6 lg:gap-12 mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex flex-col lg:flex-row items-center gap-3 sm:gap-4 lg:gap-8 mb-3 sm:mb-4 lg:mb-5">
           {/* Carousel Content */}
           <div className="flex-1 text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -102,16 +102,16 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
               </span>
             </div>
 
-            <h1 className="text-h1 text-gray-900 mb-2 sm:mb-3 lg:mb-4 leading-tight transition-all duration-500">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-2 lg:mb-3 leading-tight transition-all duration-500">
               {currentSlideData.title}
             </h1>
 
-            <p className="body-font text-lg sm:text-xl lg:text-xl text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-3 sm:mb-4 lg:mb-6 transition-all duration-500">
+            <p className="body-font text-base sm:text-lg lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-2 sm:mb-3 lg:mb-4 transition-all duration-500">
               {currentSlideData.subtitle}
             </p>
 
             {/* Stats/Features */}
-            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-start mb-3 sm:mb-4 lg:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 justify-center lg:justify-start mb-2 sm:mb-3 lg:mb-4">
               {currentSlideData.stats.map((stat, index) => (
                 <div key={index} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-500">
                   <span className={stat.color}>{stat.icon}</span>
