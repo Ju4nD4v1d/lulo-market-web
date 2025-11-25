@@ -31,7 +31,7 @@ import styles from './index.module.css';
 export const HomePage = () => {
   // Context hooks
   const { cart } = useCart();
-  const { t, toggleLanguage } = useLanguage();
+  const { t, toggleLanguage, locale } = useLanguage();
   const { setRedirectAfterLogin, currentUser, userProfile, logout } = useAuth();
   const { isOffline } = useNetworkStatus();
 
@@ -141,6 +141,7 @@ export const HomePage = () => {
         userProfile={userProfile ?? undefined}
         cartItemCount={cart.summary.itemCount}
         showUserMenu={showUserMenu}
+        locale={locale}
         onToggleLanguage={toggleLanguage}
         onCartClick={() => setShowCart(true)}
         onUserMenuClick={handleUserMenuClick}

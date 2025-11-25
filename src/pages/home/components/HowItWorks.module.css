@@ -102,7 +102,7 @@
 /* Description - Mobile First */
 .description {
   font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: #6b7280;
   max-width: 100%;
   margin: 0 auto;
@@ -112,14 +112,14 @@
 
 @media (min-width: 640px) {
   .description {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     max-width: 90%;
   }
 }
 
 @media (min-width: 768px) {
   .description {
-    font-size: 1rem;
+    font-size: 1.125rem;
     max-width: 672px;
     line-height: 1.6;
     padding: 0;
@@ -296,20 +296,20 @@
 /* Step Description - Mobile First */
 .stepDescription {
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: #6b7280;
   line-height: 1.5;
 }
 
 @media (min-width: 640px) {
   .stepDescription {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
   }
 }
 
 @media (min-width: 768px) {
   .stepDescription {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     line-height: 1.6;
   }
 }

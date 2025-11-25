@@ -117,13 +117,13 @@
 
 /* Language button text (responsive) */
 .languageText {
-  display: none;
-  font-size: 14px;
+  display: inline;
+  font-size: 13px;
 }
 
 @media (min-width: 640px) {
   .languageText {
-    display: inline;
+    font-size: 14px;
   }
 }
 

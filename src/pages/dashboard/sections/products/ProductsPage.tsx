@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Package,
   Plus,
@@ -26,7 +26,25 @@ import styles from './ProductsPage.module.css';
 export const ProductsPage = () => {
   const { t } = useLanguage();
   const { storeId } = useStore();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Default to list view on mobile, grid on desktop
+  const getDefaultView = () => {
+    return window.innerWidth < 768 ? 'list' : 'grid';
+  };
+
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(getDefaultView());
+
+  // Force list mode on mobile when window resizes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode('list');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState(false);

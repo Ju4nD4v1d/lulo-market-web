@@ -151,7 +151,7 @@
 
 .description {
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: #6B7280;
   line-height: 1.4;
   margin: 0;
@@ -165,7 +165,7 @@
 
 @media (min-width: 640px) {
   .description {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     min-height: 2.2rem;
   }
 }
