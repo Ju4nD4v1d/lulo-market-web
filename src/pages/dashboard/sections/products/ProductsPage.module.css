@@ -144,10 +144,17 @@
 }
 
 .viewToggle {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.5rem;
   border: 1px solid #E5E7EB;
+}
+
+@media (min-width: 768px) {
+  .viewToggle {
+    display: flex;
+  }
+}
   border-radius: 0.5rem;
   padding: 0.25rem;
 }
