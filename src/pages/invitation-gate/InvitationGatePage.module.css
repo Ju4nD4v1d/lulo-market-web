@@ -42,51 +42,107 @@
   padding: 1.5rem;
 }
 
+/* Mobile-first title (28px on mobile) */
 .title {
-  font-size: 3.75rem;
-  font-weight: 900;
-  letter-spacing: -0.025em;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: white;
   text-align: center;
-  margin: 0 0 1.5rem 0;
-  line-height: 1;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
 }
 
+/* Tablet (32px) */
+@media (min-width: 640px) {
+  .title {
+    font-size: 2rem;
+  }
+}
+
+/* Desktop (40px) */
 @media (min-width: 768px) {
   .title {
-    font-size: 6rem;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
   }
 }
 
-.subtitle {
-  margin-top: 0.75rem;
-  font-size: 1.125rem;
-  color: rgba(255, 255, 255, 0.7);
-  max-width: 48rem;
-  text-align: center;
-  margin-bottom: 3rem;
-  line-height: 1.625;
+/* Large desktop (48px) */
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+  }
 }
 
+/* Mobile-first subtitle (14px on mobile) */
+.subtitle {
+  font-family: 'Inter', sans-serif;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 90%;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Tablet (15px) */
+@media (min-width: 640px) {
+  .subtitle {
+    font-size: 0.9375rem;
+    max-width: 85%;
+  }
+}
+
+/* Desktop (16px) */
 @media (min-width: 768px) {
   .subtitle {
-    font-size: 1.25rem;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+    max-width: 48rem;
   }
 }
 
+/* Large desktop (18px) */
+@media (min-width: 1024px) {
+  .subtitle {
+    font-size: 1.125rem;
+  }
+}
+
+/* Mobile-first card */
 .card {
   margin-top: 1rem;
   width: 100%;
   max-width: 36rem;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(24px);
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* Tablet */
+@media (min-width: 640px) {
+  .card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+}
+
+/* Desktop */
 @media (min-width: 768px) {
+  .card {
+    padding: 2rem;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1024px) {
   .card {
     padding: 2.5rem;
   }

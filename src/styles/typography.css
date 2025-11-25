@@ -1,0 +1,221 @@
+/**
+ * Typography System - Mobile-First
+ *
+ * Font Stack:
+ * - Headings: Montserrat (imported from Google Fonts)
+ * - Body: Inter (imported from Google Fonts)
+ *
+ * Font Weights:
+ * - Regular: 400
+ * - Medium: 500
+ * - Semibold: 600
+ * - Bold: 700
+ */
+
+/* ==========================================================================
+   Font Imports
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+
+/* ==========================================================================
+   Typography Scale - Mobile First (320px-375px base)
+   ========================================================================== */
+
+/* Headings */
+.text-h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;      /* 28px */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.text-h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;       /* 24px */
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.text-h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;      /* 20px */
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.text-h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;     /* 18px */
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.text-h5 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;         /* 16px */
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.875rem;     /* 14px */
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Body Text */
+.text-body-large {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;         /* 16px */
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;     /* 14px */
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-body-small {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;    /* 13px */
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;      /* 12px */
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Labels & Buttons */
+.text-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;     /* 14px */
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.text-button {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;     /* 14px */
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.text-button-large {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;         /* 16px */
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+/* Utility Classes */
+.text-semibold {
+  font-weight: 600;
+}
+
+.text-bold {
+  font-weight: 700;
+}
+
+.text-medium {
+  font-weight: 500;
+}
+
+.text-regular {
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   Tablet Breakpoint (640px+)
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .text-h1 {
+    font-size: 2rem;       /* 32px */
+  }
+
+  .text-h2 {
+    font-size: 1.75rem;    /* 28px */
+  }
+
+  .text-h3 {
+    font-size: 1.5rem;     /* 24px */
+  }
+
+  .text-h4 {
+    font-size: 1.25rem;    /* 20px */
+  }
+
+  .text-body-large {
+    font-size: 1.0625rem;  /* 17px */
+  }
+
+  .text-body {
+    font-size: 0.9375rem;  /* 15px */
+  }
+}
+
+/* ==========================================================================
+   Desktop Breakpoint (768px+)
+   ========================================================================== */
+
+@media (min-width: 768px) {
+  .text-h1 {
+    font-size: 2.5rem;     /* 40px */
+  }
+
+  .text-h2 {
+    font-size: 2rem;       /* 32px */
+  }
+
+  .text-h3 {
+    font-size: 1.75rem;    /* 28px */
+  }
+
+  .text-h4 {
+    font-size: 1.5rem;     /* 24px */
+  }
+
+  .text-h5 {
+    font-size: 1.125rem;   /* 18px */
+  }
+
+  .text-body-large {
+    font-size: 1.125rem;   /* 18px */
+  }
+
+  .text-body {
+    font-size: 1rem;       /* 16px */
+  }
+}
+
+/* ==========================================================================
+   Large Desktop Breakpoint (1024px+)
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .text-h1 {
+    font-size: 3rem;       /* 48px */
+  }
+
+  .text-h2 {
+    font-size: 2.25rem;    /* 36px */
+  }
+
+  .text-h3 {
+    font-size: 2rem;       /* 32px */
+  }
+}

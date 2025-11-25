@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSpotlight } from '../../hooks/useSpotlight';
 import { useInvitationCode, useWaitlistEmail } from './hooks';
-import { CodeView, EmailView, SuccessView, LanguageToggle, WelcomeDialog } from './components';
+import { CodeView, EmailView, SuccessView, LanguageToggle } from './components';
 import styles from './InvitationGatePage.module.css';
 
 interface InvitationGatePageProps {
@@ -14,7 +14,6 @@ type ViewState = 'code' | 'email' | 'success';
 
 export const InvitationGatePage: React.FC<InvitationGatePageProps> = ({ onValidCode }) => {
   const [currentView, setCurrentView] = useState<ViewState>('code');
-  const [showWelcome, setShowWelcome] = useState(false);
   const { t } = useLanguage();
 
   // Apply interactive spotlight effect
@@ -46,8 +45,8 @@ export const InvitationGatePage: React.FC<InvitationGatePageProps> = ({ onValidC
 
   const handleCodeSubmitWrapper = async (e: React.FormEvent) => {
     await handleCodeSubmit(e, () => {
-      // Show welcome dialog on valid code
-      setShowWelcome(true);
+      // Directly proceed to the app on valid code
+      onValidCode();
     });
     // If there was an error, transition to email view after 2 seconds
     if (codeError) {
@@ -55,11 +54,6 @@ export const InvitationGatePage: React.FC<InvitationGatePageProps> = ({ onValidC
         setCurrentView('email');
       }, 2000);
     }
-  };
-
-  const handleWelcomeContinue = () => {
-    setShowWelcome(false);
-    onValidCode();
   };
 
   const handleEmailSubmitWrapper = async (e: React.FormEvent) => {
@@ -124,9 +118,6 @@ export const InvitationGatePage: React.FC<InvitationGatePageProps> = ({ onValidC
           {currentView === 'success' && <SuccessView onTryAnotherCode={resetToCode} />}
         </div>
       </section>
-
-      {/* Welcome Dialog */}
-      <WelcomeDialog isOpen={showWelcome} onContinue={handleWelcomeContinue} />
     </main>
   );
 };

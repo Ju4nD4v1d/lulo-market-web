@@ -1,17 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+@import './styles/typography.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* Global fonts and base colors */
-  html { @apply text-[16px]; }
+  /* Global fonts and base colors - Mobile First */
+  html { @apply text-[14px]; }
+
+  @media (min-width: 640px) {
+    html { @apply text-[15px]; }
+  }
+
+  @media (min-width: 768px) {
+    html { @apply text-[16px]; }
+  }
+
   body { @apply font-sans text-text bg-background; }
   h1, h2, h3, h4, h5, h6 { @apply font-heading text-text; }
-  h1 { @apply text-4xl font-semibold; }
-  h2 { @apply text-3xl font-semibold; }
-  h3 { @apply text-2xl font-semibold; }
+  /* Use typography.css classes instead for headings */
   /* Base input styles */
   input[type="text"],
   input[type="email"],

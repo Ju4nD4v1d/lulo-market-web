@@ -1,100 +1,315 @@
 /**
- * HowItWorks Component Styles
+ * HowItWorks Component Styles - Mobile First
  * Three-step process section explaining how the platform works
  */
 
+/* Section - Mobile First */
 .section {
   background: rgba(255, 255, 255, 0.5);
-  padding: 64px 0;
+  padding: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 3rem 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 4rem 0;
+  }
 }
 
 @media (min-width: 1024px) {
   .section {
-    padding: 80px 0;
+    padding: 5rem 0;
   }
 }
 
+/* Container - Mobile First */
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
   .container {
-    padding: 0 32px;
+    padding: 0 2rem;
   }
 }
 
-/* Title section */
+/* Title Section - Mobile First */
 .titleSection {
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: 1.5rem;
 }
 
+@media (min-width: 640px) {
+  .titleSection {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .titleSection {
+    margin-bottom: 3rem;
+  }
+}
+
+/* Heading - Mobile First with Typography System */
 .heading {
-  font-family: 'Montserrat', system-ui, sans-serif;
-  font-size: 30px;
-  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #111827;
-  margin-bottom: 16px;
+  margin-bottom: 0.5rem;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
+@media (min-width: 640px) {
+  .heading {
+    font-size: 1.875rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .heading {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading {
+    font-size: 2.5rem;
+  }
+}
+
+/* Description - Mobile First */
 .description {
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #4b5563;
-  max-width: 672px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 100%;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.5;
+  padding: 0 0.5rem;
 }
 
-/* Steps grid */
+@media (min-width: 640px) {
+  .description {
+    font-size: 0.9375rem;
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: 1rem;
+    max-width: 672px;
+    line-height: 1.6;
+    padding: 0;
+  }
+}
+
+/* Steps Grid - Mobile First */
 .stepsGrid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 32px;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .stepsGrid {
+    gap: 1.5rem;
+  }
 }
 
 @media (min-width: 768px) {
   .stepsGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
   }
 }
 
-/* Individual step */
+/* Individual Step - Mobile First with Engagement Enhancements */
 .step {
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
 }
 
-.iconContainer {
-  background: rgba(200, 228, 0, 0.1);
-  width: 64px;
-  height: 64px;
-  border-radius: 9999px;
+@media (min-width: 640px) {
+  .step {
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .step {
+    padding: 1.5rem;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .step:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Step Number Badge */
+.stepNumber {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #C8E400 0%, #b8d400 100%);
+  color: #1f2937;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  box-shadow: 0 2px 8px rgba(200, 228, 0, 0.3);
 }
 
+@media (min-width: 768px) {
+  .stepNumber {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
+
+/* Icon Container - Mobile First with Enhanced Styling */
+.iconContainer {
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.15) 0%, rgba(200, 228, 0, 0.05) 100%);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+  border: 2px solid rgba(200, 228, 0, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(200, 228, 0, 0.1);
+}
+
+@media (min-width: 640px) {
+  .iconContainer {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .iconContainer {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .step:hover .iconContainer {
+    transform: scale(1.1) rotate(5deg);
+    background: linear-gradient(135deg, rgba(200, 228, 0, 0.25) 0%, rgba(200, 228, 0, 0.1) 100%);
+    box-shadow: 0 8px 24px rgba(200, 228, 0, 0.3);
+  }
+}
+
+/* Icon - Mobile First */
 .icon {
-  width: 32px;
-  height: 32px;
+  width: 1.5rem;
+  height: 1.5rem;
   color: #C8E400;
+  transition: all 0.3s ease;
 }
 
+@media (min-width: 640px) {
+  .icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .step:hover .icon {
+    color: #b8d400;
+  }
+}
+
+/* Step Title - Mobile First */
 .stepTitle {
-  font-family: 'Montserrat', system-ui, sans-serif;
-  font-size: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 12px;
+  margin-bottom: 0.5rem;
   line-height: 1.3;
 }
 
+@media (min-width: 640px) {
+  .stepTitle {
+    font-size: 1.125rem;
+    margin-bottom: 0.625rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .stepTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Step Description - Mobile First */
 .stepDescription {
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #4b5563;
-  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .stepDescription {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .stepDescription {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
 }
