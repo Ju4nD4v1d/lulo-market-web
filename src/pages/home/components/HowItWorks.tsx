@@ -22,6 +22,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ t }) => {
 
         <div className={styles.stepsGrid}>
           <div className={styles.step}>
+            <div className={styles.stepNumber}>1</div>
             <div className={styles.iconContainer}>
               <Truck className={styles.icon} />
             </div>
@@ -30,6 +31,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ t }) => {
           </div>
 
           <div className={styles.step}>
+            <div className={styles.stepNumber}>2</div>
             <div className={styles.iconContainer}>
               <Users className={styles.icon} />
             </div>
@@ -38,6 +40,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ t }) => {
           </div>
 
           <div className={styles.step}>
+            <div className={styles.stepNumber}>3</div>
             <div className={styles.iconContainer}>
               <Clock className={styles.icon} />
             </div>
