@@ -106,7 +106,7 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
               {currentSlideData.title}
             </h1>
 
-            <p className="body-font text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-3 sm:mb-4 lg:mb-6 transition-all duration-500">
+            <p className="body-font text-lg sm:text-xl lg:text-xl text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-3 sm:mb-4 lg:mb-6 transition-all duration-500">
               {currentSlideData.subtitle}
             </p>
 
