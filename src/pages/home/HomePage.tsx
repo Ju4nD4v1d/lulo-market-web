@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { StoreData } from '../../types/store';
-import { SearchResultStore, SearchResults } from '../../types/search';
+import { Product } from '../../types/product';
 import { CartSidebar } from '../../components/CartSidebar';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
@@ -8,29 +8,25 @@ import { ChristmasBanner } from '../../components/ChristmasBanner';
 import { HomeHeader } from './components/HomeHeader';
 import { HowItWorks } from './components/HowItWorks';
 import { OurStory } from './components/OurStory';
-import { StoreListContainer } from './components';
-import { useStoreSearch, useStoreFilters, useCheckoutFlow } from './hooks';
+import { HorizontalStoreRow } from './components/HorizontalStoreRow';
+import { HorizontalProductRow } from './components/HorizontalProductRow';
+import { useCheckoutFlow } from './hooks';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { useStoreData } from '../../hooks/useStoreData';
-import { useSearch } from '../../hooks/useSearch';
-import { useSearchStore } from '../../stores/searchStore';
-import { calculateDistance as calculateStoreDistance, isStoreNew } from '../../utils/storeHelpers';
 import styles from './index.module.css';
 
 /**
  * HomePage Component
  *
  * Main marketplace landing page with:
- * - Store browsing and search
+ * - Horizontal scrolling store browse
+ * - Horizontal scrolling products
  * - User authentication
  * - Shopping cart
- * - Geolocation services
- *
- * Refactored to use custom hooks and Zustand stores for better maintainability
  */
 export const HomePage = () => {
   // Context hooks
@@ -40,14 +36,8 @@ export const HomePage = () => {
   const { isOffline } = useNetworkStatus();
 
   // Data fetching hooks
-  const { stores, loading, hasDataError, errorMessage, fetchStores, retryFetch } = useStoreData();
+  const { stores, loading, fetchStores } = useStoreData();
   const { location: userLocation, locationName, locationStatus, requestLocation } = useGeolocation();
-
-  // Zustand stores
-  const { searchQuery, setSearchQuery, isUsingFallbackSearch } = useSearchStore();
-
-  // Custom hooks for search and checkout
-  const { isSearching, searchError, clearSearch } = useStoreSearch({ stores });
 
   const { shouldOpenCheckout, closeCheckout } = useCheckoutFlow({
     onOpenCheckout: () => {
@@ -55,59 +45,33 @@ export const HomePage = () => {
     },
   });
 
-  // Filtering hook
-  const { displayedStores } = useStoreFilters({ stores });
-
-  // API search hook (for results metadata)
-  const { results: searchResultsArray } = useSearch({
-    enableLocation: true,
-    debounceMs: 300,
-    minQueryLength: 2,
-  });
-
-  // Wrap array results in SearchResults object for components
-  const searchResults: SearchResults | null = searchResultsArray
-    ? {
-        stores: searchResultsArray,
-        totalCount: searchResultsArray.length,
-        query: searchQuery,
-      }
-    : null;
-
   // Local UI state
   const [showCart, setShowCart] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch stores once on mount
+  // Fetch stores once on mount using useRef to prevent re-fetch
+  const hasFetched = useRef(false);
   useEffect(() => {
-    fetchStores();
-    /**
-     * Dependency array explanation:
-     * - fetchStores: Stable function from React Query's refetch (useStoreData hook)
-     * - React Query ensures refetch has a stable reference that doesn't change between renders
-     * - We intentionally want this to run only once on mount, not on every render
-     * - Including fetchStores would not cause re-renders, but the empty array makes the intent clearer
-     */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!hasFetched.current) {
+      fetchStores();
+      hasFetched.current = true;
+    }
+  }, [fetchStores]);
+
+  /**
+   * Handle store card click - navigate to store page
+   */
+  const handleStoreClick = useCallback((store: StoreData) => {
+    window.location.hash = `#shopper-dashboard/${store.id}`;
   }, []);
 
   /**
-   * Handle store card click
-   * Tracks analytics if from search results and navigates to store page
+   * Handle product card click - navigate to store page
    */
-  const handleStoreClick = useCallback(async (store: StoreData) => {
-    // Track search click if this came from search results
-    if (searchQuery && searchResults && store.searchMetadata) {
-      // Tracking logic would go here
-      // (placeholder implementation)
-
-      // Track click (placeholder implementation)
-      // TODO: Implement analytics tracking for search clicks
-    }
-
-    // Navigate to store detail page
+  const handleProductClick = useCallback((product: Product, store: StoreData) => {
     window.location.hash = `#shopper-dashboard/${store.id}`;
-  }, [searchQuery, searchResults]);
+  }, []);
 
   /**
    * Handle user logout
@@ -139,26 +103,6 @@ export const HomePage = () => {
   }, []);
 
   /**
-   * Calculate distance to store
-   */
-  const calculateDistance = useCallback(
-    (store?: StoreData): string => {
-      return calculateStoreDistance(userLocation, store);
-    },
-    [userLocation]
-  );
-
-  /**
-   * Check if store is new (wrapper for isStoreNew helper)
-   */
-  const checkIsStoreNew = useCallback(
-    (store: StoreData): boolean => {
-      return isStoreNew(store.createdAt);
-    },
-    []
-  );
-
-  /**
    * Handle cart close
    */
   const handleCartClose = useCallback(() => {
@@ -166,13 +110,27 @@ export const HomePage = () => {
     closeCheckout();
   }, [closeCheckout]);
 
-  /**
-   * Handle search clear
-   */
-  const handleClearSearch = useCallback(() => {
-    setSearchQuery('');
-    clearSearch();
-  }, [setSearchQuery, clearSearch]);
+  // Filter active stores only - memoized to prevent re-renders
+  const activeStores = useMemo(() =>
+    stores.filter(store =>
+      store.status === undefined || store.status === 'active'
+    ), [stores]
+  );
+
+  // Filter stores based on search query
+  const filteredStores = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return activeStores;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return activeStores.filter(store =>
+      store.name.toLowerCase().includes(query) ||
+      store.description?.toLowerCase().includes(query) ||
+      store.category?.toLowerCase().includes(query) ||
+      store.cuisine?.toLowerCase().includes(query)
+    );
+  }, [searchQuery, activeStores]);
 
   return (
     <div className={styles.container}>
@@ -208,32 +166,31 @@ export const HomePage = () => {
         locationName={locationName}
       />
 
-      {/* Store List Container */}
-      <StoreListContainer
-        stores={displayedStores}
-        loading={loading}
-        isSearching={isSearching}
-        isUsingSearch={!!searchQuery}
-        isUsingFallbackSearch={isUsingFallbackSearch}
-        hasDataError={hasDataError}
-        searchError={searchError}
-        searchQuery={searchQuery}
-        searchResults={searchResults}
-        isOffline={isOffline}
-        errorMessage={errorMessage}
-        onStoreClick={handleStoreClick}
-        onRetryFetch={retryFetch}
-        onClearSearch={handleClearSearch}
-        calculateDistance={calculateDistance}
-        isStoreNew={checkIsStoreNew}
-        t={t}
-      />
+      {/* Main Content */}
+      <main className={styles.main}>
+        {/* Stores Horizontal Row */}
+        {!loading && (
+          <HorizontalStoreRow
+            stores={filteredStores}
+            onStoreClick={handleStoreClick}
+          />
+        )}
 
-      {/* How It Works Section */}
-      <HowItWorks t={t} />
+        {/* Products Horizontal Row */}
+        {!loading && (
+          <HorizontalProductRow
+            stores={activeStores}
+            onProductClick={handleProductClick}
+            searchQuery={searchQuery}
+          />
+        )}
 
-      {/* Our Story Section */}
-      <OurStory t={t} />
+        {/* How It Works Section */}
+        <HowItWorks t={t} />
+
+        {/* Our Story Section */}
+        <OurStory t={t} />
+      </main>
 
       {/* Footer */}
       <Footer />

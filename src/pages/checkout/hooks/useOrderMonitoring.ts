@@ -73,6 +73,7 @@ export const useOrderMonitoring = ({
       case OrderStatus.READY:
       case OrderStatus.OUT_FOR_DELIVERY:
       case OrderStatus.DELIVERED:
+      case 'paid' as any: // Legacy payment status, treat as confirmed
         // Order is confirmed and being processed
         if (onOrderConfirmed && previousStatus === OrderStatus.PROCESSING) {
           console.log('Order confirmed! Calling completion callback');

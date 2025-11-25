@@ -128,6 +128,23 @@ export const StoreCard: React.FC<StoreCardProps> = ({
           </p>
         </div>
 
+        {/* Matched Products (shown during search) */}
+        {store.searchMetadata?.matchedProducts && store.searchMetadata.matchedProducts.length > 0 && (
+          <div className={styles.matchedProducts}>
+            <p className={styles.matchedProductsTitle}>{t('search.matchedProducts')}:</p>
+            <div className={styles.matchedProductsList}>
+              {store.searchMetadata.matchedProducts.map((product, idx) => (
+                <div key={product.id || idx} className={styles.matchedProduct}>
+                  <span className={styles.productName}>{product.name}</span>
+                  {product.price && (
+                    <span className={styles.productPrice}>${product.price.toFixed(2)}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className={styles.deliveryOptions}>
           {store.deliveryOptions?.delivery && (
             <div className={badgeStyles.delivery}>

@@ -5,19 +5,22 @@ import {
   Upload,
   DollarSign,
   AlertCircle,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { useAuth } from '../../../../../context/AuthContext';
 import { Product } from '../../../../../types/product';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { ConfirmDialog } from '../../../../../components/ConfirmDialog';
+import { PRODUCT_CATEGORIES } from '../../../../../constants/productCategories';
 import styles from './ProductModal.module.css';
 
 const defaultFormData = {
   name: '',
   description: '',
-  price: 0,
+  price: '' as any, // Empty string for new products to avoid "0" prefix issue
   category: '',
-  stock: 0,
+  stock: '' as any, // Empty string for new products to avoid "0" prefix issue
   status: 'active' as const,
   images: [],
   pstPercentage: 0,
@@ -28,6 +31,7 @@ interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (product: Partial<Product>, productId?: string) => Promise<void>;
+  onDelete?: (productId: string) => Promise<void>;
   product?: Product;
   storeId: string;
   isSaving?: boolean;
@@ -38,6 +42,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   product,
   storeId,
   isSaving = false,
@@ -47,12 +52,22 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [formData, setFormData] = useState<Partial<Product>>(defaultFormData);
   const [dragActive, setDragActive] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { uploadImages, isLoading, error, setError } = useImageUpload(currentUser?.uid);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(product || defaultFormData);
+      // Ensure all numeric fields have valid values (not NaN or undefined)
+      const safeProduct = product ? {
+        ...product,
+        price: typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0,
+        stock: typeof product.stock === 'number' && !isNaN(product.stock) ? product.stock : 0,
+        pstPercentage: typeof product.pstPercentage === 'number' && !isNaN(product.pstPercentage) ? product.pstPercentage : 0,
+        gstPercentage: typeof product.gstPercentage === 'number' && !isNaN(product.gstPercentage) ? product.gstPercentage : 0,
+      } : defaultFormData;
+
+      setFormData(safeProduct);
       setError('');
       setSaveError('');
     }
@@ -109,16 +124,38 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
     try {
       setSaveError('');
-      await onSave({
+
+      // Convert empty strings to 0 for numeric fields before saving
+      const productData = {
         ...formData,
+        price: formData.price === '' ? 0 : Number(formData.price),
+        stock: formData.stock === '' ? 0 : Number(formData.stock),
+        pstPercentage: formData.pstPercentage === '' ? 0 : Number(formData.pstPercentage),
+        gstPercentage: formData.gstPercentage === '' ? 0 : Number(formData.gstPercentage),
         ownerId: currentUser.uid,
         storeId: storeId
-      }, product?.id); // Pass the product ID for updates
+      };
+
+      await onSave(productData, product?.id); // Pass the product ID for updates
       onClose();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save product. Please try again.';
       setSaveError(errorMessage);
       console.error('Error saving product:', err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!product?.id || !onDelete) return;
+
+    try {
+      setSaveError('');
+      await onDelete(product.id);
+      onClose();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete product. Please try again.';
+      setSaveError(errorMessage);
+      console.error('Error deleting product:', err);
     }
   };
 
@@ -228,10 +265,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 required
               >
                 <option value="">{t('products.selectCategory')}</option>
-                <option value="hot">{t('products.category.hot')}</option>
-                <option value="frozen">{t('products.category.frozen')}</option>
-                <option value="baked">{t('products.category.baked')}</option>
-                <option value="other">{t('products.category.other')}</option>
+                {PRODUCT_CATEGORIES.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {t(category.translationKey)}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -260,7 +298,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   min="0"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow empty string or valid number
+                    setFormData({ ...formData, price: value === '' ? '' : parseFloat(value) });
+                  }}
                   className={styles.inputWithPadding}
                   required
                 />
@@ -274,7 +316,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 id="stock"
                 min="0"
                 value={formData.stock}
-                onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow empty string or valid number
+                  setFormData({ ...formData, stock: value === '' ? '' : parseInt(value) });
+                }}
                 className={styles.input}
                 required
               />
@@ -293,7 +339,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   max="100"
                   step="0.01"
                   value={formData.pstPercentage}
-                  onChange={(e) => setFormData({ ...formData, pstPercentage: parseFloat(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setFormData({ ...formData, pstPercentage: isNaN(val) ? 0 : val });
+                  }}
                   className={styles.input}
                   placeholder="0.00"
                 />
@@ -311,7 +360,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   max="100"
                   step="0.01"
                   value={formData.gstPercentage}
-                  onChange={(e) => setFormData({ ...formData, gstPercentage: parseFloat(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setFormData({ ...formData, gstPercentage: isNaN(val) ? 0 : val });
+                  }}
                   className={styles.input}
                   placeholder="0.00"
                 />
@@ -345,31 +397,58 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* Actions */}
           <div className={styles.actions}>
-            <button
-              type="button"
-              onClick={onClose}
-              className={styles.cancelButton}
-              disabled={isSaving}
-            >
-              {t('dialog.cancel')}
-            </button>
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={isSaving || isLoading}
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className={styles.buttonSpinner} />
-                  {t('store.saving')}
-                </>
-              ) : (
-                product ? t('products.update') : t('products.add')
+            <div className={styles.leftActions}>
+              {product && onDelete && (
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className={styles.deleteButton}
+                  disabled={isSaving}
+                >
+                  <Trash2 className={styles.deleteIcon} />
+                  {t('products.delete')}
+                </button>
               )}
-            </button>
+            </div>
+            <div className={styles.rightActions}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={styles.cancelButton}
+                disabled={isSaving}
+              >
+                {t('dialog.cancel')}
+              </button>
+              <button
+                type="submit"
+                className={styles.saveButton}
+                disabled={isSaving || isLoading}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className={styles.buttonSpinner} />
+                    {t('store.saving')}
+                  </>
+                ) : (
+                  product ? t('products.update') : t('products.add')
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title={t('products.deleteConfirmTitle')}
+        message={t('products.deleteConfirmMessage')}
+        confirmText={t('products.confirmDelete')}
+        cancelText={t('dialog.cancel')}
+        variant="danger"
+      />
     </div>
   );
 };

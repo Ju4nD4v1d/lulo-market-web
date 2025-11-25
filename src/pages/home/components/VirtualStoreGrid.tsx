@@ -4,6 +4,7 @@ import { StoreData } from '../../../types/store';
 import { SearchResults } from '../../../types/search';
 import { StoreCard } from './StoreCard';
 import { EmptyState } from './EmptyState';
+import { SearchEmptyState } from './SearchEmptyState';
 import styles from './StoreGrid.module.css';
 import gridStyles from '../../../styles/grid.module.css';
 
@@ -216,12 +217,7 @@ export const VirtualStoreGrid: React.FC<VirtualStoreGridProps> = ({
           t={t}
         />
       ) : searchQuery ? (
-        <EmptyState
-          type="no-search-results"
-          searchQuery={searchQuery}
-          onClearSearch={onClearSearch}
-          t={t}
-        />
+        <SearchEmptyState searchQuery={searchQuery} />
       ) : (
         <EmptyState type="no-stores" t={t} />
       )}

@@ -2,15 +2,12 @@ import type * as React from 'react';
 
 import {
   DollarSign,
-  TrendingUp,
-  TrendingDown,
   Loader2,
-  AlertCircle,
-  Info,
-  Sparkles
+  AlertCircle
 } from 'lucide-react';
 import { useCurrentWeekMetrics } from '../../../../../hooks/useCurrentWeekMetrics';
 import { useLanguage } from '../../../../../context/LanguageContext';
+import styles from './KPICard.module.css';
 
 interface TotalWeeklyRevenueCardProps {
   storeId: string;
@@ -18,11 +15,9 @@ interface TotalWeeklyRevenueCardProps {
 
 const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId }) => {
   const { t } = useLanguage();
-  const { current, loading, error, trend } = useCurrentWeekMetrics(storeId);
+  const { current, loading, error } = useCurrentWeekMetrics(storeId);
 
-  // Extract revenue data
   const currentRevenue = current.totalRevenue;
-  const revenueTrend = trend.revenue;
 
   const formatter = new Intl.NumberFormat('en-CA', {
     style: 'currency',
@@ -31,12 +26,10 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
 
   if (loading) {
     return (
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
-        <div className="flex items-center justify-center h-24">
-          <div className="text-center">
-            <Loader2 className="w-6 h-6 text-primary-400 animate-spin mx-auto mb-2" />
-            <p className="text-xs text-gray-500">{t('metrics.loadingRevenue')}</p>
-          </div>
+      <div className={`${styles.card} ${styles.loadingCard}`}>
+        <div className={styles.loadingContent}>
+          <Loader2 className={styles.loadingSpinner} />
+          <p className={styles.loadingText}>{t('metrics.loadingRevenue')}</p>
         </div>
       </div>
     );
@@ -44,17 +37,17 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
 
   if (error) {
     return (
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">{t('metrics.revenueThisWeek')}</p>
-            <div className="flex items-center text-red-600 space-x-2 mt-2">
-              <AlertCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">{t('metrics.couldNotLoadData')}</span>
+      <div className={`${styles.card} ${styles.errorCard}`}>
+        <div className={styles.cardContent}>
+          <div className={styles.cardMain}>
+            <p className={styles.cardLabel}>{t('metrics.revenueThisWeek')}</p>
+            <div className={styles.errorText}>
+              <AlertCircle className={styles.errorIcon} />
+              <span>{t('metrics.couldNotLoadData')}</span>
             </div>
           </div>
-          <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl">
-            <DollarSign className="w-6 h-6 text-red-500" />
+          <div className={styles.errorIconWrapper}>
+            <DollarSign className={styles.errorCardIcon} />
           </div>
         </div>
       </div>
@@ -62,47 +55,18 @@ const TotalWeeklyRevenueCard: React.FC<TotalWeeklyRevenueCardProps> = ({ storeId
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-gray-500 text-sm font-medium mb-2">{t('metrics.revenueThisWeek')}</p>
-          <h3 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-primary-400 transition-colors">
+    <div className={styles.card}>
+      <div className={styles.cardContent}>
+        <div className={styles.cardMain}>
+          <p className={styles.cardLabel}>{t('metrics.revenueThisWeek')}</p>
+          <h3 className={styles.cardValue}>
             {formatter.format(currentRevenue)}
           </h3>
-          {revenueTrend != null ? (
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                revenueTrend >= 0 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {revenueTrend >= 0 ? (
-                  <TrendingUp className="w-4 h-4" />
-                ) : (
-                  <TrendingDown className="w-4 h-4" />
-                )}
-                {`${revenueTrend >= 0 ? '+' : ''}${revenueTrend.toFixed(1)}%`}
-              </div>
-              <span className="text-gray-500 text-sm">{t('metrics.fromLastWeek')}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-gray-400">
-              <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 rounded-full">
-                <Info className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-600">{t('metrics.buildingInsights')}</span>
-              </div>
-            </div>
-          )}
         </div>
-        <div className="relative">
-          <div className="p-4 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
-            <DollarSign className="w-8 h-8 text-white" />
+        <div className={styles.iconContainer}>
+          <div className={styles.iconWrapper}>
+            <DollarSign className={styles.cardIcon} />
           </div>
-          {revenueTrend != null && revenueTrend > 0 && (
-            <div className="absolute -top-1 -right-1 p-1 bg-green-500 rounded-full">
-              <Sparkles className="w-3 h-3 text-white" />
-            </div>
-          )}
         </div>
       </div>
     </div>

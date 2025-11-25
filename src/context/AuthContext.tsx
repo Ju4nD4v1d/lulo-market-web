@@ -115,31 +115,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Login without triggering automatic user profile creation
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    
+
     // First check if user has a profile and is a storeOwner
     const userDoc = await getDoc(doc(db, 'users', user.uid));
-    
+
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      
+
       // If user is marked as storeOwner, grant access
       if (userData.userType === 'storeOwner') {
         // Update last login
         await updateDoc(doc(db, 'users', user.uid), {
           lastLoginAt: serverTimestamp()
         });
+
+        // Update local state immediately
+        setUserProfile(userData as UserProfile);
+        setUserType('storeOwner');
         return true;
       }
     }
-    
+
     // If no profile exists or not a storeOwner, check for stores
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     const storesRef = collection(db, 'stores');
     const storeQuery = query(storesRef, where('ownerId', '==', user.uid));
     const storeSnapshot = await getDocs(storeQuery);
-    
+
     const hasStores = !storeSnapshot.empty;
-    
+
     if (hasStores) {
       // User has stores - create/update profile as storeOwner
       const storeOwnerProfileData = {
@@ -151,8 +155,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastLoginAt: serverTimestamp(),
         preferences: userDoc.exists() ? userDoc.data().preferences : {},
       };
-      
+
       await setDoc(doc(db, 'users', user.uid), storeOwnerProfileData, { merge: true });
+
+      // Update local state immediately to prevent access denied
+      setUserProfile(storeOwnerProfileData as UserProfile);
+      setUserType('storeOwner');
       return true;
     } else {
       // User doesn't have stores and is not marked as storeOwner - deny access
@@ -162,25 +170,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (email: string, password: string, displayName?: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Create user profile document with shopper as default
-    const userProfileData: UserProfile = {
-      id: user.uid,
-      email: user.email || '',
-      displayName: displayName || 'User',
-      userType: 'shopper', // Default to shopper
-      createdAt: new Date(),
-      lastLoginAt: new Date(),
-      preferences: {},
-    };
-    
-    await setDoc(doc(db, 'users', user.uid), {
-      ...userProfileData,
-      createdAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp(),
-    });
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create user profile document with shopper as default
+      const userProfileData: UserProfile = {
+        id: user.uid,
+        email: user.email || '',
+        displayName: displayName || 'User',
+        userType: 'shopper', // Default to shopper
+        createdAt: new Date(),
+        lastLoginAt: new Date(),
+        preferences: {},
+      };
+
+      await setDoc(doc(db, 'users', user.uid), {
+        ...userProfileData,
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+      });
+    } catch (error: any) {
+      console.error('Registration error:', error);
+
+      // Map Firebase error codes to user-friendly messages
+      const errorCode = error?.code;
+      let errorMessage = error?.message || 'Registration failed';
+
+      switch (errorCode) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address format.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password is too weak. Please use at least 6 characters.';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password registration is not enabled. Please contact support.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        default:
+          // Keep the original error message if we don't have a specific mapping
+          break;
+      }
+
+      throw new Error(errorMessage);
+    }
   };
 
   const logout = async () => {

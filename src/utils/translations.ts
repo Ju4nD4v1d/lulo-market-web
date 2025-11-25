@@ -294,6 +294,15 @@ export const translations = {
     'home.partnerCta.title': 'Grow Your Restaurant Business',
     'home.partnerCta.description': 'Join many successful Latino restaurant owners who have expanded their reach with our platform',
     'home.partnerCta.button': 'Become a Partner',
+    'home.stores.badge': 'Featured Stores',
+    'home.stores.title': 'Browse Stores',
+    'home.stores.subtitle': 'Discover authentic Latino stores in your area',
+    'home.products.badge': 'Fresh Products',
+    'home.products.title': 'Popular Products',
+    'home.products.subtitle': 'Explore products from all our stores',
+    'home.products.loading': 'Loading products...',
+    'home.products.error': 'Failed to load products. Please try again later.',
+    'home.viewAll': 'View All',
 
     'pricing.basic.title': 'Basic Plan',
     'pricing.basic.monthlyPrice': '$29',
@@ -421,6 +430,7 @@ export const translations = {
     'auth.errors.passwordsDoNotMatch': 'Passwords do not match',
     'auth.errors.passwordTooShort': 'Password must be at least 6 characters long',
     'auth.errors.emailRequired': 'Please enter your email address',
+    'auth.errors.invalidEmail': 'Please enter a valid email address',
     'auth.errors.passwordRequired': 'Please enter your password',
     'auth.fullNamePlaceholder': 'Enter your full name',
     'auth.confirmPasswordPlaceholder': 'Confirm your password',
@@ -649,9 +659,16 @@ export const translations = {
     'store.saveProgress.errorDesc': 'There was a problem saving your store. Please try again.',
     'store.saveProgress.retry': 'Try Again',
     'store.saveProgress.close': 'Close',
-    
+
+    // Store Errors
+    'store.errors.permissionDenied': 'You do not have permission to save this store.',
+    'store.errors.networkError': 'Network error. Please check your connection and try again.',
+    'store.errors.invalidData': 'Invalid store information. Please check all fields and try again.',
+    'store.errors.notAuthenticated': 'You must be logged in to save a store.',
+
     // Store Status
     'store.new': 'New',
+    'store.nearYou': 'Near You',
 
     // Products
     'products.title': 'Product Management',
@@ -673,6 +690,8 @@ export const translations = {
     'products.category.baked': 'Baked Goods',
     'products.category.other': 'Other',
     'products.stockLabel': 'Stock Quantity',
+    'products.inStock': 'in stock',
+    'products.noDescription': 'No description available',
     'products.status': 'Status',
     'products.status.active': 'Active',
     'products.status.draft': 'Draft',
@@ -687,6 +706,10 @@ export const translations = {
     'products.edit': 'Edit Product',
     'products.editModal': 'Edit Product',
     'products.back': 'Back to Products',
+    'products.delete': 'Delete Product',
+    'products.deleteConfirmTitle': 'Delete Product',
+    'products.deleteConfirmMessage': 'Are you sure you want to delete this product? This action cannot be undone.',
+    'products.confirmDelete': 'Delete',
     'products.noImage': 'No image available',
     'products.basePrice': 'Base Price',
     'products.totalWithTax': 'Total with Tax',
@@ -765,15 +788,10 @@ export const translations = {
     'metrics.exportTopProductsData': 'Top Products Data',
     'metrics.exportProductName': 'Product Name',
     'metrics.exportUnitsSold': 'Units Sold',
-    'metrics.exportBusinessInsights': 'Business Insights',
-    'metrics.exportInsightCategory': 'Insight Category',
-    'metrics.exportDescription': 'Description',
     'metrics.revenueTrend': 'Revenue Trend',
     'metrics.revenueTrendSubtitle': 'Track your earnings over time',
     'metrics.topProducts': 'Top Selling Products',
     'metrics.topProductsSubtitle': 'Best selling items',
-    'metrics.smartInsights': 'Smart Insights',
-    'metrics.smartInsightsSubtitle': 'AI-powered recommendations for your business',
     'metrics.week': 'Week',
     'metrics.month': 'Month',
     'metrics.loadingRevenue': 'Loading revenue insights...',
@@ -785,24 +803,15 @@ export const translations = {
     'metrics.loadingCustomers': 'Loading customers...',
     'metrics.loadingOrders': 'Loading orders...',
     'metrics.couldNotLoadData': 'Couldn\'t load data',
-    'metrics.buildingInsights': 'Building insights',
-    'metrics.fromLastWeek': 'from last week',
     'metrics.loadingProducts': 'Analyzing top products...',
     'metrics.unableToLoadRevenue': 'Unable to load revenue data',
     'metrics.unableToLoadProducts': 'Unable to load product data',
     'metrics.retry': 'Retry',
-    'metrics.buildingInsights': 'Building your revenue insights',
     'metrics.moreDataSoon': 'More data will appear as your business grows',
     'metrics.noProductSales': 'No product sales yet',
     'metrics.startSelling': 'Start selling products to see your top performers here',
     'metrics.revenue': 'Revenue',
     'metrics.unitsSold': 'Units Sold',
-    'metrics.growthOpportunity': 'Growth Opportunity',
-    'metrics.growthOpportunityDesc': 'Your revenue is trending upward. Consider expanding your product catalog during peak hours.',
-    'metrics.marketingFocus': 'Marketing Focus',
-    'metrics.marketingFocusDesc': 'Focus marketing efforts on your top-performing products to maximize ROI.',
-    'metrics.performance': 'Performance',
-    'metrics.performanceDesc': 'You\'re performing above average in your category. Keep up the excellent work!',
 
     // Admin Menu
     'admin.menu.store': 'Store Setup',
@@ -1210,6 +1219,7 @@ export const translations = {
     'product.inStock': 'in stock',
     'product.popular': 'Popular',
     'product.unavailable': 'Unavailable',
+    'product.lowStock': 'Low Stock',
 
     // Order Management
     'order.checkout': 'Checkout',
@@ -1283,6 +1293,12 @@ export const translations = {
     'common.tryAgain': 'Try Again',
     'common.close': 'Close',
     'common.back': 'Back',
+    'common.loading': 'Loading...',
+    'common.goHome': 'Go to Home',
+
+    // Admin / Dashboard Access
+    'admin.accessDenied': 'Access Denied',
+    'admin.accessDeniedMessage': 'You do not have permission to access the business dashboard. This area is only available to store owners.',
     
     // Validation Messages
     'validation.required': 'This field is required',
@@ -1599,7 +1615,27 @@ export const translations = {
     'invitation.backToCode': '← Back to invitation code',
     'invitation.tryAnotherCode': 'Try another invitation code',
     'invitation.noCode': "Don't have an invitation code?",
-    'invitation.requestAccessLink': 'Request access here'
+    'invitation.requestAccessLink': 'Request access here',
+
+    // Welcome Dialog
+    'welcome.badge': 'Early Access',
+    'welcome.title': 'Welcome to the Future!',
+    'welcome.message': "You're among the first to experience LuloCart - a revolutionary marketplace connecting the Latin community in Canada with authentic flavors from home.",
+    'welcome.feature1': 'Discover authentic Latin products',
+    'welcome.feature2': 'Support local Latin businesses',
+    'welcome.feature3': 'Connect with your community',
+    'welcome.excitement': "We're thrilled to have you here as one of our early explorers!",
+    'welcome.continue': "Let's Get Started",
+
+    // Search
+    'search.noResultsFound': 'No Results Found',
+    'search.searchedFor': 'Searched for',
+    'search.suggestions': 'Suggestions',
+    'search.checkSpelling': 'Check your spelling',
+    'search.tryDifferentKeywords': 'Try different keywords',
+    'search.useLessSpecific': 'Use less specific terms',
+    'search.popularSearches': 'Popular Searches',
+    'search.matchedProducts': 'Matched Products'
   },
   es: {
     // Navigation
@@ -1835,6 +1871,7 @@ export const translations = {
     'auth.errors.passwordsDoNotMatch': 'Las contraseñas no coinciden',
     'auth.errors.passwordTooShort': 'La contraseña debe tener al menos 6 caracteres',
     'auth.errors.emailRequired': 'Por favor ingresa tu correo electrónico',
+    'auth.errors.invalidEmail': 'Por favor ingresa un correo electrónico válido',
     'auth.errors.passwordRequired': 'Por favor ingresa tu contraseña',
     'auth.fullNamePlaceholder': 'Ingresa tu nombre completo',
     'auth.confirmPasswordPlaceholder': 'Confirma tu contraseña',
@@ -2063,9 +2100,16 @@ export const translations = {
     'store.saveProgress.errorDesc': 'Hubo un problema al guardar tu tienda. Por favor intenta de nuevo.',
     'store.saveProgress.retry': 'Intentar de Nuevo',
     'store.saveProgress.close': 'Cerrar',
-    
+
+    // Store Errors
+    'store.errors.permissionDenied': 'No tienes permiso para guardar esta tienda.',
+    'store.errors.networkError': 'Error de red. Por favor verifica tu conexión e intenta de nuevo.',
+    'store.errors.invalidData': 'Información de tienda inválida. Por favor verifica todos los campos e intenta de nuevo.',
+    'store.errors.notAuthenticated': 'Debes iniciar sesión para guardar una tienda.',
+
     // Store Status
     'store.new': 'Nuevo',
+    'store.nearYou': 'Cerca de Ti',
 
     // Products
     'products.title': 'Gestión de Productos',
@@ -2087,6 +2131,8 @@ export const translations = {
     'products.category.baked': 'Productos Horneados',
     'products.category.other': 'Otros',
     'products.stockLabel': 'Cantidad en Stock',
+    'products.inStock': 'en stock',
+    'products.noDescription': 'Sin descripción disponible',
     'products.status': 'Estado',
     'products.status.active': 'Activo',
     'products.status.draft': 'Borrador',
@@ -2101,6 +2147,10 @@ export const translations = {
     'products.edit': 'Editar Producto',
     'products.editModal': 'Editar Producto',
     'products.back': 'Volver a Productos',
+    'products.delete': 'Eliminar Producto',
+    'products.deleteConfirmTitle': 'Eliminar Producto',
+    'products.deleteConfirmMessage': '¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.',
+    'products.confirmDelete': 'Eliminar',
     'products.noImage': 'No hay imagen disponible',
     'products.basePrice': 'Precio Base',
     'products.totalWithTax': 'Total con Impuestos',
@@ -2179,15 +2229,10 @@ export const translations = {
     'metrics.exportTopProductsData': 'Datos de Productos Más Vendidos',
     'metrics.exportProductName': 'Nombre del Producto',
     'metrics.exportUnitsSold': 'Unidades Vendidas',
-    'metrics.exportBusinessInsights': 'Análisis de Negocio',
-    'metrics.exportInsightCategory': 'Categoría de Insight',
-    'metrics.exportDescription': 'Descripción',
     'metrics.revenueTrend': 'Tendencia de Ingresos',
     'metrics.revenueTrendSubtitle': 'Rastrea tus ganancias a lo largo del tiempo',
     'metrics.topProducts': 'Productos Más Vendidos',
     'metrics.topProductsSubtitle': 'Artículos más vendidos',
-    'metrics.smartInsights': 'Insights Inteligentes',
-    'metrics.smartInsightsSubtitle': 'Recomendaciones impulsadas por IA para tu negocio',
     'metrics.week': 'Semana',
     'metrics.month': 'Mes',
     'metrics.loadingRevenue': 'Cargando información de ingresos...',
@@ -2199,12 +2244,8 @@ export const translations = {
     'metrics.loadingCustomers': 'Cargando clientes...',
     'metrics.loadingOrders': 'Cargando pedidos...',
     'metrics.couldNotLoadData': 'No se pudieron cargar los datos',
-    'metrics.buildingInsights': 'Construyendo estadísticas',
-    'metrics.fromLastWeek': 'de la semana pasada',
     'metrics.topProducts': 'Productos Más Vendidos',
     'metrics.topProductsSubtitle': 'Artículos más vendidos',
-    'metrics.smartInsights': 'Análisis Inteligente',
-    'metrics.smartInsightsSubtitle': 'Recomendaciones impulsadas por IA para tu negocio',
     'metrics.week': 'Semana',
     'metrics.month': 'Mes',
     'metrics.loadingRevenue': 'Cargando análisis de ingresos...',
@@ -2631,6 +2672,7 @@ export const translations = {
     'product.inStock': 'en stock',
     'product.popular': 'Popular',
     'product.unavailable': 'No disponible',
+    'product.lowStock': 'Pocas Unidades',
 
     // Order Management
     'order.checkout': 'Finalizar Compra',
@@ -2704,6 +2746,12 @@ export const translations = {
     'common.tryAgain': 'Intentar de Nuevo',
     'common.close': 'Cerrar',
     'common.back': 'Volver',
+    'common.loading': 'Cargando...',
+    'common.goHome': 'Ir al Inicio',
+
+    // Admin / Dashboard Access
+    'admin.accessDenied': 'Acceso Denegado',
+    'admin.accessDeniedMessage': 'No tienes permiso para acceder al panel de negocios. Esta área solo está disponible para dueños de tiendas.',
     
     // Validation Messages
     'validation.required': 'Este campo es obligatorio',
@@ -3100,6 +3148,14 @@ export const translations = {
     'home.partnerCta.title': 'Haz Crecer Tu Negocio',
     'home.partnerCta.description': 'Únete a otros dueños exitosos de tiendas latinas que han expandido su alcance con nuestra plataforma',
     'home.partnerCta.button': 'Conviértete en Socio',
+    'home.stores.badge': 'Tiendas Destacadas',
+    'home.stores.title': 'Explorar Tiendas',
+    'home.stores.subtitle': 'Descubre tiendas latinas auténticas en tu área',
+    'home.products.badge': 'Productos Frescos',
+    'home.products.title': 'Productos Populares',
+    'home.products.subtitle': 'Explora productos de todas nuestras tiendas',
+    'home.products.loading': 'Cargando productos...',
+    'home.viewAll': 'Ver Todos',
 
     // Additional Critical Missing Translations - Spanish
     'checkout': 'Finalizar Compra',
@@ -3206,6 +3262,26 @@ export const translations = {
     'invitation.backToCode': '← Volver al código de invitación',
     'invitation.tryAnotherCode': 'Intentar otro código de invitación',
     'invitation.noCode': '¿No tienes un código de invitación?',
-    'invitation.requestAccessLink': 'Solicita acceso aquí'
+    'invitation.requestAccessLink': 'Solicita acceso aquí',
+
+    // Welcome Dialog
+    'welcome.badge': 'Acceso Anticipado',
+    'welcome.title': '¡Bienvenido al Futuro!',
+    'welcome.message': 'Estás entre los primeros en experimentar LuloCart - un mercado revolucionario que conecta a la comunidad latina en Canadá con sabores auténticos de casa.',
+    'welcome.feature1': 'Descubre productos latinos auténticos',
+    'welcome.feature2': 'Apoya negocios latinos locales',
+    'welcome.feature3': 'Conéctate con tu comunidad',
+    'welcome.excitement': '¡Estamos emocionados de tenerte aquí como uno de nuestros primeros exploradores!',
+    'welcome.continue': 'Comencemos',
+
+    // Search
+    'search.noResultsFound': 'No Se Encontraron Resultados',
+    'search.searchedFor': 'Buscaste',
+    'search.suggestions': 'Sugerencias',
+    'search.checkSpelling': 'Verifica la ortografía',
+    'search.tryDifferentKeywords': 'Prueba diferentes palabras clave',
+    'search.useLessSpecific': 'Usa términos menos específicos',
+    'search.popularSearches': 'Búsquedas Populares',
+    'search.matchedProducts': 'Productos Encontrados'
   }
 };

@@ -1,8 +1,14 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../config/firebase';
 import { StoreData } from '../../../types/store';
+import { Product } from '../../../types/product';
 import { SearchResultStore } from '../../../types/search';
-import { useSearch } from '../../../hooks/useSearch';
 import { useSearchStore } from '../../../stores/searchStore';
+import {
+  searchStoresAndProducts,
+  sanitizeSearchQuery
+} from '../../../services/searchService';
 
 interface UseStoreSearchOptions {
   stores: StoreData[];
@@ -18,11 +24,8 @@ interface UseStoreSearchReturn {
 /**
  * useStoreSearch Hook
  *
- * Encapsulates all search logic including:
- * - API search with useSearch hook
- * - Client-side fallback search
- * - Search result conversion
- * - State management via Zustand
+ * Client-side search using Fuse.js for fuzzy matching
+ * Searches across store names, descriptions, and products
  *
  * @param stores - Array of all stores to search through
  * @param onSearchResults - Optional callback when search results change
@@ -38,47 +41,64 @@ export const useStoreSearch = ({
     searchQuery,
     setFilteredStores,
     setIsUsingSearch,
-    setIsUsingFallbackSearch,
     clearSearch: clearSearchStore,
   } = useSearchStore();
 
-  // Search hook for API search
-  const {
-    isSearching,
-    results: searchResults,
-    error: searchError,
-    search,
-    clearResults,
-  } = useSearch({
-    enableLocation: true,
-    debounceMs: 300,
-    minQueryLength: 2,
-  });
+  // Local state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  /**
+   * Fetch all products on mount
+   */
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsRef = collection(db, 'products');
+        const snapshot = await getDocs(productsRef);
+
+        const productsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[];
+
+        // Deduplicate products by ID
+        const uniqueProducts = Array.from(
+          new Map(productsData.map(product => [product.id, product])).values()
+        );
+
+        setProducts(uniqueProducts);
+      } catch (error) {
+        console.error('Error fetching products for search:', error);
+        setSearchError('Failed to load products');
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   /**
    * Convert SearchResultStore to StoreData format
-   * Merges API search results with full store data
+   * Merges search results with full store data
    */
   const convertSearchResultToStoreData = useCallback(
     (searchResult: SearchResultStore): StoreData => {
-      // Find full store data from our stores array
       const fullStore = stores.find((store) => store.id === searchResult.id);
 
       if (fullStore) {
         return {
           ...fullStore,
-          // Add search-specific metadata
           searchMetadata: {
             matchType: searchResult.matchType,
             relevanceScore: searchResult.relevanceScore,
             matchedProducts: searchResult.matchedProducts,
-            distance: searchResult.distance,
+            distance: undefined,
           },
         };
       }
 
-      // Fallback if store not found in local data
-      // Create minimal StoreData with required fields
+      // Fallback if store not found
       const fallbackStore: StoreData = {
         id: searchResult.id,
         name: searchResult.name,
@@ -91,7 +111,7 @@ export const useStoreSearch = ({
           matchType: searchResult.matchType,
           relevanceScore: searchResult.relevanceScore,
           matchedProducts: searchResult.matchedProducts,
-          distance: searchResult.distance,
+          distance: undefined,
         },
       };
       return fallbackStore;
@@ -100,132 +120,81 @@ export const useStoreSearch = ({
   );
 
   /**
-   * Client-side fallback search
-   * Searches through store names, descriptions, and products
+   * Perform Fuse.js search across stores and products
    */
-  const performClientSideSearch = useCallback(
+  const performFuseSearch = useCallback(
     (query: string): StoreData[] => {
-      const normalizedQuery = query.toLowerCase().trim();
+      // Sanitize query
+      const sanitizedQuery = sanitizeSearchQuery(query);
 
-      const results = stores.filter((store) => {
-        // Search in store name
-        if (store.name.toLowerCase().includes(normalizedQuery)) {
-          return true;
-        }
+      if (sanitizedQuery.length < 2) {
+        return [];
+      }
 
-        // Search in store description
-        if (store.description?.toLowerCase().includes(normalizedQuery)) {
-          return true;
-        }
+      // Perform comprehensive search using Fuse.js
+      const searchResults = searchStoresAndProducts(stores, products, sanitizedQuery);
 
-        // Search in products if available
-        if (store.products && Array.isArray(store.products)) {
-          return store.products.some(
-            (product) =>
-              product.name.toLowerCase().includes(normalizedQuery) ||
-              product.description.toLowerCase().includes(normalizedQuery)
-          );
-        }
-
-        return false;
-      });
-
-      // Add search metadata to indicate this is a fallback result
-      return results.map((store) => ({
-        ...store,
-        searchMetadata: {
-          matchType: store.name.toLowerCase().includes(normalizedQuery)
-            ? ('partial_name' as const)
-            : ('description' as const),
-          relevanceScore: store.name.toLowerCase().includes(normalizedQuery) ? 80 : 60,
-          matchedProducts: [],
-          distance: undefined,
-        },
-      }));
+      // Convert search results to StoreData format
+      return searchResults.map(convertSearchResultToStoreData);
     },
-    [stores]
+    [stores, products, convertSearchResultToStoreData]
   );
 
   /**
    * Handle search query changes
-   * Triggers API search with fallback to client-side search
+   * Performs client-side search using Fuse.js
    */
   useEffect(() => {
     // Clear search if query is too short
     if (!searchQuery || searchQuery.trim().length < 2) {
       setIsUsingSearch(false);
-      setIsUsingFallbackSearch(false);
-      clearResults();
+      setIsSearching(false);
+      setSearchError(null);
       return;
     }
 
     setIsUsingSearch(true);
+    setIsSearching(true);
+    setSearchError(null);
 
-    // Try API search first, fallback to client-side search if it fails
-    search(searchQuery, {
-      filters: {
-        onlyAvailable: true,
-      },
-    }).catch(() => {
-      setIsUsingFallbackSearch(true);
+    try {
+      // Perform Fuse.js search
+      const searchResults = performFuseSearch(searchQuery);
 
-      // Perform client-side search
-      const clientResults = performClientSideSearch(searchQuery);
-
-      // Update filtered stores with client-side results
-      setFilteredStores(clientResults);
+      // Update filtered stores
+      setFilteredStores(searchResults);
 
       // Call optional callback
       if (onSearchResults) {
-        onSearchResults(clientResults);
+        onSearchResults(searchResults);
       }
-    });
-  /**
-   * Dependency array explanation:
-   * - searchQuery: Reactive value that triggers search
-   * - search: Stable function from useSearch hook (doesn't change)
-   * - clearResults: Stable function from useSearch hook (doesn't change)
-   * - performClientSideSearch: useCallback with [stores] deps (stable reference)
-   * - setFilteredStores, setIsUsingSearch, setIsUsingFallbackSearch: Zustand setters (stable references)
-   * - onSearchResults: Optional callback, currently not used in HomePage
-   *
-   * Only searchQuery should trigger this effect. All other dependencies are stable.
-   */
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
-
-  /**
-   * Update filtered stores when API search results change
-   */
-  useEffect(() => {
-    if (searchResults && searchResults.length >= 0) {
-      const convertedResults = searchResults.map(convertSearchResultToStoreData);
-      setFilteredStores(convertedResults);
-
-      // Call optional callback
-      if (onSearchResults) {
-        onSearchResults(convertedResults);
-      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError('Search failed');
+    } finally {
+      setIsSearching(false);
     }
   /**
    * Dependency array explanation:
-   * - searchResults: Reactive value from useSearch hook that triggers updates
-   * - convertSearchResultToStoreData: useCallback with [stores] deps (stable reference)
-   * - setFilteredStores: Zustand setter (stable reference)
-   * - onSearchResults: Optional callback, currently not used in HomePage
+   * - searchQuery: Reactive value that triggers search
+   * - performFuseSearch: useCallback with [stores, products, convertSearchResultToStoreData] deps
+   * - setFilteredStores, setIsUsingSearch: Zustand setters (stable but not reactive)
+   * - onSearchResults: Optional callback (not used in HomePage)
    *
-   * Only searchResults should trigger this effect. All other dependencies are stable.
+   * We intentionally omit Zustand setters to prevent infinite loops.
+   * Only searchQuery should trigger this effect.
    */
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchResults]);
+  }, [searchQuery]);
 
   /**
    * Clear all search state
    */
   const clearSearch = useCallback(() => {
     clearSearchStore();
-    clearResults();
-  }, [clearSearchStore, clearResults]);
+    setIsSearching(false);
+    setSearchError(null);
+  }, [clearSearchStore]);
 
   return {
     isSearching,

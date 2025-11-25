@@ -1,0 +1,217 @@
+/* Mobile-first confirmation dialog styles */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  max-width: 24rem;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .dialog {
+    max-width: 28rem;
+    padding: 2rem;
+    border-radius: 16px;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.iconWrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconWrapper.danger {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.iconWrapper.warning {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.iconWrapper.info {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.25rem;
+  }
+}
+
+.message {
+  color: #6B7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .message {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column-reverse;
+}
+
+@media (min-width: 768px) {
+  .actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .cancelButton,
+  .confirmButton {
+    width: auto;
+    padding: 0.625rem 1.25rem;
+  }
+}
+
+.cancelButton {
+  background: #F3F4F6;
+  color: #374151;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #E5E7EB;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  color: white;
+}
+
+.confirmButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.confirmDanger {
+  background: #DC2626;
+}
+
+.confirmDanger:hover:not(:disabled) {
+  background: #B91C1C;
+}
+
+.confirmWarning {
+  background: #D97706;
+}
+
+.confirmWarning:hover:not(:disabled) {
+  background: #B45309;
+}
+
+.confirmInfo {
+  background: #2563EB;
+}
+
+.confirmInfo:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

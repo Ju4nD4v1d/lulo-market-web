@@ -1,11 +1,22 @@
+/* Mobile-first: Always collapsed on mobile */
 .sidebar {
   background: white;
   border-right: 1px solid #e5e7eb;
-  position: fixed;
+  /* Changed from fixed to relative - sidebar now pushes content */
+  position: relative;
   height: 100vh;
-  width: 16rem;
+  width: 5rem;
   transition: width 0.3s ease-in-out;
-  z-index: 1000;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Expanded state only on tablet and above */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) {
+    width: 16rem;
+  }
 }
 
 .sidebar.collapsed {
@@ -17,13 +28,17 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   transition: padding 0.3s;
+  justify-content: center;
 }
 
-.collapsed .header {
-  padding: 0 1rem;
-  justify-content: center;
+/* Only show expanded padding on larger screens when not collapsed */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .header {
+    padding: 0 1.5rem;
+    justify-content: flex-start;
+  }
 }
 
 .logoPlaceholder {
@@ -39,6 +54,7 @@
 .logoText {
   color: #C8E400;
   font-weight: 700;
+  font-size: 1.125rem;
 }
 
 .logoSmall {
@@ -55,10 +71,20 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
+  display: none;
+}
+
+/* Show brand name on larger screens when not collapsed */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .brandName {
+    display: block;
+  }
 }
 
 .nav {
   padding: 1rem;
+  flex: 1; /* Allow nav to take up available space */
+  overflow-y: auto; /* Enable scrolling if menu items overflow */
 }
 
 .menuList {
@@ -73,11 +99,20 @@
 .menuItem {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem;
   border-radius: 0.5rem;
   transition: all 0.2s;
   text-decoration: none;
   color: #4b5563;
+  justify-content: center;
+}
+
+/* Expanded menu items on larger screens */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .menuItem {
+    padding: 0.5rem 1rem;
+    justify-content: flex-start;
+  }
 }
 
 .menuItemCollapsed {
@@ -102,11 +137,18 @@
 }
 
 .menuIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0;
   flex-shrink: 0;
   transition: all 0.2s;
+}
+
+/* Add margin to icon on larger screens when expanded */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .menuIcon {
+    margin-right: 0.75rem;
+  }
 }
 
 .menuIconCollapsed {
@@ -117,6 +159,14 @@
 
 .menuLabel {
   transition: opacity 0.2s;
+  display: none;
+}
+
+/* Show labels on larger screens when expanded */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .menuLabel {
+    display: block;
+  }
 }
 
 .hidden {
@@ -135,9 +185,18 @@
 .userInfo {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem;
   color: #4b5563;
   transition: all 0.2s;
+  justify-content: center;
+}
+
+/* Expanded user info on larger screens */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .userInfo {
+    padding: 0.5rem 1rem;
+    justify-content: flex-start;
+  }
 }
 
 .userInfoCollapsed {
@@ -148,8 +207,15 @@
 .userIcon {
   width: 1.25rem;
   height: 1.25rem;
-  margin-right: 0.75rem;
+  margin-right: 0;
   flex-shrink: 0;
+}
+
+/* Add margin to icon on larger screens when expanded */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .userIcon {
+    margin-right: 0.75rem;
+  }
 }
 
 .userIconCollapsed {
@@ -163,19 +229,36 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: none;
+}
+
+/* Show email on larger screens when expanded */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .userEmail {
+    display: block;
+  }
 }
 
 .logoutButton {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem;
   color: #4b5563;
   background: none;
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  justify-content: center;
+}
+
+/* Expanded logout button on larger screens */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .logoutButton {
+    padding: 0.5rem 1rem;
+    justify-content: flex-start;
+  }
 }
 
 .logoutButtonCollapsed {
@@ -191,8 +274,15 @@
 .logoutIcon {
   width: 1.25rem;
   height: 1.25rem;
-  margin-right: 0.75rem;
+  margin-right: 0;
   flex-shrink: 0;
+}
+
+/* Add margin to icon on larger screens when expanded */
+@media (min-width: 768px) {
+  .sidebar:not(.collapsed) .logoutIcon {
+    margin-right: 0.75rem;
+  }
 }
 
 .logoutIconCollapsed {
@@ -204,7 +294,7 @@
 .toggleButton {
   position: absolute;
   right: -0.75rem;
-  top: 5rem;
+  top: 4rem;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 50%;
@@ -212,7 +302,10 @@
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s;
+  z-index: 10; /* Ensure button is above content */
 }
+
+/* Toggle button is always displayed when rendered (controlled by parent) */
 
 .toggleButton:hover {
   background: #f9fafb;

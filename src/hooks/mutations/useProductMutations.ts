@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Product } from '../../types/product';
 import { queryKeys } from '../queries/queryKeys';
@@ -76,6 +76,37 @@ export const useProductMutations = (storeId: string) => {
     },
   });
 
+  const deleteProduct = useMutation({
+    mutationFn: async (productId: string) => {
+      if (!productId) {
+        throw new Error('Product ID is required for deletion');
+      }
+
+      const productRef = doc(db, 'products', productId);
+      await deleteDoc(productRef);
+
+      return productId;
+    },
+    onSuccess: (deletedProductId) => {
+      // Invalidate and refetch immediately
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.products.byStore(storeId),
+        refetchType: 'active',
+      });
+
+      // Manually remove the product from cache to ensure immediate UI update
+      queryClient.setQueryData(
+        queryKeys.products.byStore(storeId),
+        (oldData: any) => {
+          if (Array.isArray(oldData)) {
+            return oldData.filter((product: any) => product.id !== deletedProductId);
+          }
+          return oldData;
+        }
+      );
+    },
+  });
+
   const saveProduct = async (product: Partial<Product>, productId?: string) => {
     if (productId) {
       return updateProduct.mutateAsync({ productId, product });
@@ -87,6 +118,7 @@ export const useProductMutations = (storeId: string) => {
   return {
     createProduct,
     updateProduct,
+    deleteProduct,
     saveProduct,
     isLoading: createProduct.isPending || updateProduct.isPending,
     error: createProduct.error || updateProduct.error,

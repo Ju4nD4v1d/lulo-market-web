@@ -68,39 +68,37 @@ export const useStoreMutations = (ownerId: string) => {
         currentUserId
       );
 
-      // Prepare store data for Firestore
-      const firestoreData = {
+      // Prepare store data for Firestore (filter out undefined values)
+      const firestoreData: any = {
         name: storeData.name,
         description: storeData.description,
         category: storeData.category,
         cuisine: storeData.cuisine,
         location: {
           address: storeData.location.address,
-          city: storeData.location?.city,
-          province: storeData.location?.province,
-          postalCode: storeData.location?.postalCode,
+          city: storeData.location?.city || '',
+          province: storeData.location?.province || '',
+          postalCode: storeData.location?.postalCode || '',
           coordinates: new GeoPoint(
             storeData.location.coordinates.lat,
             storeData.location.coordinates.lng
           ),
-          placeId: storeData.location?.placeId,
+          placeId: storeData.location?.placeId || '',
         },
-        phone: storeData.phone,
-        email: storeData.email,
-        website: storeData.website,
-        instagram: storeData.instagram,
-        facebook: storeData.facebook,
-        twitter: storeData.twitter,
-        socialMedia: storeData.socialMedia,
-        businessHours: storeData.businessHours,
-        deliveryHours: storeData.deliveryHours,
-        deliveryOptions: storeData.deliveryOptions,
+        phone: storeData.phone || '',
+        email: storeData.email || '',
+        website: storeData.website || '',
+        businessHours: storeData.businessHours || {},
+        deliveryHours: storeData.deliveryHours || {},
+        deliveryOptions: storeData.deliveryOptions || {},
         paymentMethods: storeData.paymentMethods || [],
         cuisineType: storeData.cuisineType || [],
         priceRange: storeData.priceRange || '$$',
         rating: storeData.rating || 0,
         reviewCount: storeData.reviewCount || 0,
         images: mainImageUrl ? [mainImageUrl] : [],
+        storeImage: mainImageUrl || '',
+        imageUrl: mainImageUrl || '',
         aboutUs: processedAboutUs,
         verified: false,
         featured: false,
@@ -109,15 +107,24 @@ export const useStoreMutations = (ownerId: string) => {
         updatedAt: new Date(),
       };
 
+      // Add optional social media fields only if they have values
+      if (storeData.instagram) firestoreData.instagram = storeData.instagram;
+      if (storeData.facebook) firestoreData.facebook = storeData.facebook;
+      if (storeData.twitter) firestoreData.twitter = storeData.twitter;
+      if (storeData.socialMedia && Object.keys(storeData.socialMedia).length > 0) {
+        firestoreData.socialMedia = storeData.socialMedia;
+      }
+
       const storesRef = collection(db, 'stores');
       const docRef = await addDoc(storesRef, firestoreData);
 
       return { id: docRef.id, ...firestoreData };
     },
     onSuccess: () => {
-      // Invalidate store queries
+      // Invalidate and refetch store queries immediately
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.byOwner(ownerId),
+        refetchType: 'active',
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.lists(),
@@ -139,36 +146,43 @@ export const useStoreMutations = (ownerId: string) => {
         currentUserId
       );
 
-      // Prepare update data - explicitly list fields to avoid File objects
-      const updateData = {
+      // Prepare update data - explicitly list fields to avoid File objects and undefined values
+      const updateData: any = {
         name: storeData.name,
         description: storeData.description,
         category: storeData.category,
         cuisine: storeData.cuisine,
         location: {
           address: storeData.location.address,
-          city: storeData.location?.city,
-          province: storeData.location?.province,
-          postalCode: storeData.location?.postalCode,
+          city: storeData.location?.city || '',
+          province: storeData.location?.province || '',
+          postalCode: storeData.location?.postalCode || '',
           coordinates: new GeoPoint(
             storeData.location.coordinates.lat,
             storeData.location.coordinates.lng
           ),
-          placeId: storeData.location?.placeId,
+          placeId: storeData.location?.placeId || '',
         },
-        phone: storeData.phone,
-        email: storeData.email,
-        website: storeData.website,
-        instagram: storeData.instagram,
-        facebook: storeData.facebook,
-        twitter: storeData.twitter,
-        deliveryHours: storeData.deliveryHours,
-        deliveryOptions: storeData.deliveryOptions,
-        paymentMethods: storeData.paymentMethods,
-        images: mainImageUrl ? [mainImageUrl] : storeData.images,
+        phone: storeData.phone || '',
+        email: storeData.email || '',
+        website: storeData.website || '',
+        deliveryHours: storeData.deliveryHours || {},
+        deliveryOptions: storeData.deliveryOptions || {},
+        paymentMethods: storeData.paymentMethods || [],
+        images: mainImageUrl ? [mainImageUrl] : storeData.images || [],
+        storeImage: mainImageUrl || storeData.storeImage || (storeData.images?.[0] || ''),
+        imageUrl: mainImageUrl || storeData.imageUrl || (storeData.images?.[0] || ''),
         aboutUs: processedAboutUs,
         updatedAt: new Date(),
       };
+
+      // Add optional social media fields only if they have values
+      if (storeData.instagram) updateData.instagram = storeData.instagram;
+      if (storeData.facebook) updateData.facebook = storeData.facebook;
+      if (storeData.twitter) updateData.twitter = storeData.twitter;
+      if (storeData.socialMedia && Object.keys(storeData.socialMedia).length > 0) {
+        updateData.socialMedia = storeData.socialMedia;
+      }
 
       const storeRef = doc(db, 'stores', storeId);
       await updateDoc(storeRef, updateData);
@@ -176,9 +190,10 @@ export const useStoreMutations = (ownerId: string) => {
       return { id: storeId, ...updateData };
     },
     onSuccess: () => {
-      // Invalidate store queries
+      // Invalidate and refetch store queries immediately
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.byOwner(ownerId),
+        refetchType: 'active',
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.lists(),

@@ -18,20 +18,10 @@ export const OurStory: React.FC<OurStoryProps> = ({ t }) => {
             <p className={styles.description}>
               {t('home.ourStory.description')}
             </p>
-            <div className={styles.statsGrid}>
-              <div className={styles.stat}>
-                <div className={styles.statNumber}>500+</div>
-                <div className={styles.statLabel}>{t('home.ourStory.stat1')}</div>
-              </div>
-              <div className={styles.stat}>
-                <div className={styles.statNumber}>50K+</div>
-                <div className={styles.statLabel}>{t('home.ourStory.stat2')}</div>
-              </div>
-            </div>
           </div>
           <div className={styles.imageContainer}>
             <img
-              src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop&crop=center"
+              src="/images/apoyando-familias.jpg"
               alt="Our Story"
               className={styles.image}
             />

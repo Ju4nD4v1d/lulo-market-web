@@ -7,10 +7,6 @@ import {
   List,
   Loader2,
   AlertCircle,
-  Flame,
-  Snowflake,
-  Cookie,
-  Package2,
   Tag,
   DollarSign,
   Boxes
@@ -24,6 +20,7 @@ import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
 import { useProductMutations } from '../../../../hooks/mutations/useProductMutations';
 import { useProductFilters } from './hooks/useProductFilters';
 import { Product } from '../../../../types/product';
+import { PRODUCT_CATEGORIES, getCategoryLabel } from '../../../../constants/productCategories';
 import styles from './ProductsPage.module.css';
 
 export const ProductsPage = () => {
@@ -36,15 +33,15 @@ export const ProductsPage = () => {
 
   // Use TanStack Query hooks
   const { products, isLoading, error } = useProductsQuery({ storeId });
-  const { saveProduct, isLoading: isSaving } = useProductMutations(storeId || '');
+  const { saveProduct, deleteProduct, isLoading: isSaving } = useProductMutations(storeId || '');
   const { searchTerm, setSearchTerm, selectedCategories, toggleCategory, filteredProducts } = useProductFilters(products);
 
-  const categories = [
-    { id: 'hot', label: t('products.category.hot'), icon: Flame },
-    { id: 'frozen', label: t('products.category.frozen'), icon: Snowflake },
-    { id: 'baked', label: t('products.category.baked'), icon: Cookie },
-    { id: 'other', label: t('products.category.other'), icon: Package2 }
-  ];
+  // Use centralized category configuration
+  const categories = PRODUCT_CATEGORIES.map(cat => ({
+    id: cat.id,
+    label: t(cat.translationKey),
+    icon: cat.icon
+  }));
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -205,27 +202,24 @@ export const ProductsPage = () => {
                   <div className={styles.listContent}>
                     <div className={styles.listHeader}>
                       <h3 className={styles.listTitle}>{product.name}</h3>
-                      <span className={`${styles.status} ${styles[`status${product.status.charAt(0).toUpperCase()}${product.status.slice(1)}`]}`}>
-                        {product.status === 'outOfStock' ? t('products.status.outOfStock') : t(`products.status.${product.status}`)}
-                      </span>
                     </div>
 
                     <p className={styles.listDescription}>
-                      {product.description || 'No description available'}
+                      {product.description || t('products.noDescription')}
                     </p>
 
                     <div className={styles.listMeta}>
                       <div className={styles.metaItem}>
                         <Tag className={styles.metaIcon} />
-                        <span>{product.category}</span>
+                        <span>{getCategoryLabel(product.category, t)}</span>
                       </div>
                       <div className={styles.metaItem}>
                         <DollarSign className={styles.metaIconPrice} />
-                        <span className={styles.priceText}>${product.price.toFixed(2)}</span>
+                        <span className={styles.priceText}>{product.price.toFixed(2)}</span>
                       </div>
                       <div className={styles.metaItem}>
                         <Boxes className={styles.metaIcon} />
-                        <span>{product.stock} in stock</span>
+                        <span>{product.stock} {t('products.inStock')}</span>
                       </div>
                     </div>
                   </div>
@@ -241,6 +235,9 @@ export const ProductsPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={saveProduct}
+          onDelete={async (productId: string) => {
+            await deleteProduct.mutateAsync(productId);
+          }}
           product={selectedProduct || undefined}
           storeId={storeId}
           isSaving={isSaving}

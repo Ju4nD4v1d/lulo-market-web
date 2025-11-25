@@ -10,6 +10,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { useProductsQuery } from '../../../hooks/queries/useProductsQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { StoreHeader } from './StoreHeader';
+import { PRODUCT_CATEGORIES } from '../../../constants/productCategories';
 
 // Mock products for testing cart functionality
 const mockProducts: Product[] = [
@@ -154,13 +155,15 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     return mockProducts.filter(product => product.storeId === store.id);
   }, [fetchedProducts, store.id]);
 
-  const categories = [
-    { id: 'all', name: t('category.all'), icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'hot', name: t('category.hot'), icon: <Truck className="w-4 h-4" /> },
-    { id: 'frozen', name: t('category.frozen'), icon: <Clock className="w-4 h-4" /> },
-    { id: 'baked', name: t('category.baked'), icon: <Star className="w-4 h-4" /> },
-    { id: 'other', name: t('category.other'), icon: <MapPin className="w-4 h-4" /> }
-  ];
+  // Build categories from PRODUCT_CATEGORIES
+  const categories = useMemo(() => [
+    { id: 'all', name: t('category.all'), Icon: BookOpen },
+    ...PRODUCT_CATEGORIES.map(category => ({
+      id: category.id,
+      name: t(category.translationKey),
+      Icon: category.icon
+    }))
+  ], [t]);
 
   // Filter products using useMemo instead of useEffect to avoid infinite loops
   const filteredProducts = useMemo(() => {
@@ -328,11 +331,9 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
       <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
         {/* Enhanced Store Hero Section */}
         <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8 relative">
-          <div className="absolute inset-0 bg-gray-50/30"></div>
-
           <div className="relative">
-            {/* Professional Store Image with Overlay */}
-            <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
+            {/* Professional Store Image with Overlay - Reduced height */}
+            <div className="relative h-48 md:h-56 lg:h-64 overflow-hidden">
               {(store.storeImage || store.imageUrl) ? (
                 <div className="relative h-full">
                   <img
@@ -360,21 +361,21 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
                 </div>
               )}
 
-              {/* Store Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h1 className="text-h1 mb-2 tracking-tight">{store.name}</h1>
+              {/* Store Info Overlay - More compact */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
+                <div className="flex items-end justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 tracking-tight truncate">{store.name}</h1>
                     {store.description && (
-                      <p className="body-font text-white/90 text-base md:text-lg leading-relaxed max-w-2xl">{store.description}</p>
+                      <p className="text-sm md:text-base text-white/90 leading-snug line-clamp-1 md:line-clamp-2 max-w-2xl">{store.description}</p>
                     )}
                   </div>
 
                   {/* Verification Badge */}
                   {store.isVerified && (
-                    <div className="bg-white/90 backdrop-blur-sm text-primary-400 px-4 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/20">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-emerald-600" />
+                    <div className="bg-white/90 backdrop-blur-sm text-primary-400 px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold shadow-lg border border-white/20 flex-shrink-0">
+                      <div className="flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-600" />
                         <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
                       </div>
                     </div>
@@ -383,70 +384,70 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
               </div>
             </div>
 
-            {/* Store Information Panel */}
-            <div className="p-6 md:p-8 bg-white">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Store Information Panel - More compact */}
+            <div className="p-4 md:p-6 bg-white">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {/* Rating & Reviews */}
                 {store.averageRating && (
-                  <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
-                        <Star className="w-6 h-6 fill-white text-white" />
+                  <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Star className="w-5 h-5 fill-white text-white" />
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-gray-900">{store.averageRating.toFixed(1)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xl font-bold text-gray-900">{store.averageRating.toFixed(1)}</div>
                         {store.totalReviews && (
-                          <p className="text-sm text-gray-600">({store.totalReviews} reviews)</p>
+                          <p className="text-xs text-gray-600">({store.totalReviews} reviews)</p>
                         )}
+                        <div className="flex items-center gap-0.5 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3 h-3 ${
+                                i < Math.floor(store.averageRating || 0)
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(store.averageRating || 0)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* Delivery Status */}
-                <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-white" />
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-green-900">
                         {isDeliveryAvailable() ? t('delivery.openNow') : t('delivery.closed')}
                       </div>
-                      <div className="text-xs text-gray-600">{getDeliveryHoursToday()}</div>
+                      <div className="text-xs text-gray-600 truncate">{getDeliveryHoursToday()}</div>
+                      <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                        isDeliveryAvailable()
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                          isDeliveryAvailable() ? 'bg-green-400' : 'bg-gray-400'
+                        }`}></div>
+                        {isDeliveryAvailable() ? t('delivery.delivering') : t('delivery.notDelivering')}
+                      </div>
                     </div>
-                  </div>
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                    isDeliveryAvailable()
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    <div className={`w-2 h-2 rounded-full mr-2 ${
-                      isDeliveryAvailable() ? 'bg-green-400' : 'bg-gray-400'
-                    }`}></div>
-                    {isDeliveryAvailable() ? t('delivery.delivering') : t('delivery.notDelivering')}
                   </div>
                 </div>
 
                 {/* Location */}
-                <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-white" />
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-blue-900">{t('storeDetail.location')}</div>
                       <div className="text-xs text-gray-600 max-w-48 line-clamp-2">
                         {store.location?.address || store.address || 'Address not available'}
@@ -657,20 +658,23 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
             <div className="mb-10">
               <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`premium-pill focus-ring px-6 py-3 flex items-center gap-3 border-2 ${
-                        selectedCategory === category.id
-                          ? 'btn-primary text-gray-900 border-primary-400 shadow-lg'
-                          : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-primary-400/50'
-                      }`}
-                    >
-                      <span className="text-base">{category.icon}</span>
-                      <span>{category.name}</span>
-                    </button>
-                  ))}
+                  {categories.map((category) => {
+                    const Icon = category.Icon;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`premium-pill focus-ring px-6 py-3 flex items-center gap-3 border-2 transition-all ${
+                          selectedCategory === category.id
+                            ? 'btn-primary text-gray-900 border-primary-400 shadow-lg'
+                            : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-primary-400/50'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{category.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

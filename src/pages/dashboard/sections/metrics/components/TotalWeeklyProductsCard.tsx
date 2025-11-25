@@ -3,14 +3,11 @@ import type * as React from 'react';
 import {
   Loader2,
   AlertCircle,
-  TrendingUp,
-  TrendingDown,
-  Box,
-  Info,
-  Sparkles
+  Box
 } from 'lucide-react';
 import { useCurrentWeekMetrics } from '../../../../../hooks/useCurrentWeekMetrics';
 import { useLanguage } from '../../../../../context/LanguageContext';
+import styles from './KPICard.module.css';
 
 interface TotalWeeklyProductsCardProps {
   storeId: string;
@@ -18,89 +15,51 @@ interface TotalWeeklyProductsCardProps {
 
 const TotalWeeklyProductsCard: React.FC<TotalWeeklyProductsCardProps> = ({ storeId }) => {
   const { t } = useLanguage();
-  const { current, previous, loading, error, trend } = useCurrentWeekMetrics(storeId);
+  const { current, loading, error } = useCurrentWeekMetrics(storeId);
 
-  // Extract products data
   const currentProductsSold = current.totalProducts;
-  const productsTrend = trend.products;
 
-  // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
-        <div className="flex items-center justify-center h-24">
-          <div className="text-center">
-            <Loader2 className="w-6 h-6 text-primary-400 animate-spin mx-auto mb-2" />
-            <p className="text-xs text-gray-500">{t('metrics.loadingProducts')}</p>
-          </div>
+      <div className={`${styles.card} ${styles.loadingCard}`}>
+        <div className={styles.loadingContent}>
+          <Loader2 className={styles.loadingSpinner} />
+          <p className={styles.loadingText}>{t('metrics.loadingProducts')}</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">{t('metrics.productsThisWeek')}</p>
-            <div className="flex items-center text-red-600 space-x-2 mt-2">
-              <AlertCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">{t('metrics.couldNotLoadData')}</span>
+      <div className={`${styles.card} ${styles.errorCard}`}>
+        <div className={styles.cardContent}>
+          <div className={styles.cardMain}>
+            <p className={styles.cardLabel}>{t('metrics.productsThisWeek')}</p>
+            <div className={styles.errorText}>
+              <AlertCircle className={styles.errorIcon} />
+              <span>{t('metrics.couldNotLoadData')}</span>
             </div>
           </div>
-          <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl">
-            <Box className="w-6 h-6 text-red-500" />
+          <div className={styles.errorIconWrapper}>
+            <Box className={styles.errorCardIcon} />
           </div>
         </div>
       </div>
     );
   }
 
-  // Normal state with data
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-6 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-gray-500 text-sm font-medium mb-2">{t('metrics.productsThisWeek')}</p>
-          <h3 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-primary-400 transition-colors">
-            {currentProductsSold}
-          </h3>
-          {previous ? (
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                productsTrend !== null && productsTrend >= 0 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {productsTrend !== null && productsTrend >= 0 ? (
-                  <TrendingUp className="w-4 h-4" />
-                ) : (
-                  <TrendingDown className="w-4 h-4" />
-                )}
-                {productsTrend !== null ? `${productsTrend >= 0 ? '+' : ''}${productsTrend.toFixed(1)}%` : '0%'}
-              </div>
-              <span className="text-gray-500 text-sm">{t('metrics.fromLastWeek')}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-gray-400">
-              <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 rounded-full">
-                <Info className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-600">{t('metrics.buildingInsights')}</span>
-              </div>
-            </div>
-          )}
+    <div className={styles.card}>
+      <div className={styles.cardContent}>
+        <div className={styles.cardMain}>
+          <p className={styles.cardLabel}>{t('metrics.productsThisWeek')}</p>
+          <h3 className={styles.cardValue}>{currentProductsSold}</h3>
         </div>
-        <div className="relative">
-          <div className="p-4 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
-            <Box className="w-8 h-8 text-white" />
+        <div className={styles.iconContainer}>
+          <div className={styles.iconWrapper}>
+            <Box className={styles.cardIcon} />
           </div>
-          {productsTrend !== null && productsTrend > 0 && (
-            <div className="absolute -top-1 -right-1 p-1 bg-green-500 rounded-full">
-              <Sparkles className="w-3 h-3 text-white" />
-            </div>
-          )}
         </div>
       </div>
     </div>

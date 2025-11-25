@@ -85,6 +85,7 @@ export interface StoreData {
   averageRating?: number;        // Calculated average rating (0-5)
   totalReviews?: number;         // Total number of reviews
   isVerified?: boolean;          // Verified business status
+  status?: 'active' | 'inactive' | 'pending';  // Store operational status
   createdAt?: Date;              // Store creation timestamp
   updatedAt?: Date;              // Store last update timestamp
   // Products field for mock data and test mode

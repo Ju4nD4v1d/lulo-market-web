@@ -361,18 +361,42 @@
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   padding-top: 1.5rem;
+}
+
+.leftActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.rightActions {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
 }
 
 @media (max-width: 480px) {
   .actions {
     flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .leftActions,
+  .rightActions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .rightActions {
+    flex-direction: column-reverse;
   }
 
   .cancelButton,
-  .saveButton {
+  .saveButton,
+  .deleteButton {
     width: 100%;
     justify-content: center;
   }
@@ -426,4 +450,33 @@
   width: 1rem;
   height: 1rem;
   animation: spin 1s linear infinite;
+}
+
+.deleteButton {
+  padding: 0.5rem 1.5rem;
+  color: #DC2626;
+  background: white;
+  border: 1px solid #FCA5A5;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #FEF2F2;
+  border-color: #DC2626;
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deleteIcon {
+  width: 1rem;
+  height: 1rem;
 }

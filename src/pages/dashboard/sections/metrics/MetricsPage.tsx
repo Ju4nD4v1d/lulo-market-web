@@ -11,7 +11,6 @@ import { useMetricsExport } from './hooks/useMetricsExport';
 import { RevenueTrendChart } from './components/RevenueTrendChart';
 import { TopProductsChart } from './components/TopProductsChart';
 import { KPICardGrid } from './components/KPICardGrid';
-import { InsightsSection } from './components/InsightsSection';
 import { colorPalette } from './utils/chartConfig';
 import styles from './MetricsPage.module.css';
 
@@ -223,9 +222,6 @@ export const MetricsPage = () => {
             />
           </div>
         </div>
-
-        {/* Insights Section */}
-        <InsightsSection t={t} />
       </div>
     </div>
   );

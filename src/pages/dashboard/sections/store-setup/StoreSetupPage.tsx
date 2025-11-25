@@ -31,6 +31,15 @@ const initialStoreData: StoreData = {
   website: '',
   socialMedia: {},
   businessHours: {},
+  deliveryHours: {
+    Monday: { open: '09:00', close: '17:00', closed: false },
+    Tuesday: { open: '09:00', close: '17:00', closed: false },
+    Wednesday: { open: '09:00', close: '17:00', closed: false },
+    Thursday: { open: '09:00', close: '17:00', closed: false },
+    Friday: { open: '09:00', close: '17:00', closed: false },
+    Saturday: { open: '09:00', close: '17:00', closed: false },
+    Sunday: { open: '09:00', close: '17:00', closed: true }
+  },
   deliveryOptions: {
     delivery: false,
     pickup: false,
@@ -69,18 +78,21 @@ export const StoreSetupPage = () => {
   const { geocode, isGeocoding } = useAddressGeocoding();
 
   // Sync queried data with local state
-  // Only sync when queriedStoreId changes (indicates new store data loaded)
-  // This prevents infinite loops while ensuring we update when data is fetched
+  // Sync when data is loaded or updated (e.g., after saving)
   useEffect(() => {
     if (queriedStoreData && queriedStoreId) {
       setLocalStoreData(queriedStoreData);
-      // Set the existing store image if available
-      if (queriedStoreData.images && queriedStoreData.images.length > 0) {
+      // Set the existing store image if available (use storeImage field first, then images array)
+      if (queriedStoreData.storeImage) {
+        setStoreImage({ url: queriedStoreData.storeImage });
+      } else if (queriedStoreData.images && queriedStoreData.images.length > 0) {
         setStoreImage({ url: queriedStoreData.images[0] });
+      } else {
+        setStoreImage({});
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queriedStoreId]); // Only depend on storeId, not the data object itself
+  }, [queriedStoreId, queriedStoreData?.storeImage, queriedStoreData?.images?.[0]]); // React to image changes
 
   const handleImageUpload = (file: File) => {
     const preview = URL.createObjectURL(file);
@@ -145,7 +157,42 @@ export const StoreSetupPage = () => {
       }, 1500);
     } catch (err) {
       console.error('Error saving store:', err);
-      const errorMessage = err instanceof Error ? err.message : t('store.saveProgress.errorDesc');
+
+      // Map Firebase and other errors to user-friendly messages
+      let errorMessage = t('store.saveProgress.errorDesc');
+
+      if (err instanceof Error) {
+        const errorCode = (err as any).code;
+
+        // Map Firebase error codes
+        if (errorCode) {
+          switch (errorCode) {
+            case 'permission-denied':
+              errorMessage = t('store.errors.permissionDenied');
+              break;
+            case 'unavailable':
+              errorMessage = t('store.errors.networkError');
+              break;
+            case 'invalid-argument':
+              errorMessage = t('store.errors.invalidData');
+              break;
+            case 'unauthenticated':
+              errorMessage = t('store.errors.notAuthenticated');
+              break;
+            default:
+              // If error message is user-friendly (from validation), use it
+              if (!err.message.includes('FirebaseError') && !err.message.includes('Function')) {
+                errorMessage = err.message;
+              }
+          }
+        } else {
+          // Use the error message if it's not a technical Firebase error
+          if (!err.message.includes('FirebaseError') && !err.message.includes('Function')) {
+            errorMessage = err.message;
+          }
+        }
+      }
+
       setSaveError(errorMessage);
       setModalStep('error');
     }

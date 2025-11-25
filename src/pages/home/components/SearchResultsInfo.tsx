@@ -7,7 +7,6 @@ interface SearchResultsInfoProps {
   searchQuery: string;
   resultCount: number;
   isSearching: boolean;
-  isUsingFallbackSearch: boolean;
   onClearSearch: () => void;
   t: (key: string) => string;
 }
@@ -17,14 +16,13 @@ interface SearchResultsInfoProps {
  *
  * Displays search feedback to users:
  * - Search query and result count
- * - Fallback search indicator
  * - Clear search button
+ * - Powered by Fuse.js for fuzzy search
  */
 export const SearchResultsInfo: React.FC<SearchResultsInfoProps> = ({
   searchQuery,
   resultCount,
   isSearching,
-  isUsingFallbackSearch,
   onClearSearch,
   t,
 }) => {
@@ -47,13 +45,6 @@ export const SearchResultsInfo: React.FC<SearchResultsInfoProps> = ({
             </span>
           )}
         </div>
-
-        {/* Fallback indicator */}
-        {isUsingFallbackSearch && !isSearching && (
-          <span className={styles.fallbackBadge}>
-            {t('home.offlineSearch')}
-          </span>
-        )}
 
         {/* Clear button */}
         <button

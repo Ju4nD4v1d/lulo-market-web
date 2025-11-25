@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Store,
   Package,
@@ -19,14 +19,36 @@ import styles from './DashboardSidebar.module.css';
 
 interface DashboardSidebarProps {
   currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages';
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ currentPage }) => {
+const MOBILE_BREAKPOINT = 768;
+
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
+  currentPage,
+  isCollapsed,
+  onToggleCollapse
+}) => {
   const { currentUser, logout } = useAuth();
   const { t } = useLanguage();
   const { hasStore } = useStore();
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Track if we're on mobile to hide toggle button
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -120,17 +142,20 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ currentPage 
         </button>
       </div>
 
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className={styles.toggleButton}
-      >
-        {isCollapsed ? (
-          <ChevronRight className={styles.toggleIcon} />
-        ) : (
-          <ChevronLeft className={styles.toggleIcon} />
-        )}
-      </button>
+      {/* Toggle Button - Only visible on desktop (not mobile) */}
+      {!isMobile && (
+        <button
+          onClick={onToggleCollapse}
+          className={styles.toggleButton}
+          aria-label={isCollapsed ? t('admin.expandSidebar') : t('admin.collapseSidebar')}
+        >
+          {isCollapsed ? (
+            <ChevronRight className={styles.toggleIcon} />
+          ) : (
+            <ChevronLeft className={styles.toggleIcon} />
+          )}
+        </button>
+      )}
     </aside>
   );
 };

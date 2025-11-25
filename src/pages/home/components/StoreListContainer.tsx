@@ -80,7 +80,6 @@ export const StoreListContainer: React.FC<StoreListContainerProps> = ({
           searchQuery={searchQuery}
           resultCount={stores.length}
           isSearching={isSearching}
-          isUsingFallbackSearch={isUsingFallbackSearch}
           onClearSearch={onClearSearch}
           t={t}
         />

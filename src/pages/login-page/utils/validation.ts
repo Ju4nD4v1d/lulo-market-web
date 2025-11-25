@@ -33,6 +33,12 @@ export const validateRegisterForm = (
     return t('auth.errors.emailRequired');
   }
 
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return t('auth.errors.invalidEmail');
+  }
+
   if (!password.trim()) {
     return t('auth.errors.passwordRequired');
   }
