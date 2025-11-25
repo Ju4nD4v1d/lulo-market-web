@@ -8,7 +8,7 @@ import { UserMenuDropdown } from './shared/user/UserMenuDropdown';
 import styles from './Header.module.css';
 
 export const Header = () => {
-  const { t, toggleLanguage } = useLanguage();
+  const { t, toggleLanguage, locale } = useLanguage();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -134,7 +134,10 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <div className={styles.mobileNav}>
               <button onClick={toggleLanguage} className={styles.mobileLanguageButton}>
-                <Globe size={20} />
+                <Globe size={16} />
+                <span className={styles.mobileLanguageButtonText}>
+                  {locale === 'es' ? 'ES' : 'EN'}
+                </span>
               </button>
 
               {/* Mobile User Button */}

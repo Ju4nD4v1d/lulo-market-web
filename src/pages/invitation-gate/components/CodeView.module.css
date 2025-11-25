@@ -31,7 +31,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: monospace;
-  font-size: 0.75rem;
+  font-size: 16px; /* Must be 16px minimum to prevent iOS zoom */
   outline: none;
   transition: all 0.2s;
 }

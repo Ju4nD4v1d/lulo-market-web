@@ -68,7 +68,7 @@
   backdrop-filter: blur(8px);
   padding: 0 0.75rem;
   color: white;
-  font-size: 0.75rem;
+  font-size: 16px; /* Must be 16px minimum to prevent iOS zoom */
   outline: none;
   transition: all 0.2s;
 }
