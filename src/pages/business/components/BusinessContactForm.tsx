@@ -22,6 +22,7 @@ interface BusinessContactFormProps {
   };
   isSubmitting: boolean;
   isSubmitted: boolean;
+  submitError?: string;
   onInputChange: (field: string, value: string | boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
   t: (key: string) => string;
@@ -32,6 +33,7 @@ export const BusinessContactForm: React.FC<BusinessContactFormProps> = ({
   errors,
   isSubmitting,
   isSubmitted,
+  submitError,
   onInputChange,
   onSubmit,
   t
@@ -65,6 +67,12 @@ export const BusinessContactForm: React.FC<BusinessContactFormProps> = ({
           {t('business.contact.formDescription')}
         </p>
       </div>
+
+      {submitError && (
+        <div className={styles.submitErrorBanner}>
+          {submitError}
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className={styles.form}>
         <div className={styles.formGroup}>

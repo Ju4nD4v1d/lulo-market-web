@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useBusinessContactMutation } from '../../../hooks/mutations/useBusinessContactMutation';
 
 interface FormData {
@@ -19,28 +19,31 @@ interface FormErrors {
   agreeToTerms: string;
 }
 
+const initialFormData: FormData = {
+  fullName: '',
+  businessEmail: '',
+  phoneNumber: '',
+  businessName: '',
+  contactPreference: '',
+  agreeToTerms: false
+};
+
+const initialErrors: FormErrors = {
+  fullName: '',
+  businessEmail: '',
+  phoneNumber: '',
+  businessName: '',
+  contactPreference: '',
+  agreeToTerms: ''
+};
+
 export const useBusinessContact = () => {
   const { submitContact, isSubmitting } = useBusinessContactMutation();
 
-  const [formData, setFormData] = useState<FormData>({
-    fullName: '',
-    businessEmail: '',
-    phoneNumber: '',
-    businessName: '',
-    contactPreference: '',
-    agreeToTerms: false
-  });
-
-  const [errors, setErrors] = useState<FormErrors>({
-    fullName: '',
-    businessEmail: '',
-    phoneNumber: '',
-    businessName: '',
-    contactPreference: '',
-    agreeToTerms: ''
-  });
-
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [errors, setErrors] = useState<FormErrors>(initialErrors);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
   const validateForm = (t: (key: string) => string) => {
     const newErrors: FormErrors = {
@@ -89,6 +92,7 @@ export const useBusinessContact = () => {
 
   const handleSubmit = async (e: React.FormEvent, t: (key: string) => string) => {
     e.preventDefault();
+    setSubmitError('');
     if (!validateForm(t)) return;
 
     try {
@@ -107,22 +111,32 @@ export const useBusinessContact = () => {
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error saving lead:', error);
-      alert(t('business.contact.form.error.submit'));
+      setSubmitError(t('business.contact.form.error.submit'));
     }
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: '' }));
+    if (submitError) setSubmitError('');
   };
+
+  const resetForm = useCallback(() => {
+    setFormData(initialFormData);
+    setErrors(initialErrors);
+    setIsSubmitted(false);
+    setSubmitError('');
+  }, []);
 
   return {
     formData,
     errors,
     isSubmitting,
     isSubmitted,
+    submitError,
     handleInputChange,
     handleSubmit,
-    validateForm
+    validateForm,
+    resetForm
   };
 };
