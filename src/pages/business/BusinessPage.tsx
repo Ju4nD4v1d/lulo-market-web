@@ -46,9 +46,18 @@ export const BusinessPage = () => {
     errors,
     isSubmitting,
     isSubmitted,
+    submitError,
     handleInputChange,
-    handleSubmit: handleContactSubmit
+    handleSubmit: handleContactSubmit,
+    resetForm
   } = useBusinessContact();
+
+  // Reset form when component unmounts or when navigating away
+  useEffect(() => {
+    return () => {
+      resetForm();
+    };
+  }, [resetForm]);
 
   // Calendly hook
   const { openCalendly } = useCalendly();
@@ -121,6 +130,7 @@ export const BusinessPage = () => {
           errors={errors}
           isSubmitting={isSubmitting}
           isSubmitted={isSubmitted}
+          submitError={submitError}
           onInputChange={handleInputChange}
           onSubmit={handleFormSubmit}
           onOpenCalendly={openCalendly}

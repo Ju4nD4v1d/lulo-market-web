@@ -3,11 +3,15 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 
 interface BusinessContactData {
-  name: string;
-  email: string;
-  phone: string;
+  fullName: string;
+  businessEmail: string;
+  phoneNumber: string | null;
   businessName: string;
-  message: string;
+  preferredContactMethod: string;
+  privacyConsent: {
+    accepted: boolean;
+    version: string;
+  };
 }
 
 export const useBusinessContactMutation = () => {
@@ -29,7 +33,7 @@ export const useBusinessContactMutation = () => {
   });
 
   return {
-    submitContact: submitContact.mutateAsync,
+    submitContact,
     isSubmitting: submitContact.isPending,
     error: submitContact.error,
     isSuccess: submitContact.isSuccess,
