@@ -151,12 +151,12 @@
 }
 
 .cartButton:hover {
-  color: #e7ff01;
+  color: var(--color-primary);
 }
 
 .cartButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
 }
 
 /* Cart badge */
@@ -196,12 +196,12 @@
 }
 
 .userButton:hover {
-  color: #e7ff01;
+  color: var(--color-primary);
 }
 
 .userButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
 }
 
 /* Login button */
@@ -220,10 +220,10 @@
 }
 
 .loginButton:hover {
-  color: #e7ff01;
+  color: var(--color-primary);
 }
 
 .loginButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(231, 255, 1, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
 }

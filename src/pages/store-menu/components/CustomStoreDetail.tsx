@@ -4,7 +4,6 @@ import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, S
 import { StoreData } from '../../../types/store';
 import { Product } from '../../../types/product';
 import { StoreProductCard } from './StoreProductCard';
-import { CartSidebar } from '../../../components/CartSidebar';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useProductsQuery } from '../../../hooks/queries/useProductsQuery';
@@ -142,7 +141,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -315,7 +313,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         onLanguageToggle={toggleLanguage}
         languageLabel={t('language.toggle')}
         cartItemCount={cart.summary.itemCount}
-        onCartClick={() => setShowCart(true)}
+        onCartClick={() => { window.location.hash = '#cart'; }}
         currentUser={currentUser}
         userProfile={userProfile}
         onUserMenuClick={handleUserMenuClick}
@@ -706,6 +704,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
                     product={product}
                     storeId={store.id}
                     storeName={store.name}
+                    storeImage={store.storeImage || store.imageUrl}
                     onClick={onAddToCart ? () => onAddToCart(product) : undefined}
                   />
                 ))}
@@ -945,8 +944,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         })()}
       </div>
 
-      {/* Cart Sidebar */}
-      <CartSidebar isOpen={showCart} onClose={() => setShowCart(false)} />
-    </div>
+      </div>
   );
 };

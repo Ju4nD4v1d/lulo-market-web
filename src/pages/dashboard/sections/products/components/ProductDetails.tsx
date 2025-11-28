@@ -1,7 +1,9 @@
 import type * as React from 'react';
 import { useState } from 'react';
-import { ArrowLeft, Edit, Package, DollarSign, Boxes, AlertCircle, Flame, Snowflake, Cookie, Package2 } from 'lucide-react';
+import { ArrowLeft, Edit, Package, DollarSign, Boxes, AlertCircle, Flame, Snowflake, Cookie, Package2, List, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../../../../../context/LanguageContext';
+import { COMMON_ALLERGENS } from '../../../../../constants/allergens';
+import styles from './ProductDetails.module.css';
 
 interface Product {
   id: string;
@@ -14,6 +16,10 @@ interface Product {
   images: string[];
   pstPercentage?: number;
   gstPercentage?: number;
+  ingredients?: {
+    main: string[];
+    contains?: string[];
+  };
 }
 
 interface ProductDetailsProps {
@@ -85,6 +91,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   };
 
   const isLowStock = product.stock < 10;
+
+  // Check if product has ingredients data
+  const hasIngredients = product.ingredients?.main && product.ingredients.main.length > 0;
+  const hasAllergens = product.ingredients?.contains && product.ingredients.contains.length > 0;
+
+  // Get allergen label from translation
+  const getAllergenLabel = (allergenId: string) => {
+    const allergen = COMMON_ALLERGENS.find(a => a.id === allergenId);
+    return allergen ? t(allergen.translationKey) : allergenId;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -195,44 +211,47 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 <DollarSign className="w-5 h-5 text-primary-400" />
                 {t('products.pricingStock')}
               </h3>
-              
+
               <div className="space-y-4">
+                {/* Base Price */}
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">{t('products.basePrice')}</span>
                   <span className="text-2xl font-bold text-primary-400">
-                    CAD ${product.price.toFixed(2)}
+                    ${product.price.toFixed(2)}
                   </span>
                 </div>
-                
-                {(product.pstPercentage || product.gstPercentage) && (
-                  <div className="space-y-2">
-                    {product.pstPercentage > 0 && (
+
+                {/* Tax Breakdown - Only show if there are taxes */}
+                {((product.pstPercentage ?? 0) > 0 || (product.gstPercentage ?? 0) > 0) && (
+                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                    {(product.pstPercentage ?? 0) > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{t('products.pst')} ({product.pstPercentage}%)</span>
-                        <span className="text-gray-900">
-                          CAD ${((product.price * product.pstPercentage) / 100).toFixed(2)}
+                        <span className="text-gray-500">{t('products.pst')} ({product.pstPercentage}%)</span>
+                        <span className="text-gray-700">
+                          +${((product.price * (product.pstPercentage ?? 0)) / 100).toFixed(2)}
                         </span>
                       </div>
                     )}
-                    
-                    {product.gstPercentage > 0 && (
+
+                    {(product.gstPercentage ?? 0) > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{t('products.gst')} ({product.gstPercentage}%)</span>
-                        <span className="text-gray-900">
-                          CAD ${((product.price * product.gstPercentage) / 100).toFixed(2)}
+                        <span className="text-gray-500">{t('products.gst')} ({product.gstPercentage}%)</span>
+                        <span className="text-gray-700">
+                          +${((product.price * (product.gstPercentage ?? 0)) / 100).toFixed(2)}
                         </span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                       <span className="text-gray-800 font-medium">{t('products.totalWithTax')}</span>
                       <span className="text-xl font-bold text-gray-900">
-                        CAD ${totalPrice.toFixed(2)}
+                        ${totalPrice.toFixed(2)}
                       </span>
                     </div>
                   </div>
                 )}
 
+                {/* Stock */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-2">
                     <Boxes className="w-5 h-5 text-primary-400" />
@@ -258,6 +277,39 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 </div>
               </div>
             </div>
+
+            {/* Ingredients Section - Only shown if product has ingredients */}
+            {(hasIngredients || hasAllergens) && (
+              <div className={styles.ingredientsCard}>
+                <h3 className={styles.cardTitle}>
+                  <List className={styles.cardIcon} />
+                  {t('products.ingredients')}
+                </h3>
+
+                {hasIngredients && (
+                  <div className={styles.ingredientsList}>
+                    {product.ingredients!.main.map((ingredient, index) => (
+                      <div key={index} className={styles.ingredientItem}>
+                        <span className={styles.ingredientBullet} />
+                        {ingredient}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {hasAllergens && (
+                  <div className={styles.allergensWarning}>
+                    <AlertTriangle className={styles.warningIcon} />
+                    <div className={styles.allergensContent}>
+                      <span className={styles.allergensLabel}>{t('productDetails.contains')}:</span>
+                      <span className={styles.allergensList}>
+                        {product.ingredients!.contains!.map(id => getAllergenLabel(id)).join(', ')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

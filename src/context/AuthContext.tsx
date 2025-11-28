@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { 
+import {
   User,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -8,9 +8,11 @@ import {
   signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { serverTimestamp } from 'firebase/firestore';
 import { updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { auth, db } from '../config/firebase';
+import { auth } from '../config/firebase';
+import * as userApi from '../services/api/userApi';
+import * as storeApi from '../services/api/storeApi';
 import { UserProfile, UserType } from '../types/user';
 
 interface AuthContextType {
@@ -50,20 +52,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      
+
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            // Convert Firestore Timestamps to Dates
-            const userProfile: UserProfile = {
+          const userData = await userApi.getUserProfile(user.uid);
+          if (userData) {
+            // Convert Firestore Timestamps to Dates if needed
+            const profile: UserProfile = {
               ...userData,
-              createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
-              lastLoginAt: userData.lastLoginAt?.toDate ? userData.lastLoginAt.toDate() : new Date(userData.lastLoginAt || Date.now()),
+              createdAt: userData.createdAt instanceof Date ? userData.createdAt : new Date(userData.createdAt || Date.now()),
+              lastLoginAt: userData.lastLoginAt instanceof Date ? userData.lastLoginAt : new Date(userData.lastLoginAt || Date.now()),
             } as UserProfile;
-            setUserProfile(userProfile);
-            setUserType(userProfile.userType);
+            setUserProfile(profile);
+            setUserType(profile.userType);
           } else {
             // Handle legacy users without userType - default to shopper
             const defaultUserData: UserProfile = {
@@ -75,21 +76,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               lastLoginAt: new Date(),
               preferences: {},
             };
-            
-            await setDoc(doc(db, 'users', user.uid), {
+
+            await userApi.setUserProfile(user.uid, {
               ...defaultUserData,
               createdAt: serverTimestamp(),
               lastLoginAt: serverTimestamp(),
             });
-            
+
             setUserProfile(defaultUserData);
             setUserType('shopper');
           }
-        } catch (error: any) {
-          console.error('Error fetching user profile:', error);
+        } catch (error: unknown) {
+          const err = error as { code?: string; message?: string };
+          console.error('Error fetching user profile:', err);
 
           // Handle offline gracefully - don't clear user profile
-          if (error?.code === 'unavailable' || error?.message?.includes('offline')) {
+          if (err?.code === 'unavailable' || err?.message?.includes('offline')) {
             console.warn('⚠️ Offline mode: User profile fetch failed, will retry when online');
           } else {
             setUserProfile(null);
@@ -100,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserProfile(null);
         setUserType(null);
       }
-      
+
       setLoading(false);
     });
 
@@ -117,15 +119,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const user = userCredential.user;
 
     // First check if user has a profile and is a storeOwner
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    const userData = await userApi.getUserProfile(user.uid);
 
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-
+    if (userData) {
       // If user is marked as storeOwner, grant access
       if (userData.userType === 'storeOwner') {
         // Update last login
-        await updateDoc(doc(db, 'users', user.uid), {
+        await userApi.updateUserProfile(user.uid, {
           lastLoginAt: serverTimestamp()
         });
 
@@ -137,12 +137,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // If no profile exists or not a storeOwner, check for stores
-    const { collection, query, where, getDocs } = await import('firebase/firestore');
-    const storesRef = collection(db, 'stores');
-    const storeQuery = query(storesRef, where('ownerId', '==', user.uid));
-    const storeSnapshot = await getDocs(storeQuery);
-
-    const hasStores = !storeSnapshot.empty;
+    const foundStoreId = await storeApi.getStoreIdByOwner(user.uid);
+    const hasStores = !!foundStoreId;
 
     if (hasStores) {
       // User has stores - create/update profile as storeOwner
@@ -151,12 +147,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: user.email || '',
         displayName: user.displayName || 'Store Owner',
         userType: 'storeOwner' as const,
-        createdAt: userDoc.exists() ? userDoc.data().createdAt : serverTimestamp(),
+        createdAt: userData ? userData.createdAt : serverTimestamp(),
         lastLoginAt: serverTimestamp(),
-        preferences: userDoc.exists() ? userDoc.data().preferences : {},
+        preferences: userData ? userData.preferences : {},
       };
 
-      await setDoc(doc(db, 'users', user.uid), storeOwnerProfileData, { merge: true });
+      await userApi.setUserProfile(user.uid, storeOwnerProfileData);
 
       // Update local state immediately to prevent access denied
       setUserProfile(storeOwnerProfileData as UserProfile);
@@ -185,17 +181,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         preferences: {},
       };
 
-      await setDoc(doc(db, 'users', user.uid), {
+      await userApi.setUserProfile(user.uid, {
         ...userProfileData,
         createdAt: serverTimestamp(),
         lastLoginAt: serverTimestamp(),
       });
-    } catch (error: any) {
-      console.error('Registration error:', error);
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      console.error('Registration error:', err);
 
       // Map Firebase error codes to user-friendly messages
-      const errorCode = error?.code;
-      let errorMessage = error?.message || 'Registration failed';
+      const errorCode = err?.code;
+      let errorMessage = err?.message || 'Registration failed';
 
       switch (errorCode) {
         case 'auth/email-already-in-use':
@@ -239,7 +236,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      
+
       // Handle authentication updates (email/password) first
       if (authData && (authData.email || authData.newPassword)) {
         if (!authData.currentPassword) {
@@ -264,26 +261,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Update Firestore profile document
-      const userDocRef = doc(db, 'users', currentUser.uid);
+      // Update Firestore profile document via API
       const updateData = {
         ...profileData,
         lastLoginAt: serverTimestamp()
       };
 
-      await updateDoc(userDocRef, updateData);
+      await userApi.updateUserProfile(currentUser.uid, updateData);
 
       // Update local state
       if (userProfile) {
         const updatedProfile = { ...userProfile, ...profileData };
         setUserProfile(updatedProfile);
       }
-      
+
 
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
       console.error('Error updating profile:', err);
-      
+
       // Re-throw the original error to preserve Firebase error codes for better error handling
       throw error;
     }
@@ -295,17 +291,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-      
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
+      const userData = await userApi.getUserProfile(currentUser.uid);
+
+      if (userData) {
         // Convert Firestore Timestamps to Dates
         const refreshedProfile: UserProfile = {
           ...userData,
-          createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
-          lastLoginAt: userData.lastLoginAt?.toDate ? userData.lastLoginAt.toDate() : new Date(userData.lastLoginAt || Date.now()),
+          createdAt: userData.createdAt instanceof Date ? userData.createdAt : new Date(userData.createdAt || Date.now()),
+          lastLoginAt: userData.lastLoginAt instanceof Date ? userData.lastLoginAt : new Date(userData.lastLoginAt || Date.now()),
         } as UserProfile;
-        
+
         setUserProfile(refreshedProfile);
         setUserType(refreshedProfile.userType);
       }
@@ -328,12 +323,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // If userType is not set or is 'shopper', check if user has any stores
       // This covers cases where a user might have become a store owner after initial registration
-      const { collection, query, where, getDocs } = await import('firebase/firestore');
-      const storesRef = collection(db, 'stores');
-      const storeQuery = query(storesRef, where('ownerId', '==', currentUser.uid));
-      const storeSnapshot = await getDocs(storeQuery);
-
-      return !storeSnapshot.empty;
+      const foundStoreId = await storeApi.getStoreIdByOwner(currentUser.uid);
+      return !!foundStoreId;
     } catch (error) {
       console.error('Error checking store owner permissions:', error);
       return false;

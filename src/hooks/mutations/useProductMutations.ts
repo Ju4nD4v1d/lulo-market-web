@@ -1,40 +1,34 @@
+/**
+ * TanStack Query mutations for product operations
+ * Uses productApi for data mutations
+ */
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
-import { Product } from '../../types/product';
-import { queryKeys } from '../queries/queryKeys';
+import { Product } from '../../types';
+import { queryKeys } from '../queries';
+import * as productApi from '../../services/api/productApi';
+import { CreateProductData, UpdateProductData } from '../../services/api';
 
 export const useProductMutations = (storeId: string) => {
   const queryClient = useQueryClient();
 
   const createProduct = useMutation({
     mutationFn: async (product: Partial<Product>) => {
-      if (!product.name || !product.category || !storeId) {
-        throw new Error('Product name, category, and store ID are required');
-      }
-
-      const productsRef = collection(db, 'products');
-
-      // Explicitly define fields to avoid serialization issues
-      const productData = {
-        name: product.name,
-        description: product.description || '',
-        price: product.price || 0,
-        category: product.category,
-        stock: product.stock || 0,
-        status: product.status || 'active',
-        images: product.images || [],
-        pstPercentage: product.pstPercentage || 0,
-        gstPercentage: product.gstPercentage || 0,
-        ownerId: product.ownerId,
+      const createData: CreateProductData = {
+        name: product.name!,
+        category: product.category!,
         storeId: product.storeId || storeId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        ownerId: product.ownerId,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        status: product.status,
+        images: product.images,
+        pstPercentage: product.pstPercentage,
+        gstPercentage: product.gstPercentage,
+        ingredients: product.ingredients,
       };
-
-      const docRef = await addDoc(productsRef, productData);
-
-      return { id: docRef.id, ...productData } as Product;
+      return productApi.createProduct(createData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -45,14 +39,7 @@ export const useProductMutations = (storeId: string) => {
 
   const updateProduct = useMutation({
     mutationFn: async ({ productId, product }: { productId: string; product: Partial<Product> }) => {
-      if (!productId) {
-        throw new Error('Product ID is required for updates');
-      }
-
-      const productRef = doc(db, 'products', productId);
-
-      // Explicitly define fields to avoid serialization issues
-      const updateData = {
+      const updateData: UpdateProductData = {
         name: product.name,
         description: product.description,
         price: product.price,
@@ -62,12 +49,9 @@ export const useProductMutations = (storeId: string) => {
         images: product.images,
         pstPercentage: product.pstPercentage,
         gstPercentage: product.gstPercentage,
-        updatedAt: new Date(),
+        ingredients: product.ingredients,
       };
-
-      await updateDoc(productRef, updateData);
-
-      return { id: productId, ...updateData } as Product;
+      return productApi.updateProduct(productId, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -78,13 +62,7 @@ export const useProductMutations = (storeId: string) => {
 
   const deleteProduct = useMutation({
     mutationFn: async (productId: string) => {
-      if (!productId) {
-        throw new Error('Product ID is required for deletion');
-      }
-
-      const productRef = doc(db, 'products', productId);
-      await deleteDoc(productRef);
-
+      await productApi.deleteProduct(productId);
       return productId;
     },
     onSuccess: (deletedProductId) => {
@@ -97,9 +75,9 @@ export const useProductMutations = (storeId: string) => {
       // Manually remove the product from cache to ensure immediate UI update
       queryClient.setQueryData(
         queryKeys.products.byStore(storeId),
-        (oldData: any) => {
+        (oldData: unknown) => {
           if (Array.isArray(oldData)) {
-            return oldData.filter((product: any) => product.id !== deletedProductId);
+            return oldData.filter((product: Product) => product.id !== deletedProductId);
           }
           return oldData;
         }

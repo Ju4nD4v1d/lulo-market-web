@@ -1,11 +1,11 @@
 .page {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--color-gray-50);
 }
 
 .header {
   background-color: white;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .headerContainer {
@@ -42,7 +42,7 @@
 
 .lastUpdated {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .main {
@@ -67,7 +67,7 @@
   justify-content: center;
   width: 4rem;
   height: 4rem;
-  background-color: rgba(200, 228, 0, 0.1);
+  background-color: var(--color-primary-10);
   border-radius: 9999px;
   margin-bottom: 1.5rem;
 }
@@ -81,13 +81,13 @@
 .title {
   font-size: 2.25rem;
   font-weight: bold;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 1rem;
 }
 
 .subtitle {
   font-size: 1.25rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
   max-width: 42rem;
   margin: 0 auto;
 }
@@ -95,8 +95,8 @@
 .contentCard {
   background-color: white;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px 0 var(--color-shadow);
+  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 

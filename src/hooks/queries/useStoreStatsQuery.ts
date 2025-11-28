@@ -1,7 +1,11 @@
+/**
+ * TanStack Query hook for fetching store statistics
+ * Uses storeApi for count operations
+ */
+
 import { useQueries } from '@tanstack/react-query';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../config/firebase';
 import { queryKeys } from './queryKeys';
+import * as storeApi from '../../services/api/storeApi';
 
 interface StoreStats {
   totalProducts: number;
@@ -17,12 +21,7 @@ export const useStoreStatsQuery = (storeId: string | null): StoreStats => {
         queryKey: [...queryKeys.products.byStore(storeId || ''), 'count'],
         queryFn: async () => {
           if (!storeId) return 0;
-
-          const productsRef = collection(db, 'products');
-          const q = query(productsRef, where('storeId', '==', storeId));
-          const snapshot = await getDocs(q);
-
-          return snapshot.size;
+          return storeApi.getProductCountByStore(storeId);
         },
         enabled: !!storeId,
         staleTime: 5 * 60 * 1000, // 5 minutes
@@ -33,12 +32,7 @@ export const useStoreStatsQuery = (storeId: string | null): StoreStats => {
         queryKey: [...queryKeys.orders.byStore(storeId || ''), 'count'],
         queryFn: async () => {
           if (!storeId) return 0;
-
-          const ordersRef = collection(db, 'orders');
-          const q = query(ordersRef, where('storeId', '==', storeId));
-          const snapshot = await getDocs(q);
-
-          return snapshot.size;
+          return storeApi.getOrderCountByStore(storeId);
         },
         enabled: !!storeId,
         staleTime: 2 * 60 * 1000, // 2 minutes - orders change more frequently

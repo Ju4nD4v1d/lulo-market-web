@@ -2,7 +2,7 @@
 
 .card {
   width: 13rem;
-  min-height: 22rem;
+  min-height: 18rem;
   flex-shrink: 0;
   background: white;
   border-radius: 1rem;
@@ -18,14 +18,14 @@
 @media (min-width: 640px) {
   .card {
     width: 14rem;
-    min-height: 23rem;
+    min-height: 19rem;
   }
 }
 
 @media (min-width: 768px) {
   .card {
     width: 15rem;
-    min-height: 24rem;
+    min-height: 20rem;
   }
 }
 
@@ -146,27 +146,6 @@
   .productName {
     font-size: 0.9375rem;
     min-height: 2.4rem;
-  }
-}
-
-.description {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  color: #6B7280;
-  line-height: 1.4;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  min-height: 2.1rem;
-}
-
-@media (min-width: 640px) {
-  .description {
-    font-size: 0.875rem;
-    min-height: 2.2rem;
   }
 }
 

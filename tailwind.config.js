@@ -8,21 +8,36 @@ export default {
         heading: ['Montserrat', 'system-ui', 'sans-serif'],
       },
       colors: {
-        brand: '#e7ff01', // Lulo green
+        // Brand color - single reference point
+        brand: '#C8E400',
+        // Primary color scale (Lulo Green) - must be hex for Tailwind opacity modifiers
         primary: {
           50: '#F9FBE7',
           100: '#F0F6CF',
           200: '#E2F0B6',
           300: '#D4E99E',
-          400: '#C8E400', // Primary color
-          500: '#A3C700', // Accent
-          600: '#5A7302', // Contrast
-          700: '#4D6302',
-          800: '#405301',
-          900: '#334201',
+          400: '#C8E400',
+          500: '#b3cc00',
+          600: '#9ab300',
+          700: '#829900',
+          800: '#698000',
+          900: '#516600',
         },
+        // Secondary colors (Dark/Charcoal)
+        secondary: {
+          DEFAULT: '#1f2937',
+          light: '#374151',
+          dark: '#111827',
+        },
+        // Semantic colors
         coral: '#F05E36',
+        success: '#10B981',
+        error: '#EF4444',
+        warning: '#F59E0B',
+        info: '#3B82F6',
+        // Background colors
         background: '#F7F4ED',
+        // Text colors
         text: '#2E2E2E',
       },
       backgroundImage: {

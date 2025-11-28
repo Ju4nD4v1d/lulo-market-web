@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
-import { format, subMonths } from 'date-fns';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
+/**
+ * TanStack Query hook for fetching active customers trend data
+ * Uses analyticsApi for data fetching
+ */
+
+import { useQuery } from '@tanstack/react-query';
+import * as analyticsApi from '../services/api/analyticsApi';
 
 interface UseActiveCustomersTrendReturn {
   current: number;
@@ -11,60 +14,21 @@ interface UseActiveCustomersTrendReturn {
 }
 
 export function useActiveCustomersTrend(storeId: string): UseActiveCustomersTrendReturn {
-  const [current, setCurrent] = useState<number>(0);
-  const [previous, setPrevious] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['activeCustomersTrend', storeId],
+    queryFn: async () => {
+      if (!storeId) return { current: 0, previous: null };
+      return analyticsApi.getActiveCustomersTrend(storeId);
+    },
+    enabled: !!storeId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    const fetchActiveCustomersTrend = async () => {
-      if (!storeId) {
-        setCurrent(0);
-        setPrevious(null);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Compute month keys
-        const now = new Date();
-        const thisKey = format(now, 'yyyy-MM');
-        const prevKey = format(subMonths(now, 1), 'yyyy-MM');
-
-        const currentRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${thisKey}`);
-        const prevRef = doc(db, 'monthlyRevenueSummary', `${storeId}_${prevKey}`);
-
-        const [currentSnap, prevSnap] = await Promise.all([
-          getDoc(currentRef),
-          getDoc(prevRef)
-        ]);
-
-        const currentActiveCustomers = currentSnap.exists()
-          ? (currentSnap.data().activeCustomers ?? 0)
-          : 0;
-
-        const previousActiveCustomers = prevSnap.exists()
-          ? (prevSnap.data().activeCustomers ?? 0)
-          : null;
-
-        setCurrent(currentActiveCustomers);
-        setPrevious(previousActiveCustomers);
-
-      } catch (err) {
-        console.error('Error fetching active customers trend:', err);
-        setError('Failed to load active customers data');
-        setCurrent(0);
-        setPrevious(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchActiveCustomersTrend();
-  }, [storeId]);
-
-  return { current, previous, loading, error };
+  return {
+    current: data?.current ?? 0,
+    previous: data?.previous ?? null,
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+  };
 }

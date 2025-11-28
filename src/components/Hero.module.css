@@ -39,7 +39,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: rgba(200, 228, 0, 0.1);
+  background-color: var(--color-primary-10);
   border-radius: 9999px;
   padding: 0.5rem 1rem;
   margin-bottom: 1.5rem;
@@ -61,7 +61,7 @@
 .title {
   font-size: 3rem;
   font-weight: bold;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 1.5rem;
   line-height: 1.2;
 }
@@ -84,7 +84,7 @@
 
 .subtitle {
   font-size: 1.25rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
   margin-bottom: 2rem;
   max-width: 42rem;
   margin-left: auto;
@@ -118,7 +118,7 @@
 
 .statLabel {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
 }
 
 .ctaSection {
@@ -159,7 +159,7 @@
 
 .ctaSubtext {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .trustSignals {
@@ -168,7 +168,7 @@
   justify-content: center;
   gap: 1.5rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
 }
 
 .reviewSection {
@@ -183,7 +183,7 @@
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
+  border: 1px solid var(--color-gray-100);
 }
 
 .reviewHeader {
@@ -207,7 +207,7 @@
 
 .reviewAuthor {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 .reviewStars {
@@ -225,11 +225,11 @@
 
 .reviewBadge {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
   margin-left: 0.5rem;
 }
 
 .reviewText {
-  color: #374151;
+  color: var(--color-secondary-light);
   font-style: italic;
 }

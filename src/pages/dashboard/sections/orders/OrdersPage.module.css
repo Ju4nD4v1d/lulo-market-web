@@ -14,7 +14,7 @@
 .loadingSpinner {
   width: 2rem;
   height: 2rem;
-  color: #A3C700;
+  color: var(--color-primary-hover);
   animation: spin 1s linear infinite;
 }
 
@@ -83,7 +83,7 @@
 .totalCount {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #C8E400;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -124,8 +124,8 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: #C8E400;
-  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-10);
 }
 
 .filterWrapper {
@@ -350,7 +350,7 @@
 }
 
 .primaryButton {
-  background: linear-gradient(to right, #C8E400, #A3C700);
+  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -514,7 +514,7 @@
 }
 
 .totalAmount {
-  color: #C8E400;
+  color: var(--color-primary);
 }
 
 .orderNotes {

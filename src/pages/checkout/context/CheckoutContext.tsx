@@ -18,6 +18,8 @@
 
 import type * as React from 'react';
 import { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import { Stripe } from '@stripe/stripe-js';
+import { User as FirebaseUser } from 'firebase/auth';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -26,7 +28,7 @@ import { useCheckoutForm } from '../hooks/useCheckoutForm';
 import { useCheckoutWizard, CheckoutStep } from '../hooks/useCheckoutWizard';
 import { usePaymentFlow } from '../hooks/usePaymentFlow';
 import { useOrderCreation } from '../hooks/useOrderCreation';
-import { useStoreReceiptQuery } from '../../../hooks/queries/useStoreReceiptQuery';
+import { useStoreReceiptQuery, StoreReceiptInfo } from '../../../hooks/queries/useStoreReceiptQuery';
 import { Order } from '../../../types/order';
 import { Cart } from '../../../types/cart';
 
@@ -73,7 +75,7 @@ interface CheckoutContextValue {
   // Form state
   formData: CheckoutFormData;
   errors: Record<string, string>;
-  updateField: (section: string, field: string, value: any) => void;
+  updateField: (section: string, field: string, value: string | boolean | number) => void;
   setEntireFormData: (data: Partial<CheckoutFormData>) => void;
 
   // Wizard state
@@ -90,14 +92,14 @@ interface CheckoutContextValue {
   // Payment state
   paymentClientSecret: string | null;
   pendingOrderId: string | null;
-  stripePromise: Promise<any> | null;
+  stripePromise: Promise<Stripe | null> | null;
   isPaymentReady: boolean;
 
   // Store info
-  storeReceiptInfo: any;
+  storeReceiptInfo: StoreReceiptInfo | undefined;
 
   // Auth & language
-  currentUser: any;
+  currentUser: FirebaseUser | null;
   locale: string;
   t: (key: string) => string;
 

@@ -32,7 +32,7 @@
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  border-color: #C8E400;
+  border-color: var(--color-primary);
 }
 
 .card:active {
@@ -89,7 +89,7 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: linear-gradient(135deg, #C8E400, #A3C700);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   color: #111827;
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
@@ -175,7 +175,7 @@
 .locationIcon {
   width: 0.875rem;
   height: 0.875rem;
-  color: #C8E400;
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 

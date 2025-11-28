@@ -14,7 +14,7 @@
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  border-color: #C8E400;
+  border-color: var(--color-primary);
 }
 
 .card:active {
@@ -93,7 +93,7 @@
 
 .popularBadge {
   right: 0.75rem;
-  background: #C8E400;
+  background: var(--color-primary);
   color: #111827;
   font-weight: 700;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -248,7 +248,7 @@
 .price {
   font-size: 1.125rem;
   font-weight: 800;
-  color: #C8E400;
+  color: var(--color-primary);
   line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;

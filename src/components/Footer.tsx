@@ -8,10 +8,6 @@ export const Footer = () => {
   const { toggleLanguage, t } = useLanguage();
   const [showDeliveryMap, setShowDeliveryMap] = useState(false);
 
-  const handleCreateAccountClick = () => {
-    window.location.hash = '#login';
-  };
-
   return (
     <>
       <footer className={`${styles.footer} ${styles.footerGrain}`}>

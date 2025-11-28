@@ -1,8 +1,12 @@
+/**
+ * TanStack Query mutations for order operations
+ * Uses orderApi for data mutations
+ */
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../config/firebase';
 import { OrderStatus } from '../../types/order';
-import { queryKeys } from '../queries/queryKeys';
+import { queryKeys } from '../queries';
+import * as orderApi from '../../services/api/orderApi';
 
 interface UpdateOrderStatusVariables {
   orderId: string;
@@ -14,18 +18,7 @@ export const useOrderMutations = (storeId: string) => {
 
   const updateOrderStatus = useMutation({
     mutationFn: async ({ orderId, newStatus }: UpdateOrderStatusVariables) => {
-      const orderRef = doc(db, 'orders', orderId);
-      const updateData: Record<string, unknown> = {
-        status: newStatus,
-        updatedAt: serverTimestamp()
-      };
-
-      if (newStatus === OrderStatus.DELIVERED) {
-        updateData.deliveredAt = serverTimestamp();
-      }
-
-      await updateDoc(orderRef, updateData);
-
+      await orderApi.updateOrderStatus(orderId, newStatus);
       return { orderId, newStatus };
     },
     // Optimistic update for better UX
@@ -39,9 +32,9 @@ export const useOrderMutations = (storeId: string) => {
       const previousOrders = queryClient.getQueryData(queryKeys.orders.byStore(storeId));
 
       // Optimistically update to the new value
-      queryClient.setQueryData(queryKeys.orders.byStore(storeId), (old: any) => {
-        if (!old) return old;
-        return old.map((order: any) =>
+      queryClient.setQueryData(queryKeys.orders.byStore(storeId), (old: unknown) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.map((order: { id: string; status: OrderStatus }) =>
           order.id === orderId
             ? { ...order, status: newStatus, updatedAt: new Date() }
             : order
@@ -52,7 +45,7 @@ export const useOrderMutations = (storeId: string) => {
       return { previousOrders };
     },
     // Rollback on error
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previousOrders) {
         queryClient.setQueryData(
           queryKeys.orders.byStore(storeId),

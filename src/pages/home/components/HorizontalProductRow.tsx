@@ -1,10 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../../config/firebase';
-import { Product } from '../../../types/product';
-import { StoreData } from '../../../types/store';
+import { Product } from '../../../types';
+import { StoreData } from '../../../types';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useAllActiveProductsQuery } from '../../../hooks/queries/useAllActiveProductsQuery';
 import { HorizontalProductCard } from './HorizontalProductCard';
 import styles from './HorizontalRow.module.css';
 
@@ -22,55 +21,24 @@ export const HorizontalProductRow: React.FC<HorizontalProductRowProps> = ({
   searchQuery = '',
 }) => {
   const { t } = useLanguage();
-  const [products, setProducts] = useState<Array<Product & { storeName: string }>>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { products: allProducts, isLoading: loading, error: queryError } = useAllActiveProductsQuery();
 
-  // Memoize store IDs to prevent infinite loop
-  const storeIds = useMemo(() => stores.map(s => s.id).join(','), [stores]);
+  // Map products with store names
+  const products = useMemo(() => {
+    return allProducts
+      .map(product => {
+        const store = stores.find(s => s.id === product.storeId);
+        if (!store) return null;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const productsRef = collection(db, 'products');
-        const snapshot = await getDocs(productsRef);
+        return {
+          ...product,
+          storeName: store.name,
+        };
+      })
+      .filter(Boolean) as Array<Product & { storeName: string }>;
+  }, [allProducts, stores]);
 
-        const productsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[];
-
-        // Filter only active products
-        const activeProducts = productsData.filter(p => p.status === 'active');
-
-        // Map products with store names
-        const productsWithStore = activeProducts
-          .map(product => {
-            const store = stores.find(s => s.id === product.storeId);
-            if (!store) return null;
-
-            return {
-              ...product,
-              storeName: store.name,
-            };
-          })
-          .filter(Boolean) as Array<Product & { storeName: string }>;
-
-        setProducts(productsWithStore);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setError(t('home.products.error'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (storeIds) {
-      fetchProducts();
-    }
-  }, [storeIds, stores, t]);
+  const error = queryError ? t('home.products.error') : null;
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {

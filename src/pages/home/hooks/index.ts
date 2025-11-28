@@ -5,5 +5,4 @@
 
 export { useStoreSearch } from './useStoreSearch';
 export { useStoreFilters } from './useStoreFilters';
-export { useCheckoutFlow } from './useCheckoutFlow';
 export { useVirtualStoreList } from './useVirtualStoreList';

@@ -1,0 +1,98 @@
+/* ProductDetails Ingredients Section */
+
+.ingredientsCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #C8E400;
+}
+
+.ingredientsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.ingredientItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 0.9375rem;
+  color: #374151;
+}
+
+.ingredientItem:last-child {
+  border-bottom: none;
+}
+
+.ingredientBullet {
+  width: 8px;
+  height: 8px;
+  background: #C8E400;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.allergensWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.warningIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #D97706;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.allergensContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+@media (min-width: 480px) {
+  .allergensContent {
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
+
+.allergensLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #92400E;
+}
+
+.allergensList {
+  font-size: 0.875rem;
+  color: #B45309;
+}

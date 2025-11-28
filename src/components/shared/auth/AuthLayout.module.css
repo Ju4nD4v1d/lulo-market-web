@@ -25,7 +25,7 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(200, 228, 0, 0.7), rgba(200, 228, 0, 0.5));
+  background: linear-gradient(to right, rgba(200, 228, 0, 0.7), var(--color-primary-50));
 }
 
 .heroContent {

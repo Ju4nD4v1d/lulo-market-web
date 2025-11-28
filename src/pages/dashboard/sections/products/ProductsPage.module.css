@@ -373,9 +373,17 @@
   border-radius: 0.5rem;
   padding: 1rem;
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+@media (min-width: 480px) {
+  .listCard {
+    flex-wrap: nowrap;
+    gap: 1rem;
+  }
 }
 
 .listCard:hover {
@@ -383,12 +391,19 @@
 }
 
 .listImageWrapper {
-  width: 6rem;
-  height: 6rem;
+  width: 5rem;
+  height: 5rem;
   flex-shrink: 0;
   position: relative;
   border-radius: 0.5rem;
   overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .listImageWrapper {
+    width: 6rem;
+    height: 6rem;
+  }
 }
 
 .listImage {
@@ -426,6 +441,14 @@
 .listContent {
   flex: 1;
   min-width: 0;
+  /* On mobile, take remaining space next to image */
+  width: calc(100% - 5.75rem);
+}
+
+@media (min-width: 480px) {
+  .listContent {
+    width: auto;
+  }
 }
 
 .listHeader {
@@ -436,31 +459,61 @@
 }
 
 .listTitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-right: 1rem;
+  padding-right: 0.5rem;
+}
+
+@media (min-width: 480px) {
+  .listTitle {
+    font-size: 1.125rem;
+    padding-right: 1rem;
+  }
 }
 
 .listDescription {
   color: #6B7280;
-  font-size: 0.875rem;
-  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+@media (min-width: 480px) {
+  .listDescription {
+    font-size: 0.875rem;
+    margin: 0 0 0.5rem;
+  }
+}
+
 .listMeta {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  font-size: 0.875rem;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  /* On mobile, take full width below image+content */
+  width: 100%;
+  padding-top: 0.5rem;
+  border-top: 1px solid #F3F4F6;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 480px) {
+  .listMeta {
+    width: auto;
+    padding-top: 0;
+    border-top: none;
+    margin-top: 0;
+    gap: 1rem;
+    font-size: 0.875rem;
+  }
 }
 
 .metaItem {

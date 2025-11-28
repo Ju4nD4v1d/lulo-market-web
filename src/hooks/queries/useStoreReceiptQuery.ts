@@ -3,22 +3,11 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import * as storeApi from '../../services/api/storeApi';
 import { queryKeys } from './queryKeys';
 
-/**
- * Store receipt information interface
- */
-export interface StoreReceiptInfo {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  logo: string;
-  website: string;
-  businessNumber: string;
-}
+// Re-export type from storeApi
+export type { StoreReceiptInfo } from '../../services/api/storeApi';
 
 /**
  * Hook options
@@ -27,43 +16,6 @@ interface UseStoreReceiptQueryOptions {
   storeId: string | undefined;
   enabled?: boolean;
 }
-
-/**
- * Fetch store information for receipt generation
- *
- * @param storeId Store ID
- * @returns Store receipt information
- */
-const fetchStoreReceiptInfo = async (storeId: string): Promise<StoreReceiptInfo> => {
-  try {
-    const storeDoc = await getDoc(doc(db, 'stores', storeId));
-    if (storeDoc.exists()) {
-      const storeData = storeDoc.data();
-      return {
-        name: storeData.name || '',
-        address: storeData.location?.address || '',
-        phone: storeData.phone || '',
-        email: storeData.email || '',
-        logo: storeData.logo || storeData.storeImage || '',
-        website: storeData.website || 'https://lulocart.com',
-        businessNumber: storeData.businessNumber || ''
-      };
-    }
-  } catch (error) {
-    console.error('Error fetching store info:', error);
-  }
-
-  // Return default values if fetch fails
-  return {
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
-    logo: '',
-    website: 'https://lulocart.com',
-    businessNumber: ''
-  };
-};
 
 /**
  * Hook to query store receipt information
@@ -78,7 +30,7 @@ export const useStoreReceiptQuery = ({ storeId, enabled = true }: UseStoreReceip
       if (!storeId) {
         throw new Error('Store ID is required');
       }
-      return fetchStoreReceiptInfo(storeId);
+      return storeApi.getStoreReceiptInfo(storeId);
     },
     enabled: enabled && !!storeId,
     staleTime: 5 * 60 * 1000, // 5 minutes - store info doesn't change often

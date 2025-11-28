@@ -21,6 +21,9 @@ const OrderTracking = lazy(() => import('./pages/order-tracking'));
 const InvitationGate = lazy(() => import('./pages/invitation-gate'));
 const ProductList = lazy(() => import('./components/ProductList'));
 const HelpPage = lazy(() => import('./pages/help'));
+const ProductDetails = lazy(() => import('./pages/product-details'));
+const CartPage = lazy(() => import('./pages/cart'));
+const CheckoutPage = lazy(() => import('./pages/checkout'));
 
 // Lazy load static landing page components (rarely used)
 const Header = lazy(() => import('./components/Header'));
@@ -127,6 +130,11 @@ const AppRoutes = () => {
       return <Dashboard />;
     }
 
+    // Store detail route (cleaner URL alias for #shopper-dashboard/)
+    if (currentRoute.startsWith('#store/')) {
+      return <StoreMenu />;
+    }
+
     // Check for shopper dashboard routes - redirect to unified home experience
     if (currentRoute.startsWith('#shopper-dashboard/')) {
       return <StoreMenu />;
@@ -145,15 +153,26 @@ const AppRoutes = () => {
         setRedirectAfterLogin(currentRoute);
         return <Login />;
       }
-      
+
       const orderId = currentRoute.replace('#order/', '');
       if (orderId) {
         return (
-          <OrderTracking 
-            orderId={orderId} 
-            onBack={() => window.location.hash = '#'} 
+          <OrderTracking
+            orderId={orderId}
+            onBack={() => window.location.hash = '#'}
           />
         );
+      }
+    }
+
+    // Product details route
+    if (currentRoute.startsWith('#product/')) {
+      const parts = currentRoute.replace('#product/', '').split('/');
+      const productId = parts[0];
+      const storeId = parts[1];
+      if (productId && storeId) {
+        updateTitle('Lulo Market - Product Details');
+        return <ProductDetails productId={productId} storeId={storeId} />;
       }
     }
 
@@ -204,6 +223,20 @@ const AppRoutes = () => {
     if (currentRoute.startsWith('#products')) {
       updateTitle('Lulo Market - All Products');
       return <ProductList onBack={() => window.location.hash = '#'} />;
+    }
+
+    if (currentRoute === '#cart') {
+      updateTitle('Lulo Market - Your Cart');
+      return <CartPage />;
+    }
+
+    if (currentRoute === '#checkout') {
+      if (!currentUser) {
+        setRedirectAfterLogin('#checkout');
+        return <Login />;
+      }
+      updateTitle('Lulo Market - Checkout');
+      return <CheckoutPage />;
     }
 
     if (currentRoute.startsWith('#landing')) {

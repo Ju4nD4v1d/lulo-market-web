@@ -9,12 +9,15 @@ export const StoreMenuPage: React.FC = () => {
   const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
   const { stores } = useStoreData();
 
-  // Extract store ID from URL hash (#shopper-dashboard/storeId)
+  // Extract store ID from URL hash (#shopper-dashboard/storeId or #store/storeId)
   useEffect(() => {
     const hash = window.location.hash;
-    const match = hash.match(/#shopper-dashboard\/(.+)/);
-    if (match && match[1]) {
-      setStoreId(match[1]);
+    // Support both #shopper-dashboard/ and #store/ routes
+    const shopperMatch = hash.match(/#shopper-dashboard\/(.+)/);
+    const storeMatch = hash.match(/#store\/(.+)/);
+    const extractedId = shopperMatch?.[1] || storeMatch?.[1];
+    if (extractedId) {
+      setStoreId(extractedId);
     }
   }, []);
 

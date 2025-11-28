@@ -23,7 +23,7 @@
 }
 
 .button {
-  background: #C8E400;
+  background: var(--color-primary);
   color: #111827;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
@@ -34,7 +34,7 @@
 }
 
 .button:hover {
-  background: #b3cc00;
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }

@@ -5,7 +5,7 @@
 .header {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@
 }
 
 .iconWrapperPrimary {
-  background-color: rgba(200, 228, 0, 0.1);
+  background-color: var(--color-primary-10);
 }
 
 .icon {
@@ -43,7 +43,7 @@
 }
 
 .content {
-  color: #4b5563;
+  color: var(--color-gray-600);
   max-width: none;
   line-height: 1.75;
 }
@@ -64,7 +64,7 @@
 
 .content strong {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 .content a {

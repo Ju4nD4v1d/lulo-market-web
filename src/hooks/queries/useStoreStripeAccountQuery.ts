@@ -3,17 +3,11 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import * as storeApi from '../../services/api/storeApi';
 import { queryKeys } from './queryKeys';
 
-/**
- * Store Stripe account information
- */
-export interface StoreStripeAccount {
-  stripeAccountId: string | null;
-  stripeEnabled: boolean;
-}
+// Re-export type from storeApi
+export type { StoreStripeAccount } from '../../services/api/storeApi';
 
 /**
  * Hook options
@@ -22,32 +16,6 @@ interface UseStoreStripeAccountQueryOptions {
   storeId: string | undefined;
   enabled?: boolean;
 }
-
-/**
- * Fetch store's Stripe account information
- *
- * @param storeId Store ID
- * @returns Store's Stripe account data
- */
-const fetchStoreStripeAccount = async (storeId: string): Promise<StoreStripeAccount> => {
-  try {
-    const storeDoc = await getDoc(doc(db, 'stores', storeId));
-    if (storeDoc.exists()) {
-      const storeData = storeDoc.data();
-      return {
-        stripeAccountId: storeData.stripeAccountId || null,
-        stripeEnabled: storeData.stripeEnabled || false
-      };
-    }
-  } catch (error) {
-    console.error('Error fetching store Stripe account:', error);
-  }
-
-  return {
-    stripeAccountId: null,
-    stripeEnabled: false
-  };
-};
 
 /**
  * Hook to query store's Stripe account information
@@ -65,7 +33,7 @@ export const useStoreStripeAccountQuery = ({
       if (!storeId) {
         throw new Error('Store ID is required');
       }
-      return fetchStoreStripeAccount(storeId);
+      return storeApi.getStoreStripeAccount(storeId);
     },
     enabled: enabled && !!storeId,
     staleTime: 10 * 60 * 1000, // 10 minutes - Stripe config rarely changes

@@ -8,7 +8,7 @@
 
 .button {
   width: 100%;
-  background: #C8E400;
+  background: var(--color-primary);
   color: white;
   border-radius: 0.75rem;
   padding: 1rem 1.5rem;
@@ -23,7 +23,7 @@
 }
 
 .button:hover {
-  background: #b3cc00;
+  background: var(--color-primary-hover);
 }
 
 .leftSection {

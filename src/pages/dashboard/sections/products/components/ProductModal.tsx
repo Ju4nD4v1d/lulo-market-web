@@ -6,25 +6,42 @@ import {
   DollarSign,
   AlertCircle,
   Loader2,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '../../../../../context/AuthContext';
 import { Product } from '../../../../../types/product';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { ConfirmDialog } from '../../../../../components/ConfirmDialog';
 import { PRODUCT_CATEGORIES } from '../../../../../constants/productCategories';
+import { COMMON_ALLERGENS } from '../../../../../constants/allergens';
 import styles from './ProductModal.module.css';
 
-const defaultFormData = {
+const defaultFormData: {
+  name: string;
+  description: string;
+  price: number | '';
+  category: string;
+  stock: number | '';
+  status: 'active' | 'draft' | 'outOfStock';
+  images: string[];
+  pstPercentage: number;
+  gstPercentage: number;
+  ingredients: { main: string[]; contains: string[] };
+} = {
   name: '',
   description: '',
-  price: '' as any, // Empty string for new products to avoid "0" prefix issue
+  price: '', // Empty string for new products to avoid "0" prefix issue
   category: '',
-  stock: '' as any, // Empty string for new products to avoid "0" prefix issue
-  status: 'active' as const,
+  stock: '', // Empty string for new products to avoid "0" prefix issue
+  status: 'active',
   images: [],
   pstPercentage: 0,
-  gstPercentage: 0
+  gstPercentage: 0,
+  ingredients: {
+    main: [],
+    contains: []
+  }
 };
 
 interface ProductModalProps {
@@ -65,6 +82,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         stock: typeof product.stock === 'number' && !isNaN(product.stock) ? product.stock : 0,
         pstPercentage: typeof product.pstPercentage === 'number' && !isNaN(product.pstPercentage) ? product.pstPercentage : 0,
         gstPercentage: typeof product.gstPercentage === 'number' && !isNaN(product.gstPercentage) ? product.gstPercentage : 0,
+        ingredients: product.ingredients || { main: [], contains: [] },
       } : defaultFormData;
 
       setFormData(safeProduct);
@@ -105,8 +123,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         ...prev,
         images: [...(prev.images || []), ...imageUrls]
       }));
-    } catch (err: any) {
-      setError(err.message || t('products.uploadError'));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t('products.uploadError');
+      setError(errorMessage);
     }
   };
 
@@ -116,6 +135,53 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       images: prev.images?.filter((_, i) => i !== index)
     }));
     setError('');
+  };
+
+  // Ingredient handlers
+  const addIngredient = () => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        main: [...(prev.ingredients?.main || []), '']
+      }
+    }));
+  };
+
+  const updateIngredient = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        main: prev.ingredients?.main.map((item, i) => i === index ? value : item) || []
+      }
+    }));
+  };
+
+  const removeIngredient = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        main: prev.ingredients?.main.filter((_, i) => i !== index) || []
+      }
+    }));
+  };
+
+  const toggleAllergen = (allergenId: string) => {
+    setFormData(prev => {
+      const currentContains = prev.ingredients?.contains || [];
+      const isSelected = currentContains.includes(allergenId);
+      return {
+        ...prev,
+        ingredients: {
+          ...prev.ingredients,
+          contains: isSelected
+            ? currentContains.filter(id => id !== allergenId)
+            : [...currentContains, allergenId]
+        }
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -284,6 +350,63 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className={styles.textarea}
             />
+          </div>
+
+          {/* Ingredients */}
+          <div className={styles.ingredientsSection}>
+            <label className={styles.label}>{t('products.ingredients')}</label>
+            <div className={styles.ingredientsList}>
+              {formData.ingredients?.main.map((ingredient, index) => (
+                <div key={index} className={styles.ingredientRow}>
+                  <input
+                    type="text"
+                    value={ingredient}
+                    onChange={(e) => updateIngredient(index, e.target.value)}
+                    placeholder={t('products.ingredientPlaceholder')}
+                    className={styles.input}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeIngredient(index)}
+                    className={styles.removeIngredientButton}
+                    title={t('products.removeIngredient')}
+                  >
+                    <X className={styles.removeIngredientIcon} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addIngredient}
+              className={styles.addIngredientButton}
+            >
+              <Plus className={styles.addIngredientIcon} />
+              {t('products.addIngredient')}
+            </button>
+
+            {/* Contains (Allergen Warnings) */}
+            <div className={styles.allergensSection}>
+              <label className={styles.label}>{t('products.containsAllergens')}</label>
+              <div className={styles.allergensGrid}>
+                {COMMON_ALLERGENS.map((allergen) => {
+                  const isSelected = formData.ingredients?.contains?.includes(allergen.id) || false;
+                  return (
+                    <label
+                      key={allergen.id}
+                      className={`${styles.allergenCheckbox} ${isSelected ? styles.selected : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleAllergen(allergen.id)}
+                      />
+                      <span className={styles.allergenLabel}>{t(allergen.translationKey)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* Price and Stock */}

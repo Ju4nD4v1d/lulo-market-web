@@ -10,6 +10,7 @@ interface StoreProductCardProps {
   product: Product;
   storeId: string;
   storeName: string;
+  storeImage?: string;
   onClick?: (product: Product) => void;
 }
 
@@ -17,6 +18,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   product,
   storeId,
   storeName,
+  storeImage,
   onClick,
 }) => {
   const { t } = useLanguage();
@@ -125,6 +127,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
                 product={product}
                 storeId={storeId}
                 storeName={storeName}
+                storeImage={storeImage}
                 size="sm"
                 className={styles.addButton}
               />

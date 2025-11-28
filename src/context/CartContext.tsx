@@ -3,9 +3,15 @@ import { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartItem, CartState, CartSummary } from '../types/cart';
 import { Product } from '../types/product';
 
+interface StoreInfo {
+  storeId: string;
+  storeName?: string;
+  storeImage?: string;
+}
+
 interface CartContextType {
   cart: CartState;
-  addToCart: (product: Product, quantity?: number, storeId?: string, storeName?: string) => void;
+  addToCart: (product: Product, quantity?: number, storeInfo?: StoreInfo) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -14,7 +20,7 @@ interface CartContextType {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number; storeId: string; storeName: string } }
+  | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number; storeId: string; storeName: string; storeImage?: string } }
   | { type: 'REMOVE_ITEM'; payload: { itemId: string } }
   | { type: 'UPDATE_QUANTITY'; payload: { itemId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
@@ -49,6 +55,7 @@ const initialState: CartState = {
   items: [],
   storeId: null,
   storeName: null,
+  storeImage: null,
   summary: {
     subtotal: 0,
     tax: 0,
@@ -63,15 +70,15 @@ const initialState: CartState = {
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const { product, quantity, storeId, storeName } = action.payload;
-      
+      const { product, quantity, storeId, storeName, storeImage } = action.payload;
+
       // If cart is empty or adding from same store, proceed
       if (!state.storeId || state.storeId === storeId) {
         // Check if item already exists in cart
         const existingItemIndex = state.items.findIndex(item => item.product.id === product.id);
-        
+
         let newItems: CartItem[];
-        
+
         if (existingItemIndex >= 0) {
           // Update existing item quantity
           newItems = state.items.map((item, index) =>
@@ -95,22 +102,24 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           items: newItems,
           storeId: storeId,
           storeName: storeName,
+          storeImage: storeImage || state.storeImage, // Keep existing image if not provided
           summary: calculateSummary(newItems)
         };
       }
-      
+
       // If trying to add from different store, don't add (handled in component)
       return state;
     }
 
     case 'REMOVE_ITEM': {
       const newItems = state.items.filter(item => item.id !== action.payload.itemId);
-      
+
       return {
         ...state,
         items: newItems,
         storeId: newItems.length === 0 ? null : state.storeId,
         storeName: newItems.length === 0 ? null : state.storeName,
+        storeImage: newItems.length === 0 ? null : state.storeImage,
         summary: calculateSummary(newItems)
       };
     }
@@ -170,11 +179,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('lulo-cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product, quantity = 1, storeId?: string, storeName?: string) => {
+  const addToCart = (product: Product, quantity = 1, storeInfo?: StoreInfo) => {
     // Use product's storeId if not provided
-    const targetStoreId = storeId || product.storeId;
-    const targetStoreName = storeName || `Store ${targetStoreId}`;
-    
+    const targetStoreId = storeInfo?.storeId || product.storeId;
+    const targetStoreName = storeInfo?.storeName || `Store ${targetStoreId}`;
+    const targetStoreImage = storeInfo?.storeImage;
+
     if (!targetStoreId) {
       console.error('Store ID is required to add items to cart');
       return;
@@ -182,7 +192,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     dispatch({
       type: 'ADD_ITEM',
-      payload: { product, quantity, storeId: targetStoreId, storeName: targetStoreName }
+      payload: {
+        product,
+        quantity,
+        storeId: targetStoreId,
+        storeName: targetStoreName,
+        storeImage: targetStoreImage
+      }
     });
   };
 

@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { StoreData } from '../../types/store';
-import { Product } from '../../types/product';
-import { CartSidebar } from '../../components/CartSidebar';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { StoreData } from '../../types';
+import { Product } from '../../types';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
 import { ChristmasBanner } from '../../components/ChristmasBanner';
@@ -10,7 +9,6 @@ import { HowItWorks } from './components/HowItWorks';
 import { OurStory } from './components/OurStory';
 import { HorizontalStoreRow } from './components/HorizontalStoreRow';
 import { HorizontalProductRow } from './components/HorizontalProductRow';
-import { useCheckoutFlow } from './hooks';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -37,16 +35,9 @@ export const HomePage = () => {
 
   // Data fetching hooks
   const { stores, loading, fetchStores } = useStoreData();
-  const { location: userLocation, locationName, locationStatus, requestLocation } = useGeolocation();
-
-  const { shouldOpenCheckout, closeCheckout } = useCheckoutFlow({
-    onOpenCheckout: () => {
-      setShowCart(true);
-    },
-  });
+  const {locationName, locationStatus, requestLocation } = useGeolocation();
 
   // Local UI state
-  const [showCart, setShowCart] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -67,10 +58,10 @@ export const HomePage = () => {
   }, []);
 
   /**
-   * Handle product card click - navigate to store page
+   * Handle product card click - navigate to product details page
    */
   const handleProductClick = useCallback((product: Product, store: StoreData) => {
-    window.location.hash = `#shopper-dashboard/${store.id}`;
+    window.location.hash = `#product/${product.id}/${store.id}`;
   }, []);
 
   /**
@@ -103,12 +94,11 @@ export const HomePage = () => {
   }, []);
 
   /**
-   * Handle cart close
+   * Navigate to cart page
    */
-  const handleCartClose = useCallback(() => {
-    setShowCart(false);
-    closeCheckout();
-  }, [closeCheckout]);
+  const handleCartClick = useCallback(() => {
+    window.location.hash = '#cart';
+  }, []);
 
   // Filter active stores only - memoized to prevent re-renders
   const activeStores = useMemo(() =>
@@ -143,7 +133,7 @@ export const HomePage = () => {
         showUserMenu={showUserMenu}
         locale={locale}
         onToggleLanguage={toggleLanguage}
-        onCartClick={() => setShowCart(true)}
+        onCartClick={handleCartClick}
         onUserMenuClick={handleUserMenuClick}
         onUserMenuClose={() => setShowUserMenu(false)}
         onLogout={handleLogout}
@@ -195,13 +185,6 @@ export const HomePage = () => {
 
       {/* Footer */}
       <Footer />
-
-      {/* Cart Sidebar */}
-      <CartSidebar
-        isOpen={showCart}
-        onClose={handleCartClose}
-        openInCheckoutMode={shouldOpenCheckout}
-      />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import type * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import * as storeApi from '../services/api/storeApi';
 import { useAuth } from './AuthContext';
 
 interface StoreContextType {
@@ -34,14 +33,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setLoading(false);
       return;
     }
-    const storesRef = collection(db, 'stores');
-    const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-    const snapshot = await getDocs(q);
-    
-    if (!snapshot.empty) {
-      setHasStore(true);
-      setStoreId(snapshot.docs[0].id);
-    } else {
+
+    try {
+      const foundStoreId = await storeApi.getStoreIdByOwner(currentUser.uid);
+      setHasStore(!!foundStoreId);
+      setStoreId(foundStoreId);
+    } catch (error) {
+      console.error('Error checking store status:', error);
       setHasStore(false);
       setStoreId(null);
     }

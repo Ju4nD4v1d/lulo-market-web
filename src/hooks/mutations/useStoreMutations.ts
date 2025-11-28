@@ -1,9 +1,13 @@
+/**
+ * TanStack Query mutations for store operations
+ * Uses storeApi for data mutations and storageApi for image uploads
+ */
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, addDoc, GeoPoint, updateDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../config/firebase';
-import { StoreData } from '../../types/store';
-import { queryKeys } from '../queries/queryKeys';
+import { StoreData } from '../../types';
+import { queryKeys } from '../queries';
+import * as storeApi from '../../services/api/storeApi';
+import * as storageApi from '../../services/api/storageApi';
 
 interface StoreMutationVariables {
   storeData: StoreData;
@@ -11,45 +15,6 @@ interface StoreMutationVariables {
   storeId?: string;
   currentUserId: string;
 }
-
-// Helper function to upload image and get URL
-const uploadImageToStorage = async (
-  file: File,
-  userId: string,
-  path: string
-): Promise<string> => {
-  const storageRef = ref(storage, `stores/${userId}/${path}/${Date.now()}_${file.name}`);
-  await uploadBytes(storageRef, file);
-  return getDownloadURL(storageRef);
-};
-
-// Helper function to upload multiple section images
-const uploadSectionImages = async (
-  aboutUs: any[],
-  userId: string
-): Promise<any[]> => {
-  return Promise.all(
-    aboutUs.map(async (section) => {
-      if (section.imageFile && section.imageFile instanceof File) {
-        const imageUrl = await uploadImageToStorage(
-          section.imageFile,
-          userId,
-          'about-sections'
-        );
-        return {
-          title: section.title,
-          content: section.content,
-          imageUrl,
-        };
-      }
-      return {
-        title: section.title,
-        content: section.content,
-        imageUrl: section.imageUrl || '',
-      };
-    })
-  );
-};
 
 export const useStoreMutations = (ownerId: string) => {
   const queryClient = useQueryClient();
@@ -59,17 +24,17 @@ export const useStoreMutations = (ownerId: string) => {
       // Upload main store image if provided
       let mainImageUrl = '';
       if (storeImage?.file) {
-        mainImageUrl = await uploadImageToStorage(storeImage.file, currentUserId, 'main');
+        mainImageUrl = await storageApi.uploadStoreImage(storeImage.file, currentUserId);
       }
 
       // Upload about section images if provided
-      const processedAboutUs = await uploadSectionImages(
+      const processedAboutUs = await storageApi.uploadAboutSectionImages(
         storeData.aboutUs || [],
         currentUserId
       );
 
-      // Prepare store data for Firestore (filter out undefined values)
-      const firestoreData: any = {
+      // Prepare store data for API
+      const createData: storeApi.CreateStoreData = {
         name: storeData.name,
         description: storeData.description,
         category: storeData.category,
@@ -79,15 +44,16 @@ export const useStoreMutations = (ownerId: string) => {
           city: storeData.location?.city || '',
           province: storeData.location?.province || '',
           postalCode: storeData.location?.postalCode || '',
-          coordinates: new GeoPoint(
-            storeData.location.coordinates.lat,
-            storeData.location.coordinates.lng
-          ),
+          coordinates: storeData.location.coordinates,
           placeId: storeData.location?.placeId || '',
         },
         phone: storeData.phone || '',
         email: storeData.email || '',
         website: storeData.website || '',
+        instagram: storeData.instagram,
+        facebook: storeData.facebook,
+        twitter: storeData.twitter,
+        socialMedia: storeData.socialMedia,
         businessHours: storeData.businessHours || {},
         deliveryHours: storeData.deliveryHours || {},
         deliveryOptions: storeData.deliveryOptions || {},
@@ -100,28 +66,12 @@ export const useStoreMutations = (ownerId: string) => {
         storeImage: mainImageUrl || '',
         imageUrl: mainImageUrl || '',
         aboutUs: processedAboutUs,
-        verified: false,
-        featured: false,
         ownerId: currentUserId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
-      // Add optional social media fields only if they have values
-      if (storeData.instagram) firestoreData.instagram = storeData.instagram;
-      if (storeData.facebook) firestoreData.facebook = storeData.facebook;
-      if (storeData.twitter) firestoreData.twitter = storeData.twitter;
-      if (storeData.socialMedia && Object.keys(storeData.socialMedia).length > 0) {
-        firestoreData.socialMedia = storeData.socialMedia;
-      }
-
-      const storesRef = collection(db, 'stores');
-      const docRef = await addDoc(storesRef, firestoreData);
-
-      return { id: docRef.id, ...firestoreData };
+      return storeApi.createStore(createData);
     },
     onSuccess: () => {
-      // Invalidate and refetch store queries immediately
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.byOwner(ownerId),
         refetchType: 'active',
@@ -137,17 +87,17 @@ export const useStoreMutations = (ownerId: string) => {
       // Upload new main image if provided
       let mainImageUrl = storeData.images?.[0] || '';
       if (storeImage?.file) {
-        mainImageUrl = await uploadImageToStorage(storeImage.file, currentUserId, 'main');
+        mainImageUrl = await storageApi.uploadStoreImage(storeImage.file, currentUserId);
       }
 
       // Upload about section images if provided
-      const processedAboutUs = await uploadSectionImages(
+      const processedAboutUs = await storageApi.uploadAboutSectionImages(
         storeData.aboutUs || [],
         currentUserId
       );
 
-      // Prepare update data - explicitly list fields to avoid File objects and undefined values
-      const updateData: any = {
+      // Prepare update data for API
+      const updateData: storeApi.UpdateStoreData = {
         name: storeData.name,
         description: storeData.description,
         category: storeData.category,
@@ -157,15 +107,16 @@ export const useStoreMutations = (ownerId: string) => {
           city: storeData.location?.city || '',
           province: storeData.location?.province || '',
           postalCode: storeData.location?.postalCode || '',
-          coordinates: new GeoPoint(
-            storeData.location.coordinates.lat,
-            storeData.location.coordinates.lng
-          ),
+          coordinates: storeData.location.coordinates,
           placeId: storeData.location?.placeId || '',
         },
         phone: storeData.phone || '',
         email: storeData.email || '',
         website: storeData.website || '',
+        instagram: storeData.instagram,
+        facebook: storeData.facebook,
+        twitter: storeData.twitter,
+        socialMedia: storeData.socialMedia,
         deliveryHours: storeData.deliveryHours || {},
         deliveryOptions: storeData.deliveryOptions || {},
         paymentMethods: storeData.paymentMethods || [],
@@ -173,24 +124,11 @@ export const useStoreMutations = (ownerId: string) => {
         storeImage: mainImageUrl || storeData.storeImage || (storeData.images?.[0] || ''),
         imageUrl: mainImageUrl || storeData.imageUrl || (storeData.images?.[0] || ''),
         aboutUs: processedAboutUs,
-        updatedAt: new Date(),
       };
 
-      // Add optional social media fields only if they have values
-      if (storeData.instagram) updateData.instagram = storeData.instagram;
-      if (storeData.facebook) updateData.facebook = storeData.facebook;
-      if (storeData.twitter) updateData.twitter = storeData.twitter;
-      if (storeData.socialMedia && Object.keys(storeData.socialMedia).length > 0) {
-        updateData.socialMedia = storeData.socialMedia;
-      }
-
-      const storeRef = doc(db, 'stores', storeId);
-      await updateDoc(storeRef, updateData);
-
-      return { id: storeId, ...updateData };
+      return storeApi.updateStore(storeId, updateData);
     },
     onSuccess: () => {
-      // Invalidate and refetch store queries immediately
       queryClient.invalidateQueries({
         queryKey: queryKeys.stores.byOwner(ownerId),
         refetchType: 'active',

@@ -20,6 +20,10 @@ export interface Product {
   preparationTime?: string;      // "15-20 min"
   servingSize?: string;          // "Serves 2-3"
   allergens?: string[];          // ["nuts", "dairy", "gluten"]
+  ingredients?: {                // Ingredients list with allergen warnings
+    main: string[];              // ["Organic flour", "Water", "Salt"]
+    contains?: string[];         // ["Wheat", "Gluten"] - allergen labeling
+  };
   nutritionInfo?: {              // Optional nutrition data
     calories?: number;
     protein?: number;
