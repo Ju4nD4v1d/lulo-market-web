@@ -11,7 +11,6 @@ interface StoreProductCardProps {
   storeId: string;
   storeName: string;
   storeImage?: string;
-  onClick?: (product: Product) => void;
 }
 
 export const StoreProductCard: React.FC<StoreProductCardProps> = ({
@@ -19,14 +18,17 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   storeId,
   storeName,
   storeImage,
-  onClick,
 }) => {
   const { t } = useLanguage();
 
-  const handleClick = () => {
-    if (onClick) {
-      onClick(product);
-    }
+  // Navigate to product detail page when card/image is clicked
+  const handleCardClick = () => {
+    window.location.hash = `#product/${product.id}/${storeId}`;
+  };
+
+  // Prevent card navigation when clicking the add button area
+  const handleCartAreaClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
@@ -36,7 +38,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   return (
     <div
       className={`${styles.card} ${isOutOfStock ? styles.outOfStock : ''}`}
-      onClick={handleClick}
+      onClick={handleCardClick}
     >
       {/* Product Image */}
       <div className={styles.imageContainer}>
@@ -122,7 +124,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
           </div>
 
           {!isOutOfStock ? (
-            <div className={styles.cartButton}>
+            <div className={styles.cartButton} onClick={handleCartAreaClick}>
               <AddToCartButton
                 product={product}
                 storeId={storeId}

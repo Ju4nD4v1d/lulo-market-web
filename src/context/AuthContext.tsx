@@ -22,7 +22,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   portalLogin: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, displayName?: string) => Promise<void>;
+  register: (email: string, password: string, displayName?: string, address?: { street: string; city: string; province: string; postalCode: string }) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (profileData: Partial<UserProfile>, authData?: { email?: string; currentPassword?: string; newPassword?: string }) => Promise<void>;
@@ -165,10 +165,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, displayName?: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    displayName?: string,
+    address?: { street: string; city: string; province: string; postalCode: string }
+  ) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+
+      // Build preferences with optional default address
+      const preferences: UserProfile['preferences'] = {};
+      if (address && address.street && address.city && address.province && address.postalCode) {
+        preferences.defaultLocation = {
+          address: address.street,
+          city: address.city,
+          province: address.province,
+          postalCode: address.postalCode,
+          coordinates: { lat: 0, lng: 0 }
+        };
+      }
 
       // Create user profile document with shopper as default
       const userProfileData: UserProfile = {
@@ -178,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userType: 'shopper', // Default to shopper
         createdAt: new Date(),
         lastLoginAt: new Date(),
-        preferences: {},
+        preferences,
       };
 
       await userApi.setUserProfile(user.uid, {

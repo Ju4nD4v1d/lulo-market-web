@@ -23,7 +23,12 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
     phoneNumber: '',
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    // Address fields
+    street: '',
+    city: '',
+    province: '',
+    postalCode: ''
   });
 
   const [errors, setErrors] = useState<ProfileFormErrors>({});
@@ -37,13 +42,19 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
   // Only depend on uid to avoid infinite loops from object references
   useEffect(() => {
     if (userProfile && currentUser) {
+      const defaultLocation = userProfile.preferences?.defaultLocation;
       setFormData({
         displayName: userProfile.displayName || '',
         email: currentUser.email || '',
         phoneNumber: userProfile.phoneNumber || '',
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        // Address fields from defaultLocation
+        street: defaultLocation?.address || '',
+        city: defaultLocation?.city || '',
+        province: defaultLocation?.province || '',
+        postalCode: defaultLocation?.postalCode || ''
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,6 +84,10 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
       }
       return prev;
     });
+  }, []);
+
+  const setFieldError = useCallback((field: string, message: string) => {
+    setErrors(prev => ({ ...prev, [field]: message }));
   }, []);
 
   const handlePasswordToggle = useCallback((field: 'current' | 'new' | 'confirm') => {
@@ -146,6 +161,23 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
         updateData.avatar = avatarUrl;
       }
 
+      // Update default address if any address field is filled
+      const hasAddressData = formData.street.trim() || formData.city.trim() ||
+        formData.province.trim() || formData.postalCode.trim();
+
+      if (hasAddressData) {
+        updateData.preferences = {
+          ...userProfile?.preferences,
+          defaultLocation: {
+            address: formData.street.trim(),
+            city: formData.city.trim(),
+            province: formData.province.trim(),
+            postalCode: formData.postalCode.trim(),
+            coordinates: userProfile?.preferences?.defaultLocation?.coordinates || { lat: 0, lng: 0 }
+          }
+        };
+      }
+
       // Prepare auth update data
       const authUpdateData: { email?: string; currentPassword?: string; newPassword?: string } = {};
 
@@ -207,6 +239,7 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
     handleFieldChange: handleInputChange, // Export as handleFieldChange for consistency
     handlePasswordToggle,
     handleSubmit,
-    clearError
+    clearError,
+    setFieldError
   };
 };

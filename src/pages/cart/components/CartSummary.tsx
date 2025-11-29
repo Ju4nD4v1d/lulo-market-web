@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { ShoppingBag, Truck, Receipt, Shield } from 'lucide-react';
+import { ShoppingBag, Truck, Receipt, Shield, LogIn } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './CartSummary.module.css';
 
@@ -12,6 +12,7 @@ interface CartSummaryProps {
   itemCount: number;
   onCheckout: () => void;
   isProcessing?: boolean;
+  isLoggedIn?: boolean;
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
@@ -23,6 +24,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   itemCount,
   onCheckout,
   isProcessing = false,
+  isLoggedIn = true,
 }) => {
   const { t } = useLanguage();
 
@@ -82,6 +84,14 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       >
         {isProcessing ? t('cart.summary.processing') : t('cart.summary.proceedToCheckout')}
       </button>
+
+      {/* Login Hint - shown when user is not logged in */}
+      {!isLoggedIn && (
+        <div className={styles.loginHint}>
+          <LogIn className={styles.loginHintIcon} />
+          <span>{t('cart.summary.loginRequired')}</span>
+        </div>
+      )}
 
       {/* Trust Badge */}
       <p className={styles.trustBadge}>

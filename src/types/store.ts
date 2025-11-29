@@ -92,4 +92,20 @@ export interface StoreData {
   products?: Product[];          // Products available in this store
   // Search metadata (added when store comes from search results)
   searchMetadata?: SearchMetadata;
+  // Stripe Connect fields
+  stripeAccountId?: string;      // Connected Stripe account ID
+  stripeEnabled?: boolean;       // Whether charges/payments are enabled
+  stripePayoutsEnabled?: boolean; // Whether payouts are enabled
+  stripeDetailsSubmitted?: boolean; // Whether onboarding forms completed
+  stripeOnboardingComplete?: boolean;  // Legacy - use stripeDetailsSubmitted
+  stripeAccountStatus?: StripeAccountStatus; // Current account status
+  stripeUpdatedAt?: Date;        // Last status update timestamp
 }
+
+// Stripe Connect account status
+export type StripeAccountStatus =
+  | 'pending_onboarding'    // Started but didn't finish forms
+  | 'pending_verification'  // Completed forms, Stripe reviewing
+  | 'restricted'            // Missing info or failed verification
+  | 'enabled'               // Fully active, can accept payments
+  | 'disabled';             // Account deauthorized/disconnected

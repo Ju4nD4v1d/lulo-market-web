@@ -22,6 +22,8 @@ export const LoginPage: React.FC = () => {
     setConfirmPassword,
     fullName,
     setFullName,
+    address,
+    setAddress,
     showPassword,
     setShowPassword,
     showConfirmPassword,
@@ -116,6 +118,8 @@ export const LoginPage: React.FC = () => {
             setShowPassword={setShowPassword}
             showConfirmPassword={showConfirmPassword}
             setShowConfirmPassword={setShowConfirmPassword}
+            address={address}
+            setAddress={setAddress}
             clearMessages={clearMessages}
             t={t}
           />

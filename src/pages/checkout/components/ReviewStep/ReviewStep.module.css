@@ -1,0 +1,156 @@
+/* ReviewStep - Order review before payment */
+
+.description {
+  margin-bottom: 1.5rem;
+  color: rgb(75 85 99);
+}
+
+/* Info Section - Customer Info, Delivery Address, Order Items */
+.infoSection {
+  background-color: rgb(249 250 251);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .infoSection {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sectionIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-400, #C8E400);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+}
+
+/* Info Details */
+.infoDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(75 85 99);
+}
+
+.infoDetails p {
+  margin: 0;
+}
+
+/* Address Details */
+.addressDetails {
+  font-size: 0.875rem;
+  color: rgb(75 85 99);
+}
+
+.addressDetails p {
+  margin: 0;
+}
+
+.addressInstructions {
+  margin-top: 0.5rem;
+}
+
+/* Order Items */
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.itemQuantity {
+  color: rgb(107 114 128);
+  margin: 0;
+}
+
+.itemPricing {
+  text-align: right;
+}
+
+.itemTotal {
+  font-weight: 600;
+  margin: 0;
+}
+
+.itemUnitPrice {
+  font-size: 0.75rem;
+  color: rgb(107 114 128);
+  margin: 0;
+}
+
+/* Order Summary */
+.orderSummary {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(229 231 235);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.summaryLabel {
+  color: rgb(107 114 128);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid rgb(229 231 235);
+}
+
+@media (min-width: 768px) {
+  .totalRow {
+    font-size: 1.125rem;
+  }
+}
+
+.totalAmount {
+  color: var(--primary-400, #C8E400);
+}

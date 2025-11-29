@@ -54,7 +54,7 @@ export const HomePage = () => {
    * Handle store card click - navigate to store page
    */
   const handleStoreClick = useCallback((store: StoreData) => {
-    window.location.hash = `#shopper-dashboard/${store.id}`;
+    window.location.hash = `#store/${store.id}`;
   }, []);
 
   /**

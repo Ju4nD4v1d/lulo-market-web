@@ -6,6 +6,13 @@ export interface ProfileFormErrors {
   [key: string]: string;
 }
 
+export interface AddressFormData {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+}
+
 export const validateProfileForm = (
   formData: {
     displayName: string;
@@ -14,6 +21,10 @@ export const validateProfileForm = (
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
+    street?: string;
+    city?: string;
+    province?: string;
+    postalCode?: string;
   },
   t: (key: string) => string
 ): ProfileFormErrors => {
@@ -38,6 +49,31 @@ export const validateProfileForm = (
     errors.phoneNumber = t('profile.error.phoneInvalid');
   }
 
+  // Address validation - only validate if any address field is filled
+  const hasAnyAddressField = formData.street?.trim() || formData.city?.trim() ||
+    formData.province?.trim() || formData.postalCode?.trim();
+
+  if (hasAnyAddressField) {
+    // If any address field is filled, validate all required fields
+    if (!formData.street?.trim()) {
+      errors.street = t('profile.error.streetRequired');
+    }
+
+    if (!formData.city?.trim()) {
+      errors.city = t('profile.error.cityRequired');
+    }
+
+    if (!formData.province?.trim()) {
+      errors.province = t('profile.error.provinceRequired');
+    }
+
+    if (!formData.postalCode?.trim()) {
+      errors.postalCode = t('profile.error.postalCodeRequired');
+    } else if (!isValidCanadianPostalCode(formData.postalCode)) {
+      errors.postalCode = t('profile.error.postalCodeInvalid');
+    }
+  }
+
   // Password validation (only if changing password)
   if (formData.newPassword || formData.confirmPassword) {
     if (!formData.currentPassword) {
@@ -54,6 +90,17 @@ export const validateProfileForm = (
   }
 
   return errors;
+};
+
+/**
+ * Validates Canadian postal code format (A1A 1A1 or A1A1A1)
+ */
+export const isValidCanadianPostalCode = (postalCode: string): boolean => {
+  const cleaned = postalCode.replace(/\s/g, '').toUpperCase();
+  // Canadian postal code format: letter-number-letter number-letter-number
+  // First letter cannot be D, F, I, O, Q, U, W, Z
+  const pattern = /^[ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ]\d[ABCEGHJKLMNPRSTVWXYZ]\d$/;
+  return pattern.test(cleaned);
 };
 
 export const validateImageFile = (file: File, t: (key: string) => string): string | null => {

@@ -141,8 +141,15 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     verified: (data.verified as boolean) || false,
     featured: (data.featured as boolean) || false,
     ownerId: (data.ownerId as string) || '',
+    ownerEmail: (data.ownerEmail as string) || '',
     createdAt: safeDate(data.createdAt),
-    updatedAt: safeDate(data.updatedAt)
+    updatedAt: safeDate(data.updatedAt),
+    // Stripe Connect fields
+    stripeAccountId: (data.stripeAccountId as string) || undefined,
+    stripeEnabled: (data.stripeEnabled as boolean) || false,
+    stripePayoutsEnabled: (data.stripePayoutsEnabled as boolean) || false,
+    stripeDetailsSubmitted: (data.stripeDetailsSubmitted as boolean) || false,
+    stripeAccountStatus: (data.stripeAccountStatus as string) || undefined,
   };
 }
 
@@ -432,6 +439,7 @@ export async function getStoreStripeAccountId(storeId: string): Promise<string |
 export interface StoreStripeAccount {
   stripeAccountId: string | null;
   stripeEnabled: boolean;
+  stripeAccountStatus: string | null;
 }
 
 /**
@@ -442,13 +450,14 @@ export async function getStoreStripeAccount(storeId: string): Promise<StoreStrip
   const snapshot = await getDoc(storeRef);
 
   if (!snapshot.exists()) {
-    return { stripeAccountId: null, stripeEnabled: false };
+    return { stripeAccountId: null, stripeEnabled: false, stripeAccountStatus: null };
   }
 
   const data = snapshot.data();
   return {
     stripeAccountId: (data.stripeAccountId as string) || null,
-    stripeEnabled: (data.stripeEnabled as boolean) || false
+    stripeEnabled: (data.stripeEnabled as boolean) || false,
+    stripeAccountStatus: (data.stripeAccountStatus as string) || null
   };
 }
 

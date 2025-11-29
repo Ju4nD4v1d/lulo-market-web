@@ -49,9 +49,8 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
 
       <button
         onClick={onBack}
-        className={`${sharedStyles.button} ${sharedStyles.buttonSecondary}`}
+        className={`${sharedStyles.button} ${sharedStyles.buttonSecondary} ${sharedStyles.buttonStandalone}`}
         type="button"
-        style={{ marginTop: '1.5rem' }}
         disabled={isProcessing}
       >
         {t('order.back')}

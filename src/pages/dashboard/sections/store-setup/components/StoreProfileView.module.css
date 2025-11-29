@@ -430,8 +430,9 @@
 }
 
 .cardTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
   color: #111827;
   margin: 0;
 }
@@ -597,8 +598,9 @@
 }
 
 .quickActionsTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
   color: #111827;
   margin: 0;
   padding: 1.5rem 1.5rem 0;

@@ -113,6 +113,20 @@ export const usePaymentFlow = ({
         throw new Error('Store payment processing is not set up. Please contact the store owner.');
       }
 
+      // Check if Stripe account is enabled (fully verified)
+      if (!stripeAccount.stripeEnabled) {
+        const status = stripeAccount.stripeAccountStatus;
+        if (status === 'pending_verification') {
+          throw new Error('This store is still being verified by Stripe. Please try again later or contact the store owner.');
+        } else if (status === 'restricted') {
+          throw new Error('This store needs to complete their payment setup. Please contact the store owner.');
+        } else if (status === 'disabled') {
+          throw new Error('This store\'s payment processing has been disabled. Please contact the store owner.');
+        } else {
+          throw new Error('This store\'s payment processing is not ready. Please contact the store owner.');
+        }
+      }
+
       // Generate order ID that will be used for both payment intent and Firestore
       const orderId = generateOrderId();
       console.log('📝 Generated order ID:', orderId);
@@ -168,6 +182,8 @@ export const usePaymentFlow = ({
         ? error.message
         : 'Failed to initialize payment. Please try again.';
       onError(errorMessage);
+      // Re-throw so callers can also handle the error
+      throw error;
     } finally {
       setIsCreatingPaymentIntent(false);
     }
@@ -184,6 +200,6 @@ export const usePaymentFlow = ({
     proceedToPayment,
     isCreatingPaymentIntent,
     pendingOrderId,
-    isStripeReady: !!stripeAccount?.stripeAccountId
+    isStripeReady: !!stripeAccount?.stripeAccountId && stripeAccount?.stripeEnabled === true
   };
 };

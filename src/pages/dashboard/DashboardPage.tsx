@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from './components';
+import { StripeReturnToast } from './components/StripeReturnToast';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStripeConnectReturn } from './hooks/useStripeConnectReturn';
 
 // Import migrated sections
 import { MetricsPage } from './sections/metrics';
@@ -15,6 +17,9 @@ export const DashboardPage = () => {
   const { t } = useLanguage();
   const [hasPermissions, setHasPermissions] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+
+  // Handle Stripe Connect return from onboarding
+  const { status: stripeStatus, message: stripeMessage, clearStatus: clearStripeStatus } = useStripeConnectReturn();
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -104,9 +109,16 @@ export const DashboardPage = () => {
   };
 
   return (
-    <DashboardLayout currentPage={currentPage}>
-      {renderSection()}
-    </DashboardLayout>
+    <>
+      <StripeReturnToast
+        status={stripeStatus}
+        message={stripeMessage}
+        onClose={clearStripeStatus}
+      />
+      <DashboardLayout currentPage={currentPage}>
+        {renderSection()}
+      </DashboardLayout>
+    </>
   );
 };
 

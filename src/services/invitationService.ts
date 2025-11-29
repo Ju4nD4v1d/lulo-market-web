@@ -5,7 +5,6 @@
 export type { InvitationCode } from './api/invitationApi';
 
 export {
-  generateDeviceFingerprint,
   checkDeviceInvitation,
   clearInvitationData,
   validateInvitationCode,

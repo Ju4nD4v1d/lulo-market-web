@@ -17,6 +17,7 @@ import {
   Package
 } from 'lucide-react';
 import { StoreData } from '../../../../../types/store';
+import { PaymentSettings } from './PaymentSettings';
 import styles from './StoreProfileView.module.css';
 
 interface StoreStats {
@@ -189,6 +190,9 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Payment Settings Section */}
+        <PaymentSettings storeId={storeData.id} storeName={storeData.name} />
 
         {/* Main Content Grid */}
         <div className={styles.mainGrid}>

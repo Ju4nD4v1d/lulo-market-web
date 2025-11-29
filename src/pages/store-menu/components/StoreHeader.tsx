@@ -1,6 +1,6 @@
 import type * as React from 'react';
 
-import { ArrowLeft, Star, Clock, MapPin, Search, ShoppingCart, Globe } from 'lucide-react';
+import { ArrowLeft, Star, Search, ShoppingCart, Globe } from 'lucide-react';
 import { StoreInfo } from '../types';
 import { UserButton } from '../../../components/UserButton';
 import { UserMenuDropdown } from '../../../components/shared/user/UserMenuDropdown';
@@ -66,10 +66,6 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({
                 <span className={styles.metaItem}>
                   {store.rating} ({store.reviewCount})
                 </span>
-                <Clock className={styles.icon} />
-                <span className={styles.metaItem}>{store.deliveryTime}</span>
-                <MapPin className={styles.icon} />
-                <span className={styles.metaItem}>1.2 km</span>
               </div>
             </div>
           </div>

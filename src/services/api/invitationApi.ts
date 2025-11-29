@@ -1,5 +1,8 @@
 /**
  * Invitation API - Operations for invitation codes
+ *
+ * Note: Device caching has been removed. Users must enter a valid
+ * invitation code each session to access the app.
  */
 
 import {
@@ -7,9 +10,6 @@ import {
   query,
   where,
   getDocs,
-  doc,
-  updateDoc,
-  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 
@@ -23,59 +23,46 @@ export interface InvitationCode {
   isUsed: boolean;
   createdAt: unknown;
   usedAt?: unknown;
-  deviceFingerprint?: string;
 }
 
 // ============================================================================
-// Helper Functions
+// Session State (persisted in sessionStorage)
 // ============================================================================
+
+const SESSION_KEY = 'lulo_invitation_valid';
 
 /**
- * Generate a simple device fingerprint for invitation validation
- */
-export function generateDeviceFingerprint(): string {
-  const nav = window.navigator;
-  const screen = window.screen;
-  const fingerprint = [
-    nav.userAgent,
-    nav.language,
-    screen.colorDepth,
-    screen.width + 'x' + screen.height,
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  ].join('|');
-
-  // Simple hash function
-  let hash = 0;
-  for (let i = 0; i < fingerprint.length; i++) {
-    const char = fingerprint.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
-}
-
-// ============================================================================
-// Local Storage Operations
-// ============================================================================
-
-/**
- * Check if device has valid invitation stored locally
+ * Check if current session has a valid invitation
+ * Uses sessionStorage - persists for browser tab but clears when tab is closed
  */
 export function checkDeviceInvitation(): boolean {
-  const storedCode = localStorage.getItem('lulocart_invitation_code');
-  const storedFingerprint = localStorage.getItem('lulocart_device_fingerprint');
-  const currentFingerprint = generateDeviceFingerprint();
-
-  // Valid if code exists and fingerprint matches (or no fingerprint stored for backwards compatibility)
-  return !!(storedCode && (!storedFingerprint || storedFingerprint === currentFingerprint));
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === 'true';
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Clear invitation data from local storage
+ * Clear invitation for current session
  */
 export function clearInvitationData(): void {
-  localStorage.removeItem('lulocart_invitation_code');
-  localStorage.removeItem('lulocart_device_fingerprint');
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Mark session as having valid invitation
+ */
+function setSessionInvitationValid(): void {
+  try {
+    sessionStorage.setItem(SESSION_KEY, 'true');
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 // ============================================================================
@@ -83,16 +70,16 @@ export function clearInvitationData(): void {
 // ============================================================================
 
 /**
- * Validate and claim an invitation code
- * Returns true if valid and claimed, false otherwise
+ * Validate an invitation code
+ * Returns true if valid, false otherwise
+ * Note: Codes can be reused - we only check if the code exists
  */
 export async function validateInvitationCode(code: string): Promise<boolean> {
   try {
     const codesRef = collection(db, 'invitation_codes');
     const upperCode = code.toUpperCase();
-    const deviceFingerprint = generateDeviceFingerprint();
 
-    // First check if code exists and is valid
+    // Check if code exists
     const q = query(
       codesRef,
       where('code', '==', upperCode)
@@ -101,34 +88,11 @@ export async function validateInvitationCode(code: string): Promise<boolean> {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      console.log('Invalid invitation code:', code);
       return false;
     }
 
-    const codeDoc = querySnapshot.docs[0];
-    const codeData = codeDoc.data();
-
-    // Check if code is already used by a different device
-    if (codeData.isUsed && codeData.deviceFingerprint !== deviceFingerprint) {
-      console.log('Invitation code already used by another device:', code);
-      return false;
-    }
-
-    // If code is valid and not used (or used by same device), proceed
-    const updateData = {
-      isUsed: true,
-      usedAt: serverTimestamp(),
-      deviceFingerprint
-    };
-
-    // Update the invitation code document
-    await updateDoc(doc(db, 'invitation_codes', codeDoc.id), updateData);
-
-    // Store in localStorage with device fingerprint
-    localStorage.setItem('lulocart_invitation_code', upperCode);
-    localStorage.setItem('lulocart_device_fingerprint', deviceFingerprint);
-
-    console.log('Valid invitation code claimed by device:', code);
+    // Code exists and is valid - mark session as valid
+    setSessionInvitationValid();
     return true;
   } catch (error) {
     console.error('Error validating invitation code:', error);

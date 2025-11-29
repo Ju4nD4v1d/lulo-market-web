@@ -12,9 +12,6 @@ export interface StoreInfo {
   name: string;
   rating: number;
   reviewCount: number;
-  deliveryTime: string;
-  deliveryFee: number;
-  minimumOrder: number;
   image: string;
 }
 

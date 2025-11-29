@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Store } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { CartHeader } from './components/CartHeader';
 import { CartEmptyState } from './components/CartEmptyState';
 import { CartItemList } from './components/CartItemList';
@@ -17,6 +18,7 @@ const TAX_RATE = 0.12; // 12% HST
 export const CartPage: React.FC = () => {
   const { t } = useLanguage();
   const { cart, updateQuantity, removeFromCart } = useCart();
+  const { currentUser } = useAuth();
 
   // Calculate totals
   const calculations = useMemo(() => {
@@ -116,6 +118,7 @@ export const CartPage: React.FC = () => {
                 total={calculations.total}
                 itemCount={calculations.itemCount}
                 onCheckout={handleCheckout}
+                isLoggedIn={!!currentUser}
               />
             </div>
           </div>

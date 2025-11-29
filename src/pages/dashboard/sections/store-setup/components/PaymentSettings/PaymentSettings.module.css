@@ -1,0 +1,300 @@
+/* PaymentSettings - Mobile-first styles */
+
+.container {
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: #111827;
+  margin: 0;
+}
+
+.titleIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+}
+
+.refreshButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refreshIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.content {
+  padding: 1.25rem;
+}
+
+.statusCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .statusCard {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+}
+
+.iconDefault {
+  background: #f3f4f6;
+}
+
+.iconLoading {
+  background: #e0e7ff;
+}
+
+.iconSuccess {
+  background: #d1fae5;
+}
+
+.iconWarning {
+  background: #fef3c7;
+}
+
+.iconInfo {
+  background: #dbeafe;
+}
+
+.iconError {
+  background: #fee2e2;
+}
+
+.statusIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.iconDefault .statusIcon {
+  color: #6b7280;
+}
+
+.iconLoading .statusIcon {
+  color: #6366f1;
+  animation: spin 1s linear infinite;
+}
+
+.iconSuccess .statusIcon {
+  color: #059669;
+}
+
+.iconWarning .statusIcon {
+  color: #d97706;
+}
+
+.iconInfo .statusIcon {
+  color: #2563eb;
+}
+
+.iconError .statusIcon {
+  color: #dc2626;
+}
+
+.statusInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.statusHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.statusTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.badgeSuccess {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badgeWarning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badgeInfo {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badgeError {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.statusDescription {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.capability {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #059669;
+}
+
+.capabilityIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.error {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin: 0.5rem 0 0 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .actions {
+    margin-top: 0;
+    margin-left: auto;
+  }
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.actionButtonPrimary {
+  background: #84cc16;
+  color: white;
+}
+
+.actionButtonPrimary:hover:not(:disabled) {
+  background: #65a30d;
+}
+
+.actionButtonSecondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.actionButtonSecondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.actionButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.actionButton:disabled .buttonIcon {
+  animation: spin 1s linear infinite;
+}
