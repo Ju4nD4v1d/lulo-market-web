@@ -127,15 +127,9 @@
   }
 }
 
-/* Business link (responsive) */
+/* Business link */
 .businessLink {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .businessLink {
-    display: flex;
-  }
+  display: flex;
 }
 
 /* Cart button */
