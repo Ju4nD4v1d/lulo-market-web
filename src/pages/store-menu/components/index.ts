@@ -1,6 +1,8 @@
 export { StoreHeader } from './StoreHeader';
 export { CategoryTabs } from './CategoryTabs';
-export { StoreHero } from './StoreHero';
+export { StoreHeroSection } from './StoreHeroSection';
+export { DeliverySchedule } from './DeliverySchedule';
+export { MenuSection } from './MenuSection';
 export { MenuItem } from './MenuItem';
 export { FloatingCartButton } from './FloatingCartButton';
 export { StoreProductCard } from './StoreProductCard';

@@ -69,18 +69,18 @@
 }
 
 .iconWrapper.danger {
-  background: #FEE2E2;
-  color: #DC2626;
+  background: var(--color-error-light);
+  color: var(--color-error-dark);
 }
 
 .iconWrapper.warning {
-  background: #FEF3C7;
-  color: #D97706;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .iconWrapper.info {
-  background: #DBEAFE;
-  color: #2563EB;
+  background: var(--color-info-light);
+  color: var(--color-info-dark);
 }
 
 .icon {
@@ -91,7 +91,7 @@
 .title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
   text-align: center;
 }
@@ -103,7 +103,7 @@
 }
 
 .message {
-  color: #6B7280;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 0 1.5rem 0;
@@ -155,12 +155,12 @@
 }
 
 .cancelButton {
-  background: #F3F4F6;
-  color: #374151;
+  background: var(--color-gray-100);
+  color: var(--color-secondary-light);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #E5E7EB;
+  background: var(--color-border);
 }
 
 .cancelButton:disabled {
@@ -178,7 +178,7 @@
 }
 
 .confirmDanger {
-  background: #DC2626;
+  background: var(--color-error-dark);
 }
 
 .confirmDanger:hover:not(:disabled) {
@@ -186,7 +186,7 @@
 }
 
 .confirmWarning {
-  background: #D97706;
+  background: var(--color-warning-dark);
 }
 
 .confirmWarning:hover:not(:disabled) {
@@ -194,7 +194,7 @@
 }
 
 .confirmInfo {
-  background: #2563EB;
+  background: var(--color-info-dark);
 }
 
 .confirmInfo:hover:not(:disabled) {

@@ -1,8 +1,12 @@
+/**
+ * TanStack Query hook for order tracking
+ * Uses orderApi for data fetching
+ */
+
 import { useQuery } from '@tanstack/react-query';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebase';
 import { Order } from '../../types/order';
 import { queryKeys } from './queryKeys';
+import * as orderApi from '../../services/api/orderApi';
 
 interface UseOrderTrackingQueryOptions {
   orderId: string;
@@ -24,26 +28,24 @@ export const useOrderTrackingQuery = ({
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.orders.tracking(orderId, userEmail),
     queryFn: async () => {
-      const ordersRef = collection(db, 'orders');
-      const q = query(
-        ordersRef,
-        where('id', '==', orderId),
-        where('customerInfo.email', '==', userEmail)
-      );
+      try {
+        const order = await orderApi.getOrderById(orderId);
 
-      const snapshot = await getDocs(q);
+        // Verify the email matches for security
+        const orderEmail = order.customerInfo?.email?.toLowerCase();
+        const requestEmail = userEmail.toLowerCase();
 
-      if (snapshot.empty) {
+        if (orderEmail !== requestEmail) {
+          console.warn('Order email mismatch - access denied');
+          return null;
+        }
+
+        return order;
+      } catch {
+        // Order not found
+        console.warn('Order not found:', orderId);
         return null;
       }
-
-      const orderDoc = snapshot.docs[0];
-      const orderData = orderDoc.data() as Order;
-
-      return {
-        ...orderData,
-        id: orderDoc.id
-      };
     },
     enabled: enabled && !!orderId && !!userEmail,
     staleTime: 30 * 1000, // 30 seconds - real-time tracking needs frequent updates

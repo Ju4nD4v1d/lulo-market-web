@@ -12,14 +12,16 @@ interface ProductCardProps {
   showAddToCart?: boolean;
   storeId?: string;
   storeName?: string;
+  storeImage?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ 
-  product, 
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
   onClick,
   showAddToCart = true,
   storeId,
-  storeName
+  storeName,
+  storeImage
 }) => {
   const { t } = useLanguage();
   const handleClick = () => {
@@ -173,10 +175,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {showAddToCart && !isOutOfStock && (
             <div className="flex-shrink-0 max-w-[120px]">
-              <AddToCartButton 
+              <AddToCartButton
                 product={product}
                 storeId={storeId}
                 storeName={storeName}
+                storeImage={storeImage}
                 size="sm"
                 className="w-full"
               />

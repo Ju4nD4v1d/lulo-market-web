@@ -12,7 +12,6 @@ import {
   Boxes
 } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
-import { useAuth } from '../../../../context/AuthContext';
 import { useStore } from '../../../../context/StoreContext';
 import { ProductDetails } from './components/ProductDetails';
 import { ProductModal } from './components/ProductModal';
@@ -225,20 +224,21 @@ export const ProductsPage = () => {
                     <p className={styles.listDescription}>
                       {product.description || t('products.noDescription')}
                     </p>
+                  </div>
 
-                    <div className={styles.listMeta}>
-                      <div className={styles.metaItem}>
-                        <Tag className={styles.metaIcon} />
-                        <span>{getCategoryLabel(product.category, t)}</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <DollarSign className={styles.metaIconPrice} />
-                        <span className={styles.priceText}>{product.price.toFixed(2)}</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <Boxes className={styles.metaIcon} />
-                        <span>{product.stock} {t('products.inStock')}</span>
-                      </div>
+                  {/* Meta moved outside listContent for mobile wrapping */}
+                  <div className={styles.listMeta}>
+                    <div className={styles.metaItem}>
+                      <Tag className={styles.metaIcon} />
+                      <span>{getCategoryLabel(product.category, t)}</span>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <DollarSign className={styles.metaIconPrice} />
+                      <span className={styles.priceText}>{product.price.toFixed(2)}</span>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <Boxes className={styles.metaIcon} />
+                      <span>{product.stock} {t('products.inStock')}</span>
                     </div>
                   </div>
                 </>

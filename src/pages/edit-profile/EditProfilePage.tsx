@@ -13,6 +13,7 @@ import { useDeleteAccount } from './hooks/useDeleteAccount';
 import {
   ProfileImageUpload,
   BasicInfoSection,
+  AddressSection,
   PasswordSection,
   DeleteAccountModal
 } from './components';
@@ -32,7 +33,8 @@ export const EditProfilePage: React.FC = () => {
     handleFieldChange,
     handlePasswordToggle,
     handleSubmit,
-    clearError
+    clearError,
+    setFieldError
   } = useEditProfileForm({ t });
 
   const {
@@ -42,7 +44,7 @@ export const EditProfilePage: React.FC = () => {
   } = useProfileImage({
     initialUrl: userProfile?.avatar,
     t,
-    onError: (field, message) => handleFieldChange(field, message),
+    onError: setFieldError,
     clearError
   });
 
@@ -52,11 +54,12 @@ export const EditProfilePage: React.FC = () => {
     deletePassword,
     handlePasswordChange,
     isDeleting,
+    deleteSuccess,
     handleDeleteAccount,
     closeDeleteModal
   } = useDeleteAccount({
     t,
-    onError: (field, message) => handleFieldChange(field, message),
+    onError: setFieldError,
     clearError
   });
 
@@ -124,6 +127,17 @@ export const EditProfilePage: React.FC = () => {
               displayName={formData.displayName}
               email={formData.email}
               phoneNumber={formData.phoneNumber}
+              errors={errors}
+              onChange={handleFieldChange}
+              t={t}
+            />
+
+            {/* Address Section */}
+            <AddressSection
+              street={formData.street}
+              city={formData.city}
+              province={formData.province}
+              postalCode={formData.postalCode}
               errors={errors}
               onChange={handleFieldChange}
               t={t}
@@ -201,6 +215,7 @@ export const EditProfilePage: React.FC = () => {
         password={deletePassword}
         error={errors.deletePassword || ''}
         isDeleting={isDeleting}
+        deleteSuccess={deleteSuccess}
         onPasswordChange={handlePasswordChange}
         onDelete={handleDeleteAccount}
         onClose={closeDeleteModal}

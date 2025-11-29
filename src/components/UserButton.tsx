@@ -4,9 +4,13 @@ import { User } from 'lucide-react';
 import styles from './UserButton.module.css';
 import avatarStyles from '../styles/avatar.module.css';
 
+interface UserButtonUserProfile {
+  avatar?: string;
+}
+
 interface UserButtonProps {
-  currentUser: any;
-  userProfile: any;
+  currentUser: { uid?: string } | null;
+  userProfile: UserButtonUserProfile | null | undefined;
   onClick: () => void;
   showBorder?: boolean;
   size?: 'small' | 'medium' | 'large';

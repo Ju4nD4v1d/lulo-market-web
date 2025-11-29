@@ -27,7 +27,7 @@
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
-  background: #C8E400;
+  background: var(--color-primary);
   color: white;
   font-size: 0.75rem;
   font-weight: 500;
@@ -97,12 +97,12 @@
 }
 
 .addButton {
-  background: #C8E400;
+  background: var(--color-primary);
   color: white;
 }
 
 .addButton:hover {
-  background: #b3cc00;
+  background: var(--color-primary-hover);
 }
 
 .buttonIcon {

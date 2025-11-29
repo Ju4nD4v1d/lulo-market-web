@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+@import './styles/colors.css';
 @import './styles/typography.css';
 
 @tailwind base;
@@ -32,7 +33,7 @@
   textarea,
   select {
     @apply block w-full px-4 py-3
-      border border-gray-300 rounded-lg
+      border border-gray-300
       bg-white/50 backdrop-blur-sm
       text-gray-900
       placeholder:text-gray-400/80
@@ -41,6 +42,7 @@
       hover:border-primary-400 hover:bg-white
       focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none focus:bg-white;
     font-size: 16px; /* Prevent iOS zoom on focus */
+    border-radius: 0.5rem; /* Default, can be overridden by component styles */
   }
 
   /* Disabled state */
@@ -63,7 +65,7 @@
   /* Default green theme for checkboxes and radios */
   input[type="checkbox"],
   input[type="radio"] {
-    accent-color: #C8E400;
+    accent-color: var(--color-primary);
   }
 
   input[type="radio"] {
@@ -261,19 +263,19 @@
   
   /* Enhanced Search Input */
   .search-input {
-    border-radius: 10px;
+    border-radius: 9999px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: 'Roboto', sans-serif;
     border: 1px solid #e5e7eb;
-    padding: 12px 16px;
+    padding: 12px 20px;
   }
   
   .search-input:focus {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(200, 228, 0, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--color-primary-30);
     outline: none;
-    border-color: rgb(200 228 0); /* primary-400 */
+    border-color: var(--color-primary);
   }
   
   /* Hero Background Enhancement */
@@ -306,7 +308,7 @@
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #E7FF01;
+    background-color: var(--color-primary);
     transition: width 0.3s ease;
   }
   
@@ -327,7 +329,7 @@
   /* Focus Ring for Accessibility */
   .focus-ring:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(231, 255, 1, 0.5);
+    box-shadow: 0 0 0 3px var(--color-primary-50);
   }
   
   /* Loading Shimmer Effect */
@@ -351,7 +353,7 @@
   }
   
   /* Icon Accent Color */
-  .accent-icon { color: #E7FF01 !important; fill: #E7FF01 !important; }
+  .accent-icon { color: var(--color-primary) !important; fill: var(--color-primary) !important; }
   
   /* Active Carousel Dot */
   .carousel-dot {
@@ -364,7 +366,7 @@
   }
   
   .carousel-dot-active {
-    background-color: #E7FF01;
+    background-color: var(--color-primary);
     transform: scale(1.2);
   }
   

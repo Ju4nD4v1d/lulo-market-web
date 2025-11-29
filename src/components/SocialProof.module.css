@@ -1,7 +1,7 @@
 .section {
   position: relative;
   padding: 5rem 0;
-  background-color: #f9fafb;
+  background-color: var(--color-gray-50);
 }
 
 .container {
@@ -26,7 +26,7 @@
 .title {
   font-size: 2.25rem;
   font-weight: bold;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 1.5rem;
 }
 
@@ -42,7 +42,7 @@
 
 .subtitle {
   font-size: 1.25rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
   max-width: 42rem;
   margin: 0 auto;
   line-height: 1.75;
@@ -83,13 +83,13 @@
 
 .statLabel {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 
 .statDescription {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
 }
 
 .testimonialsGrid {
@@ -131,7 +131,7 @@
 }
 
 .reviewText {
-  color: #374151;
+  color: var(--color-secondary-light);
   line-height: 1.75;
   margin-bottom: 1.5rem;
   font-style: italic;
@@ -148,7 +148,7 @@
 
 .ratingText {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
   margin-left: 0.5rem;
 }
 
@@ -176,7 +176,7 @@
 
 .customerName {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -193,8 +193,8 @@
 }
 
 .businessBadge {
-  background-color: rgba(200, 228, 0, 0.1);
-  color: rgb(74, 85, 104);
+  background-color: var(--color-primary-10);
+  color: var(--color-gray-600);
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;
@@ -203,7 +203,7 @@
 
 .customerLocation {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
 }
 
 .trustSection {
@@ -238,18 +238,18 @@
 
 .trustTitle {
   font-weight: bold;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 .trustDescription {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--color-gray-600);
 }
 
 .trustDivider {
   width: 1px;
   height: 2rem;
-  background-color: #e5e7eb;
+  background-color: var(--color-border);
   display: none;
 }
 

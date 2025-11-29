@@ -28,18 +28,31 @@ import {
 } from './components/steps';
 
 interface CheckoutPageProps {
-  onBack: () => void;
-  onOrderComplete: (order: Order) => void;
+  onBack?: () => void;
+  onOrderComplete?: (order: Order) => void;
 }
 
 /**
  * Main CheckoutPage component
  * Wraps CheckoutRouter with CheckoutProvider for state management
+ * When used as standalone route, provides default navigation behavior
  */
-export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderComplete }) => {
+export const CheckoutPage: React.FC<CheckoutPageProps> = ({
+  onBack,
+  onOrderComplete
+}) => {
+  const handleBack = onBack ?? (() => {
+    window.location.hash = '#cart';
+  });
+
+  const handleOrderComplete = onOrderComplete ?? ((order: Order) => {
+    // Navigate to order tracking page after successful order
+    window.location.hash = `#order/${order.id}`;
+  });
+
   return (
-    <CheckoutProvider onOrderComplete={onOrderComplete}>
-      <CheckoutRouter onBack={onBack} />
+    <CheckoutProvider onOrderComplete={handleOrderComplete}>
+      <CheckoutRouter onBack={handleBack} />
     </CheckoutProvider>
   );
 };

@@ -1,12 +1,13 @@
 import type * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import * as storeApi from '../services/api/storeApi';
 import { useAuth } from './AuthContext';
+import { StoreData } from '../types/store';
 
 interface StoreContextType {
   hasStore: boolean;
   storeId: string | null;
+  store: StoreData | null;
   refreshStoreStatus: () => Promise<void>;
   setHasStore: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -25,25 +26,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { currentUser } = useAuth();
   const [hasStore, setHasStore] = useState(false);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [store, setStore] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshStoreStatus = async () => {
     if (!currentUser) {
       setHasStore(false);
       setStoreId(null);
+      setStore(null);
       setLoading(false);
       return;
     }
-    const storesRef = collection(db, 'stores');
-    const q = query(storesRef, where('ownerId', '==', currentUser.uid));
-    const snapshot = await getDocs(q);
-    
-    if (!snapshot.empty) {
-      setHasStore(true);
-      setStoreId(snapshot.docs[0].id);
-    } else {
+
+    try {
+      const result = await storeApi.getStoreByOwnerWithData(currentUser.uid);
+      if (result.storeId && result.storeData) {
+        setHasStore(true);
+        setStoreId(result.storeId);
+        setStore(result.storeData);
+      } else {
+        setHasStore(false);
+        setStoreId(null);
+        setStore(null);
+      }
+    } catch (error) {
+      console.error('Error checking store status:', error);
       setHasStore(false);
       setStoreId(null);
+      setStore(null);
     }
     setLoading(false);
   };
@@ -53,7 +63,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [currentUser]);
 
   return (
-    <StoreContext.Provider value={{ hasStore, storeId, refreshStoreStatus, setHasStore }}>
+    <StoreContext.Provider value={{ hasStore, storeId, store, refreshStoreStatus, setHasStore }}>
       {!loading && children}
     </StoreContext.Provider>
   );

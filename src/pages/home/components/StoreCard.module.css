@@ -27,7 +27,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent 0%, #C8E400 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
   opacity: 0;
   transition: opacity 400ms ease;
 }
@@ -38,7 +38,7 @@
   inset: -2px;
   border-radius: 14px;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(200, 228, 0, 0.3), rgba(163, 199, 0, 0.3));
+  background: linear-gradient(135deg, var(--color-primary-30), var(--color-primary-30));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -51,10 +51,10 @@
   transform: translateY(-8px) scale(1.015);
   box-shadow:
     0 24px 48px rgba(0, 0, 0, 0.14),
-    0 0 0 1px rgba(200, 228, 0, 0.2),
-    0 0 80px rgba(200, 228, 0, 0.12),
+    0 0 0 1px var(--color-primary-20),
+    0 0 80px var(--color-primary-10),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border-color: rgba(200, 228, 0, 0.3);
+  border-color: var(--color-primary-30);
 }
 
 .card:hover::before {
@@ -74,7 +74,7 @@
   outline: none;
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.12),
-    0 0 0 3px rgba(200, 228, 0, 0.4);
+    0 0 0 3px var(--color-primary-40);
 }
 
 /* Image container */
@@ -124,7 +124,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(200, 228, 0, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-primary-10) 0%, transparent 70%);
   animation: rotate 20s linear infinite;
 }
 
@@ -188,7 +188,7 @@
     to top,
     rgba(0, 0, 0, 0.5) 0%,
     rgba(0, 0, 0, 0.15) 40%,
-    rgba(200, 228, 0, 0.05) 60%
+    var(--color-primary-10) 60%
   );
 }
 
@@ -226,8 +226,8 @@
 }
 
 .card:hover .storeName {
-  color: #C8E400;
-  text-shadow: 0 0 20px rgba(200, 228, 0, 0.3);
+  color: var(--color-primary);
+  text-shadow: 0 0 20px var(--color-primary-30);
 }
 
 @media (min-width: 1024px) {
@@ -263,7 +263,7 @@
 
 .card:hover .locationIcon {
   transform: scale(1.2);
-  filter: drop-shadow(0 0 4px rgba(200, 228, 0, 0.6));
+  filter: drop-shadow(0 0 4px var(--color-primary-50));
 }
 
 /* Delivery options */
@@ -317,7 +317,7 @@
   inset: 0;
   border-radius: 10px;
   padding: 2px;
-  background: linear-gradient(135deg, #C8E400, #A3C700);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -326,17 +326,17 @@
 }
 
 .card:hover .ctaButton {
-  background: linear-gradient(135deg, #C8E400 0%, #A3C700 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: #1f2937;
   font-weight: 700;
   padding: 10px 16px;
   box-shadow:
-    0 8px 24px rgba(200, 228, 0, 0.5),
-    0 0 40px rgba(200, 228, 0, 0.2),
+    0 8px 24px var(--color-primary-50),
+    0 0 40px var(--color-primary-20),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-2px) scale(1.03);
   letter-spacing: 0.5px;
-  border: 1px solid rgba(200, 228, 0, 0.3);
+  border: 1px solid var(--color-primary-30);
 }
 
 .card:hover .ctaButton::before {
@@ -386,8 +386,8 @@
 
 /* Matched Products (Search Results) */
 .matchedProducts {
-  background: linear-gradient(135deg, rgba(200, 228, 0, 0.08), rgba(163, 199, 0, 0.05));
-  border: 1px solid rgba(200, 228, 0, 0.2);
+  background: linear-gradient(135deg, var(--color-primary-10), var(--color-primary-10));
+  border: 1px solid var(--color-primary-20);
   border-radius: 0.5rem;
   padding: 0.5rem;
   margin: 0.25rem 0;
@@ -448,7 +448,7 @@
   padding: 0.375rem 0.5rem;
   background: white;
   border-radius: 0.375rem;
-  border: 1px solid rgba(200, 228, 0, 0.15);
+  border: 1px solid var(--color-primary-10);
   transition: all 0.2s;
 }
 
@@ -466,8 +466,8 @@
 }
 
 .matchedProduct:hover {
-  background: rgba(200, 228, 0, 0.05);
-  border-color: rgba(200, 228, 0, 0.3);
+  background: var(--color-primary-10);
+  border-color: var(--color-primary-30);
   transform: translateX(2px);
 }
 
@@ -497,7 +497,7 @@
 .productPrice {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: #C8E400;
+  color: var(--color-primary);
   white-space: nowrap;
   flex-shrink: 0;
 }

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { StoreData } from '../types/store';
+import { StoreData } from '../types';
 import { useNetworkStatus } from './useNetworkStatus';
 import { queryKeys } from '../services/queryClient';
-import * as api from '../services/api';
+import * as storeApi from '../services/api/storeApi';
 
 /**
  * Fetch stores from Firebase using the centralized API service
@@ -17,7 +17,7 @@ const fetchStoresFromFirebase = async (
   }
 
   // Fetch stores using API service
-  const stores = await api.getAllStores();
+  const stores = await storeApi.getAllStores();
 
   // Validate we got data
   if (stores.length === 0) {

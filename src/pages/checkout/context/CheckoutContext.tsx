@@ -17,7 +17,9 @@
  */
 
 import type * as React from 'react';
-import { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
+import { Stripe } from '@stripe/stripe-js';
+import { User as FirebaseUser } from 'firebase/auth';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -26,9 +28,10 @@ import { useCheckoutForm } from '../hooks/useCheckoutForm';
 import { useCheckoutWizard, CheckoutStep } from '../hooks/useCheckoutWizard';
 import { usePaymentFlow } from '../hooks/usePaymentFlow';
 import { useOrderCreation } from '../hooks/useOrderCreation';
-import { useStoreReceiptQuery } from '../../../hooks/queries/useStoreReceiptQuery';
+import { useStoreReceiptQuery, StoreReceiptInfo } from '../../../hooks/queries/useStoreReceiptQuery';
 import { Order } from '../../../types/order';
 import { Cart } from '../../../types/cart';
+import { UserProfile } from '../../../types/user';
 
 /**
  * Customer information interface
@@ -73,7 +76,7 @@ interface CheckoutContextValue {
   // Form state
   formData: CheckoutFormData;
   errors: Record<string, string>;
-  updateField: (section: string, field: string, value: any) => void;
+  updateField: (section: string, field: string, value: string | boolean | number) => void;
   setEntireFormData: (data: Partial<CheckoutFormData>) => void;
 
   // Wizard state
@@ -90,16 +93,22 @@ interface CheckoutContextValue {
   // Payment state
   paymentClientSecret: string | null;
   pendingOrderId: string | null;
-  stripePromise: Promise<any> | null;
+  stripePromise: Promise<Stripe | null> | null;
   isPaymentReady: boolean;
+  isCreatingPaymentIntent: boolean;
 
   // Store info
-  storeReceiptInfo: any;
+  storeReceiptInfo: StoreReceiptInfo | undefined;
 
   // Auth & language
-  currentUser: any;
+  currentUser: FirebaseUser | null;
+  userProfile: UserProfile | null;
   locale: string;
   t: (key: string) => string;
+
+  // Profile address helpers
+  hasSavedAddress: boolean;
+  applyProfileAddressAndSkipToReview: () => void;
 
   // Payment handlers
   handlePaymentSuccess: (intentId: string) => Promise<void>;
@@ -127,7 +136,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
 }) => {
   const { cart, clearCart } = useCart();
   const { t, locale } = useLanguage();
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
 
   // Payment flow state
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
@@ -177,7 +186,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   });
 
   // Payment flow hook
-  const { proceedToPayment } = usePaymentFlow({
+  const { proceedToPayment, isCreatingPaymentIntent } = usePaymentFlow({
     cart,
     formData: checkoutForm.formData,
     onPaymentIntentCreated: (clientSecret, _intentId, orderId) => {
@@ -228,6 +237,36 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   // Check if payment is ready (has all required data)
   const isPaymentReady = !!(paymentClientSecret && pendingOrderId && storeReceiptInfo);
 
+  // Check if user has a saved address in their profile
+  const hasSavedAddress = useMemo(() => {
+    const location = userProfile?.preferences?.defaultLocation;
+    return !!(location?.address && location?.city && location?.province && location?.postalCode);
+  }, [userProfile]);
+
+  // Apply profile address to form and skip to review step
+  const applyProfileAddressAndSkipToReview = useCallback(() => {
+    const location = userProfile?.preferences?.defaultLocation;
+    if (!location) return;
+
+    // Parse the address - the location.address may be a full formatted string
+    // Extract components if available
+    const addressData = {
+      street: location.address || '',
+      city: location.city || '',
+      province: location.province || '',
+      postalCode: location.postalCode || '',
+      country: 'CA'
+    };
+
+    // Update the delivery address form data
+    checkoutForm.setEntireFormData({
+      deliveryAddress: addressData
+    });
+
+    // Skip address step and go directly to review
+    checkoutWizard.goToStep('review');
+  }, [userProfile, checkoutForm.setEntireFormData, checkoutWizard.goToStep]);
+
   // Memoize context value to prevent unnecessary re-renders
   const value = useMemo<CheckoutContextValue>(
     () => ({
@@ -257,14 +296,20 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       pendingOrderId,
       stripePromise,
       isPaymentReady,
+      isCreatingPaymentIntent,
 
       // Store
       storeReceiptInfo,
 
       // Auth & language
       currentUser,
+      userProfile,
       locale,
       t,
+
+      // Profile address helpers
+      hasSavedAddress,
+      applyProfileAddressAndSkipToReview,
 
       // Handlers
       handlePaymentSuccess,
@@ -290,10 +335,14 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       pendingOrderId,
       stripePromise,
       isPaymentReady,
+      isCreatingPaymentIntent,
       storeReceiptInfo,
       currentUser,
+      userProfile,
       locale,
       t,
+      hasSavedAddress,
+      applyProfileAddressAndSkipToReview,
       proceedToPayment
     ]
   );

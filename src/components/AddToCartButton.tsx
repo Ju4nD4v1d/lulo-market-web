@@ -9,6 +9,7 @@ interface AddToCartButtonProps {
   product: Product;
   storeId?: string;
   storeName?: string;
+  storeImage?: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'primary' | 'secondary' | 'minimal';
@@ -19,6 +20,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   product,
   storeId,
   storeName,
+  storeImage,
   className = '',
   size = 'md',
   variant = 'primary',
@@ -66,10 +68,14 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     }
 
     setIsAdding(true);
-    
+
     try {
-      addToCart(product, quantity, targetStoreId, storeName);
-      
+      addToCart(product, quantity, {
+        storeId: targetStoreId,
+        storeName,
+        storeImage
+      });
+
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
     } catch (error) {

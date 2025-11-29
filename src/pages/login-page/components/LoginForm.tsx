@@ -76,7 +76,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             {t('auth.rememberMe')}
           </label>
         </div>
-        <a href="#forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-700">
+        <a href="#forgot-password" className="text-sm font-medium text-gray-700 hover:text-gray-900 underline">
           {t('auth.forgotPassword')}
         </a>
       </div>

@@ -24,6 +24,7 @@ export const useDeleteAccount = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   const handlePasswordChange = useCallback((value: string) => {
     setDeletePassword(value);
@@ -41,9 +42,14 @@ export const useDeleteAccount = ({
         profileImageUrl: userProfile?.avatar
       });
 
-      // Redirect to landing page
-      window.location.hash = '#';
-      window.location.reload();
+      // Show success feedback before redirecting
+      setDeleteSuccess(true);
+
+      // Wait 2 seconds to show success message, then redirect
+      setTimeout(() => {
+        window.location.hash = '#';
+        window.location.reload();
+      }, 2000);
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
       console.error('Error deleting account:', err);
@@ -57,9 +63,9 @@ export const useDeleteAccount = ({
         const friendlyMessage = err.code ? getFirebaseErrorMessage(err.code, t) : t('auth.error.default');
         onError('general', friendlyMessage);
       }
-    } finally {
       setIsDeleting(false);
     }
+    // Note: Don't set isDeleting to false on success - we want to keep showing loading until redirect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.uid, deletePassword, deleteAccount, t, onError]); // Use uid instead of full userProfile object
 
@@ -75,6 +81,7 @@ export const useDeleteAccount = ({
     deletePassword,
     handlePasswordChange,
     isDeleting,
+    deleteSuccess,
     handleDeleteAccount,
     closeDeleteModal
   };

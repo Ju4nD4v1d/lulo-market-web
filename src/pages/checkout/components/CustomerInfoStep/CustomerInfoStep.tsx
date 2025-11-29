@@ -4,7 +4,7 @@ import type * as React from 'react';
  */
 
 
-import { User, MapPin, AlertCircle } from 'lucide-react';
+import { User, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { CustomerInfoData, ValidationErrors } from '../../utils/validationHelpers';
 import styles from './CustomerInfoStep.module.css';
 
@@ -13,6 +13,7 @@ interface CustomerInfoStepProps {
   errors: ValidationErrors;
   currentUserEmail?: string;
   useProfileAsDeliveryContact: boolean;
+  hasSavedAddress?: boolean;
   onChange: (field: keyof CustomerInfoData, value: string) => void;
   onUseProfileToggle: (value: boolean) => void;
   onContinue: () => void;
@@ -24,11 +25,14 @@ export const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
   errors,
   currentUserEmail,
   useProfileAsDeliveryContact,
+  hasSavedAddress = false,
   onChange,
   onUseProfileToggle,
   onContinue,
   t
 }) => {
+  // Determine if we'll skip address step
+  const willSkipAddressStep = useProfileAsDeliveryContact && hasSavedAddress;
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -52,8 +56,17 @@ export const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
                   onChange={(e) => onUseProfileToggle(e.target.checked)}
                   className={styles.checkbox}
                 />
-                {t('checkout.useProfileAsDeliveryContact')}
+                {hasSavedAddress
+                  ? t('checkout.useProfileAddressSkip')
+                  : t('checkout.useProfileAsDeliveryContact')
+                }
               </label>
+              {willSkipAddressStep && (
+                <div className={styles.skipNotice}>
+                  <CheckCircle className={styles.skipNoticeIcon} />
+                  <span>{t('checkout.addressWillBeSkipped')}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -139,7 +152,10 @@ export const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
         className={styles.continueButton}
         type="button"
       >
-        {t('button.continueToDeliveryAddress')}
+        {willSkipAddressStep
+          ? t('button.continueToReview')
+          : t('button.continueToDeliveryAddress')
+        }
       </button>
     </div>
   );

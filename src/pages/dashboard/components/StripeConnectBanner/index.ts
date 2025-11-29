@@ -1,0 +1,1 @@
+export { StripeConnectBanner } from './StripeConnectBanner';

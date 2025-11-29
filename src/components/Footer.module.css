@@ -289,7 +289,7 @@
 
 .socialLink:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
   border-radius: 0.25rem;
 }
 
@@ -363,7 +363,7 @@
 
 .columnLink:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
   border-radius: 0.25rem;
 }
 
@@ -463,6 +463,6 @@
 
 .legalLink:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
+  box-shadow: 0 0 0 2px var(--color-primary-40);
   border-radius: 0.25rem;
 }

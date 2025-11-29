@@ -11,6 +11,20 @@ interface UseLoginFormOptions {
   locale: string;
 }
 
+interface AddressData {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+}
+
+const initialAddress: AddressData = {
+  street: '',
+  city: '',
+  province: '',
+  postalCode: ''
+};
+
 export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
   const { login, register, currentUser, redirectAfterLogin } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +32,7 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [address, setAddress] = useState<AddressData>(initialAddress);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -62,7 +77,7 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     // Validate form
     const validationError = isLogin
       ? validateLoginForm(email, password, t)
-      : validateRegisterForm(fullName, email, password, confirmPassword, t);
+      : validateRegisterForm(fullName, email, password, confirmPassword, t, address);
 
     if (validationError) {
       setError(validationError);
@@ -76,7 +91,9 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
         await login(email, password);
         // Redirect will be handled by the useEffect above
       } else {
-        await register(email, password, fullName);
+        // Only pass address if at least one field is filled
+        const hasAddress = address.street || address.city || address.province || address.postalCode;
+        await register(email, password, fullName, hasAddress ? address : undefined);
         setSuccess('Account created successfully! You can now access your dashboard.');
         setTimeout(() => {
           window.location.hash = '#';
@@ -88,7 +105,7 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLogin, email, password, fullName, confirmPassword, login, register, t]);
+  }, [isLogin, email, password, fullName, confirmPassword, address, login, register, t]);
 
   const switchTab = useCallback((loginMode: boolean) => {
     setIsLogin(loginMode);
@@ -98,6 +115,7 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     setPassword('');
     setConfirmPassword('');
     setFullName('');
+    setAddress(initialAddress);
 
     // Update URL to reflect current mode
     if (loginMode) {
@@ -122,6 +140,8 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     setConfirmPassword,
     fullName,
     setFullName,
+    address,
+    setAddress,
     showPassword,
     setShowPassword,
     showConfirmPassword,

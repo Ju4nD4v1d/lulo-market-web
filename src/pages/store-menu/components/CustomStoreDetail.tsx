@@ -1,16 +1,16 @@
 import type * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Star, Clock, MapPin, Instagram, Facebook, Twitter, Search, ShoppingCart, Truck, ChevronLeft, ChevronRight, BookOpen, User, Globe, LogOut, FileText, Shield, Settings, Receipt } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { Product } from '../../../types/product';
-import { StoreProductCard } from './StoreProductCard';
-import { CartSidebar } from '../../../components/CartSidebar';
+import { StoreHeroSection } from './StoreHeroSection';
+import { DeliverySchedule } from './DeliverySchedule';
+import { MenuSection } from './MenuSection';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useProductsQuery } from '../../../hooks/queries/useProductsQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { StoreHeader } from './StoreHeader';
-import { PRODUCT_CATEGORIES } from '../../../constants/productCategories';
 
 // Mock products for testing cart functionality
 const mockProducts: Product[] = [
@@ -129,10 +129,9 @@ const mockProducts: Product[] = [
 interface CustomStoreDetailProps {
   store: StoreData;
   onBack: () => void;
-  onAddToCart?: (product: Product) => void;
 }
 
-export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onBack, onAddToCart }) => {
+export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onBack }) => {
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
@@ -141,8 +140,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
   const { products: fetchedProducts, isLoading: loading } = useProductsQuery({ storeId: store.id });
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showCart, setShowCart] = useState(false);
   const [activeAboutTab, setActiveAboutTab] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -154,34 +151,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     // Cache the filtered mock products to avoid creating new array on every render
     return mockProducts.filter(product => product.storeId === store.id);
   }, [fetchedProducts, store.id]);
-
-  // Build categories from PRODUCT_CATEGORIES
-  const categories = useMemo(() => [
-    { id: 'all', name: t('category.all'), Icon: BookOpen },
-    ...PRODUCT_CATEGORIES.map(category => ({
-      id: category.id,
-      name: t(category.translationKey),
-      Icon: category.icon
-    }))
-  ], [t]);
-
-  // Filter products using useMemo instead of useEffect to avoid infinite loops
-  const filteredProducts = useMemo(() => {
-    let filtered = products.filter(product => product.status !== 'draft');
-
-    if (searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
-    }
-
-    return filtered;
-  }, [products, searchTerm, selectedCategory]);
 
   const formatTime12Hour = (time24: string): string => {
     const [hours, minutes] = time24.split(':').map(Number);
@@ -304,9 +273,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
           name: store.name,
           rating: store.averageRating || 0,
           reviewCount: store.totalReviews || store.reviews?.length || 0,
-          deliveryTime: '25-35 min',
-          deliveryFee: 2.99,
-          minimumOrder: 15.00,
           image: store.storeImage || store.imageUrl || ''
         }}
         onBack={onBack}
@@ -315,7 +281,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         onLanguageToggle={toggleLanguage}
         languageLabel={t('language.toggle')}
         cartItemCount={cart.summary.itemCount}
-        onCartClick={() => setShowCart(true)}
+        onCartClick={() => { window.location.hash = '#cart'; }}
         currentUser={currentUser}
         userProfile={userProfile}
         onUserMenuClick={handleUserMenuClick}
@@ -329,423 +295,19 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
       />
 
       <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
-        {/* Enhanced Store Hero Section */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8 relative">
-          <div className="relative">
-            {/* Professional Store Image with Overlay - Reduced height */}
-            <div className="relative h-48 md:h-56 lg:h-64 overflow-hidden">
-              {(store.storeImage || store.imageUrl) ? (
-                <div className="relative h-full">
-                  <img
-                    src={store.storeImage || store.imageUrl}
-                    alt={store.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (store.storeImage && store.imageUrl && target.src === store.storeImage) {
-                        target.src = store.imageUrl;
-                      }
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20"></div>
-                </div>
-              ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-24 h-24 bg-primary-400/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <BookOpen className="w-12 h-12 text-primary-400" />
-                    </div>
-                    <span className="body-font text-gray-500 font-medium text-lg">{store.name}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Store Info Overlay - More compact */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
-                <div className="flex items-end justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 tracking-tight truncate">{store.name}</h1>
-                    {store.description && (
-                      <p className="text-sm md:text-base text-white/90 leading-snug line-clamp-1 md:line-clamp-2 max-w-2xl">{store.description}</p>
-                    )}
-                  </div>
-
-                  {/* Verification Badge */}
-                  {store.isVerified && (
-                    <div className="bg-white/90 backdrop-blur-sm text-primary-400 px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold shadow-lg border border-white/20 flex-shrink-0">
-                      <div className="flex items-center gap-1.5">
-                        <Shield className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-600" />
-                        <span className="hidden md:inline">{t('storeDetail.verifiedPartner')}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Store Information Panel - More compact */}
-            <div className="p-4 md:p-6 bg-white">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                {/* Rating & Reviews */}
-                {store.averageRating && (
-                  <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Star className="w-5 h-5 fill-white text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xl font-bold text-gray-900">{store.averageRating.toFixed(1)}</div>
-                        {store.totalReviews && (
-                          <p className="text-xs text-gray-600">({store.totalReviews} reviews)</p>
-                        )}
-                        <div className="flex items-center gap-0.5 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < Math.floor(store.averageRating || 0)
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Delivery Status */}
-                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-green-900">
-                        {isDeliveryAvailable() ? t('delivery.openNow') : t('delivery.closed')}
-                      </div>
-                      <div className="text-xs text-gray-600 truncate">{getDeliveryHoursToday()}</div>
-                      <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                        isDeliveryAvailable()
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                          isDeliveryAvailable() ? 'bg-green-400' : 'bg-gray-400'
-                        }`}></div>
-                        {isDeliveryAvailable() ? t('delivery.delivering') : t('delivery.notDelivering')}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-blue-900">{t('storeDetail.location')}</div>
-                      <div className="text-xs text-gray-600 max-w-48 line-clamp-2">
-                        {store.location?.address || store.address || 'Address not available'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Media & Service Options */}
-            <div className="p-6 md:p-8 bg-gray-50 border-t border-gray-100">
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Social Media Links */}
-                {(store.instagram || store.facebook || store.twitter) && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('storeDetail.followUs')}</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {store.instagram && (
-                        <a
-                          href={store.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                        >
-                          <Instagram className="w-4 h-4" />
-                          Instagram
-                        </a>
-                      )}
-                      {store.facebook && (
-                        <a
-                          href={store.facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                        >
-                          <Facebook className="w-4 h-4" />
-                          Facebook
-                        </a>
-                      )}
-                      {store.twitter && (
-                        <a
-                          href={store.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                        >
-                          <Twitter className="w-4 h-4" />
-                          Twitter
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Service Options */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('storeDetail.serviceOptions')}</h3>
-                  <div className="space-y-3">
-                    {store.deliveryOptions?.delivery && (
-                      <div className="flex items-center justify-between bg-green-50 px-4 py-3 rounded-xl border border-green-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                            <Truck className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-green-800 font-medium">{t('shopper.delivery')}</span>
-                        </div>
-                        <span className="text-green-900 font-bold">
-                          {store.deliveryCostWithDiscount ? `$${store.deliveryCostWithDiscount}` : 'Available'}
-                        </span>
-                      </div>
-                    )}
-                    {store.deliveryOptions?.pickup && (
-                      <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-xl border border-blue-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <MapPin className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-blue-800 font-medium">{t('shopper.pickup')}</span>
-                        </div>
-                        <span className="text-blue-900 font-bold">Free</span>
-                      </div>
-                    )}
-                    {store.minimumOrder && (
-                      <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm">$</span>
-                          </div>
-                          <span className="text-gray-800 font-medium">{t('shopper.minimumOrder')}</span>
-                        </div>
-                        <span className="text-gray-900 font-bold">${store.minimumOrder}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Store Hero Section */}
+        <div className="mb-8">
+          <StoreHeroSection store={store} />
         </div>
 
         {/* Delivery Schedule Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-          <div className="p-6">
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Truck className="w-5 h-5 text-primary-400" />
-                <h2 className="text-lg font-medium text-gray-900">{t('delivery.schedule')}</h2>
-              </div>
-              <p className="text-gray-600 text-sm">{t('delivery.scheduleDescription')}</p>
-            </div>
-
-            {/* Next Available Delivery */}
-            {(() => {
-              const nextDelivery = getNextAvailableDelivery();
-              if (nextDelivery) {
-                return (
-                  <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-green-800 font-medium text-sm">
-                          <Truck className="w-4 h-4 mr-2" />
-                          {t('delivery.nextAvailable')}
-                        </p>
-                        <p className="text-green-700 text-sm">
-                          {nextDelivery.isToday ? t('delivery.today') : nextDelivery.day} • {nextDelivery.hours}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                          {nextDelivery.timeUntil}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-700 font-medium text-center text-sm">
-                      ⚠️ {t('delivery.noService')}
-                    </p>
-                  </div>
-                );
-              }
-            })()}
-
-            {/* Weekly Schedule */}
-            <div>
-              <h3 className="text-base font-medium text-gray-900 mb-3">{t('delivery.weeklySchedule')}</h3>
-              <div className="grid gap-1">
-                {getDeliverySchedule().map((dayInfo) => {
-                  const isToday = dayInfo.dayIndex === new Date().getDay();
-                  return (
-                    <div
-                      key={dayInfo.day}
-                      className={`flex justify-between items-center px-4 py-3 rounded-lg transition-all duration-300 ${
-                        isToday
-                          ? 'bg-blue-50 border border-blue-200'
-                          : dayInfo.isOpen
-                          ? 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                          : 'bg-gray-50 border border-gray-200 opacity-60'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          dayInfo.isOpen ? 'bg-green-400' : 'bg-red-400'
-                        }`}></div>
-                        <span className={`text-sm font-medium ${
-                          isToday ? 'text-blue-800' : 'text-gray-700'
-                        }`}>
-                          {dayInfo.day}
-                          {isToday && <span className="ml-2 text-blue-600 text-xs">({t('delivery.today')})</span>}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className={`text-sm ${
-                          dayInfo.isOpen
-                            ? isToday ? 'text-blue-700 font-medium' : 'text-gray-700'
-                            : 'text-gray-500'
-                        }`}>
-                          {dayInfo.hours}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+        <div className="mb-8">
+          <DeliverySchedule store={store} />
         </div>
 
-        {/* Enhanced Products Section with StoreProductCard */}
-        <div data-menu-section className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-400/10 rounded-full border border-primary-400/20 mb-6">
-                <Star className="w-4 h-4 text-primary-400" />
-                <span className="text-sm font-medium text-primary-400">{t('storeDetail.menu')}</span>
-              </div>
-              <h2 className="text-h2 text-gray-900 mb-4 tracking-tight">{t('storeDetail.ourMenu')}</h2>
-              <p className="body-font text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
-                {t('storeDetail.menuDescription')}
-              </p>
-            </div>
-
-            {/* Category Filters */}
-            <div className="mb-10">
-              <div className="max-w-4xl mx-auto space-y-6">
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {categories.map((category) => {
-                    const Icon = category.Icon;
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className={`premium-pill focus-ring px-6 py-3 flex items-center gap-3 border-2 transition-all ${
-                          selectedCategory === category.id
-                            ? 'btn-primary text-gray-900 border-primary-400 shadow-lg'
-                            : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:border-primary-400/50'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{category.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Products Grid with StoreProductCard */}
-          <div className="px-6 md:px-8 pb-8">
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="enhanced-card bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                    <div className="aspect-square">
-                      <div className="shimmer-loading w-full h-full"></div>
-                    </div>
-                    <div className="p-4 space-y-3">
-                      <div className="shimmer-loading h-5 rounded"></div>
-                      <div className="shimmer-loading h-4 rounded w-3/4"></div>
-                      <div className="shimmer-loading h-6 rounded w-1/2"></div>
-                      <div className="shimmer-loading h-10 rounded"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                {filteredProducts.map((product) => (
-                  <StoreProductCard
-                    key={product.id}
-                    product={product}
-                    storeId={store.id}
-                    storeName={store.name}
-                    onClick={onAddToCart ? () => onAddToCart(product) : undefined}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20">
-                <div className="max-w-lg mx-auto space-y-6 px-4">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
-                    <Search className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="text-h3 text-gray-900">
-                      {searchTerm || selectedCategory !== 'all'
-                        ? t('storeDetail.noDishesFound')
-                        : t('storeDetail.menuComingSoon')
-                      }
-                    </h4>
-                    <p className="body-font text-gray-600 text-base md:text-lg">
-                      {searchTerm || selectedCategory !== 'all'
-                        ? t('storeDetail.adjustSearch')
-                        : t('storeDetail.checkBackSoon')
-                      }
-                    </p>
-                  </div>
-                  {(searchTerm || selectedCategory !== 'all') && (
-                    <button
-                      onClick={() => {
-                        setSearchTerm('');
-                        setSelectedCategory('all');
-                      }}
-                      className="btn-primary focus-ring inline-flex items-center gap-2 px-6 py-3"
-                    >
-                      <span>{t('storeDetail.clearFilters')}</span>
-                      <ArrowLeft className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+        {/* Menu Section */}
+        <div className="mb-8">
+          <MenuSection store={store} products={products} loading={loading} searchTerm={searchTerm} />
         </div>
 
         {/* Story Mode About Us Section (same as original) */}
@@ -945,8 +507,6 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         })()}
       </div>
 
-      {/* Cart Sidebar */}
-      <CartSidebar isOpen={showCart} onClose={() => setShowCart(false)} />
-    </div>
+      </div>
   );
 };

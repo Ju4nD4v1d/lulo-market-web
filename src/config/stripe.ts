@@ -1,11 +1,56 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import type { Locale } from '../utils/translations';
 
-// Get the publishable key from environment variables
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+/**
+ * Stripe Environment Configuration
+ *
+ * Supports two modes:
+ * - 'test': Uses test keys (pk_test_...) for development
+ * - 'live': Uses production keys (pk_live_...) for production
+ *
+ * Set VITE_STRIPE_MODE to 'live' for production deployments.
+ * Default is 'test' mode for safety.
+ *
+ * Required environment variables:
+ * - VITE_STRIPE_PUBLISHABLE_KEY_TEST: Test mode publishable key
+ * - VITE_STRIPE_PUBLISHABLE_KEY_LIVE: Live mode publishable key (optional until production)
+ * - VITE_STRIPE_MODE: 'test' or 'live' (defaults to 'test')
+ */
 
-if (!stripePublishableKey) {
-  throw new Error('Stripe publishable key is required. Please set VITE_STRIPE_PUBLISHABLE_KEY in your environment variables.');
+type StripeMode = 'test' | 'live';
+
+// Determine the Stripe mode
+const stripeMode: StripeMode = (import.meta.env.VITE_STRIPE_MODE as StripeMode) || 'test';
+const isLiveMode = stripeMode === 'live';
+
+// Get the appropriate publishable key based on mode
+const getPublishableKey = (): string => {
+  if (isLiveMode) {
+    const liveKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_LIVE;
+    if (!liveKey) {
+      console.error('[Stripe] Live mode enabled but VITE_STRIPE_PUBLISHABLE_KEY_LIVE is not set. Falling back to test mode.');
+      const testKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_TEST || import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+      if (!testKey) {
+        throw new Error('No Stripe publishable key available. Please set VITE_STRIPE_PUBLISHABLE_KEY_TEST.');
+      }
+      return testKey;
+    }
+    return liveKey;
+  }
+
+  // Test mode - use test key or fallback to legacy key
+  const testKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_TEST || import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  if (!testKey) {
+    throw new Error('Stripe publishable key is required. Please set VITE_STRIPE_PUBLISHABLE_KEY_TEST in your environment variables.');
+  }
+  return testKey;
+};
+
+const stripePublishableKey = getPublishableKey();
+
+// Log Stripe mode in development (not in production)
+if (import.meta.env.DEV) {
+  console.log(`[Stripe] Mode: ${stripeMode.toUpperCase()} | Key prefix: ${stripePublishableKey.substring(0, 12)}...`);
 }
 
 // Initialize Stripe
@@ -15,6 +60,13 @@ export const getStripePromise = (locale: Locale): Promise<Stripe | null> => {
 
 // Default export using English to maintain backward compatibility
 export const stripePromise: Promise<Stripe | null> = getStripePromise('en');
+
+// Export mode info for other components
+export const STRIPE_MODE = {
+  current: stripeMode,
+  isLive: isLiveMode,
+  isTest: !isLiveMode,
+} as const;
 
 // Platform fee configuration
 export const PLATFORM_FEE = {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../../../../config/firebase';
+import * as storageApi from '../../../../../services/api/storageApi';
 
 export const useImageUpload = (currentUserId: string | undefined, maxImages: number = 5) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,11 +28,9 @@ export const useImageUpload = (currentUserId: string | undefined, maxImages: num
     setError('');
 
     try {
-      const uploadPromises = filesToUpload.map(async (file) => {
-        const storageRef = ref(storage, `products/${currentUserId}/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        return getDownloadURL(storageRef);
-      });
+      const uploadPromises = filesToUpload.map((file) =>
+        storageApi.uploadProductImage(file, currentUserId)
+      );
 
       const imageUrls = await Promise.all(uploadPromises);
 

@@ -7,8 +7,11 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { CustomerInfo, DeliveryAddress, Order, OrderStatus } from '../types/order';
-import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { CartState } from '../types/cart';
+import { serverTimestamp } from 'firebase/firestore';
+import { User as FirebaseUser } from 'firebase/auth';
+import * as storeApi from '../services/api/storeApi';
+import * as orderApi from '../services/api/orderApi';
 import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
 import { generateOrderId, generateReceiptNumber, calculateTaxBreakdown } from '../utils/orderUtils';
@@ -19,23 +22,20 @@ const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
 // Helper function to get store information for receipt
 const getStoreInfoForReceipt = async (storeId: string) => {
   try {
-    const storeDoc = await getDoc(doc(db, 'stores', storeId));
-    if (storeDoc.exists()) {
-      const storeData = storeDoc.data();
-      return {
-        name: storeData.name || '',
-        address: storeData.location?.address || '',
-        phone: storeData.phone || '',
-        email: storeData.email || '',
-        logo: storeData.logo || storeData.storeImage || '',
-        website: storeData.website || 'https://lulocart.com',
-        businessNumber: storeData.businessNumber || ''
-      };
-    }
+    const storeData = await storeApi.getStoreById(storeId);
+    return {
+      name: storeData.name || '',
+      address: storeData.location?.address || '',
+      phone: storeData.phone || '',
+      email: storeData.email || '',
+      logo: storeData.storeImage || '',
+      website: storeData.website || 'https://lulocart.com',
+      businessNumber: ''
+    };
   } catch (error) {
     console.error('Error fetching store info:', error);
   }
-  
+
   return {
     name: '',
     address: '',
@@ -50,9 +50,9 @@ const getStoreInfoForReceipt = async (storeId: string) => {
 // Helper function to build enhanced order data
 const buildEnhancedOrderData = async (
   orderId: string,
-  cart: any,
+  cart: CartState,
   formData: FormData,
-  currentUser: any,
+  currentUser: FirebaseUser | null,
   locale: string,
   paymentIntentId?: string,
   orderStatus: OrderStatus = OrderStatus.PENDING
@@ -93,7 +93,7 @@ const buildEnhancedOrderData = async (
       deliveryZone: formData.deliveryAddress.city || '',
       estimatedDistance: 0 // Could be calculated later
     },
-    items: cart.items.map((item: any) => ({
+    items: cart.items.map((item) => ({
       id: item.id || '',
       productId: item.product.id || '',
       productName: item.product.name || '',
@@ -349,41 +349,40 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
     if (!currentOrderId) return;
 
     console.log('Setting up order status listener for:', currentOrderId);
-    
-    const unsubscribe = onSnapshot(
-      doc(db, 'orders', currentOrderId),
-      (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const orderData = docSnapshot.data();
-          const status = orderData.status || 'pending';
-          
-          console.log('Order status update:', status, orderData);
-          setOrderStatus(status);
-          
-          switch (status) {
-            case 'processing':
-              console.log('Payment processing...');
-              setErrors({});
-              break;
-              
-            case 'paid': {
-              console.log('Payment successful! Redirecting...');
-              
-              // Show success animation for 2 seconds before redirecting
-              console.log('🎉 PAYMENT CONFIRMED BY WEBHOOK - Showing success animation');
-              
-              setTimeout(() => {
-                // Prevent multiple calls to onOrderComplete
-                if (isOrderCompleted) {
-                  console.log('⚠️ Order already completed, skipping duplicate completion');
-                  return;
-                }
-                
-                console.log('🚀 REDIRECTING TO ORDER CONFIRMATION');
-                setIsOrderCompleted(true);
-                
-                // Create order object for completion
-                const completedOrder: Order = {
+
+    const unsubscribe = orderApi.subscribeToOrder(
+      currentOrderId,
+      (orderDoc) => {
+        const status = orderDoc.status || 'pending';
+
+        console.log('Order status update:', status, orderDoc);
+        setOrderStatus(status);
+
+        switch (status) {
+          case 'processing':
+            console.log('Payment processing...');
+            setErrors({});
+            break;
+
+          case 'paid':
+          case OrderStatus.CONFIRMED: {
+            console.log('Payment successful! Redirecting...');
+
+            // Show success animation for 2 seconds before redirecting
+            console.log('🎉 PAYMENT CONFIRMED BY WEBHOOK - Showing success animation');
+
+            setTimeout(() => {
+              // Prevent multiple calls to onOrderComplete
+              if (isOrderCompleted) {
+                console.log('⚠️ Order already completed, skipping duplicate completion');
+                return;
+              }
+
+              console.log('🚀 REDIRECTING TO ORDER CONFIRMATION');
+              setIsOrderCompleted(true);
+
+              // Create order object for completion
+              const completedOrder: Order = {
                 id: currentOrderId,
                 userId: currentUser?.uid || '',
                 storeId: cart.storeId || '',
@@ -400,64 +399,63 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   specialInstructions: item.specialInstructions || ''
                 })),
                 summary: {
-                ...cart.summary,
-                storeAmount: cart.summary.total * 0.9, // Store gets 90% of base total
-                platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1) // Platform gets fee + 10%
-              },
+                  ...cart.summary,
+                  storeAmount: cart.summary.total * 0.9, // Store gets 90% of base total
+                  platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1) // Platform gets fee + 10%
+                },
                 status: OrderStatus.CONFIRMED,
                 orderNotes: formData.orderNotes,
-                createdAt: orderData.createdAt?.toDate() || new Date(),
-                updatedAt: orderData.updatedAt?.toDate() || new Date(),
-                estimatedDeliveryTime: orderData.estimatedDeliveryTime?.toDate() || new Date(),
+                createdAt: orderDoc.createdAt || new Date(),
+                updatedAt: orderDoc.updatedAt || new Date(),
+                estimatedDeliveryTime: orderDoc.estimatedDeliveryTime || new Date(),
                 paymentStatus: 'paid',
-                paymentId: orderData.paymentId || '',
+                paymentId: orderDoc.paymentId || '',
                 isDelivery: formData.isDelivery,
                 language: locale
               };
-              
+
               clearCart();
               onOrderComplete(completedOrder);
-              }, 2000); // Wait 2 seconds to show success animation
-              break;
-            }
-              
-            case 'failed': {
-              console.log('Payment failed:', orderData.failureReason);
-              
-              // Show error inline in payment form
-              setPaymentError(orderData.failureReason || t('payment.failed'));
-              
-              setTimeout(() => {
-                setErrors({ 
-                  payment: orderData.failureReason || t('payment.failed')
-                });
-                // Keep payment form mounted - don't reset client secret or payment intent
-                // User can correct their card details and retry
-                setCurrentOrderId(null);
-              }, 2000); // Wait 2 seconds to show error animation
-              break;
-            }
-              
-            case 'canceled': {
-              console.log('Payment canceled');
-              setErrors({ 
-                payment: t('payment.canceled') || 'Payment was canceled. You can try again or use a different payment method.'
+            }, 2000); // Wait 2 seconds to show success animation
+            break;
+          }
+
+          case 'failed':
+          case OrderStatus.CANCELLED: {
+            console.log('Payment failed');
+
+            // Show error inline in payment form
+            setPaymentError(t('payment.failed'));
+
+            setTimeout(() => {
+              setErrors({
+                payment: t('payment.failed')
               });
               // Keep payment form mounted - don't reset client secret or payment intent
+              // User can correct their card details and retry
               setCurrentOrderId(null);
-              break;
-            }
-              
-            default:
-              console.log('Unknown order status:', status);
+            }, 2000); // Wait 2 seconds to show error animation
+            break;
           }
+
+          case 'canceled': {
+            console.log('Payment canceled');
+            setErrors({
+              payment: t('payment.canceled') || 'Payment was canceled. You can try again or use a different payment method.'
+            });
+            // Keep payment form mounted - don't reset client secret or payment intent
+            setCurrentOrderId(null);
+            break;
+          }
+
+          default:
+            console.log('Unknown order status:', status);
         }
       },
       (error) => {
-        console.error('Error listening to order status:', error);
-        setErrors({ 
+        setErrors({
           general: 'Failed to monitor payment status. Please contact support if your payment was charged.',
-          payment: error.message 
+          payment: error.message
         });
       }
     );
@@ -467,7 +465,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       console.log('Cleaning up order status listener');
       unsubscribe();
     };
-  }, [currentOrderId, currentUser, cart, formData, clearCart, onOrderComplete, t, isOrderCompleted]);
+  }, [currentOrderId, currentUser, cart, formData, clearCart, onOrderComplete, t, isOrderCompleted, locale]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -604,10 +602,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
       };
       
       checkForUndefined(orderData);
-      
-      // Save order to Firebase with the specific ID (same as document ID)
-      const orderDocRef = doc(db, 'orders', orderId);
-      await setDoc(orderDocRef, orderData);
+
+      // Save order via API
+      await orderApi.createOrderWithId(orderId, orderData);
       
       // Create complete order object for callback
       const order: Order = {
@@ -637,13 +634,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
 
     try {
       // First, get the store's Stripe account ID
-      const storeDoc = await getDoc(doc(db, 'stores', cart.storeId!));
-      if (!storeDoc.exists()) {
-        throw new Error('Store not found');
-      }
-
-      const storeData = storeDoc.data();
-      const storeStripeAccountId = storeData.stripeAccountId;
+      const storeStripeAccountId = await storeApi.getStoreStripeAccountId(cart.storeId!);
 
       if (!storeStripeAccountId) {
         throw new Error('Store payment processing is not set up. Please contact the store owner.');
@@ -773,55 +764,53 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const handlePaymentFailure = async (paymentIntentId: string, error: string) => {
     try {
       setIsSubmitting(true);
-      
+
       // Create failed order record for tracking
-      const failedOrderData = {
+      const failedOrderData: orderApi.FailedOrderData = {
+        orderId: pendingOrderId || `failed_${Date.now()}`,
         userId: currentUser?.uid || '',
         storeId: cart.storeId || '',
-        storeName: cart.storeName || '',
-        customerInfo: formData.customerInfo,
-        deliveryAddress: formData.deliveryAddress,
-        items: cart.items.map(item => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          productImage: item.product.images?.[0] || '',
-          price: item.priceAtTime,
-          quantity: item.quantity,
-          specialInstructions: item.specialInstructions || ''
-        })),
-        summary: cart.summary,
-        status: OrderStatus.CANCELLED,
-        orderNotes: formData.orderNotes,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        estimatedDeliveryTime: new Date(formData.deliveryDate),
-        paymentStatus: 'failed',
-        paymentId: paymentIntentId,
-        paymentError: error,
-        isDelivery: formData.isDelivery,
-        language: locale
+        error: error,
+        paymentIntentId: paymentIntentId,
+        createdAt: new Date(),
+        orderData: {
+          storeName: cart.storeName || '',
+          customerInfo: formData.customerInfo,
+          deliveryAddress: formData.deliveryAddress,
+          items: cart.items.map(item => ({
+            id: item.id,
+            productId: item.product.id,
+            productName: item.product.name,
+            productImage: item.product.images?.[0] || '',
+            price: item.priceAtTime,
+            quantity: item.quantity,
+            specialInstructions: item.specialInstructions || ''
+          })),
+          summary: cart.summary,
+          orderNotes: formData.orderNotes,
+          isDelivery: formData.isDelivery,
+          language: locale
+        }
       };
 
-      // Save failed order for record keeping
-      const ordersCollection = collection(db, 'failed_orders');
-      await addDoc(ordersCollection, failedOrderData);
-      
+      // Save failed order for record keeping via API
+      await orderApi.recordFailedOrder(failedOrderData);
+
       console.log('Failed order recorded:', paymentIntentId);
-      
+
       // Show error to user inline in the payment form
-      setErrors({ 
+      setErrors({
         payment: error || t('payment.failed')
       });
-      
+
       // Keep the payment form mounted - don't reset client secret or payment intent
       // User can correct their card details and retry
-      
+
     } catch (recordError) {
       console.error('Error recording failed payment:', recordError);
-      setErrors({ 
+      setErrors({
         general: 'Payment failed and we could not save the error details. Please contact support.',
-        payment: error 
+        payment: error
       });
     } finally {
       setIsSubmitting(false);
@@ -849,10 +838,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     try {
       setIsSubmitting(true);
-      
+
       // Use the same order ID that was sent to the payment intent
       const orderIdToUse = pendingOrderId || `fallback_${Date.now()}`;
-      
+
       // Create enhanced order data for payment processing
       const orderData = await buildEnhancedOrderData(
         orderIdToUse,
@@ -863,10 +852,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         paymentIntentId,
         OrderStatus.PROCESSING
       );
-      
-      // Create the order document with the specific ID (same as payment intent)
-      const orderDocRef = doc(db, 'orders', orderIdToUse);
-      await setDoc(orderDocRef, orderData);
+
+      // Create the order document with the specific ID via API
+      await orderApi.createOrderWithId(orderIdToUse, orderData);
       
       // Show processing modal and set up real-time monitoring
       console.log('🎬 SHOWING PAYMENT MODAL - Status: processing');

@@ -15,6 +15,7 @@ export const ReviewStepWrapper: React.FC = () => {
     validateReviewStep,
     proceedToPayment,
     goToPreviousStep,
+    isCreatingPaymentIntent,
     t
   } = useCheckoutContext();
 
@@ -40,6 +41,7 @@ export const ReviewStepWrapper: React.FC = () => {
       deliveryAddress={formData.deliveryAddress}
       onContinue={handleContinue}
       onBack={goToPreviousStep}
+      isLoading={isCreatingPaymentIntent}
       t={t}
     />
   );

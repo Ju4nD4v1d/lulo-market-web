@@ -1,4 +1,4 @@
-import { Product } from '../../../types/product';
+import { Product } from '../../../types';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getCategoryLabel } from '../../../constants/productCategories';
 import styles from './HorizontalProductCard.module.css';
@@ -59,10 +59,6 @@ export const HorizontalProductCard: React.FC<HorizontalProductCardProps> = ({
       <div className={styles.info}>
         <p className={styles.storeName}>{storeName}</p>
         <h3 className={styles.productName}>{product.name}</h3>
-
-        {product.description && (
-          <p className={styles.description}>{product.description}</p>
-        )}
 
         <div className={styles.footer}>
           <span className={styles.price}>

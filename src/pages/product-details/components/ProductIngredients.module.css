@@ -1,0 +1,96 @@
+/* Mobile-first Product Ingredients */
+
+.container {
+  padding: 1rem;
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+  }
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h6);
+  font-weight: var(--font-weight-semibold);
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.titleIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: #6b7280;
+}
+
+.ingredientsList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ingredientItem {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  color: #374151;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ingredientItem::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #C8E400;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ingredientItem:last-child {
+  border-bottom: none;
+}
+
+.containsSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.warningIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.containsLabel {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  color: #92400e;
+}
+
+.containsValue {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-small);
+  color: #92400e;
+}

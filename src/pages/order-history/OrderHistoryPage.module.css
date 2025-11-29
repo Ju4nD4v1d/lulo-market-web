@@ -94,7 +94,7 @@
   width: 3rem;
   height: 3rem;
   border: 2px solid #e5e7eb;
-  border-top-color: #C8E400;
+  border-top-color: var(--color-primary);
   border-radius: 9999px;
   animation: spin 1s linear infinite;
 }
@@ -131,7 +131,7 @@
 }
 
 .errorButton {
-  background: #C8E400;
+  background: var(--color-primary);
   color: #111827;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
@@ -142,7 +142,7 @@
 }
 
 .errorButton:hover {
-  background: #b3cc00;
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }

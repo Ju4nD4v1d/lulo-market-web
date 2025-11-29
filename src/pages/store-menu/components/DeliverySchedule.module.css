@@ -1,0 +1,250 @@
+/**
+ * DeliverySchedule - Mobile-First Styles
+ *
+ * Layout:
+ * - Mobile: Wrapped pills with abbreviated day names
+ * - Desktop (1024px+): Horizontal row with full day names
+ */
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.container {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.875rem;
+}
+
+.headerIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary-dark);
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: var(--font-size-body);
+  }
+}
+
+/* ==========================================================================
+   Days Grid
+   ========================================================================== */
+
+.daysGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .daysGrid {
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .daysGrid {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0.625rem;
+  }
+}
+
+/* ==========================================================================
+   Day Pills
+   ========================================================================== */
+
+.dayPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.625rem;
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+@media (min-width: 768px) {
+  .dayPill {
+    padding: 0.4375rem 0.75rem;
+    font-size: var(--font-size-body-small);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dayPill {
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Default state (delivers but not today) */
+.dayPillDefault {
+  background: var(--color-background-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dayPillDefault:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+/* Active state (today and delivers) */
+.dayPillActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 8px var(--color-primary-shadow);
+}
+
+/* Today label */
+.todayLabel {
+  display: block;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  margin-top: 0.125rem;
+}
+
+.dayPillActive .todayLabel {
+  color: var(--color-text-primary);
+  opacity: 0.8;
+}
+
+/* Day name (abbreviated on mobile, full on desktop) */
+.dayNameShort {
+  display: inline;
+}
+
+.dayNameFull {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .dayNameShort {
+    display: none;
+  }
+
+  .dayNameFull {
+    display: inline;
+  }
+}
+
+/* ==========================================================================
+   Next Delivery Callout
+   ========================================================================== */
+
+.nextDelivery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-success-light);
+  border-radius: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.nextDeliveryIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-success);
+}
+
+.nextDeliveryText {
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-success-dark);
+}
+
+.nextDeliveryValue {
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (min-width: 768px) {
+  .nextDelivery {
+    padding: 0.5rem 1rem;
+  }
+
+  .nextDeliveryText {
+    font-size: var(--font-size-body-small);
+  }
+}
+
+/* ==========================================================================
+   No Service State
+   ========================================================================== */
+
+.noService {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-error-light);
+  border-radius: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.noServiceText {
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-error-dark);
+}
+
+/* ==========================================================================
+   Empty State (no delivery days)
+   ========================================================================== */
+
+.emptyState {
+  text-align: center;
+  padding: 0.75rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+}

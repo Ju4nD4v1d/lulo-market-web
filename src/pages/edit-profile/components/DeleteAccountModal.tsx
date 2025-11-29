@@ -4,13 +4,14 @@ import type * as React from 'react';
  */
 
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, CheckCircle2 } from 'lucide-react';
 
 interface DeleteAccountModalProps {
   show: boolean;
   password: string;
   error: string;
   isDeleting: boolean;
+  deleteSuccess: boolean;
   onPasswordChange: (value: string) => void;
   onDelete: () => void;
   onClose: () => void;
@@ -22,12 +23,39 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   password,
   error,
   isDeleting,
+  deleteSuccess,
   onPasswordChange,
   onDelete,
   onClose,
   t
 }) => {
   if (!show) return null;
+
+  // Show success state
+  if (deleteSuccess) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div className="relative bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-md mx-auto">
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {t('profile.deleteSuccess')}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {t('profile.deleteSuccessMessage')}
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-2 text-gray-500 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
+              <span>{t('profile.redirecting')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -66,6 +94,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 }`}
                 placeholder={t('profile.deletePasswordPlaceholder')}
                 autoComplete="current-password"
+                disabled={isDeleting}
               />
               {error && (
                 <p className="mt-1 text-sm text-red-600">{error}</p>

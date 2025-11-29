@@ -1,24 +1,11 @@
 /**
  * TanStack Query mutations for checkout operations
+ * Uses orderApi for order creation
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
-import { queryKeys } from '../queries/queryKeys';
-
-/**
- * Failed order data structure
- */
-interface FailedOrderData {
-  orderId: string;
-  userId: string;
-  storeId: string;
-  error: string;
-  paymentIntentId?: string;
-  createdAt: Date;
-  orderData: any;
-}
+import { queryKeys } from '../queries';
+import * as orderApi from '../../services/api/orderApi';
 
 /**
  * Payment intent request data
@@ -30,7 +17,7 @@ interface CreatePaymentIntentRequest {
   orderId: string;
   stripeAccountId: string;
   platformFeeAmount: number;
-  orderData: any;
+  orderData: unknown;
 }
 
 /**
@@ -46,29 +33,24 @@ interface CreatePaymentIntentResponse {
  */
 interface CreateOrderData {
   orderId: string;
-  orderData: any;
+  orderData: unknown;
 }
 
 /**
  * Hook to manage checkout mutations
- *
- * @returns Mutation functions for checkout operations
  */
 export const useCheckoutMutations = () => {
   const queryClient = useQueryClient();
 
   /**
-   * Mutation to create an order document
+   * Mutation to create an order document with specific ID
    */
   const createOrder = useMutation({
     mutationFn: async ({ orderId, orderData }: CreateOrderData) => {
-      await setDoc(doc(db, 'orders', orderId), orderData);
-      return orderId;
+      return orderApi.createOrderWithId(orderId, orderData);
     },
     onSuccess: (orderId) => {
-      // Invalidate order queries
       queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
-      // Start monitoring this order
       queryClient.invalidateQueries({ queryKey: queryKeys.checkout.orderMonitoring(orderId) });
     },
     onError: (error) => {
@@ -80,9 +62,8 @@ export const useCheckoutMutations = () => {
    * Mutation to record a failed order
    */
   const recordFailedOrder = useMutation({
-    mutationFn: async (failedOrderData: FailedOrderData) => {
-      const docRef = await addDoc(collection(db, 'failed_orders'), failedOrderData);
-      return docRef.id;
+    mutationFn: async (failedOrderData: orderApi.FailedOrderData) => {
+      return orderApi.recordFailedOrder(failedOrderData);
     },
     onError: (error) => {
       console.error('Error recording failed order:', error);
@@ -114,7 +95,7 @@ export const useCheckoutMutations = () => {
           storeId: request.storeId,
           orderId: request.orderId,
           stripeAccountId: request.stripeAccountId,
-          platformFeeAmount: Math.round(request.platformFeeAmount * 100), // Convert to cents
+          platformFeeAmount: Math.round(request.platformFeeAmount * 100),
           orderData: request.orderData
         }),
       });

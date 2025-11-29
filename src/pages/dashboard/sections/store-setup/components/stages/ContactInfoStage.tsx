@@ -6,7 +6,7 @@
  */
 
 import type * as React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
 import { useLanguage } from '../../../../../../context/LanguageContext';
 import { theme } from '../../../../../../config/theme';
 
@@ -22,10 +22,14 @@ interface ContactInfoStageProps {
   phone: string;
   email: string;
   website: string;
+  instagram: string;
+  facebook: string;
   deliveryHours: DeliveryHours;
   onPhoneChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onWebsiteChange: (value: string) => void;
+  onInstagramChange: (value: string) => void;
+  onFacebookChange: (value: string) => void;
   onDeliveryHoursChange: (hours: DeliveryHours) => void;
 }
 
@@ -33,10 +37,14 @@ export const ContactInfoStage: React.FC<ContactInfoStageProps> = ({
   phone,
   email,
   website,
+  instagram,
+  facebook,
   deliveryHours,
   onPhoneChange,
   onEmailChange,
   onWebsiteChange,
+  onInstagramChange,
+  onFacebookChange,
   onDeliveryHoursChange,
 }) => {
   const { t } = useLanguage();
@@ -106,6 +114,43 @@ export const ContactInfoStage: React.FC<ContactInfoStageProps> = ({
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
             placeholder={t('store.websitePlaceholder')}
           />
+        </div>
+      </div>
+
+      {/* Social Media Links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="group">
+          <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <Instagram className="w-4 h-4" style={{ color: '#E4405F' }} />
+            {t('store.instagram')}
+            <span className="text-gray-400 text-xs font-normal">({t('common.optional')})</span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={instagram}
+              onChange={(e) => onInstagramChange(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-pink-400/20 focus:border-pink-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
+              placeholder={t('store.instagramPlaceholder')}
+            />
+          </div>
+        </div>
+
+        <div className="group">
+          <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <Facebook className="w-4 h-4 text-blue-600" />
+            {t('store.facebook')}
+            <span className="text-gray-400 text-xs font-normal">({t('common.optional')})</span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={facebook}
+              onChange={(e) => onFacebookChange(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300"
+              placeholder={t('store.facebookPlaceholder')}
+            />
+          </div>
         </div>
       </div>
 

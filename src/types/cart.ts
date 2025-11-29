@@ -37,5 +37,6 @@ export interface CartState {
   items: CartItem[];
   storeId: string | null; // Cart can only contain items from one store
   storeName: string | null;
+  storeImage: string | null; // Store image URL for display in cart
   summary: CartSummary;
 }

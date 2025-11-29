@@ -166,9 +166,9 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
 
             {/* Enhanced Search Bar */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-primary-500 rounded-xl sm:rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
               <div className="relative">
-                <div className="absolute left-3 sm:left-4 lg:left-5 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-primary-600 transition-colors">
+                <div className="absolute left-4 sm:left-5 lg:left-6 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-primary-600 transition-colors">
                   <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <input
@@ -176,10 +176,10 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
                   placeholder={t('home.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 sm:h-12 lg:h-14 pl-10 sm:pl-12 lg:pl-14 pr-3 sm:pr-4 lg:pr-5 bg-white rounded-xl sm:rounded-2xl text-sm sm:text-base lg:text-lg
+                  className="w-full h-11 sm:h-12 lg:h-14 pl-11 sm:pl-13 lg:pl-14 pr-4 sm:pr-5 lg:pr-6 bg-white !rounded-full text-sm sm:text-base lg:text-lg
                            shadow-lg hover:shadow-xl focus:shadow-2xl transition-all duration-300
                            border-2 border-transparent focus:border-primary-400/30 focus:outline-none
-                           placeholder:text-gray-400"
+                           placeholder:text-gray-400 placeholder:text-sm"
                 />
               </div>
             </div>

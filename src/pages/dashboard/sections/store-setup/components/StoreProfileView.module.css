@@ -60,7 +60,7 @@
 .storeImagePlaceholder {
   width: 6rem;
   height: 6rem;
-  background: linear-gradient(to bottom right, rgba(200, 228, 0, 0.2), rgba(163, 199, 0, 0.2));
+  background: linear-gradient(to bottom right, var(--color-primary-20), var(--color-primary-20));
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -79,7 +79,7 @@
 .storePlaceholderIcon {
   width: 2rem;
   height: 2rem;
-  color: #C8E400;
+  color: var(--color-primary);
 }
 
 @media (min-width: 1024px) {
@@ -95,7 +95,7 @@
   right: -0.5rem;
   width: 2rem;
   height: 2rem;
-  background: #C8E400;
+  background: var(--color-primary);
   border-radius: 9999px;
   display: flex;
   align-items: center;
@@ -179,7 +179,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(to right, #C8E400, #A3C700);
+  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
   color: white;
   border-radius: 12px;
   border: none;
@@ -380,7 +380,7 @@
 }
 
 .cardHeaderPrimary {
-  background: linear-gradient(to right, rgba(200, 228, 0, 0.1), rgba(163, 199, 0, 0.1));
+  background: linear-gradient(to right, var(--color-primary-10), var(--color-primary-10));
 }
 
 .cardHeaderBlue {
@@ -408,7 +408,7 @@
 }
 
 .cardHeaderIconPrimary {
-  background: linear-gradient(to right, #C8E400, #A3C700);
+  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
 }
 
 .cardHeaderIconBlue {
@@ -430,8 +430,9 @@
 }
 
 .cardTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
   color: #111827;
   margin: 0;
 }
@@ -502,7 +503,7 @@
 }
 
 .contactLink {
-  color: #C8E400;
+  color: var(--color-primary);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -511,7 +512,7 @@
 }
 
 .contactLink:hover {
-  color: #A3C700;
+  color: var(--color-primary-hover);
 }
 
 .contactLinkIcon {
@@ -597,8 +598,9 @@
 }
 
 .quickActionsTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
   color: #111827;
   margin: 0;
   padding: 1.5rem 1.5rem 0;
