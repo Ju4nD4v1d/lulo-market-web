@@ -53,4 +53,12 @@ export const queryKeys = {
     stripeAccount: (storeId: string) => [...queryKeys.checkout.all, 'stripe', storeId] as const,
     orderMonitoring: (orderId: string) => [...queryKeys.checkout.all, 'monitoring', orderId] as const,
   },
+
+  // Driver queries (platform-level)
+  drivers: {
+    all: ['drivers'] as const,
+    lists: () => [...queryKeys.drivers.all, 'list'] as const,
+    active: () => [...queryKeys.drivers.all, 'active'] as const,
+    detail: (id: string) => [...queryKeys.drivers.all, 'detail', id] as const,
+  },
 } as const;

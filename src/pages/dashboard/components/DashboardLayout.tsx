@@ -6,7 +6,7 @@ import styles from './DashboardLayout.module.css';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  currentPage: 'store' | 'products' | 'metrics' | 'orders';
+  currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages' | 'inventory';
 }
 
 const MOBILE_BREAKPOINT = 768;

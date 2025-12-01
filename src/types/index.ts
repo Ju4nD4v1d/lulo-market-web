@@ -3,4 +3,5 @@ export * from './store';
 export * from './product';
 export * from './review';
 export * from './user';
+export * from './driver';
 export * from './calendly.d';

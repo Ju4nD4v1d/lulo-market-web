@@ -221,12 +221,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 instagram={storeData.instagram || ''}
                 facebook={storeData.facebook || ''}
                 deliveryHours={storeData.deliveryHours || {}}
+                lowStockThreshold={storeData.lowStockThreshold ?? 10}
                 onPhoneChange={(value) => setStoreData({ ...storeData, phone: value })}
                 onEmailChange={(value) => setStoreData({ ...storeData, email: value })}
                 onWebsiteChange={(value) => setStoreData({ ...storeData, website: value })}
                 onInstagramChange={(value) => setStoreData({ ...storeData, instagram: value })}
                 onFacebookChange={(value) => setStoreData({ ...storeData, facebook: value })}
                 onDeliveryHoursChange={(hours) => setStoreData({ ...storeData, deliveryHours: hours })}
+                onLowStockThresholdChange={(value) => setStoreData({ ...storeData, lowStockThreshold: value })}
               />
             </StageContainer>
           </div>

@@ -30,6 +30,7 @@ export * as analyticsApi from './analyticsApi';
 export * as invitationApi from './invitationApi';
 export * as waitlistApi from './waitlistApi';
 export * as leadsApi from './leadsApi';
+export * as driverApi from './driverApi';
 
 // Shared types and helpers
 export { COLLECTIONS, safeDate } from './types';

@@ -57,7 +57,8 @@ const initialStoreData: StoreData = {
   featured: false,
   ownerId: '',
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
+  lowStockThreshold: 10
 };
 
 export const StoreSetupPage = () => {

@@ -147,7 +147,16 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
 
     // Additional info
     isDelivery: data.isDelivery !== undefined ? data.isDelivery : true,
-    language: data.language || 'en'
+    language: data.language || 'en',
+
+    // User ID for access control
+    userId: data.userId || undefined,
+
+    // Receipt fields
+    receiptUrl: data.receiptUrl || undefined,
+    receiptGeneratedAt: data.receiptGeneratedAt ? safeDate(data.receiptGeneratedAt) : undefined,
+    receiptExpiresAt: data.receiptExpiresAt ? safeDate(data.receiptExpiresAt) : undefined,
+    receiptNumber: data.receiptNumber || undefined
   };
 };
 

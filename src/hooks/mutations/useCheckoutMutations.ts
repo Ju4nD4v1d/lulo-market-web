@@ -6,6 +6,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../queries';
 import * as orderApi from '../../services/api/orderApi';
+import { Order } from '../../types/order';
 
 /**
  * Payment intent request data
@@ -37,6 +38,14 @@ interface CreateOrderData {
 }
 
 /**
+ * Order update data
+ */
+interface UpdateOrderData {
+  orderId: string;
+  updates: Partial<Order>;
+}
+
+/**
  * Hook to manage checkout mutations
  */
 export const useCheckoutMutations = () => {
@@ -55,6 +64,22 @@ export const useCheckoutMutations = () => {
     },
     onError: (error) => {
       console.error('Error creating order:', error);
+    }
+  });
+
+  /**
+   * Mutation to update an existing order
+   */
+  const updateOrder = useMutation({
+    mutationFn: async ({ orderId, updates }: UpdateOrderData) => {
+      return orderApi.updateOrder(orderId, updates);
+    },
+    onSuccess: (_, { orderId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.checkout.orderMonitoring(orderId) });
+    },
+    onError: (error) => {
+      console.error('Error updating order:', error);
     }
   });
 
@@ -126,9 +151,11 @@ export const useCheckoutMutations = () => {
 
   return {
     createOrder,
+    updateOrder,
     recordFailedOrder,
     createPaymentIntent,
     isCreatingOrder: createOrder.isPending,
+    isUpdatingOrder: updateOrder.isPending,
     isRecordingFailedOrder: recordFailedOrder.isPending,
     isCreatingPaymentIntent: createPaymentIntent.isPending,
   };

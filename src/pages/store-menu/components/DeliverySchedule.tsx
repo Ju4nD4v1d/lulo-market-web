@@ -1,6 +1,8 @@
-import { Truck, Calendar } from 'lucide-react';
+import { Truck, Calendar, Loader2 } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
+import { formatTime12Hour } from '../../../utils/effectiveHours';
 import styles from './DeliverySchedule.module.css';
 
 interface DeliveryScheduleProps {
@@ -12,12 +14,14 @@ interface DayInfo {
   dayKeyFull: string;
   dayKeyShort: string;
   isOpen: boolean;
+  timeWindow: string;
 }
 
 /**
  * DeliverySchedule - Shows which days a store delivers
  *
  * Features:
+ * - Uses effective hours (intersection of store hours + driver availability)
  * - Only shows days the store is open (hides closed days)
  * - Desktop: Full day names in horizontal row
  * - Mobile: Abbreviated day names with flex wrap
@@ -26,6 +30,7 @@ interface DayInfo {
  */
 export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
   const { t } = useLanguage();
+  const { effectiveHours, nextAvailableDay, isLoading } = useEffectiveHours({ store });
 
   // Day mapping: index, full translation key, short translation key
   const daysConfig = [
@@ -42,65 +47,75 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
 
   /**
    * Get the schedule for each day, filtering only open days
+   * Now uses effectiveHours (intersection of store + driver availability)
    */
   const getOpenDays = (): DayInfo[] => {
-    const businessHours = store.businessHours || store.deliveryHours;
-    if (!businessHours) return [];
+    if (!effectiveHours) return [];
 
     return daysConfig
       .map((config) => {
         const dayName = dayNames[config.index];
-        const dayHours = businessHours[dayName] || businessHours[dayName.toLowerCase()];
+        const dayHours = effectiveHours[dayName];
         const isOpen = dayHours && !dayHours.closed;
+
+        // Format time window
+        let timeWindow = '';
+        if (isOpen && dayHours) {
+          timeWindow = `${formatTime12Hour(dayHours.open)} - ${formatTime12Hour(dayHours.close)}`;
+        }
 
         return {
           dayIndex: config.index,
           dayKeyFull: config.fullKey,
           dayKeyShort: config.shortKey,
           isOpen: Boolean(isOpen),
+          timeWindow,
         };
       })
       .filter((day) => day.isOpen);
   };
 
   /**
-   * Get next delivery info
+   * Get next delivery info from hook
    */
   const getNextDelivery = (): { label: string; isToday: boolean } | null => {
-    const businessHours = store.businessHours || store.deliveryHours;
-    if (!businessHours) return null;
+    if (!nextAvailableDay) return null;
 
-    const today = new Date().getDay();
-
-    // Check if today delivers
-    const todayName = dayNames[today];
-    const todayHours = businessHours[todayName] || businessHours[todayName.toLowerCase()];
-    if (todayHours && !todayHours.closed) {
+    if (nextAvailableDay.isToday) {
       return { label: t('deliverySchedule.today'), isToday: true };
     }
 
-    // Find next open day
-    for (let i = 1; i <= 7; i++) {
-      const checkDay = (today + i) % 7;
-      const checkDayName = dayNames[checkDay];
-      const dayHours = businessHours[checkDayName] || businessHours[checkDayName.toLowerCase()];
-
-      if (dayHours && !dayHours.closed) {
-        if (i === 1) {
-          return { label: t('deliverySchedule.tomorrow'), isToday: false };
-        }
-        // Return the day name
-        const config = daysConfig[checkDay];
-        return { label: t(config.fullKey), isToday: false };
-      }
+    if (nextAvailableDay.isTomorrow) {
+      return { label: t('deliverySchedule.tomorrow'), isToday: false };
     }
 
-    return null;
+    // Find the translation key for this day
+    const dayIndex = dayNames.indexOf(nextAvailableDay.day);
+    if (dayIndex >= 0) {
+      return { label: t(daysConfig[dayIndex].fullKey), isToday: false };
+    }
+
+    return { label: nextAvailableDay.day, isToday: false };
   };
 
   const openDays = getOpenDays();
   const nextDelivery = getNextDelivery();
   const today = new Date().getDay();
+
+  // Show loading state while fetching driver availability
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <Truck className={styles.headerIcon} />
+          <h2 className={styles.title}>{t('deliverySchedule.title')}</h2>
+        </div>
+        <div className={styles.loadingState}>
+          <Loader2 className={styles.loadingIcon} />
+        </div>
+      </div>
+    );
+  }
 
   // If no open days at all
   if (openDays.length === 0) {
@@ -125,21 +140,22 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
         <h2 className={styles.title}>{t('deliverySchedule.title')}</h2>
       </div>
 
-      {/* Day Pills */}
-      <div className={styles.daysGrid}>
+      {/* Schedule List */}
+      <div className={styles.scheduleList}>
         {openDays.map((day) => {
           const isToday = day.dayIndex === today;
-          const pillClass = isToday ? styles.dayPillActive : styles.dayPillDefault;
 
           return (
             <div
               key={day.dayIndex}
-              className={`${styles.dayPill} ${pillClass}`}
+              className={`${styles.scheduleItem} ${isToday ? styles.scheduleItemActive : ''}`}
             >
-              <span>
+              <span className={styles.dayName}>
                 <span className={styles.dayNameShort}>{t(day.dayKeyShort)}</span>
                 <span className={styles.dayNameFull}>{t(day.dayKeyFull)}</span>
+                {isToday && <span className={styles.todayBadge}>{t('deliverySchedule.today')}</span>}
               </span>
+              <span className={styles.timeWindow}>{day.timeWindow}</span>
             </div>
           );
         })}

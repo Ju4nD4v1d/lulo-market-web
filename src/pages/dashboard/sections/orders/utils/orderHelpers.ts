@@ -19,7 +19,7 @@ export const getNextStatus = (currentStatus: OrderStatus): OrderStatus | null =>
 
 export const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
 
-export const formatDate = (date: Date | string | number) => {
+export const formatDate = (date: Date | string | number, locale: string = 'en-CA') => {
   try {
     if (!date) return 'Invalid Date';
 
@@ -36,7 +36,7 @@ export const formatDate = (date: Date | string | number) => {
       return 'Invalid Date';
     }
 
-    return new Intl.DateTimeFormat('en-CA', {
+    return new Intl.DateTimeFormat(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

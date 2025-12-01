@@ -1,14 +1,21 @@
+import { useMemo } from 'react';
 import { ShoppingCart, Package, Truck, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { es, enUS } from 'date-fns/locale';
 import { Order, OrderStatus } from '../../../../../types/order';
+import styles from './OrderTimeline.module.css';
 
 interface OrderTimelineProps {
   order: Order;
   t: (key: string) => string;
+  locale?: string;
 }
 
-export const OrderTimeline = ({ order, t }: OrderTimelineProps) => {
-  const timelineSteps = [
+export const OrderTimeline = ({ order, t, locale = 'en' }: OrderTimelineProps) => {
+  const dateLocale = locale === 'es' ? es : enUS;
+
+  // Memoize timelineSteps to avoid recreation on every render
+  const timelineSteps = useMemo(() => [
     {
       status: OrderStatus.PENDING,
       label: t('order.timeline.received'),
@@ -51,44 +58,41 @@ export const OrderTimeline = ({ order, t }: OrderTimelineProps) => {
       time: order.deliveredAt,
       active: order.status === OrderStatus.DELIVERED
     }
-  ];
+  ], [order.status, order.createdAt, order.updatedAt, order.deliveredAt, t]);
+
+  const getIconWrapperClass = (isActive: boolean, isCurrent: boolean) => {
+    if (!isActive) return `${styles.iconWrapper} ${styles.inactive}`;
+    if (isCurrent) return `${styles.iconWrapper} ${styles.current}`;
+    return `${styles.iconWrapper} ${styles.completed}`;
+  };
 
   return (
-    <div className="space-y-4">
+    <div className={styles.container}>
       {timelineSteps.map((step) => {
         const Icon = step.icon;
         const isCurrentStep = order.status === step.status;
 
         return (
-          <div key={step.status} className="flex items-start space-x-3">
-            <div className={`
-              flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2
-              ${step.active
-                ? isCurrentStep
-                  ? 'bg-blue-500 border-blue-500 text-white animate-pulse'
-                  : 'bg-green-500 border-green-500 text-white'
-                : 'bg-gray-100 border-gray-300 text-gray-400'
-              }
-            `}>
-              <Icon className="w-4 h-4" />
+          <div key={step.status} className={styles.step}>
+            <div className={getIconWrapperClass(step.active, isCurrentStep)}>
+              <Icon className={styles.icon} />
             </div>
-            <div className="flex-1 pt-1 min-w-0">
-              <p className={`text-sm font-medium break-words ${step.active ? 'text-gray-900' : 'text-gray-500'}`}>
+            <div className={styles.content}>
+              <p className={`${styles.label} ${step.active ? styles.active : styles.inactive}`}>
                 {step.label}
               </p>
               {step.time && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={styles.time}>
                   {(() => {
                     try {
                       const date = step.time instanceof Date ? step.time : new Date(step.time);
-                      if (isNaN(date.getTime())) return 'Invalid time';
-                      return formatDistanceToNow(date, { addSuffix: true });
+                      if (isNaN(date.getTime())) return t('common.invalidTime');
+                      return formatDistanceToNow(date, { addSuffix: true, locale: dateLocale });
                     } catch (error) {
                       console.error('Error formatting timeline time:', error);
-                      return 'Invalid time';
+                      return t('common.invalidTime');
                     }
-                  })()
-                  }
+                  })()}
                 </p>
               )}
             </div>

@@ -100,6 +100,8 @@ export interface StoreData {
   stripeOnboardingComplete?: boolean;  // Legacy - use stripeDetailsSubmitted
   stripeAccountStatus?: StripeAccountStatus; // Current account status
   stripeUpdatedAt?: Date;        // Last status update timestamp
+  // Inventory settings
+  lowStockThreshold?: number;    // Products below this quantity show warnings (default: 10)
 }
 
 // Stripe Connect account status

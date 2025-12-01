@@ -171,24 +171,26 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     enabled: !!cart.storeId
   });
 
-  // Order creation hook
+  // Order creation hook - for monitoring order status after payment
+  // Note: Order is now created in usePaymentFlow BEFORE payment
   const {
     handlePaymentSuccess: handlePaymentSuccessBase,
     handlePaymentFailure: handlePaymentFailureBase,
     handlePaymentError
   } = useOrderCreation({
     cart,
-    formData: checkoutForm.formData,
     currentUser,
-    locale,
     onOrderComplete,
     clearCart
   });
 
-  // Payment flow hook
+  // Payment flow hook - creates order in Firestore BEFORE payment intent
   const { proceedToPayment, isCreatingPaymentIntent } = usePaymentFlow({
     cart,
     formData: checkoutForm.formData,
+    currentUser,
+    locale,
+    storeReceiptInfo: storeReceiptInfo || null,
     onPaymentIntentCreated: (clientSecret, _intentId, orderId) => {
       setPaymentClientSecret(clientSecret);
       setPendingOrderId(orderId);
@@ -214,15 +216,10 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   }, [currentUser?.uid, checkoutForm.formData.useProfileAsDeliveryContact]);
 
   // Payment success handler wrapper
+  // Note: Order already exists in Firestore - just start monitoring for webhook
   const handlePaymentSuccess = async (intentId: string) => {
     const orderIdToUse = pendingOrderId || `fallback_${Date.now()}`;
-
-    if (!storeReceiptInfo) {
-      console.error('Store receipt info not loaded');
-      return;
-    }
-
-    await handlePaymentSuccessBase(intentId, orderIdToUse, storeReceiptInfo);
+    await handlePaymentSuccessBase(intentId, orderIdToUse);
   };
 
   // Payment failure handler wrapper

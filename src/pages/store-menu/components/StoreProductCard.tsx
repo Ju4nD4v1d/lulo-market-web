@@ -1,6 +1,6 @@
 import type * as React from 'react';
 
-import { Star, Clock, Users } from 'lucide-react';
+import { Star, Clock, Users, AlertTriangle } from 'lucide-react';
 import { Product } from '../../../types/product';
 import { AddToCartButton } from '../../../components/AddToCartButton';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -34,6 +34,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
 
   const isOutOfStock = product.status === 'outOfStock' || product.stock === 0;
+  const isLowStock = product.stock > 0 && product.stock <= 10;
 
   return (
     <div
@@ -60,6 +61,12 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
         )}
         {product.isPopular && product.status === 'active' && (
           <div className={styles.popularBadge}>{t('product.popular')}</div>
+        )}
+        {isLowStock && product.status === 'active' && (
+          <div className={styles.lowStockBadge}>
+            <AlertTriangle className={styles.lowStockIcon} />
+            {t('cart.onlyXLeft').replace('{count}', product.stock.toString())}
+          </div>
         )}
       </div>
 

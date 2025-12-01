@@ -1,6 +1,7 @@
 import { Star, MapPin, Clock, Store, Instagram, Facebook } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
 import styles from './StoreHeroSection.module.css';
 
 interface StoreHeroSectionProps {
@@ -13,52 +14,15 @@ interface StoreHeroSectionProps {
  * Layout:
  * - Mobile: Stacked (image on top, content below)
  * - Desktop (1024px+): Side-by-side (image left, content right)
+ *
+ * Now uses effective hours (intersection of store hours + driver availability)
  */
 export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
   const { t } = useLanguage();
-
-  /**
-   * Format 24-hour time to 12-hour format with AM/PM
-   */
-  const formatTime12Hour = (time24: string): string => {
-    const [hours, minutes] = time24.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const hours12 = hours % 12 || 12;
-    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
-  };
-
-  /**
-   * Get today's delivery hours as formatted string
-   */
-  const getDeliveryHoursToday = (): string => {
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const dayName = daysOfWeek[new Date().getDay()];
-
-    const businessHours = store.businessHours || store.deliveryHours;
-    const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
-
-    if (!todayHours || todayHours.closed) {
-      return t('delivery.noDeliveryToday');
-    }
-
-    return `${formatTime12Hour(todayHours.open)} - ${formatTime12Hour(todayHours.close)}`;
-  };
-
-  /**
-   * Check if delivery is currently available based on today's hours
-   */
-  const isDeliveryAvailable = (): boolean => {
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const dayName = daysOfWeek[new Date().getDay()];
-
-    const businessHours = store.businessHours || store.deliveryHours;
-    const todayHours = businessHours?.[dayName] || businessHours?.[dayName.toLowerCase()];
-
-    return Boolean(todayHours && !todayHours.closed);
-  };
+  const { isDeliveryAvailable, todayHoursText } = useEffectiveHours({ store });
 
   const imageUrl = store.storeImage || store.imageUrl;
-  const isOpen = isDeliveryAvailable();
+  const isOpen = isDeliveryAvailable;
 
   return (
     <div className={styles.container}>
@@ -141,7 +105,7 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
               <div className={`${styles.metaValue} ${isOpen ? styles.metaValueOpen : styles.metaValueClosed}`}>
                 {isOpen ? t('storeHero.openNow') : t('storeHero.closed')}
               </div>
-              <div className={styles.metaValue}>{getDeliveryHoursToday()}</div>
+              <div className={styles.metaValue}>{todayHoursText}</div>
             </div>
           </div>
         </div>

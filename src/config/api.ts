@@ -150,21 +150,13 @@ export const apiCall = async (
 };
 
 // Receipt generation specific API call
-export const generateReceiptAPI = async (orderId: string): Promise<Response> => {
+export const generateReceiptAPI = async (
+  orderId: string,
+  language: 'en' | 'es' = 'en'
+): Promise<Response> => {
   const endpoint = API_ENDPOINTS.receiptGeneration;
-  
-  console.log(`🧾 Calling receipt generation API: ${endpoint}`);
-  console.log(`📦 Request payload:`, { orderId });
-  console.log(`🌍 Environment:`, {
-    isDevelopment,
-    isStaging,
-    isProduction,
-    env: import.meta.env.VITE_ENV
-  });
-  
-  const requestBody = JSON.stringify({ orderId });
-  console.log(`📄 Request body:`, requestBody);
-  
+  const requestBody = JSON.stringify({ orderId, language });
+
   return apiCall(endpoint, {
     method: 'POST',
     body: requestBody
@@ -181,7 +173,3 @@ export const getEnvironmentInfo = () => ({
   receiptEndpoint: API_ENDPOINTS.receiptGeneration
 });
 
-// Log environment info in development
-if (isDevelopment) {
-  console.log('🔧 API Configuration:', getEnvironmentInfo());
-}

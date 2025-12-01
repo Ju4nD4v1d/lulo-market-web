@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   Package,
   Search,
@@ -15,7 +15,9 @@ import {
   Clock,
   CheckCircle2,
   ShoppingCart,
-  Truck
+  Truck,
+  ArrowUpDown,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { useLanguage } from '../../../../context/LanguageContext';
@@ -23,6 +25,7 @@ import { useStore } from '../../../../context/StoreContext';
 import { useOrdersQuery } from '../../../../hooks/queries/useOrdersQuery';
 import { useOrderMutations } from '../../../../hooks/mutations/useOrderMutations';
 import { useOrderFilters } from './hooks/useOrderFilters';
+import { useOrderSorting, SortOption } from './hooks/useOrderSorting';
 import { OrderTimeline } from './components/OrderTimeline';
 import { CancelOrderModal } from './components/CancelOrderModal';
 import { Order, OrderStatus } from '../../../../types/order';
@@ -30,29 +33,29 @@ import { getNextStatus, formatPrice, formatDate } from './utils/orderHelpers';
 import { statusColors } from './utils/statusConfig';
 import styles from './OrdersPage.module.css';
 
-const getStatusIcon = (status: OrderStatus) => {
+const getStatusIcon = (status: OrderStatus, iconClass: string) => {
   switch (status) {
     case OrderStatus.PENDING:
-      return <Clock className="w-4 h-4" />;
+      return <Clock className={iconClass} />;
     case OrderStatus.CONFIRMED:
-      return <CheckCircle2 className="w-4 h-4" />;
+      return <CheckCircle2 className={iconClass} />;
     case OrderStatus.PREPARING:
-      return <Package className="w-4 h-4" />;
+      return <Package className={iconClass} />;
     case OrderStatus.READY:
-      return <ShoppingCart className="w-4 h-4" />;
+      return <ShoppingCart className={iconClass} />;
     case OrderStatus.OUT_FOR_DELIVERY:
-      return <Truck className="w-4 h-4" />;
+      return <Truck className={iconClass} />;
     case OrderStatus.DELIVERED:
-      return <CheckCircle2 className="w-4 h-4" />;
+      return <CheckCircle2 className={iconClass} />;
     case OrderStatus.CANCELLED:
-      return <XCircle className="w-4 h-4" />;
+      return <XCircle className={iconClass} />;
     default:
-      return <Clock className="w-4 h-4" />;
+      return <Clock className={iconClass} />;
   }
 };
 
 export const OrdersPage = () => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { storeId } = useStore();
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
@@ -63,6 +66,35 @@ export const OrdersPage = () => {
   const { orders, isLoading: loading, error } = useOrdersQuery({ storeId });
   const { updateOrderStatus: updateOrderStatusMutation } = useOrderMutations(storeId || '');
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, filteredOrders } = useOrderFilters(orders);
+  const { sortOption, setSortOption, sortOrders } = useOrderSorting();
+
+  // Apply sorting to filtered orders - memoized to avoid recalculation
+  const sortedOrders = useMemo(
+    () => sortOrders(filteredOrders),
+    [sortOrders, filteredOrders]
+  );
+
+  // Helper function to calculate urgency level - memoized
+  const getUrgencyLevel = useCallback((order: Order): 'overdue' | 'today' | 'tomorrow' | null => {
+    if ([OrderStatus.DELIVERED, OrderStatus.CANCELLED].includes(order.status)) return null;
+
+    const now = new Date();
+    const deliveryTime = order.preferredDeliveryTime
+      ? new Date(order.preferredDeliveryTime)
+      : order.estimatedDeliveryTime
+        ? new Date(order.estimatedDeliveryTime)
+        : null;
+
+    if (!deliveryTime || isNaN(deliveryTime.getTime())) return null;
+
+    const diffMs = deliveryTime.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 0) return 'overdue';
+    if (diffHours < 24) return 'today';
+    if (diffHours < 48) return 'tomorrow';
+    return null;
+  }, []);
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     setUpdatingOrderId(orderId);
@@ -93,8 +125,12 @@ export const OrdersPage = () => {
 
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
+      case OrderStatus.PENDING_PAYMENT:
+        return t('order.status.pendingPayment');
       case OrderStatus.PENDING:
         return t('order.status.pending');
+      case OrderStatus.PROCESSING:
+        return t('order.status.processing');
       case OrderStatus.CONFIRMED:
         return t('order.status.confirmed');
       case OrderStatus.PREPARING:
@@ -107,6 +143,8 @@ export const OrdersPage = () => {
         return t('order.status.delivered');
       case OrderStatus.CANCELLED:
         return t('order.status.cancelled');
+      case OrderStatus.PAYMENT_FAILED:
+        return t('order.status.paymentFailed');
       default:
         return status;
     }
@@ -189,12 +227,26 @@ export const OrdersPage = () => {
               ))}
             </select>
           </div>
+
+          <div className={styles.sortWrapper}>
+            <ArrowUpDown className={styles.sortIcon} />
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as SortOption)}
+              className={styles.sortSelect}
+            >
+              <option value="newest">{t('order.sort.newest')}</option>
+              <option value="oldest">{t('order.sort.oldest')}</option>
+              <option value="urgency">{t('order.sort.urgency')}</option>
+              <option value="status">{t('order.sort.byStatus')}</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Orders List */}
       <div className={styles.ordersList}>
-        {filteredOrders.length === 0 ? (
+        {sortedOrders.length === 0 ? (
           <div className={styles.emptyState}>
             <Package className={styles.emptyIcon} />
             <h3 className={styles.emptyTitle}>{t('admin.orders.noOrdersFound')}</h3>
@@ -205,29 +257,54 @@ export const OrdersPage = () => {
             </p>
           </div>
         ) : (
-          filteredOrders.map((order) => (
+          sortedOrders.map((order) => {
+            const urgencyLevel = getUrgencyLevel(order);
+            return (
             <div key={order.id} className={styles.orderCard}>
               {/* Order Header */}
               <div className={styles.orderHeader}>
                 <div className={styles.orderInfo}>
-                  {getStatusIcon(order.status)}
+                  {getStatusIcon(order.status, styles.statusIcon)}
                   <div>
                     <h3 className={styles.orderId}>
                       {t('order.label')} #{order.id.slice(-8).toUpperCase()}
                     </h3>
-                    <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
+                    <p className={styles.orderDate}>{formatDate(order.createdAt, locale === 'es' ? 'es-ES' : 'en-CA')}</p>
                   </div>
                 </div>
 
                 <div className={styles.orderMeta}>
                   <div className={styles.priceInfo}>
                     <p className={styles.price}>{formatPrice(order.summary.total)}</p>
-                    <p className={styles.itemCount}>{order.summary.itemCount} items</p>
+                    <p className={styles.itemCount}>{order.summary.itemCount} {t('common.items')}</p>
                   </div>
 
                   <div className={`${styles.statusBadge} ${statusColors[order.status]}`}>
                     {getStatusText(order.status)}
                   </div>
+
+                  {urgencyLevel && (
+                    <div className={`${styles.urgencyBadge} ${styles[`urgency${urgencyLevel.charAt(0).toUpperCase() + urgencyLevel.slice(1)}`]}`}>
+                      <AlertTriangle className={styles.urgencyIcon} />
+                      <span>{t(`order.urgency.${urgencyLevel}`)}</span>
+                    </div>
+                  )}
+
+                  {/* Quick Action Button - Mobile only */}
+                  {getNextStatus(order.status) && (
+                    <button
+                      onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}
+                      disabled={updatingOrderId === order.id}
+                      className={styles.quickActionButton}
+                    >
+                      {updatingOrderId === order.id ? (
+                        <Loader2 className={`${styles.quickActionIcon} ${styles.loadingSpinner}`} />
+                      ) : (
+                        <CheckCircle2 className={styles.quickActionIcon} />
+                      )}
+                      {getNextActionText(order.status)}
+                    </button>
+                  )}
 
                   <button
                     onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
@@ -287,7 +364,7 @@ export const OrdersPage = () => {
                               {updatingOrderId === order.id ? (
                                 <Loader2 className={styles.buttonIcon} />
                               ) : (
-                                getStatusIcon(getNextStatus(order.status)!)
+                                getStatusIcon(getNextStatus(order.status)!, styles.buttonIcon)
                               )}
                               {getNextActionText(order.status)}
                             </button>
@@ -310,7 +387,7 @@ export const OrdersPage = () => {
                     {/* Order Timeline */}
                     <div className={styles.timelineSection}>
                       <h4 className={styles.sectionTitle}>{t('admin.orders.orderTimeline')}</h4>
-                      <OrderTimeline order={order} t={t} />
+                      <OrderTimeline order={order} t={t} locale={locale} />
                     </div>
                   </div>
 
@@ -330,7 +407,7 @@ export const OrdersPage = () => {
                             </div>
                             <div>
                               <h5 className={styles.itemName}>{item.productName}</h5>
-                              <p className={styles.itemQuantity}>Quantity: {item.quantity}</p>
+                              <p className={styles.itemQuantity}>{t('order.quantity')} {item.quantity}</p>
                               {item.specialInstructions && (
                                 <p className={styles.specialInstructions}>{item.specialInstructions}</p>
                               )}
@@ -338,7 +415,7 @@ export const OrdersPage = () => {
                           </div>
                           <div className={styles.itemPrice}>
                             <p className={styles.itemTotal}>{formatPrice(item.price * item.quantity)}</p>
-                            <p className={styles.itemUnit}>{formatPrice(item.price)} each</p>
+                            <p className={styles.itemUnit}>{formatPrice(item.price)} {t('order.each')}</p>
                           </div>
                         </div>
                       ))}
@@ -374,7 +451,8 @@ export const OrdersPage = () => {
                 </div>
               )}
             </div>
-          ))
+          );
+          })
         )}
       </div>
 
@@ -386,6 +464,7 @@ export const OrdersPage = () => {
           onConfirm={confirmCancelOrder}
           onCancel={cancelCancelOrder}
           t={t}
+          locale={locale}
         />
       )}
     </div>

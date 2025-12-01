@@ -64,94 +64,45 @@
 }
 
 /* ==========================================================================
-   Days Grid
+   Schedule List (with time windows)
    ========================================================================== */
 
-.daysGrid {
+.scheduleList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  justify-content: center;
-  margin-bottom: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-@media (min-width: 768px) {
-  .daysGrid {
-    gap: 0.5rem;
-  }
+.scheduleItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-@media (min-width: 1024px) {
-  .daysGrid {
-    flex-wrap: nowrap;
-    justify-content: center;
-    gap: 0.625rem;
-  }
+.scheduleItemActive {
+  background: var(--color-primary-10);
+  border-color: var(--color-primary-30);
 }
 
-/* ==========================================================================
-   Day Pills
-   ========================================================================== */
-
-.dayPill {
+.dayName {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.375rem 0.625rem;
-  border-radius: 9999px;
+  gap: 0.5rem;
   font-family: var(--font-body);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-@media (min-width: 768px) {
-  .dayPill {
-    padding: 0.4375rem 0.75rem;
-    font-size: var(--font-size-body-small);
-  }
-}
-
-@media (min-width: 1024px) {
-  .dayPill {
-    padding: 0.5rem 0.875rem;
-  }
-}
-
-/* Default state (delivers but not today) */
-.dayPillDefault {
-  background: var(--color-background-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dayPillDefault:hover {
-  background: var(--color-gray-100);
-  border-color: var(--color-gray-300);
-}
-
-/* Active state (today and delivers) */
-.dayPillActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-text-primary);
-  font-weight: var(--font-weight-semibold);
-  box-shadow: 0 2px 8px var(--color-primary-shadow);
 }
 
-/* Today label */
-.todayLabel {
-  display: block;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  margin-top: 0.125rem;
-}
-
-.dayPillActive .todayLabel {
-  color: var(--color-text-primary);
-  opacity: 0.8;
+.scheduleItemActive .dayName {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 /* Day name (abbreviated on mobile, full on desktop) */
@@ -163,13 +114,51 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .dayNameShort {
     display: none;
   }
 
   .dayNameFull {
     display: inline;
+  }
+}
+
+.todayBadge {
+  display: inline-flex;
+  padding: 0.125rem 0.375rem;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timeWindow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.scheduleItemActive .timeWindow {
+  color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+  .scheduleItem {
+    padding: 0.75rem 1rem;
+  }
+
+  .dayName {
+    font-size: 0.875rem;
+  }
+
+  .timeWindow {
+    font-size: 0.8125rem;
   }
 }
 
@@ -247,4 +236,28 @@
   color: var(--color-text-muted);
   font-family: var(--font-body);
   font-size: var(--font-size-caption);
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.loadingIcon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -26,6 +26,7 @@ const CartPage = lazy(() => import('./pages/cart'));
 const CheckoutPage = lazy(() => import('./pages/checkout'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const DispatcherPage = lazy(() => import('./pages/admin/DispatcherPage'));
 
 // Lazy load static landing page components (rarely used)
 const Header = lazy(() => import('./components/Header'));
@@ -127,6 +128,15 @@ const AppRoutes = () => {
     if (currentRoute.startsWith('#admin-login')) {
       updateTitle('Lulo Market - Admin Login');
       return <AdminLoginPage />;
+    }
+
+    if (currentRoute.startsWith('#admin/dispatcher')) {
+      if (!currentUser) {
+        window.location.hash = '#admin-login';
+        return <AdminLoginPage />;
+      }
+      updateTitle('Lulo Market - Dispatcher');
+      return <DispatcherPage />;
     }
 
     if (currentRoute.startsWith('#admin')) {
