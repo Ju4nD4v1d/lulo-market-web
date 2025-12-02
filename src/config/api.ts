@@ -8,11 +8,19 @@ export const isDevelopment = import.meta.env.DEV;
 export const isStaging = import.meta.env.VITE_ENV === 'staging';
 export const isProduction = import.meta.env.VITE_ENV === 'production';
 
+// Development fallback URLs (only used when VITE_ENV is not 'production')
+const DEV_FALLBACK_ENDPOINTS = {
+  receiptGeneration: 'https://generatereceiptmanually-6v2n7ecudq-uc.a.run.app',
+  paymentIntent: 'https://createpaymentintent-6v2n7ecudq-uc.a.run.app',
+  invitationRequest: 'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app',
+  webhook: 'https://handlepaymentwebhook-6v2n7ecudq-uc.a.run.app',
+};
+
 // API Base URLs
 const API_BASE_URLS = {
   development: 'http://localhost:3000', // Local development server
   staging: 'https://us-central1-lulop-eds249.cloudfunctions.net',
-  production: 'https://us-central1-lulop-eds249.cloudfunctions.net'
+  production: 'https://us-central1-lulocart-prod.cloudfunctions.net', // Production project
 };
 
 // Get current environment base URL
@@ -23,23 +31,42 @@ const getCurrentBaseURL = (): string => {
 };
 
 // API Endpoints configuration
+// In production, all endpoints MUST come from environment variables
+// In development, fallbacks are allowed for convenience
 export const API_ENDPOINTS = {
   // Receipt generation endpoint
-  receiptGeneration: import.meta.env.VITE_RECEIPT_ENDPOINT ||
-                     'https://generatereceiptmanually-6v2n7ecudq-uc.a.run.app',
+  receiptGeneration:
+    import.meta.env.VITE_RECEIPT_ENDPOINT ||
+    (isProduction ? '' : DEV_FALLBACK_ENDPOINTS.receiptGeneration),
 
   // Payment intent endpoint
-  paymentIntent: import.meta.env.VITE_PAYMENT_INTENT_ENDPOINT ||
-                 'https://createpaymentintent-6v2n7ecudq-uc.a.run.app',
+  paymentIntent:
+    import.meta.env.VITE_PAYMENT_INTENT_ENDPOINT ||
+    (isProduction ? '' : DEV_FALLBACK_ENDPOINTS.paymentIntent),
 
   // Invitation request endpoint
-  invitationRequest: import.meta.env.VITE_INVITATION_ENDPOINT ||
-                     'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app',
+  invitationRequest:
+    import.meta.env.VITE_INVITATION_ENDPOINT ||
+    (isProduction ? '' : DEV_FALLBACK_ENDPOINTS.invitationRequest),
 
   // Webhook endpoint
-  webhook: import.meta.env.VITE_STRIPE_WEBHOOK_ENDPOINT ||
-           'https://handlepaymentwebhook-6v2n7ecudq-uc.a.run.app'
+  webhook:
+    import.meta.env.VITE_STRIPE_WEBHOOK_ENDPOINT ||
+    (isProduction ? '' : DEV_FALLBACK_ENDPOINTS.webhook),
 };
+
+// Validate required endpoints in production
+if (isProduction) {
+  const missingEndpoints = Object.entries(API_ENDPOINTS)
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingEndpoints.length > 0) {
+    console.error(
+      `Production API endpoints missing: ${missingEndpoints.join(', ')}. Check environment variables.`
+    );
+  }
+}
 
 // Default fetch configuration
 export const DEFAULT_FETCH_CONFIG = {
