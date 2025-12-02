@@ -530,6 +530,7 @@ export const translations = {
     'store.validation.websiteRequired': 'Website is required',
     'store.validation.deliveryHoursRequired': 'At least one delivery day is required',
     'store.validation.agreementRequired': 'You must accept the service agreement',
+    'store.validation.agreementAccepted': 'All agreements accepted',
     'store.validation.pricingRequired': 'You must confirm the pricing plan',
     'store.nextStage': 'Next Stage',
     'store.previous': 'Previous',
@@ -778,6 +779,28 @@ export const translations = {
     'inventory.loadingStock': 'Loading stock...',
     'inventory.thresholdLabel': 'Threshold: {count} units',
 
+    // Documents
+    'documents.title': 'Documents',
+    'documents.subtitle': 'Legal documents and policies for your store',
+    'documents.payoutPolicy': 'Payout Policy',
+    'documents.payoutPolicyDesc': 'Learn how and when payments are processed to your account',
+    'documents.sellerAgreement': 'Seller Partner Agreement',
+    'documents.sellerAgreementDesc': 'Terms and conditions for using the Lulocart platform as a store partner',
+    'documents.refundPolicy': 'Refund & Cancellation Policy',
+    'documents.refundPolicyDesc': 'How refunds and cancellations are handled for orders',
+    'documents.viewDocument': 'View Document',
+    'documents.acceptedOn': 'Accepted on',
+    'documents.notAccepted': 'Not yet accepted',
+
+    // Legal Agreement Checkboxes
+    'legal.agreements.title': 'Legal Agreements',
+    'legal.agreements.subtitle': 'Please read and accept the following agreements to continue',
+    'legal.agreements.sellerAgreement': 'I have read and agree to the Lulocart Store Partner Agreement.',
+    'legal.agreements.payoutPolicy': 'I agree to the Lulocart Payout Policy.',
+    'legal.agreements.refundPolicy': 'I agree to the Lulocart Refund & Cancellation Policy.',
+    'legal.agreements.viewFull': 'View full document',
+    'legal.agreements.allRequired': 'You must accept all agreements to continue',
+
     // Cart stock messages
     'cart.onlyXLeft': 'Only {count} left in stock',
     'cart.maxQuantityReached': 'Maximum available quantity reached',
@@ -882,6 +905,7 @@ export const translations = {
     'admin.menu.inventory': 'Inventory',
     'admin.menu.orders': 'Orders',
     'admin.menu.messages': 'Messages',
+    'admin.menu.documents': 'Documents',
     'admin.menu.dispatcher': 'Dispatcher',
 
     // Dispatcher page
@@ -1178,6 +1202,7 @@ export const translations = {
 
     // Legal
     'legal.backToHome': 'Back to Home',
+    'legal.backToDocuments': 'Back to Documents',
     'legal.lastUpdated': 'Last updated',
     'legal.contact.title': 'Contact Us',
     'legal.contact.description': 'If you have any questions about these terms or our privacy practices, please contact us:',
@@ -1268,6 +1293,360 @@ export const translations = {
     'legal.privacy.rights.item3': 'Request deletion of your personal information',
     'legal.privacy.rights.item4': 'Opt-out of marketing communications',
     'legal.privacy.rights.item5': 'Export your data in a portable format',
+
+    // Payout Policy
+    'legal.payout.title': 'Payout Policy',
+    'legal.payout.subtitle': 'How and when we pay our sellers',
+    'legal.payout.lastUpdated': 'December 2025',
+    'legal.payout.content': `1. Overview
+
+Lulocart operates as a multi-vendor marketplace where customers place orders through the platform, Lulocart collects payments, and payouts are distributed to each participating store ("Seller") via Stripe Connect Express accounts.
+
+This Payout Policy explains how fees, subscription plans, evidence, payout timing, and deductions work.
+
+⸻
+
+2. Platform Fees
+
+2.1 Founders Plan (Stores registered before Dec 31, 2025)
+
+Transaction Fee
+• Months 1–3: 6% of the base product price
+• Month 4 onward: 9%
+
+Monthly Subscription Fee
+• Month 1: $0 CAD
+• Month 2: $9 CAD
+• Month 3: $9 CAD
+• Month 4 onward: $30 CAD/month
+
+2.2 Stores joining on or after January 1, 2026
+• Transaction fee: 9% of the base product price
+• Monthly subscription fee: $30 CAD/month
+
+2.3 Customer Fees (go 100% to Lulocart)
+• Delivery fee
+• Platform maintenance fee ($1 CAD)
+
+⸻
+
+3. Store Earnings
+
+After Lulocart deducts platform fees:
+
+Sellers receive:
+• 94% of the base product price during the 6% promotional period
+• 91% of the base product price once at the 9% rate
+• 100% of all taxes (PST/GST) charged to the customer
+
+Funds are transferred to the Seller's Stripe Express account.
+
+⸻
+
+4. Evidence Requirement for Deliveries
+
+To ensure transparent dispute resolution and quality control, Lulocart drivers must upload:
+• A pickup photo showing the products received from the store
+• A delivery photo showing the products delivered to the customer
+• A pickup timestamp
+• A delivery timestamp
+
+This evidence determines fault in refund or dispute cases.
+
+⸻
+
+5. Delivery Window & Cold Chain Responsibility
+
+Sellers acknowledge and accept:
+• Lulocart may complete delivery within up to 8 hours
+• Delivery time depends on routing, driver availability, weather, batching, and operational needs
+
+For cold, refrigerated, or frozen items:
+• Lulocart is fully responsible for maintaining the cold chain after pickup
+• Drivers will use:
+  • Insulated coolers
+  • Thermal bags
+  • Refrigerant packs
+• If the cold chain is broken after pickup, Lulocart assumes full responsibility
+• Sellers will not be charged for temperature-related issues caused during transport
+
+⸻
+
+6. Responsibility for Issues
+
+6.1 When the store is responsible
+
+Examples:
+• Missing items
+• Incorrect items
+• Expired or damaged packaged goods (before pickup)
+• Packaging errors
+
+Lulocart may deduct:
+• Refund amounts
+• Dispute amounts
+• Chargeback losses
+• Operational penalties
+
+6.2 When Lulocart/Driver is responsible
+
+Examples:
+• Late delivery
+• Damage after pickup
+• Lost items
+• Broken cold chain
+
+The store will not be charged.
+
+⸻
+
+7. Payout Timing
+
+To ensure safety, refunds, and fraud prevention:
+• Standard payout delay: 3 business days after delivery
+• New Sellers: first 5 payouts may take up to 5 business days
+• Payouts may be paused during active disputes or investigations
+
+Negative balances will automatically be recovered from future payouts or invoiced directly if needed.
+
+⸻
+
+8. Compliance
+
+Sellers must comply with:
+• Lulocart Seller Agreement
+• Stripe Platform Terms
+• Stripe Restricted Business List
+• BC food safety regulations
+
+Violations may result in suspended payouts or account termination.`,
+
+    // Seller Partner Agreement
+    'legal.sellerAgreement.title': 'Seller Partner Agreement',
+    'legal.sellerAgreement.subtitle': 'Terms and conditions for store partners',
+    'legal.sellerAgreement.lastUpdated': 'December 2025',
+    'legal.sellerAgreement.content': `This Store Partner Agreement ("Agreement") applies to all stores ("Sellers") using the Lulocart platform. By creating a store account or accepting orders, you agree to all terms below.
+
+⸻
+
+1. About Lulocart
+
+• Lulocart is a marketplace and payment facilitator, not the seller of record.
+• Customers purchase products from Sellers using the Lulocart platform.
+• Lulocart distributes payouts to Sellers via Stripe Connect Express.
+• Lulocart is fully responsible for its own drivers and delivery operations. Stores are not responsible for delivery-related issues that occur after pickup.
+
+⸻
+
+2. Fees and Subscription Plans
+
+2.1 Founders Plan (Stores registered before Dec 31, 2025)
+
+Transaction Fees
+• Months 1–3 → 6% of the base product price
+• Month 4 onward → 9%
+
+Monthly Subscription Fees
+• Month 1 → $0 CAD
+• Month 2 → $9 CAD
+• Month 3 → $9 CAD
+• Month 4 onward → $30 CAD/month
+
+2.2 Stores joining on or after January 1, 2026
+• 9% transaction fee
+• $30 CAD/month subscription from day one
+
+Subscription fees are billed automatically to the payment method provided by the Seller.
+
+⸻
+
+3. Seller Responsibilities
+
+3.1 Product Accuracy & Quality
+
+Sellers must:
+• Provide the exact products ordered
+• Ensure correct quantities
+• Ensure all packaged items are within expiration dates
+• Ensure no items are missing
+• Ensure packaging is appropriate for transport
+
+If a problem existed before pickup, Lulocart may hold the Seller responsible and deduct the related costs.
+
+3.2 Pickup Preparation
+
+Sellers agree to:
+• Have the order ready at the arranged pickup time
+• Allow drivers to take a pickup photo
+• Provide sealed, well-packed items
+• Respect the driver workflow
+
+3.3 Prohibited Items
+
+Sellers may not sell:
+• Alcohol
+• Tobacco or cannabis
+• Medication or supplements
+• Weapons
+• Unsafe or expired items
+• Items prohibited by Stripe's Restricted Business List
+
+Violation may result in suspension or termination.
+
+⸻
+
+4. Driver Evidence
+
+To ensure fairness and transparency:
+• Drivers upload a pickup photo
+• Drivers upload a delivery photo
+• Pickup timestamp is recorded
+• Delivery timestamp is recorded
+
+This is used to determine responsibility in disputes.
+
+⸻
+
+5. Delivery Time Window & Cold Chain
+
+Sellers acknowledge:
+• Lulocart may take up to 8 hours to complete delivery
+• Time varies depending on routing, weather, batching, demand, and driver availability
+
+For cold, refrigerated, or frozen items:
+• Lulocart is responsible for maintaining the cold chain after pickup
+• Drivers will use:
+  • Coolers
+  • Thermal insulated bags
+  • Refrigerant packs
+
+If the cold chain breaks after pickup, the Seller is not responsible.
+
+⸻
+
+6. Refunds, Disputes & Chargebacks
+
+6.1 Store-caused issues
+
+If evidence shows the store caused the issue (before pickup):
+• Missing products
+• Incorrect items
+• Expired packaged items
+• Damaged goods prior to pickup
+
+Lulocart may deduct:
+• Refunds
+• Dispute amounts
+• Chargeback losses
+• Associated fees
+
+6.2 Lulocart-caused issues
+
+If the issue occurred after pickup, such as:
+• Delays
+• Loss or damage during delivery
+• Broken cold chain
+• Mishandling
+
+Lulocart assumes responsibility and will not charge the Seller.
+
+6.3 Chargeback Handling
+
+Sellers authorize Lulocart to recover store-caused chargebacks by:
+• Deducting the amount from future payouts, or
+• Issuing a direct invoice if needed
+
+⸻
+
+7. Payouts
+
+• Standard payout timing: 3 business days after delivery
+• New Sellers: first 5 payouts may take up to 5 business days
+• Payouts may be held during investigations or disputes
+• Negative balances will be automatically recovered from future payouts
+
+⸻
+
+8. Account Suspension
+
+Lulocart may suspend or terminate Sellers for:
+• Fraud or suspicious activity
+• Repeated customer complaints
+• High dispute/chargeback rates
+• Violation of laws or platform rules
+• Listing prohibited items
+
+⸻
+
+9. Acceptance
+
+By using Lulocart, the Seller agrees to all terms in this Agreement.`,
+
+    // Refund & Cancellation Policy
+    'legal.refundPolicy.title': 'Refund & Cancellation Policy',
+    'legal.refundPolicy.subtitle': 'How refunds and cancellations are handled',
+    'legal.refundPolicy.lastUpdated': 'December 2025',
+    'legal.refundPolicy.content': `1. Refund Eligibility
+
+Customers may request refunds for:
+• Missing items
+• Incorrect items
+• Expired packaged goods
+• Damaged items before delivery
+• Non-delivery
+
+They must provide:
+• Order number
+• Photos
+• Description of the issue
+
+⸻
+
+2. Non-Refundable Items
+
+Due to safety laws, these items are non-refundable:
+• Fresh produce
+• Refrigerated products
+• Frozen products
+• Opened food items
+• Items labeled "final sale"
+
+⸻
+
+3. Time Limits
+• Perishable items: within 24 hours
+• Packaged items: within 48 hours
+
+⸻
+
+4. Responsibility
+
+4.1 If the store is responsible
+
+If photos prove the issue existed before pickup, Lulocart:
+• Refunds the customer
+• Deducts the cost from the store
+
+4.2 If Lulocart/driver is responsible
+
+If the issue happens after pickup:
+• Lulocart covers the cost
+• Store is not charged
+
+⸻
+
+5. Delivery Time & Cold Chain
+• Delivery may take up to 8 hours
+• Lulocart guarantees the cold chain for refrigerated/frozen products after pickup
+
+⸻
+
+6. Chargebacks
+
+If the customer disputes a payment:
+• Lulocart submits evidence
+• If Lulocart loses because of a store error, the store is charged
+• If caused after pickup, Lulocart absorbs the cost`,
 
     // Store List
     'storeList.title': 'Featured Stores',
@@ -2385,6 +2764,7 @@ export const translations = {
     'store.validation.websiteRequired': 'El sitio web es requerido',
     'store.validation.deliveryHoursRequired': 'Se requiere al menos un día de entrega',
     'store.validation.agreementRequired': 'Debes aceptar el acuerdo de servicio',
+    'store.validation.agreementAccepted': 'Todos los acuerdos aceptados',
     'store.validation.pricingRequired': 'Debes confirmar el plan de precios',
     'store.nextStage': 'Siguiente Etapa',
     'store.previous': 'Anterior',
@@ -2633,6 +3013,28 @@ export const translations = {
     'inventory.loadingStock': 'Cargando stock...',
     'inventory.thresholdLabel': 'Umbral: {count} unidades',
 
+    // Documents
+    'documents.title': 'Documentos',
+    'documents.subtitle': 'Documentos legales y políticas para tu tienda',
+    'documents.payoutPolicy': 'Política de Pagos',
+    'documents.payoutPolicyDesc': 'Aprende cómo y cuándo se procesan los pagos a tu cuenta',
+    'documents.sellerAgreement': 'Acuerdo de Tiendas',
+    'documents.sellerAgreementDesc': 'Términos y condiciones para usar la plataforma Lulocart como tienda asociada',
+    'documents.refundPolicy': 'Política de Reembolsos y Cancelaciones',
+    'documents.refundPolicyDesc': 'Cómo se manejan los reembolsos y cancelaciones de pedidos',
+    'documents.viewDocument': 'Ver Documento',
+    'documents.acceptedOn': 'Aceptado el',
+    'documents.notAccepted': 'Aún no aceptado',
+
+    // Legal Agreement Checkboxes
+    'legal.agreements.title': 'Acuerdos Legales',
+    'legal.agreements.subtitle': 'Por favor lea y acepte los siguientes acuerdos para continuar',
+    'legal.agreements.sellerAgreement': 'He leído y acepto el Acuerdo de Tiendas de Lulocart.',
+    'legal.agreements.payoutPolicy': 'Acepto la Política de Pagos de Lulocart.',
+    'legal.agreements.refundPolicy': 'Acepto la Política de Reembolsos y Cancelaciones de Lulocart.',
+    'legal.agreements.viewFull': 'Ver documento completo',
+    'legal.agreements.allRequired': 'Debe aceptar todos los acuerdos para continuar',
+
     // Cart stock messages
     'cart.onlyXLeft': 'Solo quedan {count} en stock',
     'cart.maxQuantityReached': 'Cantidad máxima disponible alcanzada',
@@ -2744,6 +3146,7 @@ export const translations = {
     'admin.menu.inventory': 'Inventario',
     'admin.menu.orders': 'Pedidos',
     'admin.menu.messages': 'Mensajes',
+    'admin.menu.documents': 'Documentos',
     'admin.menu.dispatcher': 'Despacho',
 
     // Dispatcher page
@@ -3040,6 +3443,7 @@ export const translations = {
 
     // Legal
     'legal.backToHome': 'Volver al Inicio',
+    'legal.backToDocuments': 'Volver a Documentos',
     'legal.lastUpdated': 'Última actualización',
     'legal.contact.title': 'Contáctanos',
     'legal.contact.description': 'Si tienes preguntas sobre estos términos o nuestras prácticas de privacidad, contáctanos:',
@@ -3130,6 +3534,329 @@ export const translations = {
     'legal.privacy.rights.item3': 'Solicitar eliminación de tu información personal',
     'legal.privacy.rights.item4': 'Optar por no recibir comunicaciones de marketing',
     'legal.privacy.rights.item5': 'Exportar tus datos en un formato portable',
+
+    // Payout Policy
+    'legal.payout.title': 'Política de Pagos',
+    'legal.payout.subtitle': 'Cómo y cuándo pagamos a nuestros vendedores',
+    'legal.payout.lastUpdated': 'Diciembre 2025',
+    'legal.payout.content': `1. Descripción
+
+Lulocart funciona como un marketplace de múltiples tiendas. Los clientes pagan directamente a Lulocart, y los pagos a las tiendas ("Vendedores") se realizan mediante Stripe Connect Express.
+
+⸻
+
+2. Tarifas de la Plataforma
+
+2.1 Plan Fundadores (tiendas registradas antes del 31 de diciembre 2025)
+
+Tarifa por transacción
+• Meses 1–3: 6% del precio base
+• Desde el mes 4: 9%
+
+Suscripción mensual
+• Mes 1: $0 CAD
+• Mes 2: $9 CAD
+• Mes 3: $9 CAD
+• Desde el mes 4: $30 CAD/mes
+
+2.2 Tiendas que ingresan desde el 1 de enero 2026
+• 9% por transacción
+• $30 CAD/mes de suscripción
+
+2.3 Tarifas al cliente (100% para Lulocart)
+• Tarifa de entrega
+• Tarifa de mantenimiento de plataforma ($1 CAD)
+
+⸻
+
+3. Ganancias de la Tienda
+
+Después de descontar las tarifas:
+
+Las tiendas reciben:
+• 94% del precio base durante el periodo al 6%
+• 91% después del periodo al 9%
+• 100% de impuestos PST/GST
+
+⸻
+
+4. Evidencia del Conductor
+
+Los conductores deben subir:
+• Foto de recogida
+• Foto de entrega
+• Timestamp de recogida
+• Timestamp de entrega
+
+⸻
+
+5. Ventana de Entrega y Ciclo de Frío
+
+Las tiendas aceptan que:
+• Lulocart puede tardar hasta 8 horas en completar la entrega
+• El tiempo depende de rutas, clima, demanda y disponibilidad
+
+Para productos fríos, refrigerados o congelados:
+• Lulocart es totalmente responsable de mantener el ciclo de frío
+• Conductores usarán:
+  • Coolers
+  • Bolsas térmicas
+  • Packs refrigerantes
+
+Si el ciclo de frío se rompe después de la recogida, Lulocart asume la responsabilidad y la tienda no será cobrada.
+
+⸻
+
+6. Responsabilidad por Problemas
+
+6.1 Si la tienda es responsable
+
+Ejemplos:
+• Productos faltantes
+• Productos incorrectos
+• Productos vencidos o dañados antes de la recogida
+
+Lulocart podrá descontar:
+• Reembolsos
+• Disputas
+• Chargebacks
+
+6.2 Si Lulocart/el conductor es responsable
+
+Ejemplos:
+• Retrasos
+• Daño después de la recogida
+• Pérdida de productos
+• Ruptura del ciclo de frío
+
+La tienda no será cobrada.
+
+⸻
+
+7. Pagos
+
+• Retraso estándar: 3 días hábiles
+• Tiendas nuevas: hasta 5 días hábiles
+• Pausas posibles durante disputas
+• Los balances negativos se recuperarán automáticamente
+
+⸻
+
+8. Cumplimiento
+
+Las tiendas deben cumplir con:
+• Acuerdo de Tiendas
+• Términos de Stripe
+• Lista de negocios restringidos
+• Regulaciones de seguridad alimentaria`,
+
+    // Seller Partner Agreement
+    'legal.sellerAgreement.title': 'Acuerdo de Tiendas',
+    'legal.sellerAgreement.subtitle': 'Términos y condiciones para tiendas asociadas',
+    'legal.sellerAgreement.lastUpdated': 'Diciembre 2025',
+    'legal.sellerAgreement.content': `Este Acuerdo aplica a todas las tiendas ("Vendedores") que utilizan Lulocart. Al crear una cuenta de tienda o aceptar pedidos, el Vendedor acepta todos los términos.
+
+⸻
+
+1. Sobre Lulocart
+
+• Lulocart es un marketplace y facilitador de pagos, no el vendedor final.
+• Los clientes compran productos a las tiendas mediante Lulocart.
+• Los pagos se realizan a través de Stripe Connect Express.
+• Lulocart es responsable de los conductores y de la entrega.
+• La tienda no es responsable por problemas que ocurran después de la recogida.
+
+⸻
+
+2. Tarifas y Suscripciones
+
+2.1 Plan Fundadores (antes del 31 de diciembre 2025)
+
+Tarifa por transacción
+• Meses 1–3 → 6%
+• Desde el mes 4 → 9%
+
+Suscripción mensual
+• Mes 1 → $0 CAD
+• Mes 2 → $9 CAD
+• Mes 3 → $9 CAD
+• Desde el mes 4 → $30 CAD/mes
+
+2.2 Tiendas que ingresan desde el 1 de enero 2026
+• 9% por transacción
+• $30 CAD/mes desde el primer día
+
+⸻
+
+3. Responsabilidades del Vendedor
+
+3.1 Calidad y Exactitud
+
+La tienda debe:
+• Entregar los productos correctos
+• Entregar cantidades correctas
+• Garantizar que los productos estén dentro de fecha
+• No omitir artículos
+• Empacar correctamente
+
+Si se demuestra que el problema existía antes de la recogida, Lulocart puede cobrar a la tienda.
+
+3.2 Preparación
+
+La tienda debe:
+• Tener el pedido listo para la recogida
+• Permitir foto de recogida
+• Entregar productos empacados correctamente
+
+3.3 Productos Prohibidos
+
+La tienda no puede vender:
+• Alcohol
+• Tabaco/cannabis
+• Medicamentos
+• Armas
+• Productos vencidos o ilegales
+• Artículos prohibidos por Stripe
+
+⸻
+
+4. Evidencia del Conductor
+
+El conductor subirá:
+• Foto de recogida
+• Foto de entrega
+• Timestamp de recogida
+• Timestamp de entrega
+
+⸻
+
+5. Ventana de Entrega y Ciclo de Frío
+
+La tienda acepta:
+• Hasta 8 horas para completar la entrega
+
+Para productos fríos, refrigerados o congelados:
+• Lulocart es responsable del ciclo de frío después de la recogida
+• Se usarán:
+  • Coolers
+  • Bolsas térmicas
+  • Packs de gel
+
+Si la temperatura se compromete después de la recogida, la tienda no será cobrada.
+
+⸻
+
+6. Reembolsos, Disputas y Chargebacks
+
+6.1 Si la tienda es responsable
+• Faltantes
+• Productos incorrectos
+• Productos vencidos
+• Daño previo a la recogida
+
+Lulocart podrá descontar:
+• Reembolsos
+• Disputas
+• Chargebacks
+
+6.2 Si Lulocart/el conductor es responsable
+• Retrasos
+• Daños después de la recogida
+• Pérdida del producto
+• Ruptura del ciclo de frío
+
+La tienda no será cobrada.
+
+⸻
+
+7. Pagos
+
+• Pagos estándar: 3 días hábiles
+• Tiendas nuevas: hasta 5 días hábiles
+• Pagos pueden pausarse
+• Balances negativos se recuperan automáticamente
+
+⸻
+
+8. Suspensión
+
+Lulocart puede suspender tiendas por:
+• Fraude
+• Alta tasa de quejas
+• Violación de normas
+• Productos prohibidos
+
+⸻
+
+9. Aceptación
+
+Al usar Lulocart, la tienda acepta todos los términos.`,
+
+    // Refund & Cancellation Policy
+    'legal.refundPolicy.title': 'Política de Reembolsos y Cancelaciones',
+    'legal.refundPolicy.subtitle': 'Cómo se manejan los reembolsos y cancelaciones',
+    'legal.refundPolicy.lastUpdated': 'Diciembre 2025',
+    'legal.refundPolicy.content': `1. Motivos de Reembolso
+
+El cliente puede solicitar reembolso por:
+• Productos faltantes
+• Productos incorrectos
+• Productos vencidos
+• Daños antes de la entrega
+• No entrega
+
+Debe proporcionar:
+• Número de orden
+• Fotos
+• Descripción
+
+⸻
+
+2. Artículos No Reembolsables
+
+Por normas sanitarias, no se reembolsan:
+• Frutas/verduras
+• Refrigerados
+• Congelados
+• Comida abierta
+• "Venta final"
+
+⸻
+
+3. Límites de Tiempo
+• Perecederos: 24 horas
+• Empacados: 48 horas
+
+⸻
+
+4. Responsabilidad
+
+4.1 Si la tienda es responsable
+
+Si las fotos muestran el problema antes de recogida:
+• Reembolso al cliente
+• Descuento a la tienda
+
+4.2 Si Lulocart/el conductor es responsable
+
+Si el problema ocurre después:
+• Lulocart cubre el costo
+• La tienda no será cobrada
+
+⸻
+
+5. Tiempo de Entrega y Ciclo de Frío
+• La entrega puede tardar hasta 8 horas
+• Lulocart garantiza el ciclo de frío después de la recogida
+
+⸻
+
+6. Chargebacks
+
+Si el cliente disputa el pago:
+• Lulocart envía evidencia
+• Si se pierde por error de la tienda, se descuenta
+• Si ocurrió después de la recogida, Lulocart lo cubre`,
 
     // Store List
     'storeList.title': 'Tiendas Destacadas',

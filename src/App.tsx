@@ -12,6 +12,9 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Dashboard = lazy(() => import('./pages/dashboard'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const PayoutPolicy = lazy(() => import('./pages/PayoutPolicy'));
+const SellerAgreement = lazy(() => import('./pages/seller-agreement'));
+const RefundPolicy = lazy(() => import('./pages/refund-policy'));
 const EditProfile = lazy(() => import('./pages/EditProfile'));
 const StoreMenu = lazy(() => import('./pages/store-menu'));
 const Business = lazy(() => import('./pages/business'));
@@ -201,6 +204,18 @@ const AppRoutes = () => {
 
     if (currentRoute.startsWith('#privacy')) {
       return <PrivacyPolicy />;
+    }
+
+    if (currentRoute.startsWith('#payout-policy')) {
+      return <PayoutPolicy />;
+    }
+
+    if (currentRoute.startsWith('#seller-agreement')) {
+      return <SellerAgreement />;
+    }
+
+    if (currentRoute.startsWith('#refund-policy')) {
+      return <RefundPolicy />;
     }
 
     if (currentRoute.startsWith('#help')) {

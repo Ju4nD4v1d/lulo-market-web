@@ -10,7 +10,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  Boxes
+  Boxes,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -19,7 +20,7 @@ import { COMPANY_NAME } from '../../../config/company';
 import styles from './DashboardSidebar.module.css';
 
 interface DashboardSidebarProps {
-  currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages' | 'inventory';
+  currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages' | 'inventory' | 'documents';
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -70,7 +71,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     { id: 'inventory' as const, label: t('admin.menu.inventory'), icon: Boxes, hash: '#dashboard/inventory', disabled: !hasStore },
     { id: 'orders' as const, label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore },
     { id: 'messages' as const, label: t('admin.menu.messages'), icon: MessageCircle, hash: '#dashboard/messages', disabled: !hasStore },
-    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore }
+    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore },
+    { id: 'documents' as const, label: t('admin.menu.documents'), icon: FileText, hash: '#dashboard/documents', disabled: !hasStore }
   ];
 
   return (

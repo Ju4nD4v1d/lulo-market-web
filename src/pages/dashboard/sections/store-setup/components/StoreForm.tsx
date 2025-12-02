@@ -3,10 +3,13 @@
  *
  * Orchestrates the multi-stage store setup process
  * Uses the new scalable architecture with individual stage components
+ *
+ * In edit mode, the agreements stage (stage 4) is skipped since
+ * agreements are only accepted once during initial store creation.
  */
 
 import type * as React from 'react';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Save,
   ArrowLeft,
@@ -18,14 +21,17 @@ import { useLanguage } from '../../../../../context/LanguageContext';
 import { StoreData } from '../../../../../types/store';
 import { StageProgressBar } from './StageProgressBar';
 import { StageContainer } from './StageContainer';
-import { getStageById, TOTAL_STAGES } from '../config/stageConfig';
+import { getStageById, STAGES } from '../config/stageConfig';
 import {
   BasicInfoStage,
   AddressStage,
   ContactInfoStage,
   ServiceAgreementStage,
-  PricingConfirmationStage,
 } from './stages';
+import type { AgreementState } from './LegalAgreements';
+
+// Stage ID for agreements (skipped when already accepted)
+const AGREEMENTS_STAGE_ID = 4;
 
 interface StoreFormProps {
   storeData: StoreData;
@@ -37,10 +43,13 @@ interface StoreFormProps {
   };
   handleImageUpload: (file: File) => void;
   removeStoreImage?: () => void;
-  onSave: () => void;
+  onSave: (agreements: AgreementState) => void;
   onCancel?: () => void;
   saving: boolean;
   error: string | null;
+  isEditMode?: boolean;
+  agreementsAlreadyAccepted?: boolean;
+  existingAcceptances?: AgreementState;
 }
 
 export const StoreForm: React.FC<StoreFormProps> = ({
@@ -52,31 +61,74 @@ export const StoreForm: React.FC<StoreFormProps> = ({
   onSave,
   onCancel,
   saving,
-  error
+  error,
+  isEditMode = false,
+  agreementsAlreadyAccepted = false,
+  existingAcceptances
 }) => {
   const { t } = useLanguage();
-  const [currentStage, setCurrentStage] = useState(1);
+
+  // Filter stages - skip agreements stage (4) ONLY if already accepted
+  const activeStages = useMemo(() => {
+    if (agreementsAlreadyAccepted) {
+      return STAGES.filter(stage => stage.id !== AGREEMENTS_STAGE_ID);
+    }
+    return STAGES;
+  }, [agreementsAlreadyAccepted]);
+
+  const totalActiveStages = activeStages.length;
+
+  // Map UI stage index (1-based) to actual stage ID
+  const getStageIdFromIndex = (index: number): number => {
+    return activeStages[index - 1]?.id ?? 1;
+  };
+
+  // Map actual stage ID to UI stage index (1-based)
+  const getIndexFromStageId = (stageId: number): number => {
+    const index = activeStages.findIndex(s => s.id === stageId);
+    return index >= 0 ? index + 1 : 1;
+  };
+
+  const [currentStageIndex, setCurrentStageIndex] = useState(1);
+  const currentStageId = getStageIdFromIndex(currentStageIndex);
+
   const [completedStages, setCompletedStages] = useState<Set<number>>(new Set());
-  const [agreementAccepted, setAgreementAccepted] = useState(false);
-  const [pricingConfirmed, setPricingConfirmed] = useState(false);
+  // Initialize agreements with existing acceptances (pre-check already accepted)
+  const [agreements, setAgreements] = useState<AgreementState>({
+    sellerAgreement: existingAcceptances?.sellerAgreement ?? false,
+    payoutPolicy: existingAcceptances?.payoutPolicy ?? false,
+    refundPolicy: existingAcceptances?.refundPolicy ?? false,
+  });
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const validateStage = (stage: number): string | null => {
-    switch (stage) {
-      case 1:
+  // Update agreements when existingAcceptances changes (e.g., after loading)
+  useEffect(() => {
+    if (existingAcceptances) {
+      setAgreements(prev => ({
+        sellerAgreement: existingAcceptances.sellerAgreement || prev.sellerAgreement,
+        payoutPolicy: existingAcceptances.payoutPolicy || prev.payoutPolicy,
+        refundPolicy: existingAcceptances.refundPolicy || prev.refundPolicy,
+      }));
+    }
+  }, [existingAcceptances]);
+
+  // Validate by stage ID (not index)
+  const validateStageById = (stageId: number): string | null => {
+    switch (stageId) {
+      case 1: // Basic Info
         if (!storeData.name?.trim()) return t('store.validation.nameRequired');
         if (!storeData.category?.trim()) return t('store.validation.categoryRequired');
         if (!storeData.cuisine?.trim()) return t('store.validation.cuisineRequired');
         if (!storeData.description?.trim()) return t('store.validation.descriptionRequired');
         if (!storeImage.preview && !storeImage.url) return t('store.validation.imageRequired');
         return null;
-      case 2:
+      case 2: // Address
         if (!storeData.location?.address?.trim()) return t('store.validation.streetRequired');
         if (!storeData.location?.city?.trim()) return t('store.validation.cityRequired');
         if (!storeData.location?.province?.trim()) return t('store.validation.provinceRequired');
         if (!storeData.location?.postalCode?.trim()) return t('store.validation.postalCodeRequired');
         return null;
-      case 3:
+      case 3: // Contact Info
         if (!storeData.phone?.trim()) return t('store.validation.phoneRequired');
         if (!storeData.email?.trim()) return t('store.validation.emailRequired');
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storeData.email)) {
@@ -86,11 +138,10 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         const hasDeliveryHours = Object.values(storeData.deliveryHours || {}).some(day => !day.closed);
         if (!hasDeliveryHours) return t('store.validation.deliveryHoursRequired');
         return null;
-      case 4:
-        if (!agreementAccepted) return t('store.validation.agreementRequired');
-        return null;
-      case 5:
-        if (!pricingConfirmed) return t('store.validation.pricingRequired');
+      case 4: // Agreements (shown only when not yet accepted)
+        if (!agreements.sellerAgreement || !agreements.payoutPolicy || !agreements.refundPolicy) {
+          return t('legal.agreements.allRequired');
+        }
         return null;
       default:
         return null;
@@ -100,19 +151,19 @@ export const StoreForm: React.FC<StoreFormProps> = ({
   const nextStage = () => {
     setValidationError(null);
 
-    const error = validateStage(currentStage);
+    const error = validateStageById(currentStageId);
     if (error) {
       setValidationError(error);
       return;
     }
 
-    setCompletedStages(prev => new Set(prev).add(currentStage));
-    setCurrentStage(currentStage + 1);
+    setCompletedStages(prev => new Set(prev).add(currentStageId));
+    setCurrentStageIndex(currentStageIndex + 1);
   };
 
   const prevStage = () => {
-    if (currentStage > 1) {
-      setCurrentStage(currentStage - 1);
+    if (currentStageIndex > 1) {
+      setCurrentStageIndex(currentStageIndex - 1);
       setValidationError(null);
     }
   };
@@ -131,12 +182,13 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Progress Bar */}
         <StageProgressBar
-          currentStage={currentStage}
+          currentStage={currentStageIndex}
           completedStages={completedStages}
+          stages={activeStages}
         />
 
         {/* Stage 1: Basic Information */}
-        {currentStage === 1 && (
+        {currentStageId === 1 && (
           <div className="animate-[slideInRight_0.5s_ease-out]">
             <StageContainer stage={getStageById(1)!}>
               <BasicInfoStage
@@ -157,7 +209,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         )}
 
         {/* Stage 2: Address */}
-        {currentStage === 2 && (
+        {currentStageId === 2 && (
           <div className="animate-[slideInRight_0.5s_ease-out]">
             <StageContainer stage={getStageById(2)!}>
               <AddressStage
@@ -211,7 +263,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         )}
 
         {/* Stage 3: Contact Information */}
-        {currentStage === 3 && (
+        {currentStageId === 3 && (
           <div className="animate-[slideInRight_0.5s_ease-out]">
             <StageContainer stage={getStageById(3)!}>
               <ContactInfoStage
@@ -234,26 +286,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
           </div>
         )}
 
-        {/* Stage 4: Service Agreement */}
-        {currentStage === 4 && (
+        {/* Stage 4: Service Agreement (shown only when not yet accepted) */}
+        {currentStageId === 4 && (
           <div className="animate-[slideInRight_0.5s_ease-out]">
             <StageContainer stage={getStageById(4)!}>
               <ServiceAgreementStage
-                storeName={storeData.name}
-                agreed={agreementAccepted}
-                onAgreeChange={setAgreementAccepted}
-              />
-            </StageContainer>
-          </div>
-        )}
-
-        {/* Stage 5: Pricing Confirmation */}
-        {currentStage === 5 && (
-          <div className="animate-[slideInRight_0.5s_ease-out]">
-            <StageContainer stage={getStageById(5)!}>
-              <PricingConfirmationStage
-                confirmed={pricingConfirmed}
-                onConfirmChange={setPricingConfirmed}
+                agreements={agreements}
+                onAgreementChange={setAgreements}
+                existingAcceptances={existingAcceptances}
               />
             </StageContainer>
           </div>
@@ -263,7 +303,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {currentStage > 1 && (
+              {currentStageIndex > 1 && (
                 <button
                   type="button"
                   onClick={prevStage}
@@ -274,7 +314,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 </button>
               )}
 
-              {onCancel && currentStage === 1 && (
+              {onCancel && currentStageIndex === 1 && (
                 <button
                   type="button"
                   onClick={onCancel}
@@ -287,7 +327,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
             </div>
 
             <div className="flex items-center gap-3">
-              {currentStage < TOTAL_STAGES ? (
+              {currentStageIndex < totalActiveStages ? (
                 <button
                   type="button"
                   onClick={nextStage}
@@ -299,7 +339,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
               ) : (
                 <button
                   type="button"
-                  onClick={onSave}
+                  onClick={() => onSave(agreements)}
                   disabled={saving}
                   className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >

@@ -3,9 +3,12 @@
  *
  * Centralized configuration for all store setup stages
  * Makes it easy to add/remove/reorder stages
+ *
+ * Note: Stage 4 (Service Agreement) is conditionally shown based on
+ * whether agreements have been previously accepted.
  */
 
-import { Store, MapPin, Phone, FileText, DollarSign } from 'lucide-react';
+import { Store, MapPin, Phone, FileText } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface StageDefinition {
@@ -61,16 +64,10 @@ export const STAGES: StageDefinition[] = [
     gradient: { from: 'amber-50', to: 'yellow-50' },
     iconGradient: { from: 'amber-500', to: 'yellow-500' },
   },
-  {
-    id: 5,
-    key: 'pricingConfirmation',
-    titleKey: 'store.pricing.title',
-    subtitleKey: 'store.pricing.subtitle',
-    icon: DollarSign,
-    gradient: { from: 'green-50', to: 'emerald-50' },
-    iconGradient: { from: 'green-500', to: 'emerald-500' },
-  },
 ];
+
+// Stage ID for agreements (conditionally shown based on acceptance status)
+export const AGREEMENTS_STAGE_ID = 4;
 
 export const TOTAL_STAGES = STAGES.length;
 

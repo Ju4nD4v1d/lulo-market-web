@@ -30,6 +30,7 @@ export * as analyticsApi from './analyticsApi';
 export * as waitlistApi from './waitlistApi';
 export * as leadsApi from './leadsApi';
 export * as driverApi from './driverApi';
+export * as storeAcceptancesApi from './storeAcceptancesApi';
 
 // Shared types and helpers
 export { COLLECTIONS, safeDate } from './types';
@@ -95,3 +96,10 @@ export {
   deleteImage,
 } from './storageApi';
 export type { AboutSection, ProcessedAboutSection } from './storageApi';
+
+export {
+  saveStoreAcceptances,
+  getStoreAcceptances,
+  areAllAgreementsAccepted,
+} from './storeAcceptancesApi';
+export type { StoreAcceptance, StoreAcceptanceInput } from './storeAcceptancesApi';

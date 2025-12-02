@@ -12,6 +12,8 @@ import { useStoreMutations } from '../../../../hooks/mutations/useStoreMutations
 import { StoreData } from '../../../../types/store';
 import { useAddressGeocoding } from './hooks/useAddressGeocoding';
 import { isAddressComplete } from '../../../../utils/geocoding';
+import { saveStoreAcceptances, getStoreAcceptances } from '../../../../services/api';
+import type { AgreementState } from './components/LegalAgreements';
 import styles from './StoreSetupPage.module.css';
 
 const initialStoreData: StoreData = {
@@ -71,12 +73,79 @@ export const StoreSetupPage = () => {
   const [modalStep, setModalStep] = useState<'saving' | 'uploading' | 'finalizing' | 'complete' | 'error'>('saving');
   const [showModal, setShowModal] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [agreementsAlreadyAccepted, setAgreementsAlreadyAccepted] = useState(false);
+  const [existingAcceptances, setExistingAcceptances] = useState<AgreementState>({
+    sellerAgreement: false,
+    payoutPolicy: false,
+    refundPolicy: false,
+  });
+  const [acceptancesLoading, setAcceptancesLoading] = useState(true);
 
   // Use TanStack Query hooks
   const { storeData: queriedStoreData, storeId: queriedStoreId, isLoading: dataLoading } = useStoreByOwnerQuery({ ownerId: currentUser?.uid });
   const storeStats = useStoreStatsQuery(storeId);
   const { saveStore, isSaving, error } = useStoreMutations(currentUser?.uid || '');
   const { geocode, isGeocoding } = useAddressGeocoding();
+
+  // Fetch existing acceptances to determine if agreements should be shown
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAcceptances = async () => {
+      // Only check for existing stores
+      if (!storeId) {
+        setAcceptancesLoading(false);
+        setAgreementsAlreadyAccepted(false);
+        setExistingAcceptances({
+          sellerAgreement: false,
+          payoutPolicy: false,
+          refundPolicy: false,
+        });
+        return;
+      }
+
+      try {
+        const acceptances = await getStoreAcceptances(storeId);
+        if (!isCancelled) {
+          // Track individual acceptance states
+          const sellerAccepted = acceptances?.sellerAgreement?.accepted ?? false;
+          const payoutAccepted = acceptances?.payoutPolicy?.accepted ?? false;
+          const refundAccepted = acceptances?.refundPolicy?.accepted ?? false;
+
+          setExistingAcceptances({
+            sellerAgreement: sellerAccepted,
+            payoutPolicy: payoutAccepted,
+            refundPolicy: refundAccepted,
+          });
+
+          // Check if ALL three agreements have been accepted
+          const allAccepted = sellerAccepted && payoutAccepted && refundAccepted;
+          setAgreementsAlreadyAccepted(allAccepted);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.error('Error fetching acceptances:', err);
+          // If error, assume not accepted to be safe
+          setAgreementsAlreadyAccepted(false);
+          setExistingAcceptances({
+            sellerAgreement: false,
+            payoutPolicy: false,
+            refundPolicy: false,
+          });
+        }
+      } finally {
+        if (!isCancelled) {
+          setAcceptancesLoading(false);
+        }
+      }
+    };
+
+    fetchAcceptances();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [storeId]);
 
   // Sync queried data with local state
   // Sync when data is loaded or updated (e.g., after saving)
@@ -113,7 +182,7 @@ export const StoreSetupPage = () => {
     setStoreImage({});
   };
 
-  const handleSave = async () => {
+  const handleSave = async (agreements: AgreementState) => {
     try {
       // Clear previous errors and show modal
       setSaveError(null);
@@ -150,7 +219,32 @@ export const StoreSetupPage = () => {
 
       // Save to Firestore
       setModalStep('uploading');
-      await saveStore(updatedStoreData, storeImage, currentUser!.uid, queriedStoreId || undefined);
+      const savedStore = await saveStore(updatedStoreData, storeImage, currentUser!.uid, queriedStoreId || undefined);
+
+      // Validate that we have a store ID
+      const storeIdToUse = savedStore?.id || queriedStoreId;
+      if (!storeIdToUse) {
+        throw new Error('Failed to retrieve store ID after save');
+      }
+
+      // Save legal agreements acceptances ONLY when not already accepted
+      // This handles both new stores AND existing stores that haven't accepted yet
+      // Once accepted, agreements cannot be modified - they're visible in Documents section
+      if (!agreementsAlreadyAccepted && currentUser?.uid) {
+        try {
+          await saveStoreAcceptances({
+            storeId: storeIdToUse,
+            ownerId: currentUser.uid,
+            sellerAgreementAccepted: agreements.sellerAgreement,
+            payoutPolicyAccepted: agreements.payoutPolicy,
+            refundPolicyAccepted: agreements.refundPolicy,
+          });
+        } catch (acceptanceError) {
+          // Log but don't fail the whole operation - store was saved successfully
+          // User can re-save to retry acceptances
+          console.error('Error saving acceptances (store was saved):', acceptanceError);
+        }
+      }
 
       // Finalize
       setModalStep('finalizing');
@@ -245,8 +339,8 @@ export const StoreSetupPage = () => {
     );
   }
 
-  // Show loading state
-  if (dataLoading) {
+  // Show loading state (including while checking agreement status)
+  if (dataLoading || acceptancesLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
@@ -284,6 +378,9 @@ export const StoreSetupPage = () => {
             onCancel={hasStore ? () => setIsEditing(false) : undefined}
             saving={isSaving || isGeocoding}
             error={null}
+            isEditMode={hasStore}
+            agreementsAlreadyAccepted={agreementsAlreadyAccepted}
+            existingAcceptances={existingAcceptances}
           />
         </div>
       </div>
