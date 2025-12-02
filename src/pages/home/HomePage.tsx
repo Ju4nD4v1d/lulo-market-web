@@ -14,7 +14,6 @@ import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
-import { useGeolocation } from '../../hooks/useGeolocation';
 import { useStoreData } from '../../hooks/useStoreData';
 import styles from './index.module.css';
 
@@ -36,7 +35,6 @@ export const HomePage = () => {
 
   // Data fetching hooks
   const { stores, loading, fetchStores } = useStoreData();
-  const {locationName, locationStatus, requestLocation } = useGeolocation();
 
   // Local UI state
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -153,9 +151,6 @@ export const HomePage = () => {
       <MarketplaceHero
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onLocationRequest={requestLocation}
-        locationStatus={locationStatus}
-        locationName={locationName}
       />
 
       {/* Main Content */}

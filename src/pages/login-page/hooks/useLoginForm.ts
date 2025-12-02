@@ -5,6 +5,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { validateLoginForm, validateRegisterForm } from '../utils/validation';
+import { getAuthErrorMessage } from '../../../utils/auth-errors';
 
 interface UseLoginFormOptions {
   t: (key: string) => string;
@@ -100,12 +101,13 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
         }, 1500);
       }
     } catch (err: unknown) {
-      const errorMessage = (err as any)?.message || t('auth.errors.default');
+      const firebaseError = err as { code?: string; message: string };
+      const errorMessage = getAuthErrorMessage(firebaseError, locale);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [isLogin, email, password, fullName, confirmPassword, address, login, register, t]);
+  }, [isLogin, email, password, fullName, confirmPassword, address, login, register, t, locale]);
 
   const switchTab = useCallback((loginMode: boolean) => {
     setIsLogin(loginMode);

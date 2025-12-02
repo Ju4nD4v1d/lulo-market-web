@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Facebook, Twitter, Instagram, Globe, Mail, MapPin, ChevronRight } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { DeliveryAreasModal } from './DeliveryAreasModal';
 import styles from './Footer.module.css';
@@ -44,21 +44,22 @@ export const Footer = () => {
               </p>
 
               <div className={styles.socialLinks}>
-                <a href="#" className={styles.socialLink}>
-                  <Facebook size={20} />
-                </a>
-                <a href="#" className={styles.socialLink}>
-                  <Twitter size={20} />
-                </a>
-                <a href="#" className={styles.socialLink}>
-                  <Instagram size={20} />
-                </a>
-                <button
-                  onClick={toggleLanguage}
+                <a
+                  href="https://www.facebook.com/profile.php?id=61581108971685"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={styles.socialLink}
                 >
-                  <Globe size={20} />
-                </button>
+                  <Facebook size={20} />
+                </a>
+                <a
+                  href="https://www.instagram.com/lulocart/?hl=en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialLink}
+                >
+                  <Instagram size={20} />
+                </a>
               </div>
             </div>
           
