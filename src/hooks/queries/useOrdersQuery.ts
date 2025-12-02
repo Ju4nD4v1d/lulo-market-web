@@ -40,9 +40,9 @@ export const useOrdersQuery = ({
 
       try {
         if (storeId) {
-          return orderApi.getOrdersByStore(storeId, pageSize);
+          return await orderApi.getOrdersByStore(storeId, pageSize);
         } else {
-          return orderApi.getOrdersByUser(userId!, pageSize);
+          return await orderApi.getOrdersByUser(userId!, pageSize);
         }
       } catch (err) {
         // If the error is about missing index or permissions on empty collection,
@@ -51,9 +51,10 @@ export const useOrdersQuery = ({
         if (
           errorMessage.includes('index') ||
           errorMessage.includes('permission') ||
-          errorMessage.includes('Missing or insufficient permissions')
+          errorMessage.includes('Missing or insufficient permissions') ||
+          errorMessage.includes('requires an index')
         ) {
-          console.warn('Orders query returned error (may be empty collection):', errorMessage);
+          console.warn('Orders query returned error (may be empty collection or missing index):', errorMessage);
           return [];
         }
         throw err;
