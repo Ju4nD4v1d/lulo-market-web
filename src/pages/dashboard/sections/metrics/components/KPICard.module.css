@@ -219,3 +219,47 @@
     height: 2rem;
   }
 }
+
+/* Warning State (for low stock items) */
+.warningCard {
+  border: 1px solid #F59E0B;
+  background: linear-gradient(to bottom right, #FFFBEB, #FEF3C7);
+}
+
+.warningCard:hover {
+  border-color: #D97706;
+}
+
+.warningValue {
+  color: #B45309;
+}
+
+.warningCard:hover .cardValue {
+  color: #92400E;
+}
+
+.warningIconWrapper {
+  background: linear-gradient(to bottom right, #F59E0B, #D97706);
+}
+
+.warningCard:hover .warningIconWrapper {
+  box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.2);
+}
+
+/* Subtext */
+.cardSubtext {
+  font-size: 0.625rem;
+  color: #9CA3AF;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .cardSubtext {
+    font-size: 0.75rem;
+  }
+}
+
+.warningCard .cardSubtext {
+  color: #B45309;
+}

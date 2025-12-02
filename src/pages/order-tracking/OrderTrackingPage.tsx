@@ -22,15 +22,22 @@ interface OrderTrackingPageProps {
 export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, onBack }) => {
   const { currentUser } = useAuth();
   const { t, locale } = useLanguage();
-  const { order, isLoading: loading, error } = useOrderTrackingQuery({
+  const { order, isLoading: loading, error, refetch } = useOrderTrackingQuery({
     orderId,
+    userId: currentUser?.uid,
     userEmail: currentUser?.email || '',
-    enabled: !!currentUser?.email
+    enabled: !!currentUser
   });
-  const { receiptLoading, generateReceipt, downloadReceipt, updatedOrder } = useReceipt(order);
+  const {
+    receiptLoading,
+    generateReceipt,
+    downloadReceipt,
+    isReceiptExpired,
+    error: receiptError
+  } = useReceipt(order, locale as 'en' | 'es', refetch);
 
-  // Use updated order if receipt was generated
-  const displayOrder = updatedOrder || order;
+  // Use fetched order directly (receipt data now comes from Firestore)
+  const displayOrder = order;
 
   // Helper function to safely format date from Firestore Timestamp or Date with proper locale
   const formatOrderDate = (date: any): string => {
@@ -113,8 +120,8 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
           {/* Order Details - Left Column */}
           <div className={styles.leftColumn}>
             <OrderStatus order={displayOrder} />
-            <OrderItems order={displayOrder} />
-            <DeliveryInfo order={displayOrder} />
+            <OrderItems order={displayOrder} t={t} />
+            <DeliveryInfo order={displayOrder} t={t} />
           </div>
 
           {/* Order Summary - Right Column */}
@@ -123,8 +130,11 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
             <ReceiptSection
               order={displayOrder}
               receiptLoading={receiptLoading}
+              isReceiptExpired={isReceiptExpired}
+              error={receiptError}
               onGenerateReceipt={generateReceipt}
               onDownloadReceipt={downloadReceipt}
+              t={t}
             />
           </div>
         </div>

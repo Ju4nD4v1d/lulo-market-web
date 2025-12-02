@@ -4,6 +4,7 @@ import TotalWeeklyProductsCard from './TotalWeeklyProductsCard';
 import TotalActiveCustomersCard from './TotalActiveCustomersCard';
 import TotalWeeklyRevenueCard from './TotalWeeklyRevenueCard';
 import TotalWeeklyOrdersCard from './TotalWeeklyOrdersCard';
+import LowStockItemsCard from './LowStockItemsCard';
 import styles from './KPICardGrid.module.css';
 
 interface KPICardGridProps {
@@ -19,6 +20,7 @@ export const KPICardGrid: React.FC<KPICardGridProps> = ({ storeId }) => {
       <TotalActiveCustomersCard storeId={storeId} />
       <TotalWeeklyRevenueCard storeId={storeId} />
       <TotalWeeklyOrdersCard storeId={storeId} />
+      <LowStockItemsCard storeId={storeId} />
     </div>
   );
 };

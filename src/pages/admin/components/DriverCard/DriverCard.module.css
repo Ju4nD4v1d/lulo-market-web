@@ -1,0 +1,236 @@
+/**
+ * DriverCard Styles
+ * Mobile-first responsive design
+ */
+
+/* ==========================================================================
+   Card Container
+   ========================================================================== */
+
+.card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-border-hover);
+}
+
+.card.inactive {
+  opacity: 0.75;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: var(--color-background-secondary);
+  border-bottom: 1px solid var(--color-border);
+  gap: 0.75rem;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.statusBadge.active {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.statusBadge.inactive {
+  background-color: var(--color-background);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+/* ==========================================================================
+   Action Buttons
+   ========================================================================== */
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.actionButton:hover {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.actionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.toggleButton:hover {
+  color: var(--color-primary);
+}
+
+.deleteButton:hover {
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.actionIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.loadingIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Content
+   ========================================================================== */
+
+.content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.infoRow {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.infoIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.infoText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.infoLabel {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   Day Pills
+   ========================================================================== */
+
+.dayPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.dayPill {
+  padding: 0.1875rem 0.4375rem;
+  background-color: var(--color-primary-10);
+  color: var(--color-primary);
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.noDays {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Contact Info
+   ========================================================================== */
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.contactIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}

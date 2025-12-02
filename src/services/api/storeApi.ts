@@ -55,6 +55,7 @@ export interface CreateStoreData {
   imageUrl?: string;
   aboutUs?: Array<{ title: string; content: string; imageUrl: string }>;
   ownerId: string;
+  lowStockThreshold?: number;
 }
 
 export interface UpdateStoreData {
@@ -87,6 +88,7 @@ export interface UpdateStoreData {
   storeImage?: string;
   imageUrl?: string;
   aboutUs?: Array<{ title: string; content: string; imageUrl: string }>;
+  lowStockThreshold?: number;
 }
 
 // ============================================================================
@@ -150,6 +152,8 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     stripePayoutsEnabled: (data.stripePayoutsEnabled as boolean) || false,
     stripeDetailsSubmitted: (data.stripeDetailsSubmitted as boolean) || false,
     stripeAccountStatus: (data.stripeAccountStatus as string) || undefined,
+    // Inventory settings
+    lowStockThreshold: (data.lowStockThreshold as number) ?? 10,
   };
 }
 
@@ -212,6 +216,11 @@ export function prepareStoreForFirestore(
 
   // About sections
   if (data.aboutUs !== undefined) firestoreData.aboutUs = data.aboutUs || [];
+
+  // Inventory settings
+  if ('lowStockThreshold' in data && data.lowStockThreshold !== undefined) {
+    firestoreData.lowStockThreshold = data.lowStockThreshold;
+  }
 
   // Timestamps
   firestoreData.updatedAt = new Date();

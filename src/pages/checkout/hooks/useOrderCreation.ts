@@ -1,63 +1,33 @@
 /**
- * useOrderCreation - Custom hook for managing order creation after payment
+ * useOrderCreation - Custom hook for monitoring order status after payment
  *
- * Handles:
- * - Order creation in Firestore after successful payment
- * - Payment failure recording
+ * NOTE: Order creation now happens BEFORE payment in usePaymentFlow.
+ * This hook only handles:
  * - Webhook monitoring with fallback mechanism
+ * - Payment failure recording
  * - Duplicate order prevention
  */
 
 import { useState, useCallback, useRef } from 'react';
 import { useCheckoutMutations } from '../../../hooks/mutations/useCheckoutMutations';
 import { useOrderMonitoring } from './useOrderMonitoring';
-import { buildEnhancedOrderData } from '../utils/orderDataBuilder';
 import { Order, OrderStatus } from '../../../types/order';
 import { Cart } from '../../../types/cart';
 
-interface CheckoutFormData {
-  customerInfo: {
-    name: string;
-    email: string;
-    phone: string;
-  };
-  deliveryAddress: {
-    street: string;
-    city: string;
-    province: string;
-    postalCode: string;
-    country: string;
-  };
-  isDelivery: boolean;
-  orderNotes: string;
-  deliveryDate: string;
-  useProfileAsDeliveryContact: boolean;
-}
-
-interface StoreReceiptInfo {
-  storeName: string;
-  storeEmail: string;
-  storePhone?: string;
-  storeAddress?: string;
-}
-
 interface UseOrderCreationOptions {
   cart: Cart;
-  formData: CheckoutFormData;
   currentUser: { uid: string; email?: string | null } | null;
-  locale: string;
   onOrderComplete: (order: Order) => void;
   clearCart: () => void;
 }
 
 /**
- * Custom hook for order creation and monitoring
+ * Custom hook for order monitoring after payment
+ * Order is already created in usePaymentFlow before payment.
  */
 export const useOrderCreation = ({
   cart,
-  formData,
   currentUser,
-  locale,
   onOrderComplete,
   clearCart
 }: UseOrderCreationOptions) => {
@@ -67,7 +37,7 @@ export const useOrderCreation = ({
   // Ref to prevent double order completion (webhook + fallback)
   const orderCompletedRef = useRef(false);
 
-  const { createOrder, recordFailedOrder } = useCheckoutMutations();
+  const { recordFailedOrder, updateOrder } = useCheckoutMutations();
 
   /**
    * Callback when order is confirmed via webhook
@@ -91,64 +61,48 @@ export const useOrderCreation = ({
   });
 
   /**
-   * Handle successful payment - create order and start monitoring
+   * Handle successful payment - start monitoring for webhook updates
+   *
+   * NOTE: Order already exists in Firestore with status 'pending_payment'.
+   * The webhook will update it to 'confirmed' and 'paid'.
    */
   const handlePaymentSuccess = useCallback(async (
     intentId: string,
-    orderIdToUse: string,
-    storeReceiptInfo: StoreReceiptInfo
+    orderIdToUse: string
   ) => {
-    try {
-      if (!storeReceiptInfo) {
-        throw new Error('Store information not loaded');
+    console.log('💳 Payment successful, starting order monitoring...', { intentId, orderIdToUse });
+
+    // Start monitoring for webhook updates
+    setPendingOrderId(orderIdToUse);
+    setIsMonitoringOrder(true);
+
+    // Fallback: if webhook doesn't update within 7 seconds, complete the order
+    setTimeout(() => {
+      // Check if order hasn't been completed yet (by webhook callback)
+      if (!orderCompletedRef.current) {
+        orderCompletedRef.current = true;
+        console.log('⏰ Webhook fallback triggered - completing order');
+        clearCart();
+        // Create a minimal order object for navigation
+        // The actual order data is already in Firestore
+        onOrderComplete({
+          id: orderIdToUse,
+          storeId: cart.storeId,
+          storeName: cart.storeName,
+          status: OrderStatus.CONFIRMED,
+          paymentStatus: 'paid',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } as Order);
       }
-
-      console.log('💳 Payment successful, creating order...', { intentId, orderIdToUse });
-
-      // Build order data
-      const orderData = buildEnhancedOrderData(
-        orderIdToUse,
-        cart,
-        formData,
-        { uid: currentUser?.uid || '', email: currentUser?.email },
-        locale,
-        storeReceiptInfo,
-        intentId,
-        OrderStatus.PROCESSING
-      );
-
-      // Create order in Firestore
-      await createOrder.mutateAsync({ orderId: orderIdToUse, orderData });
-      console.log('📝 Order created in Firestore');
-
-      // Start monitoring for webhook updates
-      setPendingOrderId(orderIdToUse);
-      setIsMonitoringOrder(true);
-
-      // Fallback: if webhook doesn't update within 7 seconds, complete the order
-      setTimeout(() => {
-        // Check if order hasn't been completed yet (by webhook callback)
-        if (!orderCompletedRef.current) {
-          orderCompletedRef.current = true;
-          console.log('⏰ Webhook fallback triggered - completing order');
-          clearCart();
-          onOrderComplete({
-            ...orderData,
-            id: orderIdToUse,
-            status: OrderStatus.CONFIRMED,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          } as Order);
-        }
-      }, 7000);
-    } catch (error) {
-      console.error('❌ Error creating order after payment:', error);
-      throw error;
-    }
-  }, [cart, formData, currentUser, locale, createOrder, clearCart, onOrderComplete]);
+    }, 7000);
+  }, [cart.storeId, cart.storeName, clearCart, onOrderComplete]);
 
   /**
-   * Handle payment failure - record for debugging
+   * Handle payment failure - update order status and record for debugging
+   *
+   * NOTE: Order already exists with status 'pending_payment'.
+   * We update it to 'payment_failed'.
    */
   const handlePaymentFailure = useCallback(async (
     intentId: string,
@@ -163,6 +117,17 @@ export const useOrderCreation = ({
         return;
       }
 
+      // Update existing order to failed status
+      await updateOrder.mutateAsync({
+        orderId: orderIdToRecord,
+        updates: {
+          status: OrderStatus.PAYMENT_FAILED,
+          paymentStatus: 'failed'
+        }
+      });
+      console.log('📋 Order updated to payment_failed status');
+
+      // Also record in failed_orders collection for debugging
       await recordFailedOrder.mutateAsync({
         orderId: orderIdToRecord,
         userId: currentUser?.uid || '',
@@ -170,14 +135,14 @@ export const useOrderCreation = ({
         error,
         paymentIntentId: intentId,
         createdAt: new Date(),
-        orderData: formData
+        orderData: { error: 'Payment failed - order already exists in orders collection' }
       });
 
       console.log('📋 Failed payment recorded for debugging');
     } catch (recordError) {
-      console.error('❌ Error recording failed payment:', recordError);
+      console.error('❌ Error handling failed payment:', recordError);
     }
-  }, [recordFailedOrder, currentUser?.uid, cart.storeId, formData]);
+  }, [updateOrder, recordFailedOrder, currentUser?.uid, cart.storeId]);
 
   /**
    * Handle general payment errors

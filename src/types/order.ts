@@ -1,12 +1,14 @@
 export enum OrderStatus {
+  PENDING_PAYMENT = 'pending_payment', // Order created, awaiting payment
   PENDING = 'pending',
   PROCESSING = 'processing',
-  CONFIRMED = 'confirmed', 
+  CONFIRMED = 'confirmed',
   PREPARING = 'preparing',
   READY = 'ready',
   OUT_FOR_DELIVERY = 'out_for_delivery',
   DELIVERED = 'delivered',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
+  PAYMENT_FAILED = 'payment_failed' // Payment was attempted but failed
 }
 
 export interface OrderItem {
@@ -68,7 +70,8 @@ export interface OrderSummary {
 
 export interface Order {
   id: string;
-  
+  userId?: string; // User ID for access control
+
   // Store Information
   storeId: string;
   storeName: string;

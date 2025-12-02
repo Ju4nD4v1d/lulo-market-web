@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Package,
   Plus,
@@ -7,6 +7,7 @@ import {
   List,
   Loader2,
   AlertCircle,
+  AlertTriangle,
   Tag,
   DollarSign,
   Boxes
@@ -24,7 +25,7 @@ import styles from './ProductsPage.module.css';
 
 export const ProductsPage = () => {
   const { t } = useLanguage();
-  const { storeId } = useStore();
+  const { storeId, store } = useStore();
 
   // Default to list view on mobile, grid on desktop
   const getDefaultView = () => {
@@ -52,6 +53,17 @@ export const ProductsPage = () => {
   const { products, isLoading, error } = useProductsQuery({ storeId });
   const { saveProduct, deleteProduct, isLoading: isSaving } = useProductMutations(storeId || '');
   const { searchTerm, setSearchTerm, selectedCategories, toggleCategory, filteredProducts } = useProductFilters(products);
+
+  // Calculate low stock products
+  const threshold = store?.lowStockThreshold ?? 10;
+  const lowStockProducts = useMemo(() => {
+    return products.filter(
+      product =>
+        product.status === 'active' &&
+        product.stock > 0 &&
+        product.stock <= threshold
+    );
+  }, [products, threshold]);
 
   // Use centralized category configuration
   const categories = PRODUCT_CATEGORIES.map(cat => ({
@@ -147,6 +159,27 @@ export const ProductsPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Low Stock Alert Banner */}
+      {lowStockProducts.length > 0 && !isLoading && (
+        <div className={styles.lowStockAlert}>
+          <div className={styles.alertContent}>
+            <AlertTriangle className={styles.alertIcon} />
+            <span className={styles.alertText}>
+              {t(lowStockProducts.length === 1 ? 'products.lowStockAlertSingular' : 'products.lowStockAlert').replace('{count}', lowStockProducts.length.toString())}
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              // Navigate to Inventory section
+              window.location.hash = '#dashboard/inventory';
+            }}
+            className={styles.alertButton}
+          >
+            {t('products.viewLowStock')}
+          </button>
+        </div>
+      )}
 
       {isLoading ? (
         <div className={styles.loadingContainer}>

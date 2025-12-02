@@ -1,0 +1,32 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Production environment (main branch)
+[context.production]
+  environment = { VITE_ENV = "production", VITE_STRIPE_MODE = "live" }
+
+# Branch deploys (development branches)
+[context.branch-deploy]
+  environment = { VITE_ENV = "development", VITE_STRIPE_MODE = "test" }
+
+# Deploy previews (pull requests)
+[context.deploy-preview]
+  environment = { VITE_ENV = "development", VITE_STRIPE_MODE = "test" }
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+
+# SPA redirect for hash-based routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

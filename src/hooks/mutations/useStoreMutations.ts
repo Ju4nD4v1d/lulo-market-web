@@ -67,6 +67,7 @@ export const useStoreMutations = (ownerId: string) => {
         imageUrl: mainImageUrl || '',
         aboutUs: processedAboutUs,
         ownerId: currentUserId,
+        lowStockThreshold: storeData.lowStockThreshold,
       };
 
       return storeApi.createStore(createData);
@@ -124,6 +125,7 @@ export const useStoreMutations = (ownerId: string) => {
         storeImage: mainImageUrl || storeData.storeImage || (storeData.images?.[0] || ''),
         imageUrl: mainImageUrl || storeData.imageUrl || (storeData.images?.[0] || ''),
         aboutUs: processedAboutUs,
+        lowStockThreshold: storeData.lowStockThreshold,
       };
 
       return storeApi.updateStore(storeId, updateData);

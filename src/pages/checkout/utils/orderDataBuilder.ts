@@ -130,7 +130,7 @@ export const buildEnhancedOrderData = (
   locale: string,
   storeInfo: StoreReceiptInfo,
   paymentIntentId?: string,
-  orderStatus: OrderStatus = OrderStatus.PENDING
+  orderStatus: OrderStatus = OrderStatus.PENDING_PAYMENT
 ) => {
   // Calculate tax breakdown
   const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
@@ -232,8 +232,8 @@ export const buildEnhancedOrderData = (
     // Existing fields
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    paymentStatus: paymentIntentId ? 'processing' : 'pending',
-    paymentId: paymentIntentId,
+    paymentStatus: 'pending', // Always pending initially - webhook will update to 'paid'
+    paymentId: paymentIntentId || null,
     isDelivery: formData.isDelivery ?? true,
     language: locale
   };

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { StoreData } from '../types';
 import { useNetworkStatus } from './useNetworkStatus';
-import { queryKeys } from '../services/queryClient';
+import { queryKeys } from './queries/queryKeys';
 import * as storeApi from '../services/api/storeApi';
 
 /**
@@ -63,10 +63,10 @@ export const useStoreData = (): UseStoreDataReturn => {
   } = useQuery({
     queryKey: queryKeys.stores.lists(),
     queryFn: () => fetchStoresFromFirebase(isOffline, hasNetworkError),
-    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    refetchOnMount: false, // Don't refetch on mount if data exists in cache
+    staleTime: 30 * 1000, // Data is fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: 'always', // Always check for fresh data on mount
     retry: 1, // Retry once on failure
     enabled: !isOffline && !hasNetworkError, // Only fetch if online
   });

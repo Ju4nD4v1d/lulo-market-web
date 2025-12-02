@@ -27,9 +27,9 @@ export * as orderApi from './orderApi';
 export * as userApi from './userApi';
 export * as storageApi from './storageApi';
 export * as analyticsApi from './analyticsApi';
-export * as invitationApi from './invitationApi';
 export * as waitlistApi from './waitlistApi';
 export * as leadsApi from './leadsApi';
+export * as driverApi from './driverApi';
 
 // Shared types and helpers
 export { COLLECTIONS, safeDate } from './types';

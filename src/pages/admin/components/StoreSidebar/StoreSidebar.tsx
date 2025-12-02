@@ -1,10 +1,10 @@
 /**
- * StoreSidebar - Sidebar with list of all stores
- * Allows searching and selecting stores
+ * StoreSidebar - Admin navigation sidebar
+ * Shows navigation menu and collapsible store list
  */
 
 import { useState, useMemo } from 'react';
-import { Search, Store, RefreshCw, Loader2, AlertCircle, CheckCircle, Wrench } from 'lucide-react';
+import { Search, Store, RefreshCw, Loader2, AlertCircle, CheckCircle, Wrench, Truck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import type { StoreData } from '../../../../types/store';
 import styles from './StoreSidebar.module.css';
@@ -32,6 +32,7 @@ export const StoreSidebar = ({
 }: StoreSidebarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isStoresExpanded, setIsStoresExpanded] = useState(true);
 
   const filteredStores = useMemo(() => {
     if (!searchQuery.trim()) return stores;
@@ -43,89 +44,124 @@ export const StoreSidebar = ({
     );
   }, [stores, searchQuery]);
 
+  const handleStoreSelect = (store: StoreData) => {
+    onSelectStore(store);
+    setIsStoresExpanded(false);
+  };
+
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>
-          <Store className={styles.titleIcon} />
-          {t('admin.dashboard.stores')}
-          <span className={styles.count}>{stores.length}</span>
-        </h2>
-        <button
-          className={styles.refreshButton}
-          onClick={onRefresh}
-          disabled={isLoading}
-          aria-label={t('admin.dashboard.refresh')}
-        >
-          <RefreshCw className={`${styles.refreshIcon} ${isLoading ? styles.spinning : ''}`} />
-        </button>
-      </div>
-
-      <div className={styles.searchWrapper}>
-        <Search className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder={t('admin.dashboard.searchStores')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      <div className={styles.list}>
-        {isLoading && !stores.length ? (
-          <div className={styles.loading}>
-            <Loader2 className={styles.loadingIcon} />
-            <span>{t('admin.dashboard.loading')}</span>
-          </div>
-        ) : error ? (
-          <div className={styles.error}>
-            <AlertCircle className={styles.errorIcon} />
-            <span>{t('admin.dashboard.loadError')}</span>
-          </div>
-        ) : filteredStores.length === 0 ? (
-          <div className={styles.empty}>
-            <span>{t('admin.dashboard.noStores')}</span>
-          </div>
-        ) : (
-          filteredStores.map(store => (
-            <button
-              key={store.id}
-              className={`${styles.storeItem} ${selectedStoreId === store.id ? styles.selected : ''}`}
-              onClick={() => onSelectStore(store)}
+      {/* Navigation Menu */}
+      <div className={styles.navMenu}>
+        {/* Stores Menu Item */}
+        <div className={styles.navSection}>
+          <div className={styles.navRow}>
+            <div
+              role="button"
+              tabIndex={0}
+              className={`${styles.navButton} ${activeView === 'store' ? styles.navButtonActive : ''}`}
+              onClick={() => setIsStoresExpanded(!isStoresExpanded)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsStoresExpanded(!isStoresExpanded); }}
             >
-              <div className={styles.storeImage}>
-                {store.storeImage ? (
-                  <img src={store.storeImage} alt={store.name} />
-                ) : (
-                  <Store className={styles.storePlaceholder} />
-                )}
-              </div>
-              <div className={styles.storeInfo}>
-                <span className={styles.storeName}>{store.name}</span>
-                <span className={styles.storeDetails}>
-                  {store.cuisine && t(`store.cuisine.${store.cuisine}`)}
-                </span>
-              </div>
-              <div className={styles.storeStatus}>
-                {store.stripeEnabled ? (
-                  <CheckCircle className={styles.statusEnabled} />
-                ) : (
-                  <AlertCircle className={styles.statusDisabled} />
-                )}
-              </div>
+              <Store className={styles.navIcon} />
+              <span className={styles.navLabel}>{t('admin.dashboard.stores')}</span>
+              <span className={styles.navBadge}>{stores.length}</span>
+              {isStoresExpanded ? (
+                <ChevronUp className={styles.chevronIcon} />
+              ) : (
+                <ChevronDown className={styles.chevronIcon} />
+              )}
+            </div>
+            <button
+              className={styles.refreshButtonSmall}
+              onClick={onRefresh}
+              disabled={isLoading}
+              aria-label={t('admin.dashboard.refresh')}
+            >
+              <RefreshCw className={`${styles.refreshIconSmall} ${isLoading ? styles.spinning : ''}`} />
             </button>
-          ))
-        )}
-      </div>
+          </div>
 
-      <div className={styles.footer}>
+          {/* Collapsible Store List */}
+          {isStoresExpanded && (
+            <div className={styles.storeListContainer}>
+              <div className={styles.searchWrapper}>
+                <Search className={styles.searchIcon} />
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder={t('admin.dashboard.searchStores')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.list}>
+                {isLoading && !stores.length ? (
+                  <div className={styles.loading}>
+                    <Loader2 className={styles.loadingIcon} />
+                    <span>{t('admin.dashboard.loading')}</span>
+                  </div>
+                ) : error ? (
+                  <div className={styles.error}>
+                    <AlertCircle className={styles.errorIcon} />
+                    <span>{t('admin.dashboard.loadError')}</span>
+                  </div>
+                ) : filteredStores.length === 0 ? (
+                  <div className={styles.empty}>
+                    <span>{t('admin.dashboard.noStores')}</span>
+                  </div>
+                ) : (
+                  filteredStores.map(store => (
+                    <button
+                      key={store.id}
+                      className={`${styles.storeItem} ${selectedStoreId === store.id ? styles.selected : ''}`}
+                      onClick={() => handleStoreSelect(store)}
+                    >
+                      <div className={styles.storeImage}>
+                        {store.storeImage ? (
+                          <img src={store.storeImage} alt={store.name} />
+                        ) : (
+                          <Store className={styles.storePlaceholder} />
+                        )}
+                      </div>
+                      <div className={styles.storeInfo}>
+                        <span className={styles.storeName}>{store.name}</span>
+                        <span className={styles.storeDetails}>
+                          {store.cuisine && t(`store.cuisine.${store.cuisine}`)}
+                        </span>
+                      </div>
+                      <div className={styles.storeStatus}>
+                        {store.stripeEnabled ? (
+                          <CheckCircle className={styles.statusEnabled} />
+                        ) : (
+                          <AlertCircle className={styles.statusDisabled} />
+                        )}
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Dispatcher Menu Item */}
         <button
-          className={`${styles.toolsButton} ${activeView === 'tools' ? styles.toolsActive : ''}`}
+          className={styles.navButton}
+          onClick={() => { window.location.hash = '#admin/dispatcher'; }}
+        >
+          <Truck className={styles.navIcon} />
+          <span className={styles.navLabel}>{t('admin.menu.dispatcher')}</span>
+        </button>
+
+        {/* Tools Menu Item */}
+        <button
+          className={`${styles.navButton} ${activeView === 'tools' ? styles.navButtonActive : ''}`}
           onClick={onSelectTools}
         >
-          <Wrench className={styles.toolsIcon} />
-          {t('admin.tools.title')}
+          <Wrench className={styles.navIcon} />
+          <span className={styles.navLabel}>{t('admin.tools.title')}</span>
         </button>
       </div>
     </aside>

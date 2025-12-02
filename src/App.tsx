@@ -4,7 +4,6 @@ import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { queryClient } from './services/queryClient';
-import { checkDeviceInvitation } from './services/invitationService';
 
 // Lazy load route components for code splitting
 const Home = lazy(() => import('./pages/home'));
@@ -18,7 +17,6 @@ const StoreMenu = lazy(() => import('./pages/store-menu'));
 const Business = lazy(() => import('./pages/business'));
 const OrderHistory = lazy(() => import('./pages/order-history'));
 const OrderTracking = lazy(() => import('./pages/order-tracking'));
-const InvitationGate = lazy(() => import('./pages/invitation-gate'));
 const ProductList = lazy(() => import('./components/ProductList'));
 const HelpPage = lazy(() => import('./pages/help'));
 const ProductDetails = lazy(() => import('./pages/product-details'));
@@ -26,6 +24,7 @@ const CartPage = lazy(() => import('./pages/cart'));
 const CheckoutPage = lazy(() => import('./pages/checkout'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const DispatcherPage = lazy(() => import('./pages/admin/DispatcherPage'));
 
 // Lazy load static landing page components (rarely used)
 const Header = lazy(() => import('./components/Header'));
@@ -33,11 +32,6 @@ const Hero = lazy(() => import('./components/Hero'));
 const SocialProof = lazy(() => import('./components/SocialProof'));
 const ConversionPricing = lazy(() => import('./components/ConversionPricing'));
 const Footer = lazy(() => import('./components/Footer'));
-
-// Import test utilities in development
-if (process.env.NODE_ENV === 'development') {
-  import('./utils/testInvitation');
-}
 
 // Helper function to update document title
 const updateTitle = (title: string) => {
@@ -59,19 +53,7 @@ const LoadingFallback = () => (
 
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
-  const [hasValidInvitation, setHasValidInvitation] = useState(false);
-  const [invitationChecked, setInvitationChecked] = useState(false);
   const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
-
-  // Check invitation status on mount
-  useEffect(() => {
-    if (!loading) {
-      // Check device-based invitation only
-      const hasDeviceInvitation = checkDeviceInvitation();
-      setHasValidInvitation(hasDeviceInvitation);
-      setInvitationChecked(true);
-    }
-  }, [loading]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -84,7 +66,7 @@ const AppRoutes = () => {
 
   // Handle storing redirect path when accessing protected routes without auth
   useEffect(() => {
-    if (!currentUser && !loading && hasValidInvitation) {
+    if (!currentUser && !loading) {
       const protectedRoutesWithRedirect = ['#order/', '#checkout'];
       const needsRedirect = protectedRoutesWithRedirect.some(route => currentRoute.startsWith(route));
 
@@ -92,7 +74,7 @@ const AppRoutes = () => {
         setRedirectAfterLogin(currentRoute);
       }
     }
-  }, [currentRoute, currentUser, loading, hasValidInvitation, redirectAfterLogin, setRedirectAfterLogin]);
+  }, [currentRoute, currentUser, loading, redirectAfterLogin, setRedirectAfterLogin]);
 
   // Handle redirect after successful login
   useEffect(() => {
@@ -113,8 +95,8 @@ const AppRoutes = () => {
     }
   }, [currentUser, redirectAfterLogin, setRedirectAfterLogin]);
 
-  // Show loading state while auth or invitation is being determined
-  if (loading || !invitationChecked) {
+  // Show loading state while auth is being determined
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
@@ -123,10 +105,19 @@ const AppRoutes = () => {
   }
 
   const renderRoute = () => {
-    // Admin routes (bypass invitation gate - admins don't need invitation code)
+    // Admin routes
     if (currentRoute.startsWith('#admin-login')) {
       updateTitle('Lulo Market - Admin Login');
       return <AdminLoginPage />;
+    }
+
+    if (currentRoute.startsWith('#admin/dispatcher')) {
+      if (!currentUser) {
+        window.location.hash = '#admin-login';
+        return <AdminLoginPage />;
+      }
+      updateTitle('Lulo Market - Dispatcher');
+      return <DispatcherPage />;
     }
 
     if (currentRoute.startsWith('#admin')) {
@@ -136,15 +127,6 @@ const AppRoutes = () => {
       }
       updateTitle('Lulo Market - Admin Dashboard');
       return <AdminDashboard />;
-    }
-
-    // Check invitation gate - if user doesn't have valid invitation, show gate
-    if (!hasValidInvitation) {
-      return (
-        <InvitationGate
-          onValidCode={() => setHasValidInvitation(true)}
-        />
-      );
     }
 
     // Check for dashboard routes first

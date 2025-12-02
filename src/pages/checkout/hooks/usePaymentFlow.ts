@@ -1,6 +1,9 @@
 /**
  * Custom hook for managing payment flow
- * Handles payment intent creation, success, and failure
+ * Handles order creation and payment intent creation
+ *
+ * IMPORTANT: Order is created in Firestore BEFORE payment intent
+ * to ensure the webhook can find the order when it fires.
  */
 
 import { useState, useCallback } from 'react';
@@ -8,6 +11,8 @@ import { useCheckoutMutations } from '../../../hooks/mutations/useCheckoutMutati
 import { useStoreStripeAccountQuery } from '../../../hooks/queries/useStoreStripeAccountQuery';
 import { generateOrderId } from '../../../utils/orderUtils';
 import { PLATFORM_FEE_PERCENTAGE } from '../utils/constants';
+import { buildEnhancedOrderData, StoreReceiptInfo } from '../utils/orderDataBuilder';
+import { OrderStatus } from '../../../types/order';
 
 /**
  * Cart item interface
@@ -62,10 +67,20 @@ interface PaymentFormData {
     province: string;
     postalCode: string;
     country: string;
+    deliveryInstructions?: string;
   };
   isDelivery: boolean;
   orderNotes: string;
   deliveryDate: string;
+  useProfileAsDeliveryContact?: boolean;
+}
+
+/**
+ * Current user data
+ */
+interface CurrentUserData {
+  uid: string;
+  email?: string | null;
 }
 
 /**
@@ -74,6 +89,9 @@ interface PaymentFormData {
 interface UsePaymentFlowOptions {
   cart: Cart;
   formData: PaymentFormData;
+  currentUser: CurrentUserData | null;
+  locale: string;
+  storeReceiptInfo: StoreReceiptInfo | null;
   onPaymentIntentCreated: (clientSecret: string, paymentIntentId: string, orderId: string) => void;
   onError: (error: string) => void;
 }
@@ -87,26 +105,43 @@ interface UsePaymentFlowOptions {
 export const usePaymentFlow = ({
   cart,
   formData,
+  currentUser,
+  locale,
+  storeReceiptInfo,
   onPaymentIntentCreated,
   onError
 }: UsePaymentFlowOptions) => {
   const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
-  const { createPaymentIntent } = useCheckoutMutations();
+  const { createOrder, updateOrder, createPaymentIntent } = useCheckoutMutations();
   const { data: stripeAccount } = useStoreStripeAccountQuery({
     storeId: cart.storeId,
     enabled: !!cart.storeId
   });
 
   /**
-   * Create payment intent and proceed to payment step
+   * Create order in Firestore first, then create payment intent
+   *
+   * Flow:
+   * 1. Generate order ID
+   * 2. Build order data with PENDING_PAYMENT status
+   * 3. Create order in Firestore FIRST
+   * 4. Create payment intent
+   * 5. Update order with paymentId
+   *
+   * This ensures the order exists when the Stripe webhook fires.
    */
   const proceedToPayment = useCallback(async () => {
     console.log('💳 proceedToPayment called');
     setIsCreatingPaymentIntent(true);
 
     try {
+      // Validate store receipt info
+      if (!storeReceiptInfo) {
+        throw new Error('Store information not loaded. Please try again.');
+      }
+
       // Validate Stripe account
       console.log('🔍 Stripe account:', stripeAccount);
       if (!stripeAccount?.stripeAccountId) {
@@ -127,15 +162,34 @@ export const usePaymentFlow = ({
         }
       }
 
-      // Generate order ID that will be used for both payment intent and Firestore
+      // 1. Generate order ID
       const orderId = generateOrderId();
       console.log('📝 Generated order ID:', orderId);
       setPendingOrderId(orderId);
 
+      // 2. Build order data with PENDING_PAYMENT status
+      const orderData = buildEnhancedOrderData(
+        orderId,
+        cart,
+        formData,
+        { uid: currentUser?.uid || '', email: currentUser?.email },
+        locale,
+        storeReceiptInfo,
+        undefined, // No paymentIntentId yet
+        OrderStatus.PENDING_PAYMENT
+      );
+
+      console.log('📦 Creating order in Firestore FIRST (before payment intent)...');
+
+      // 3. Create order in Firestore FIRST
+      await createOrder.mutateAsync({ orderId, orderData });
+      console.log('✅ Order created in Firestore with status: pending_payment');
+
       // Calculate platform fee
       const totalApplicationFee = cart.summary.platformFee + (cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE);
 
-      // Create payment intent
+      // 4. Create payment intent
+      console.log('🔄 Now creating payment intent...');
       const result = await createPaymentIntent.mutateAsync({
         amount: cart.summary.finalTotal,
         currency: 'cad',
@@ -174,15 +228,25 @@ export const usePaymentFlow = ({
         }
       });
 
+      // 5. Update order with paymentId
+      console.log('📝 Updating order with payment intent ID...');
+      await updateOrder.mutateAsync({
+        orderId,
+        updates: { paymentId: result.paymentIntentId }
+      });
+      console.log('✅ Order updated with paymentId:', result.paymentIntentId);
+
       // Notify parent component
       onPaymentIntentCreated(result.clientSecret, result.paymentIntentId, orderId);
     } catch (error) {
-      console.error('Error creating payment intent:', error);
+      console.error('Error in payment flow:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to initialize payment. Please try again.';
       onError(errorMessage);
-      // Re-throw so callers can also handle the error
+
+      // If we have a pending order that failed, we could update its status
+      // But for now, orders in pending_payment status will be cleaned up by backend
       throw error;
     } finally {
       setIsCreatingPaymentIntent(false);
@@ -190,7 +254,12 @@ export const usePaymentFlow = ({
   }, [
     cart,
     formData,
+    currentUser,
+    locale,
+    storeReceiptInfo,
     stripeAccount,
+    createOrder,
+    updateOrder,
     createPaymentIntent,
     onPaymentIntentCreated,
     onError

@@ -4,3 +4,4 @@ export { useOrderMutations } from './useOrderMutations';
 export { useStoreMutations } from './useStoreMutations';
 export { useProfileMutations } from './useProfileMutations';
 export { useBusinessContactMutation } from './useBusinessContactMutation';
+export { useDriverMutations } from './useDriverMutations';

@@ -7,14 +7,15 @@ import styles from './OrderItems.module.css';
 
 interface OrderItemsProps {
   order: Order;
+  t: (key: string) => string;
 }
 
-export const OrderItems: React.FC<OrderItemsProps> = ({ order }) => {
+export const OrderItems: React.FC<OrderItemsProps> = ({ order, t }) => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>
         <Package className={styles.icon} />
-        Order Items
+        {t('orderHistory.orderItems')}
       </h2>
       <div className={styles.items}>
         {order.items.map((item) => (
@@ -28,9 +29,9 @@ export const OrderItems: React.FC<OrderItemsProps> = ({ order }) => {
             )}
             <div className={styles.details}>
               <h3 className={styles.name}>{item.productName}</h3>
-              <p className={styles.quantity}>Quantity: {item.quantity}</p>
+              <p className={styles.quantity}>{t('orderHistory.quantity')}: {item.quantity}</p>
               {item.specialInstructions && (
-                <p className={styles.instructions}>Note: {item.specialInstructions}</p>
+                <p className={styles.instructions}>{t('order.note')}: {item.specialInstructions}</p>
               )}
             </div>
             <div className={styles.priceContainer}>
