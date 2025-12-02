@@ -9,6 +9,7 @@ import { HowItWorks } from './components/HowItWorks';
 import { OurStory } from './components/OurStory';
 import { HorizontalStoreRow } from './components/HorizontalStoreRow';
 import { HorizontalProductRow } from './components/HorizontalProductRow';
+import { EmptyStateSection } from './components/EmptyStateSection';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -159,8 +160,13 @@ export const HomePage = () => {
 
       {/* Main Content */}
       <main className={styles.main}>
+        {/* Empty State - Show when no stores available */}
+        {!loading && activeStores.length === 0 && (
+          <EmptyStateSection />
+        )}
+
         {/* Stores Horizontal Row */}
-        {!loading && (
+        {!loading && activeStores.length > 0 && (
           <HorizontalStoreRow
             stores={filteredStores}
             onStoreClick={handleStoreClick}
@@ -168,7 +174,7 @@ export const HomePage = () => {
         )}
 
         {/* Products Horizontal Row */}
-        {!loading && (
+        {!loading && activeStores.length > 0 && (
           <HorizontalProductRow
             stores={activeStores}
             onProductClick={handleProductClick}

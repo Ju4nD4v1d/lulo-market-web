@@ -28,8 +28,12 @@ export interface WaitlistEntry {
  * Send notification to support team about new invitation request
  */
 export async function sendInvitationRequestNotification(email: string): Promise<void> {
+  const isProduction = import.meta.env.VITE_ENV === 'production';
+  const devFallback = 'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app';
+  const prodFallback = 'https://us-central1-lulocart-prod.cloudfunctions.net/sendInvitationRequestEmail';
+
   const endpoint = import.meta.env.VITE_API_INVITATION_REQUEST_ENDPOINT ||
-    'https://sendinvitationrequestemail-6v2n7ecudq-uc.a.run.app';
+    (isProduction ? prodFallback : devFallback);
 
   if (!endpoint) {
     console.warn('Invitation request endpoint not configured');
