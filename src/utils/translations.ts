@@ -679,6 +679,7 @@ export const translations = {
     // Store Status
     'store.new': 'New',
     'store.nearYou': 'Near You',
+    'store.founderBadge': 'Pioneer Store',
 
     // Products
     'products.title': 'Product Management',
@@ -2533,6 +2534,7 @@ export const translations = {
     // Store Status
     'store.new': 'Nuevo',
     'store.nearYou': 'Cerca de Ti',
+    'store.founderBadge': 'Tienda Pionera',
 
     // Products
     'products.title': 'Gestión de Productos',

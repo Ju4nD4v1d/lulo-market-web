@@ -154,6 +154,8 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     stripeAccountStatus: (data.stripeAccountStatus as string) || undefined,
     // Inventory settings
     lowStockThreshold: (data.lowStockThreshold as number) ?? 10,
+    // Founder program
+    isFounderStore: (data.isFounderStore as boolean) ?? false,
   };
 }
 
@@ -235,6 +237,8 @@ export function prepareStoreForFirestore(
     firestoreData.featured = false;
     firestoreData.rating = (data as CreateStoreData).rating || 0;
     firestoreData.reviewCount = (data as CreateStoreData).reviewCount || 0;
+    // New stores automatically get founder status
+    firestoreData.isFounderStore = true;
   }
 
   return firestoreData;

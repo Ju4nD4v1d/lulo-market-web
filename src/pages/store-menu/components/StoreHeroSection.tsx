@@ -1,4 +1,4 @@
-import { Star, MapPin, Clock, Store, Instagram, Facebook } from 'lucide-react';
+import { Star, MapPin, Clock, Store, Instagram, Facebook, Award } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
@@ -51,25 +51,36 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
 
       {/* Content Section */}
       <div className={styles.content}>
-        {/* Header: Name + Rating + Verified Badge */}
+        {/* Header: Name + Rating + Badges */}
         <div className={styles.header}>
           <div className={styles.nameWrapper}>
             <h1 className={styles.name}>{store.name}</h1>
 
-            {/* Rating */}
-            {store.averageRating !== undefined && store.averageRating > 0 && (
-              <div className={styles.ratingWrapper}>
-                <div className={styles.rating}>
-                  <Star className={styles.starIcon} />
-                  <span className={styles.ratingValue}>{store.averageRating.toFixed(1)}</span>
+            {/* Badges Row */}
+            <div className={styles.badgesRow}>
+              {/* Founder Badge */}
+              {store.isFounderStore && (
+                <div className={styles.founderBadge}>
+                  <Award className={styles.founderIcon} />
+                  <span>{t('store.founderBadge')}</span>
                 </div>
-                {store.totalReviews !== undefined && store.totalReviews > 0 && (
-                  <span className={styles.reviewCount}>
-                    ({store.totalReviews} {t('storeHero.reviews')})
-                  </span>
-                )}
-              </div>
-            )}
+              )}
+
+              {/* Rating */}
+              {store.averageRating !== undefined && store.averageRating > 0 && (
+                <div className={styles.ratingWrapper}>
+                  <div className={styles.rating}>
+                    <Star className={styles.starIcon} />
+                    <span className={styles.ratingValue}>{store.averageRating.toFixed(1)}</span>
+                  </div>
+                  {store.totalReviews !== undefined && store.totalReviews > 0 && (
+                    <span className={styles.reviewCount}>
+                      ({store.totalReviews} {t('storeHero.reviews')})
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

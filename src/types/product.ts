@@ -1,3 +1,9 @@
+// Product status enum - use these values for consistency
+export enum ProductStatus {
+  ACTIVE = 'active',
+  DRAFT = 'draft'
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -7,7 +13,7 @@ export interface Product {
   stock: number;
   images: string[];
   imageUrl?: string;                 // Primary product image URL
-  status: 'active' | 'draft' | 'outOfStock';
+  status: ProductStatus | 'active' | 'draft';  // Use ProductStatus enum values
   available?: boolean;               // Product availability status
   ownerId: string;
   storeId: string;

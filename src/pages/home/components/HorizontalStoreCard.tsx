@@ -1,4 +1,4 @@
-import { MapPin, Star } from 'lucide-react';
+import { MapPin, Star, Award } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './HorizontalStoreCard.module.css';
@@ -60,6 +60,14 @@ export const HorizontalStoreCard: React.FC<HorizontalStoreCardProps> = ({
           <div className={styles.ratingBadge}>
             <Star className={styles.starIcon} fill="#fbbf24" />
             <span>{store.averageRating.toFixed(1)}</span>
+          </div>
+        )}
+
+        {/* Founder Badge */}
+        {store.isFounderStore && (
+          <div className={styles.founderBadge}>
+            <Award className={styles.founderIcon} />
+            <span>{t('store.founderBadge')}</span>
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@ import type * as React from 'react';
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { StoreData } from '../../../types/store';
-import { Product } from '../../../types/product';
+import { Product, ProductStatus } from '../../../types/product';
 import { StoreHeroSection } from './StoreHeroSection';
 import { DeliverySchedule } from './DeliverySchedule';
 import { MenuSection } from './MenuSection';
@@ -144,12 +144,18 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Use fetched products or fallback to mock data - memoized to prevent infinite loop
+  // Filter out draft products - only show active products to shoppers
   const products = useMemo(() => {
     if (fetchedProducts && fetchedProducts.length > 0) {
-      return fetchedProducts;
+      return fetchedProducts.filter(product =>
+        product.status === ProductStatus.ACTIVE || product.status === 'active'
+      );
     }
     // Cache the filtered mock products to avoid creating new array on every render
-    return mockProducts.filter(product => product.storeId === store.id);
+    return mockProducts.filter(product =>
+      product.storeId === store.id &&
+      (product.status === ProductStatus.ACTIVE || product.status === 'active')
+    );
   }, [fetchedProducts, store.id]);
 
   const formatTime12Hour = (time24: string): string => {

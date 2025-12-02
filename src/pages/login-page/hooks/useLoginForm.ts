@@ -95,6 +95,7 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
         // Only pass address if at least one field is filled
         const hasAddress = address.street || address.city || address.province || address.postalCode;
         await register(email, password, fullName, hasAddress ? address : undefined);
+
         setSuccess('Account created successfully! You can now access your dashboard.');
         setTimeout(() => {
           window.location.hash = '#';

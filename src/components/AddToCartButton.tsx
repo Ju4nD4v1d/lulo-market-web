@@ -4,6 +4,7 @@ import { ShoppingCart, Plus, Minus, Check, AlertTriangle } from 'lucide-react';
 import { Product } from '../types/product';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { trackAddToCart } from '../services/analytics';
 
 interface AddToCartButtonProps {
   product: Product;
@@ -107,6 +108,14 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         storeId: targetStoreId,
         storeName,
         storeImage
+      });
+
+      // Track AddToCart event for Meta Pixel
+      trackAddToCart({
+        productId: product.id,
+        productName: product.name,
+        price: product.price,
+        quantity: quantity
       });
 
       setShowSuccess(true);

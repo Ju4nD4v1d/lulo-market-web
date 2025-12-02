@@ -8,6 +8,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import { trackLead } from '../analytics';
 
 // ============================================================================
 // Types
@@ -82,6 +83,9 @@ export async function addToWaitlist(email: string): Promise<void> {
 
     await addDoc(waitlistRef, waitlistEntry);
     console.log('Email added to waitlist:', email);
+
+    // Track Lead event for Meta Pixel
+    trackLead('waitlist_signup');
 
     // Send notification to support team
     await sendInvitationRequestNotification(email);

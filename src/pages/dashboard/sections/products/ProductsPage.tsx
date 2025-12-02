@@ -223,7 +223,7 @@ export const ProductsPage = () => {
                       </div>
                     )}
                     <span className={`${styles.status} ${styles[`status${product.status.charAt(0).toUpperCase()}${product.status.slice(1)}`]}`}>
-                      {product.status === 'outOfStock' ? t('products.status.outOfStock') : t(`products.status.${product.status}`)}
+                      {t(`products.status.${product.status}`)}
                     </span>
                   </div>
                   <div className={styles.gridContent}>

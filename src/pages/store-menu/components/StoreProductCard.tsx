@@ -52,6 +52,18 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
           </div>
         )}
 
+        {/* Image count indicator dots */}
+        {product.images && product.images.length > 1 && (
+          <div className={styles.imageIndicators}>
+            {product.images.map((_, index) => (
+              <span
+                key={index}
+                className={`${styles.dot} ${index === 0 ? styles.dotActive : ''}`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Status Badges */}
         {product.status === 'outOfStock' && (
           <div className={styles.statusBadge}>{t('products.status.outOfStock')}</div>
