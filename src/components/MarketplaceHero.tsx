@@ -1,21 +1,15 @@
 import { useState, useEffect, useMemo, type FC } from 'react';
-import { Search, Navigation, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface MarketplaceHeroProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  onLocationRequest: () => void;
-  locationStatus: 'idle' | 'requesting' | 'granted' | 'denied';
-  locationName: string;
 }
 
 export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
   searchQuery,
-  setSearchQuery,
-  onLocationRequest,
-  locationStatus,
-  locationName
+  setSearchQuery
 }) => {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -120,34 +114,6 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
               ))}
             </div>
 
-            {/* Quick Actions */}
-            <div className="flex justify-center lg:justify-start">
-              <button
-                onClick={onLocationRequest}
-                disabled={locationStatus === 'requesting'}
-                className={`inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                  locationStatus === 'granted'
-                    ? 'bg-blue-500 text-white shadow-sm hover:shadow-md'
-                    : locationStatus === 'denied'
-                    ? 'bg-red-500 text-white shadow-sm'
-                    : 'bg-white/70 backdrop-blur-sm border border-gray-300/50 text-gray-600 hover:border-blue-400 hover:bg-white/90'
-                }`}
-              >
-                {locationStatus === 'requesting' ? (
-                  <div className="animate-spin rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 border-2 border-current border-t-transparent"></div>
-                ) : (
-                  <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                )}
-                <span className="whitespace-nowrap">
-                  {locationStatus === 'granted'
-                    ? locationName || t('home.location.set')
-                    : locationStatus === 'denied'
-                    ? t('home.location.denied')
-                    : t('home.location.getLocation')
-                  }
-                </span>
-              </button>
-            </div>
           </div>
 
           {/* Enhanced Search Section */}

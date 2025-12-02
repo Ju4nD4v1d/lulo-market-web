@@ -1,5 +1,4 @@
-import type * as React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Polygon, Marker, Popup } from 'react-leaflet';
 import { X, MapPin, Truck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
