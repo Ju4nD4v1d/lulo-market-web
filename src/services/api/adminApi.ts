@@ -3,7 +3,10 @@
  * Includes Stripe account management for admins
  */
 
-const CLOUD_FUNCTIONS_BASE = 'https://us-central1-lulop-eds249.cloudfunctions.net';
+const isProduction = import.meta.env.VITE_ENV === 'production';
+const CLOUD_FUNCTIONS_BASE = isProduction
+  ? 'https://us-central1-lulocart-prod.cloudfunctions.net'
+  : 'https://us-central1-lulop-eds249.cloudfunctions.net';
 
 // ============================================================================
 // Types

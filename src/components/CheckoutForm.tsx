@@ -707,7 +707,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         storeStripeAccountId
       });
 
-      const response = await fetch('https://createpaymentintent-6v2n7ecudq-uc.a.run.app', {
+      const paymentIntentEndpoint = import.meta.env.VITE_PAYMENT_INTENT_ENDPOINT ||
+        'https://createpaymentintent-6v2n7ecudq-uc.a.run.app';
+
+      const response = await fetch(paymentIntentEndpoint, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

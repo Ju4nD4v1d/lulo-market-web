@@ -304,6 +304,9 @@ export const translations = {
     'home.products.loading': 'Loading products...',
     'home.products.error': 'Failed to load products. Please try again later.',
     'home.viewAll': 'View All',
+    'home.emptyState.title': 'We\'re Getting Ready!',
+    'home.emptyState.subtitle': 'Our stores and products are coming soon. Stay tuned for authentic Latino flavors delivered to your door.',
+    'home.emptyState.cta': 'Become a Partner',
 
     'pricing.basic.title': 'Basic Plan',
     'pricing.basic.monthlyPrice': '$29',
@@ -3977,6 +3980,9 @@ export const translations = {
     'home.products.subtitle': 'Explora productos de todas nuestras tiendas',
     'home.products.loading': 'Cargando productos...',
     'home.viewAll': 'Ver Todos',
+    'home.emptyState.title': '¡Estamos Preparándonos!',
+    'home.emptyState.subtitle': 'Nuestras tiendas y productos llegarán pronto. Mantente atento a los auténticos sabores latinos entregados a tu puerta.',
+    'home.emptyState.cta': 'Conviértete en Socio',
 
     // Additional Critical Missing Translations - Spanish
     'checkout': 'Finalizar Compra',
