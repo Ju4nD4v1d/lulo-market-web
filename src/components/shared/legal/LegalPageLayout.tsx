@@ -25,14 +25,26 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  // Check if user came from a specific page (e.g., dashboard/documents)
+  const backPath = localStorage.getItem('backNavigationPath');
+  const hasBackPath = backPath && backPath !== window.location.hash;
+  const isFromDashboard = backPath?.includes('dashboard');
+
   const handleBack = () => {
-    const backPath = localStorage.getItem('backNavigationPath');
-    if (backPath && backPath !== window.location.hash) {
+    if (hasBackPath) {
       localStorage.removeItem('backNavigationPath');
       window.location.hash = backPath;
     } else {
       window.location.hash = '#';
     }
+  };
+
+  // Determine back button text
+  const getBackButtonText = () => {
+    if (isFromDashboard) {
+      return t('legal.backToDocuments');
+    }
+    return t('legal.backToHome');
   };
 
   return (
@@ -41,10 +53,14 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
       <div className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.headerContent}>
-            <button onClick={handleBack} className={styles.backButton}>
-              <ArrowLeft className={styles.backIcon} />
-              <span>{t('legal.backToHome')}</span>
-            </button>
+            {hasBackPath ? (
+              <button onClick={handleBack} className={styles.backButton}>
+                <ArrowLeft className={styles.backIcon} />
+                <span>{getBackButtonText()}</span>
+              </button>
+            ) : (
+              <div className={styles.backButtonPlaceholder} />
+            )}
             <div className={styles.lastUpdated}>
               {t('legal.lastUpdated')}: {lastUpdated}
             </div>

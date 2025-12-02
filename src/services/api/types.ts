@@ -45,4 +45,5 @@ export const COLLECTIONS = {
   USERS: 'users',
   WAITLIST: 'waitlist',
   DRIVERS: 'drivers',
+  STORE_ACCEPTANCES: 'store_acceptances',
 } as const;

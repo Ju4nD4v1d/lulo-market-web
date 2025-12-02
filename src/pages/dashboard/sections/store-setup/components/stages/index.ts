@@ -10,4 +10,3 @@ export { AddressStage } from './AddressStage';
 export { ContactInfoStage } from './ContactInfoStage';
 export { AboutSectionsStage } from './AboutSectionsStage';
 export { ServiceAgreementStage } from './ServiceAgreementStage';
-export { PricingConfirmationStage } from './PricingConfirmationStage';

@@ -34,6 +34,12 @@
   color: var(--color-primary-700);
 }
 
+.backButtonPlaceholder {
+  /* Empty placeholder to maintain layout when back button is hidden */
+  width: 1px;
+  height: 1px;
+}
+
 .backIcon {
   width: 1.25rem;
   height: 1.25rem;

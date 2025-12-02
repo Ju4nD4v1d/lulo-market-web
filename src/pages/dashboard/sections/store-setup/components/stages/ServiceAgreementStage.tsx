@@ -1,29 +1,31 @@
 /**
  * ServiceAgreementStage Component
  *
- * Stage 5: Service Agreement
- * Displays service agreement and collects acceptance
+ * Stage 4: Legal Agreements
+ * Displays three legal agreements with checkboxes
+ * Only shows pending (not yet accepted) agreements
  */
 
 import type * as React from 'react';
-import { ServiceAgreement } from '../ServiceAgreement';
+import { LegalAgreements, AgreementState } from '../LegalAgreements';
 
 interface ServiceAgreementStageProps {
-  storeName: string;
-  agreed: boolean;
-  onAgreeChange: (agreed: boolean) => void;
+  agreements: AgreementState;
+  onAgreementChange: (agreements: AgreementState) => void;
+  /** Previously accepted agreements - only pending ones will be shown */
+  existingAcceptances?: AgreementState;
 }
 
 export const ServiceAgreementStage: React.FC<ServiceAgreementStageProps> = ({
-  storeName,
-  agreed,
-  onAgreeChange,
+  agreements,
+  onAgreementChange,
+  existingAcceptances,
 }) => {
   return (
-    <ServiceAgreement
-      storeName={storeName}
-      agreed={agreed}
-      onAgreeChange={onAgreeChange}
+    <LegalAgreements
+      agreements={agreements}
+      onAgreementChange={onAgreementChange}
+      existingAcceptances={existingAcceptances}
     />
   );
 };

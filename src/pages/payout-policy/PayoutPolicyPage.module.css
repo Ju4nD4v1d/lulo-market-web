@@ -1,0 +1,10 @@
+.content {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.preformatted {
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  margin: 0;
+}

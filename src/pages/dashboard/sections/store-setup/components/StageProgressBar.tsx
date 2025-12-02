@@ -3,25 +3,29 @@
  *
  * Shows progress through all setup stages
  * Displays current stage and completion percentage
+ * Supports dynamic stages (e.g., skipping agreements in edit mode)
  */
 
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../../../../context/LanguageContext';
-import { STAGES, TOTAL_STAGES } from '../config/stageConfig';
+import { STAGES, type StageDefinition } from '../config/stageConfig';
 import styles from './StageProgressBar.module.css';
 
 interface StageProgressBarProps {
   currentStage: number;
   completedStages: Set<number>;
+  stages?: StageDefinition[];
 }
 
 export const StageProgressBar: React.FC<StageProgressBarProps> = ({
   currentStage,
   completedStages,
+  stages = STAGES,
 }) => {
   const { t } = useLanguage();
-  const progress = (currentStage / TOTAL_STAGES) * 100;
+  const totalStages = stages.length;
+  const progress = (currentStage / totalStages) * 100;
 
   return (
     <div className={styles.container}>
@@ -29,7 +33,7 @@ export const StageProgressBar: React.FC<StageProgressBarProps> = ({
       <div className={styles.header}>
         <h2 className={styles.title}>Store Setup Progress</h2>
         <div className={styles.stageBadge}>
-          Step {currentStage} of {TOTAL_STAGES}
+          Step {currentStage} of {totalStages}
         </div>
       </div>
 
@@ -45,11 +49,11 @@ export const StageProgressBar: React.FC<StageProgressBarProps> = ({
 
       {/* Stage Indicators (Desktop only) */}
       <div className={styles.stageIndicators}>
-        {STAGES.map((stage, index) => {
+        {stages.map((stage, index) => {
           const Icon = stage.icon;
           const isComplete = completedStages.has(stage.id);
-          const isCurrent = stage.id === currentStage;
-          const isActive = stage.id <= currentStage;
+          const isCurrent = index + 1 === currentStage;
+          const isActive = index + 1 <= currentStage;
 
           return (
             <React.Fragment key={stage.id}>
@@ -80,10 +84,10 @@ export const StageProgressBar: React.FC<StageProgressBarProps> = ({
               </div>
 
               {/* Connector */}
-              {index < STAGES.length - 1 && (
+              {index < stages.length - 1 && (
                 <div
                   className={`${styles.connector} ${
-                    stage.id < currentStage ? styles.connectorActive : ''
+                    index + 1 < currentStage ? styles.connectorActive : ''
                   }`}
                 />
               )}
