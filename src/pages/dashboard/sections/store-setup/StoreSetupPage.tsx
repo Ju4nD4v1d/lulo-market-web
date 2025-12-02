@@ -95,6 +95,15 @@ export const StoreSetupPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queriedStoreId, queriedStoreData?.storeImage, queriedStoreData?.images?.[0]]); // React to image changes
 
+  // Reset modal state when component unmounts or user navigates away
+  useEffect(() => {
+    return () => {
+      setShowModal(false);
+      setModalStep('saving');
+      setSaveError(null);
+    };
+  }, []);
+
   const handleImageUpload = (file: File) => {
     const preview = URL.createObjectURL(file);
     setStoreImage({ file, preview });
