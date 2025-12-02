@@ -1,6 +1,5 @@
 import { Product } from '../../../types';
 import { useLanguage } from '../../../context/LanguageContext';
-import { getCategoryLabel } from '../../../constants/productCategories';
 import styles from './HorizontalProductCard.module.css';
 
 interface HorizontalProductCardProps {
@@ -64,9 +63,6 @@ export const HorizontalProductCard: React.FC<HorizontalProductCardProps> = ({
           <span className={styles.price}>
             ${product.price.toFixed(2)}
           </span>
-          {product.category && (
-            <span className={styles.category}>{getCategoryLabel(product.category, t)}</span>
-          )}
         </div>
       </div>
     </div>

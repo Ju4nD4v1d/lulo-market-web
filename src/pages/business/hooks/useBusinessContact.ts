@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useBusinessContactMutation } from '../../../hooks/mutations/useBusinessContactMutation';
+import { trackLead } from '../../../services/analytics';
 
 interface FormData {
   fullName: string;
@@ -107,6 +108,9 @@ export const useBusinessContact = () => {
           version: 'v1.0'
         }
       });
+
+      // Track Lead event for Meta Pixel
+      trackLead('business_inquiry');
 
       setIsSubmitted(true);
     } catch (error) {

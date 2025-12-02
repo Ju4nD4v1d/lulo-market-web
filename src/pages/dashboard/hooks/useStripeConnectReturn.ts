@@ -60,23 +60,20 @@ export function useStripeConnectReturn(): UseStripeConnectReturnResult {
   }, [store?.id]);
 
   const handleSuccess = async () => {
-    // User completed Stripe onboarding - show success and refresh store data
-    setStatus('success');
-    setMessage('stripeConnect.return.success');
+    // User returned from Stripe onboarding - refresh store data to get actual status
+    // Don't show success message here - let PaymentSettings and StripeConnectBanner
+    // show the actual status (which may still require action)
+    setStatus('verifying');
 
-    // Refresh store data to get updated Stripe status
-    // This will update the banner to show the correct state
     try {
       await refreshStoreStatus();
     } catch (err) {
       console.error('Error refreshing store status:', err);
     }
 
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      setStatus('idle');
-      setMessage(null);
-    }, 5000);
+    // Clear verifying status after refresh completes
+    setStatus('idle');
+    setMessage(null);
   };
 
   const handleRefresh = async () => {

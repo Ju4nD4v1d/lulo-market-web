@@ -1,8 +1,9 @@
 import type * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CustomStoreDetail } from './components/CustomStoreDetail';
 import { StoreData } from '../../types/store';
 import { useStoreData } from '../../hooks/useStoreData';
+import { trackViewContent } from '../../services/analytics';
 
 export const StoreMenuPage: React.FC = () => {
   const [storeId, setStoreId] = useState<string | null>(null);
@@ -29,6 +30,19 @@ export const StoreMenuPage: React.FC = () => {
       }
     }
   }, [storeId, stores]);
+
+  // Track ViewContent event when store loads
+  const hasTrackedView = useRef(false);
+  useEffect(() => {
+    if (selectedStore && !hasTrackedView.current) {
+      hasTrackedView.current = true;
+      trackViewContent({
+        contentId: selectedStore.id,
+        contentName: selectedStore.name,
+        contentType: 'store'
+      });
+    }
+  }, [selectedStore]);
 
   const handleBack = () => {
     window.location.hash = '#';

@@ -1,4 +1,4 @@
-import type * as React from 'react';
+import React, { useEffect, useRef } from 'react';
 /**
  * CheckoutPage - Simplified checkout flow orchestrator
  *
@@ -17,6 +17,7 @@ import type * as React from 'react';
  */
 
 import { Order } from '../../types/order';
+import { trackInitiateCheckout } from '../../services/analytics';
 import { CheckoutProvider, useCheckoutContext } from './context/CheckoutContext';
 import { CheckoutWizard } from './components/CheckoutWizard';
 import { EmptyCartView } from './components/EmptyCartView';
@@ -68,6 +69,19 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     isPaymentReady,
     t
   } = useCheckoutContext();
+
+  // Track InitiateCheckout event once when checkout starts with items
+  const hasTrackedCheckout = useRef(false);
+  useEffect(() => {
+    if (cart.items.length > 0 && !hasTrackedCheckout.current) {
+      hasTrackedCheckout.current = true;
+      trackInitiateCheckout(
+        cart.summary.finalTotal,
+        cart.items.map(item => item.product.id),
+        cart.summary.itemCount
+      );
+    }
+  }, [cart.items, cart.summary]);
 
   // Empty cart check
   if (cart.items.length === 0) {

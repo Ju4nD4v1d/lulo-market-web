@@ -13,6 +13,7 @@ import { useCheckoutMutations } from '../../../hooks/mutations/useCheckoutMutati
 import { useOrderMonitoring } from './useOrderMonitoring';
 import { Order, OrderStatus } from '../../../types/order';
 import { Cart } from '../../../types/cart';
+import { trackPurchase } from '../../../services/analytics';
 
 interface UseOrderCreationOptions {
   cart: Cart;
@@ -36,6 +37,8 @@ export const useOrderCreation = ({
 
   // Ref to prevent double order completion (webhook + fallback)
   const orderCompletedRef = useRef(false);
+  // Ref to prevent duplicate analytics tracking
+  const purchaseTrackedRef = useRef(false);
 
   const { recordFailedOrder, updateOrder } = useCheckoutMutations();
 
@@ -49,9 +52,26 @@ export const useOrderCreation = ({
     }
     orderCompletedRef.current = true;
     console.log('✅ Order confirmed via webhook!', order);
+
+    // Track Purchase event for Meta Pixel (only once)
+    if (!purchaseTrackedRef.current) {
+      purchaseTrackedRef.current = true;
+      trackPurchase({
+        orderId: order.id,
+        value: cart.summary?.finalTotal || 0,
+        contentIds: cart.items?.map(item => item.product.id) || [],
+        contents: cart.items?.map(item => ({
+          id: item.product.id,
+          quantity: item.quantity,
+          item_price: item.product.price
+        })) || [],
+        numItems: cart.summary?.itemCount || 0
+      });
+    }
+
     clearCart();
     onOrderComplete(order);
-  }, [clearCart, onOrderComplete]);
+  }, [cart.items, cart.summary, clearCart, onOrderComplete]);
 
   // Setup order monitoring
   useOrderMonitoring({
@@ -82,6 +102,23 @@ export const useOrderCreation = ({
       if (!orderCompletedRef.current) {
         orderCompletedRef.current = true;
         console.log('⏰ Webhook fallback triggered - completing order');
+
+        // Track Purchase event for Meta Pixel (only once, fallback path)
+        if (!purchaseTrackedRef.current) {
+          purchaseTrackedRef.current = true;
+          trackPurchase({
+            orderId: orderIdToUse,
+            value: cart.summary?.finalTotal || 0,
+            contentIds: cart.items?.map(item => item.product.id) || [],
+            contents: cart.items?.map(item => ({
+              id: item.product.id,
+              quantity: item.quantity,
+              item_price: item.product.price
+            })) || [],
+            numItems: cart.summary?.itemCount || 0
+          });
+        }
+
         clearCart();
         // Create a minimal order object for navigation
         // The actual order data is already in Firestore
@@ -96,7 +133,7 @@ export const useOrderCreation = ({
         } as Order);
       }
     }, 7000);
-  }, [cart.storeId, cart.storeName, clearCart, onOrderComplete]);
+  }, [cart.items, cart.summary, cart.storeId, cart.storeName, clearCart, onOrderComplete]);
 
   /**
    * Handle payment failure - update order status and record for debugging
@@ -142,7 +179,7 @@ export const useOrderCreation = ({
     } catch (recordError) {
       console.error('❌ Error handling failed payment:', recordError);
     }
-  }, [updateOrder, recordFailedOrder, currentUser?.uid, cart.storeId]);
+  }, [updateOrder, recordFailedOrder, currentUser?.uid, cart.items, cart.summary, cart.storeId]);
 
   /**
    * Handle general payment errors
@@ -156,6 +193,7 @@ export const useOrderCreation = ({
    */
   const resetOrderCompletion = useCallback(() => {
     orderCompletedRef.current = false;
+    purchaseTrackedRef.current = false;
     setIsMonitoringOrder(false);
     setPendingOrderId(null);
   }, []);

@@ -10,7 +10,7 @@
  * This keeps Stripe configuration separate from CheckoutPage logic
  */
 
-import type * as React from 'react';
+import React from 'react';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCheckoutContext } from '../../context/CheckoutContext';
 import { createTemporaryOrder } from '../../utils/createTemporaryOrder';

@@ -102,6 +102,8 @@ export interface StoreData {
   stripeUpdatedAt?: Date;        // Last status update timestamp
   // Inventory settings
   lowStockThreshold?: number;    // Products below this quantity show warnings (default: 10)
+  // Founder program
+  isFounderStore?: boolean;      // Flag for early adopter stores - shown with special badge
 }
 
 // Stripe Connect account status

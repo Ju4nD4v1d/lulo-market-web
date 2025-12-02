@@ -10,7 +10,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useAuth } from '../../../../../context/AuthContext';
-import { Product } from '../../../../../types/product';
+import { Product, ProductStatus } from '../../../../../types/product';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { ConfirmDialog } from '../../../../../components/ConfirmDialog';
 import { PRODUCT_CATEGORIES } from '../../../../../constants/productCategories';
@@ -23,7 +23,7 @@ const defaultFormData: {
   price: number | '';
   category: string;
   stock: number | '';
-  status: 'active' | 'draft' | 'outOfStock';
+  status: ProductStatus;
   images: string[];
   pstPercentage: number;
   gstPercentage: number;
@@ -34,7 +34,7 @@ const defaultFormData: {
   price: '', // Empty string for new products to avoid "0" prefix issue
   category: '',
   stock: '', // Empty string for new products to avoid "0" prefix issue
-  status: 'active',
+  status: ProductStatus.ACTIVE,
   images: [],
   pstPercentage: 0,
   gstPercentage: 0,
@@ -499,19 +499,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div>
             <label className={styles.label}>{t('products.status')}</label>
             <div className={styles.radioGroup}>
-              {['active', 'draft', 'outOfStock'].map((status) => (
+              {[ProductStatus.ACTIVE, ProductStatus.DRAFT].map((status) => (
                 <label key={status} className={styles.radioLabel}>
                   <input
                     type="radio"
                     value={status}
                     checked={formData.status === status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Product['status'] })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as ProductStatus })}
                     className={styles.radio}
                   />
                   <span className={styles.radioText}>
-                    {status === 'outOfStock'
-                      ? t('products.status.outOfStock')
-                      : t(`products.status.${status}`)}
+                    {t(`products.status.${status}`)}
                   </span>
                 </label>
               ))}

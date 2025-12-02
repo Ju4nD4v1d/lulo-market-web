@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useProductDetailsQuery } from '../../hooks/queries';
+import { trackViewContent } from '../../services/analytics';
 import {
   ProductHeader,
   ProductImage,
@@ -33,6 +34,20 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
     storeId,
   });
 
+  // Track ViewContent event when product loads
+  const hasTrackedView = useRef(false);
+  useEffect(() => {
+    if (product && !hasTrackedView.current) {
+      hasTrackedView.current = true;
+      trackViewContent({
+        contentId: product.id,
+        contentName: product.name,
+        contentType: 'product',
+        value: product.price
+      });
+    }
+  }, [product]);
+
   // UI state
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -55,7 +70,11 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
 
   const languageLabel = locale === 'es' ? 'ES' : 'EN';
   const cartItemCount = cart.summary.itemCount;
-  const productImage = product?.imageUrl || (product?.images && product.images.length > 0 ? product.images[0] : null);
+
+  // Combine images array with legacy imageUrl, prioritizing images array
+  const productImages = product?.images?.length
+    ? product.images
+    : (product?.imageUrl ? [product.imageUrl] : []);
 
   if (isLoading) {
     return (
@@ -130,7 +149,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
       <main className={styles.main}>
         <div className={styles.container}>
           <ProductImage
-            imageUrl={productImage}
+            images={productImages}
             productName={product.name}
           />
 
