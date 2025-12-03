@@ -15,6 +15,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useStoreData } from '../../hooks/useStoreData';
+import { useMarketplaceStores } from '../../hooks/useMarketplaceStores';
 import styles from './index.module.css';
 
 /**
@@ -35,6 +36,16 @@ export const HomePage = () => {
 
   // Data fetching hooks
   const { stores, loading, fetchStores } = useStoreData();
+
+  // Filter active stores first
+  const activeStores = useMemo(() =>
+    stores.filter(store =>
+      store.status === undefined || store.status === 'active'
+    ), [stores]
+  );
+
+  // Validate stores for marketplace (must have Stripe + legal agreements)
+  const { validatedStores, isValidating } = useMarketplaceStores(activeStores);
 
   // Local UI state
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -99,27 +110,23 @@ export const HomePage = () => {
     window.location.hash = '#cart';
   }, []);
 
-  // Filter active stores only - memoized to prevent re-renders
-  const activeStores = useMemo(() =>
-    stores.filter(store =>
-      store.status === undefined || store.status === 'active'
-    ), [stores]
-  );
-
-  // Filter stores based on search query
+  // Filter validated stores based on search query
   const filteredStores = useMemo(() => {
     if (!searchQuery.trim()) {
-      return activeStores;
+      return validatedStores;
     }
 
     const query = searchQuery.toLowerCase().trim();
-    return activeStores.filter(store =>
+    return validatedStores.filter(store =>
       store.name.toLowerCase().includes(query) ||
       store.description?.toLowerCase().includes(query) ||
       store.category?.toLowerCase().includes(query) ||
       store.cuisine?.toLowerCase().includes(query)
     );
-  }, [searchQuery, activeStores]);
+  }, [searchQuery, validatedStores]);
+
+  // Combined loading state (fetching + validating)
+  const isLoading = loading || isValidating;
 
   return (
     <div className={styles.container}>
@@ -156,12 +163,12 @@ export const HomePage = () => {
       {/* Main Content */}
       <main className={styles.main}>
         {/* Empty State - Show when no stores available */}
-        {!loading && activeStores.length === 0 && (
+        {!isLoading && validatedStores.length === 0 && (
           <EmptyStateSection />
         )}
 
         {/* Stores Horizontal Row */}
-        {!loading && activeStores.length > 0 && (
+        {!isLoading && validatedStores.length > 0 && (
           <HorizontalStoreRow
             stores={filteredStores}
             onStoreClick={handleStoreClick}
@@ -169,9 +176,9 @@ export const HomePage = () => {
         )}
 
         {/* Products Horizontal Row */}
-        {!loading && activeStores.length > 0 && (
+        {!isLoading && validatedStores.length > 0 && (
           <HorizontalProductRow
-            stores={activeStores}
+            stores={validatedStores}
             onProductClick={handleProductClick}
             searchQuery={searchQuery}
           />
