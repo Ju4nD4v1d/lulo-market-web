@@ -4,6 +4,8 @@
  * They don't have login credentials - just data entries representing delivery personnel
  */
 
+import { MultiSlotSchedule } from './schedule';
+
 export interface DriverScheduleSlot {
   open: string;    // "18:00" (24-hour format)
   close: string;   // "22:00"
@@ -36,6 +38,9 @@ export interface Driver {
   name: string;
   isActive: boolean;
   startingAddress: DriverAddress;
+  // Multi-slot availability schedule (NEW - supports up to 3 time slots per day)
+  availabilityScheduleV2?: MultiSlotSchedule;
+  // Legacy single-slot format - use availabilityScheduleV2 for new drivers
   availabilitySchedule: DriverSchedule;
   createdAt: Date;
   updatedAt: Date;

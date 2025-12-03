@@ -3,6 +3,7 @@ import type * as React from 'react';
 import { Clock } from 'lucide-react';
 import { Order } from '../../../types/order';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatTime12Hour } from '../../../utils/scheduleUtils';
 import styles from './OrderStatus.module.css';
 
 interface OrderStatusProps {
@@ -39,15 +40,49 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({ order }) => {
     return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const formatEstimatedDelivery = (date: Date): string => {
+  /**
+   * Format the estimated delivery date (just the date, not time)
+   */
+  const formatDeliveryDate = (date: Date): string => {
     const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
-    return date.toLocaleString(dateLocale, {
+    return date.toLocaleDateString(dateLocale, {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
+  };
+
+  /**
+   * Format the delivery time window as a human-readable string
+   */
+  const formatDeliveryTimeWindow = (): string => {
+    if (!order.deliveryTimeWindow) {
+      return '';
+    }
+
+    const openTime = formatTime12Hour(order.deliveryTimeWindow.open);
+    const closeTime = formatTime12Hour(order.deliveryTimeWindow.close);
+
+    if (locale === 'es') {
+      return `entre las ${openTime} y las ${closeTime}`;
+    }
+    return `between ${openTime} and ${closeTime}`;
+  };
+
+  /**
+   * Get the full estimated delivery text
+   */
+  const getEstimatedDeliveryText = (): string => {
+    if (!order.estimatedDeliveryTime) return '';
+
+    const dateText = formatDeliveryDate(order.estimatedDeliveryTime);
+    const timeWindowText = formatDeliveryTimeWindow();
+
+    if (timeWindowText) {
+      return `${dateText}, ${timeWindowText}`;
+    }
+
+    return dateText;
   };
 
   return (
@@ -61,7 +96,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({ order }) => {
       </div>
       {order.estimatedDeliveryTime && (
         <p className={styles.estimatedTime}>
-          {t('order.estimatedDelivery')}: {formatEstimatedDelivery(order.estimatedDeliveryTime)}
+          {t('order.estimatedDelivery')}: {getEstimatedDeliveryText()}
         </p>
       )}
     </div>

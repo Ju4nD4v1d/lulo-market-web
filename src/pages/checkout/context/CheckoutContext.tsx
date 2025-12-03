@@ -29,6 +29,10 @@ import { useCheckoutWizard, CheckoutStep } from '../hooks/useCheckoutWizard';
 import { usePaymentFlow } from '../hooks/usePaymentFlow';
 import { useOrderCreation } from '../hooks/useOrderCreation';
 import { useStoreReceiptQuery, StoreReceiptInfo } from '../../../hooks/queries/useStoreReceiptQuery';
+import { useStoreQuery } from '../../../hooks/queries/useStoreQuery';
+import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
+import { getAvailableDeliveryDatesMultiSlot } from '../../../utils/effectiveHours';
+import { formatDeliveryDateOptions, DeliveryDateOption, getThreeClosestDeliveryDates } from '../utils/dateHelpers';
 import { Order } from '../../../types/order';
 import { Cart } from '../../../types/cart';
 import { UserProfile } from '../../../types/user';
@@ -110,6 +114,11 @@ interface CheckoutContextValue {
   hasSavedAddress: boolean;
   applyProfileAddressAndSkipToReview: () => void;
 
+  // Delivery schedule
+  availableDeliveryDates: DeliveryDateOption[];
+  isLoadingSchedule: boolean;
+  hasNoDeliveryDates: boolean;
+
   // Payment handlers
   handlePaymentSuccess: (intentId: string) => Promise<void>;
   handlePaymentFailure: (intentId: string, error: string) => Promise<void>;
@@ -149,18 +158,19 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   );
 
   // Initialize form with user profile data if available
+  // Prioritize userProfile (Firestore) over currentUser (Firebase Auth)
   const initialFormData = useMemo(() => {
-    if (currentUser) {
+    if (currentUser || userProfile) {
       return {
         customerInfo: {
-          name: currentUser.displayName || '',
-          email: currentUser.email || '',
-          phone: currentUser.phoneNumber || ''
+          name: userProfile?.displayName || currentUser?.displayName || '',
+          email: userProfile?.email || currentUser?.email || '',
+          phone: userProfile?.phoneNumber || currentUser?.phoneNumber || ''
         }
       };
     }
     return undefined;
-  }, [currentUser]);
+  }, [currentUser, userProfile]);
 
   // Custom hooks
   const checkoutForm = useCheckoutForm({ t, initialData: initialFormData });
@@ -170,6 +180,64 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     storeId: cart.storeId,
     enabled: !!cart.storeId
   });
+
+  // Fetch store data for effective hours calculation
+  const { store: storeData, isLoading: isLoadingStore } = useStoreQuery(cart.storeId);
+
+  // Get effective hours (intersection of store schedule + driver availability)
+  const { effectiveHours, isLoading: isLoadingDrivers } = useEffectiveHours({
+    store: storeData || null,
+    enabled: !!cart.storeId
+  });
+
+  // Combined loading state for schedule (store + drivers)
+  const isLoadingSchedule = isLoadingStore || isLoadingDrivers;
+
+  // Compute available delivery dates from effective schedule
+  const availableDeliveryDates = useMemo((): DeliveryDateOption[] => {
+    // Don't compute dates until both store and drivers are loaded
+    if (isLoadingSchedule || !effectiveHours) {
+      return [];
+    }
+
+    const availableDates = getAvailableDeliveryDatesMultiSlot(effectiveHours, 14, 24);
+
+    if (availableDates.length === 0) {
+      return [];
+    }
+
+    return formatDeliveryDateOptions(availableDates, locale, 5);
+  }, [effectiveHours, locale, isLoadingSchedule]);
+
+  // Check if there are no delivery dates available (after loading is complete)
+  const hasNoDeliveryDates = !isLoadingSchedule && effectiveHours && availableDeliveryDates.length === 0;
+
+  // Update delivery date and time window in form when available dates are computed
+  useEffect(() => {
+    if (availableDeliveryDates.length > 0 && !isLoadingSchedule) {
+      const currentDeliveryDate = checkoutForm.formData.deliveryDate;
+      const matchingDate = availableDeliveryDates.find(d => d.value === currentDeliveryDate);
+
+      if (!matchingDate) {
+        // Current date is not valid, update to first available with its time window
+        const firstDate = availableDeliveryDates[0];
+        const firstSlot = firstDate.slots?.[0];
+        const timeWindow = firstSlot ? { open: firstSlot.open, close: firstSlot.close } : undefined;
+        checkoutForm.setEntireFormData({
+          deliveryDate: firstDate.value,
+          deliveryTimeWindow: timeWindow
+        });
+      } else {
+        // Current date is valid, ensure time window is set
+        const firstSlot = matchingDate.slots?.[0];
+        if (firstSlot && !checkoutForm.formData.deliveryTimeWindow) {
+          checkoutForm.setEntireFormData({
+            deliveryTimeWindow: { open: firstSlot.open, close: firstSlot.close }
+          });
+        }
+      }
+    }
+  }, [availableDeliveryDates, isLoadingSchedule]);
 
   // Order creation hook - for monitoring order status after payment
   // Note: Order is now created in usePaymentFlow BEFORE payment
@@ -202,18 +270,19 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   });
 
   // Auto-fill form from user profile
+  // Prioritize userProfile (Firestore) over currentUser (Firebase Auth)
   useEffect(() => {
-    if (currentUser && checkoutForm.formData.useProfileAsDeliveryContact) {
+    if ((currentUser || userProfile) && checkoutForm.formData.useProfileAsDeliveryContact) {
       checkoutForm.setEntireFormData({
         customerInfo: {
-          name: currentUser.displayName || checkoutForm.formData.customerInfo.name,
-          email: currentUser.email || checkoutForm.formData.customerInfo.email,
-          phone: currentUser.phoneNumber || checkoutForm.formData.customerInfo.phone
+          name: userProfile?.displayName || currentUser?.displayName || checkoutForm.formData.customerInfo.name,
+          email: userProfile?.email || currentUser?.email || checkoutForm.formData.customerInfo.email,
+          phone: userProfile?.phoneNumber || currentUser?.phoneNumber || checkoutForm.formData.customerInfo.phone
         }
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.uid, checkoutForm.formData.useProfileAsDeliveryContact]);
+  }, [currentUser?.uid, userProfile, checkoutForm.formData.useProfileAsDeliveryContact]);
 
   // Payment success handler wrapper
   // Note: Order already exists in Firestore - just start monitoring for webhook
@@ -308,6 +377,11 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       hasSavedAddress,
       applyProfileAddressAndSkipToReview,
 
+      // Delivery schedule
+      availableDeliveryDates,
+      isLoadingSchedule,
+      hasNoDeliveryDates,
+
       // Handlers
       handlePaymentSuccess,
       handlePaymentFailure,
@@ -340,6 +414,9 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       t,
       hasSavedAddress,
       applyProfileAddressAndSkipToReview,
+      availableDeliveryDates,
+      isLoadingSchedule,
+      hasNoDeliveryDates,
       proceedToPayment
     ]
   );

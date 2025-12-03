@@ -50,6 +50,10 @@ export interface CheckoutFormData {
   orderNotes: string;
   isDelivery: boolean;
   deliveryDate: string;
+  deliveryTimeWindow?: { // Time slots from store schedule
+    open: string;
+    close: string;
+  };
   useProfileAsDeliveryContact: boolean;
   customerNotes?: string;
   specialRequests?: string;
@@ -140,9 +144,16 @@ export const buildEnhancedOrderData = (
 
   const now = new Date();
   const orderPlacedAt = now;
+
+  // Parse delivery date in LOCAL timezone (not UTC)
+  // new Date("2025-12-06") creates midnight UTC which shows as wrong day in local timezone
+  // Instead, parse components and construct date in local time
+  const [year, month, day] = formData.deliveryDate.split('-').map(Number);
+  const deliveryDateLocal = new Date(year, month - 1, day); // months are 0-indexed
+
   const preferredDeliveryTime = formData.preferredDeliveryTime
     ? new Date(`${formData.deliveryDate}T${formData.preferredDeliveryTime}`)
-    : new Date(formData.deliveryDate);
+    : deliveryDateLocal;
 
   return {
     id: orderId,
@@ -196,7 +207,8 @@ export const buildEnhancedOrderData = (
 
     // Enhanced: Delivery Details
     preferredDeliveryTime,
-    estimatedDeliveryTime: new Date(formData.deliveryDate),
+    estimatedDeliveryTime: deliveryDateLocal,
+    deliveryTimeWindow: formData.deliveryTimeWindow,
     deliveryNotes: '',
     deliveryZone: formData.deliveryAddress.city || '',
 

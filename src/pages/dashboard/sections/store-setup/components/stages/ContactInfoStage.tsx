@@ -2,43 +2,14 @@
  * ContactInfoStage Component
  *
  * Stage 3: Contact Information
- * Collects phone, email, website, and delivery hours
+ * Collects phone, email, website, and delivery schedule (multi-slot)
  */
 
 import type * as React from 'react';
-import { useMemo } from 'react';
-import { Phone, Mail, MapPin, Instagram, Facebook, Package } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook, Package, Clock } from 'lucide-react';
 import { useLanguage } from '../../../../../../context/LanguageContext';
-import { theme } from '../../../../../../config/theme';
-
-interface DeliveryHours {
-  [day: string]: {
-    open: string;
-    close: string;
-    closed: boolean;
-  };
-}
-
-// Canonical day order (Monday first, then through Sunday)
-const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-// Map various day name formats to canonical names for sorting
-const DAY_NAME_MAP: Record<string, string> = {
-  // English
-  sunday: 'Sunday', monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday',
-  thursday: 'Thursday', friday: 'Friday', saturday: 'Saturday',
-  // Spanish
-  domingo: 'Sunday', lunes: 'Monday', martes: 'Tuesday', miércoles: 'Wednesday',
-  miercoles: 'Wednesday', jueves: 'Thursday', viernes: 'Friday', sábado: 'Saturday', sabado: 'Saturday',
-};
-
-/**
- * Normalize day name to canonical English format
- */
-function normalizeDay(day: string): string {
-  const lowered = day.toLowerCase().trim();
-  return DAY_NAME_MAP[lowered] || day;
-}
+import { MultiSlotSchedule } from '../../../../../../types/schedule';
+import { MultiSlotScheduleEditor } from '../../../../../../components/MultiSlotScheduleEditor';
 
 interface ContactInfoStageProps {
   phone: string;
@@ -46,14 +17,14 @@ interface ContactInfoStageProps {
   website: string;
   instagram: string;
   facebook: string;
-  deliveryHours: DeliveryHours;
+  deliverySchedule: MultiSlotSchedule;
   lowStockThreshold: number;
   onPhoneChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onWebsiteChange: (value: string) => void;
   onInstagramChange: (value: string) => void;
   onFacebookChange: (value: string) => void;
-  onDeliveryHoursChange: (hours: DeliveryHours) => void;
+  onDeliveryScheduleChange: (schedule: MultiSlotSchedule) => void;
   onLowStockThresholdChange: (value: number) => void;
 }
 
@@ -63,45 +34,17 @@ export const ContactInfoStage: React.FC<ContactInfoStageProps> = ({
   website,
   instagram,
   facebook,
-  deliveryHours,
+  deliverySchedule,
   lowStockThreshold,
   onPhoneChange,
   onEmailChange,
   onWebsiteChange,
   onInstagramChange,
   onFacebookChange,
-  onDeliveryHoursChange,
+  onDeliveryScheduleChange,
   onLowStockThresholdChange,
 }) => {
   const { t } = useLanguage();
-
-  // Sort delivery hours by day of week (Monday first)
-  const sortedDeliveryHours = useMemo(() => {
-    return Object.entries(deliveryHours).sort(([dayA], [dayB]) => {
-      const normalizedA = normalizeDay(dayA);
-      const normalizedB = normalizeDay(dayB);
-      const indexA = DAY_ORDER.indexOf(normalizedA);
-      const indexB = DAY_ORDER.indexOf(normalizedB);
-      // If not found in DAY_ORDER, put at end
-      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
-    });
-  }, [deliveryHours]);
-
-  const handleDayToggle = (day: string, checked: boolean) => {
-    const updatedHours = {
-      ...deliveryHours,
-      [day]: { ...deliveryHours[day], closed: !checked }
-    };
-    onDeliveryHoursChange(updatedHours);
-  };
-
-  const handleTimeChange = (day: string, field: 'open' | 'close', value: string) => {
-    const updatedHours = {
-      ...deliveryHours,
-      [day]: { ...deliveryHours[day], [field]: value }
-    };
-    onDeliveryHoursChange(updatedHours);
-  };
 
   return (
     <div className="space-y-6">
@@ -192,51 +135,16 @@ export const ContactInfoStage: React.FC<ContactInfoStageProps> = ({
         </div>
       </div>
 
-      {/* Delivery Hours */}
+      {/* Delivery Schedule (Multi-Slot) */}
       <div className="group">
         <label className="block text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-primary-400" />
+          <Clock className="w-4 h-4 text-primary-400" />
           {t('store.deliveryHours')}
         </label>
-        <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-          {sortedDeliveryHours.map(([day, hours]) => (
-            <div key={day} className="flex items-center gap-4">
-              <div className="w-24 text-sm font-medium text-gray-700">
-                {t(`day.${normalizeDay(day).toLowerCase()}`)}
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={!hours.closed}
-                  onChange={(e) => handleDayToggle(day, e.target.checked)}
-                  className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
-                  style={{ accentColor: theme.colors.primary400 }}
-                />
-                <span className="text-sm text-gray-600 w-12">{t('store.open')}</span>
-              </div>
-              {!hours.closed && (
-                <>
-                  <input
-                    type="time"
-                    value={hours.open}
-                    onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 transition-colors"
-                  />
-                  <span className="text-gray-500">-</span>
-                  <input
-                    type="time"
-                    value={hours.close}
-                    onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 transition-colors"
-                  />
-                </>
-              )}
-              {hours.closed && (
-                <span className="text-red-600 text-sm font-medium">{t('store.closed')}</span>
-              )}
-            </div>
-          ))}
-        </div>
+        <MultiSlotScheduleEditor
+          schedule={deliverySchedule}
+          onChange={onDeliveryScheduleChange}
+        />
       </div>
 
       {/* Low Stock Threshold */}

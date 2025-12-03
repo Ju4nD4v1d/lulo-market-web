@@ -11,6 +11,7 @@ import { useStoreStatsQuery } from '../../../../hooks/queries/useStoreStatsQuery
 import { useAllLatestAgreementsQuery } from '../../../../hooks/queries';
 import { useStoreMutations } from '../../../../hooks/mutations/useStoreMutations';
 import { StoreData } from '../../../../types/store';
+import { DEFAULT_MULTI_SLOT_SCHEDULE } from '../../../../types/schedule';
 import { useAddressGeocoding } from './hooks/useAddressGeocoding';
 import { isAddressComplete } from '../../../../utils/geocoding';
 import { saveStoreAcceptances, getStoreAcceptances } from '../../../../services/api';
@@ -43,6 +44,8 @@ const initialStoreData: StoreData = {
     Saturday: { open: '09:00', close: '17:00', closed: false },
     Sunday: { open: '09:00', close: '17:00', closed: true }
   },
+  // Multi-slot delivery schedule (NEW)
+  deliverySchedule: DEFAULT_MULTI_SLOT_SCHEDULE,
   deliveryOptions: {
     delivery: false,
     pickup: false,

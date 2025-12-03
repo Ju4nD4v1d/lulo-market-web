@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
@@ -58,10 +58,13 @@ const LoadingFallback = () => (
 const AppRoutes = () => {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#');
   const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
+  const isRedirectingRef = useRef(false);
 
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentRoute(window.location.hash || '#');
+      // Reset redirect flag when hash changes
+      isRedirectingRef.current = false;
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -82,7 +85,13 @@ const AppRoutes = () => {
 
   // Handle redirect after successful login
   useEffect(() => {
+    // Prevent multiple redirects from racing
+    if (isRedirectingRef.current) {
+      return;
+    }
+
     if (currentUser && redirectAfterLogin) {
+      isRedirectingRef.current = true;
       const redirectPath = redirectAfterLogin;
       setRedirectAfterLogin(null);
 
@@ -96,8 +105,15 @@ const AppRoutes = () => {
           window.dispatchEvent(new CustomEvent('openCheckout'));
         }
       }, 100);
+    } else if (currentUser && !redirectAfterLogin && currentRoute.startsWith('#login')) {
+      // User just logged in from login page with no pending redirect
+      // Redirect to home page
+      isRedirectingRef.current = true;
+      setTimeout(() => {
+        window.location.hash = '#';
+      }, 100);
     }
-  }, [currentUser, redirectAfterLogin, setRedirectAfterLogin]);
+  }, [currentUser, redirectAfterLogin, setRedirectAfterLogin, currentRoute]);
 
   // Show loading state while auth is being determined
   if (loading) {

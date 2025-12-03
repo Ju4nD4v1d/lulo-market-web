@@ -16,6 +16,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { StoreData } from '../../types';
+import { MultiSlotSchedule, LegacySchedule } from '../../types/schedule';
+import { migrateFromLegacySchedule } from '../../utils/scheduleUtils';
 import { COLLECTIONS, safeDate } from './types';
 
 // ============================================================================
@@ -44,6 +46,7 @@ export interface CreateStoreData {
   socialMedia?: Record<string, string>;
   businessHours?: Record<string, unknown>;
   deliveryHours?: Record<string, unknown>;
+  deliverySchedule?: MultiSlotSchedule;
   deliveryOptions?: Record<string, boolean>;
   paymentMethods?: string[];
   cuisineType?: string[];
@@ -80,6 +83,7 @@ export interface UpdateStoreData {
   socialMedia?: Record<string, string>;
   businessHours?: Record<string, unknown>;
   deliveryHours?: Record<string, unknown>;
+  deliverySchedule?: MultiSlotSchedule;
   deliveryOptions?: Record<string, boolean>;
   paymentMethods?: string[];
   cuisineType?: string[];
@@ -125,6 +129,14 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     socialMedia: (data.socialMedia as Record<string, string>) || {},
     businessHours: (data.businessHours as Record<string, unknown>) || {},
     deliveryHours: (data.deliveryHours as Record<string, unknown>) || (data.businessHours as Record<string, unknown>) || {},
+    // Multi-slot delivery schedule with migration from legacy format
+    deliverySchedule: data.deliverySchedule
+      ? (data.deliverySchedule as MultiSlotSchedule)
+      : migrateFromLegacySchedule(
+          (data.deliveryHours as LegacySchedule) ||
+          (data.businessHours as LegacySchedule) ||
+          undefined
+        ),
     deliveryOptions: (data.deliveryOptions as StoreData['deliveryOptions']) || {
       delivery: false,
       pickup: false,
@@ -206,6 +218,10 @@ export function prepareStoreForFirestore(
   // Business settings
   if (data.businessHours !== undefined) firestoreData.businessHours = data.businessHours || {};
   if (data.deliveryHours !== undefined) firestoreData.deliveryHours = data.deliveryHours || {};
+  // Multi-slot delivery schedule (NEW)
+  if ('deliverySchedule' in data && data.deliverySchedule !== undefined) {
+    firestoreData.deliverySchedule = data.deliverySchedule;
+  }
   if (data.deliveryOptions !== undefined) firestoreData.deliveryOptions = data.deliveryOptions || {};
   if (data.paymentMethods !== undefined) firestoreData.paymentMethods = data.paymentMethods || [];
   if (data.cuisineType !== undefined) firestoreData.cuisineType = data.cuisineType || [];

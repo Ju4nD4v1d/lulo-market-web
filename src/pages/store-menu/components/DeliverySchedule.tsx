@@ -1,8 +1,16 @@
-import { Truck, Calendar, Loader2 } from 'lucide-react';
+/**
+ * DeliverySchedule - Clean display of store delivery days and times
+ *
+ * Mobile: Compact list with next delivery highlighted at top
+ * Desktop: Horizontal week view showing all days at a glance
+ */
+
+import { Truck, Clock, Loader2 } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
-import { formatTime12Hour } from '../../../utils/effectiveHours';
+import { formatTime12Hour } from '../../../utils/scheduleUtils';
+import { DayOfWeek } from '../../../types/schedule';
 import styles from './DeliverySchedule.module.css';
 
 interface DeliveryScheduleProps {
@@ -11,105 +19,76 @@ interface DeliveryScheduleProps {
 
 interface DayInfo {
   dayIndex: number;
+  dayName: DayOfWeek;
   dayKeyFull: string;
   dayKeyShort: string;
   isOpen: boolean;
-  timeWindow: string;
+  timeWindows: string[];
 }
 
-/**
- * DeliverySchedule - Shows which days a store delivers
- *
- * Features:
- * - Uses effective hours (intersection of store hours + driver availability)
- * - Only shows days the store is open (hides closed days)
- * - Desktop: Full day names in horizontal row
- * - Mobile: Abbreviated day names with flex wrap
- * - Highlights today with primary color
- * - Shows simplified "Next delivery" indicator
- */
 export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
   const { t } = useLanguage();
   const { effectiveHours, nextAvailableDay, isLoading } = useEffectiveHours({ store });
 
-  // Day mapping: index, full translation key, short translation key
-  const daysConfig = [
-    { index: 0, fullKey: 'days.sunday', shortKey: 'days.sun' },
-    { index: 1, fullKey: 'days.monday', shortKey: 'days.mon' },
-    { index: 2, fullKey: 'days.tuesday', shortKey: 'days.tue' },
-    { index: 3, fullKey: 'days.wednesday', shortKey: 'days.wed' },
-    { index: 4, fullKey: 'days.thursday', shortKey: 'days.thu' },
-    { index: 5, fullKey: 'days.friday', shortKey: 'days.fri' },
-    { index: 6, fullKey: 'days.saturday', shortKey: 'days.sat' },
+  const daysConfig: Array<{ dayName: DayOfWeek; fullKey: string; shortKey: string }> = [
+    { dayName: 'Sunday', fullKey: 'days.sunday', shortKey: 'days.sun' },
+    { dayName: 'Monday', fullKey: 'days.monday', shortKey: 'days.mon' },
+    { dayName: 'Tuesday', fullKey: 'days.tuesday', shortKey: 'days.tue' },
+    { dayName: 'Wednesday', fullKey: 'days.wednesday', shortKey: 'days.wed' },
+    { dayName: 'Thursday', fullKey: 'days.thursday', shortKey: 'days.thu' },
+    { dayName: 'Friday', fullKey: 'days.friday', shortKey: 'days.fri' },
+    { dayName: 'Saturday', fullKey: 'days.saturday', shortKey: 'days.sat' },
   ];
 
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-  /**
-   * Get the schedule for each day, filtering only open days
-   * Now uses effectiveHours (intersection of store + driver availability)
-   */
   const getOpenDays = (): DayInfo[] => {
     if (!effectiveHours) return [];
 
     return daysConfig
-      .map((config) => {
-        const dayName = dayNames[config.index];
-        const dayHours = effectiveHours[dayName];
-        const isOpen = dayHours && !dayHours.closed;
+      .map((config, index) => {
+        const daySchedule = effectiveHours[config.dayName];
+        const isOpen = daySchedule && !daySchedule.closed && daySchedule.slots.length > 0;
 
-        // Format time window
-        let timeWindow = '';
-        if (isOpen && dayHours) {
-          timeWindow = `${formatTime12Hour(dayHours.open)} - ${formatTime12Hour(dayHours.close)}`;
+        const timeWindows: string[] = [];
+        if (isOpen && daySchedule) {
+          for (const slot of daySchedule.slots) {
+            timeWindows.push(`${formatTime12Hour(slot.open)} - ${formatTime12Hour(slot.close)}`);
+          }
         }
 
         return {
-          dayIndex: config.index,
+          dayIndex: index,
+          dayName: config.dayName,
           dayKeyFull: config.fullKey,
           dayKeyShort: config.shortKey,
           isOpen: Boolean(isOpen),
-          timeWindow,
+          timeWindows,
         };
       })
       .filter((day) => day.isOpen);
   };
 
-  /**
-   * Get next delivery info from hook
-   */
-  const getNextDelivery = (): { label: string; isToday: boolean } | null => {
+  const getNextDeliveryLabel = (): string | null => {
     if (!nextAvailableDay) return null;
 
     if (nextAvailableDay.isToday) {
-      return { label: t('deliverySchedule.today'), isToday: true };
+      return t('deliverySchedule.today');
     }
 
     if (nextAvailableDay.isTomorrow) {
-      return { label: t('deliverySchedule.tomorrow'), isToday: false };
+      return t('deliverySchedule.tomorrow');
     }
 
-    // Find the translation key for this day
-    const dayIndex = dayNames.indexOf(nextAvailableDay.day);
-    if (dayIndex >= 0) {
-      return { label: t(daysConfig[dayIndex].fullKey), isToday: false };
-    }
-
-    return { label: nextAvailableDay.day, isToday: false };
+    const config = daysConfig.find(c => c.dayName === nextAvailableDay.day);
+    return config ? t(config.fullKey) : nextAvailableDay.day;
   };
 
   const openDays = getOpenDays();
-  const nextDelivery = getNextDelivery();
+  const nextDeliveryLabel = getNextDeliveryLabel();
   const today = new Date().getDay();
 
-  // Show loading state while fetching driver availability
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <Truck className={styles.headerIcon} />
-          <h2 className={styles.title}>{t('deliverySchedule.title')}</h2>
-        </div>
         <div className={styles.loadingState}>
           <Loader2 className={styles.loadingIcon} />
         </div>
@@ -117,13 +96,12 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
     );
   }
 
-  // If no open days at all
   if (openDays.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
           <Truck className={styles.headerIcon} />
-          <h2 className={styles.title}>{t('deliverySchedule.title')}</h2>
+          <span className={styles.title}>{t('deliverySchedule.title')}</span>
         </div>
         <div className={styles.emptyState}>
           {t('deliverySchedule.noDeliveryDays')}
@@ -137,46 +115,41 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
       {/* Header */}
       <div className={styles.header}>
         <Truck className={styles.headerIcon} />
-        <h2 className={styles.title}>{t('deliverySchedule.title')}</h2>
+        <span className={styles.title}>{t('deliverySchedule.title')}</span>
+        {nextDeliveryLabel && (
+          <span className={styles.nextDelivery}>
+            {t('deliverySchedule.nextDelivery')}: <strong>{nextDeliveryLabel}</strong>
+          </span>
+        )}
       </div>
 
-      {/* Schedule List */}
-      <div className={styles.scheduleList}>
+      {/* Schedule - Mobile: List / Desktop: Grid */}
+      <div className={styles.schedule}>
         {openDays.map((day) => {
           const isToday = day.dayIndex === today;
 
           return (
             <div
               key={day.dayIndex}
-              className={`${styles.scheduleItem} ${isToday ? styles.scheduleItemActive : ''}`}
+              className={`${styles.dayItem} ${isToday ? styles.dayItemToday : ''}`}
             >
-              <span className={styles.dayName}>
+              <div className={styles.dayName}>
                 <span className={styles.dayNameShort}>{t(day.dayKeyShort)}</span>
                 <span className={styles.dayNameFull}>{t(day.dayKeyFull)}</span>
                 {isToday && <span className={styles.todayBadge}>{t('deliverySchedule.today')}</span>}
-              </span>
-              <span className={styles.timeWindow}>{day.timeWindow}</span>
+              </div>
+              <div className={styles.timeSlots}>
+                {day.timeWindows.map((window, idx) => (
+                  <span key={idx} className={styles.timeSlot}>
+                    <Clock className={styles.clockIcon} />
+                    {window}
+                  </span>
+                ))}
+              </div>
             </div>
           );
         })}
       </div>
-
-      {/* Next Delivery Callout */}
-      {nextDelivery ? (
-        <div className={styles.nextDelivery}>
-          <Calendar className={styles.nextDeliveryIcon} />
-          <span className={styles.nextDeliveryText}>
-            {t('deliverySchedule.nextDelivery')}:{' '}
-            <span className={styles.nextDeliveryValue}>{nextDelivery.label}</span>
-          </span>
-        </div>
-      ) : (
-        <div className={styles.noService}>
-          <span className={styles.noServiceText}>
-            {t('deliverySchedule.noService')}
-          </span>
-        </div>
-      )}
     </div>
   );
 };

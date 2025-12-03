@@ -22,6 +22,10 @@ export interface CheckoutFormData {
   orderNotes: string;
   isDelivery: boolean;
   deliveryDate: string;
+  deliveryTimeWindow?: { // Time window from store schedule
+    open: string;
+    close: string;
+  };
   useProfileAsDeliveryContact: boolean;
   customerNotes?: string;
   specialRequests?: string;
