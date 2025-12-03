@@ -75,7 +75,7 @@ export const translations = {
     // Business Form
     'business.form.badge': 'Business Registration',
     'business.form.title': 'Tell us about your business',
-    'business.form.description': 'Complete this form to start your partnership with Lulo Market.',
+    'business.form.description': 'Complete this form to start your partnership with LuloCart.',
     'business.form.businessName': 'Business Name',
     'business.form.businessNamePlaceholder': 'Name of your business',
     'business.form.businessType': 'Business Type',
@@ -101,7 +101,7 @@ export const translations = {
 
     // Business Info
     'business.info.badge': 'Application Submitted',
-    'business.info.title': 'Welcome to Lulo Market!',
+    'business.info.title': 'Welcome to LuloCart!',
     'business.info.description': 'Your application has been submitted successfully.',
     'business.info.successTitle': 'Application Received',
     'business.info.successMessage': 'Our team will review your application and contact you within 24-48 hours.',
@@ -869,7 +869,7 @@ export const translations = {
     'metrics.exporting': 'Exporting...',
     'metrics.exportSuccess': 'Analytics data exported successfully!',
     'metrics.exportError': 'Failed to export data. Please try again.',
-    'metrics.exportTitle': 'Lulo Market - Analytics Export',
+    'metrics.exportTitle': 'LuloCart - Analytics Export',
     'metrics.exportStoreId': 'Store ID:',
     'metrics.exportDate': 'Export Date:',
     'metrics.exportTime': 'Export Time:',
@@ -2526,7 +2526,7 @@ If the customer disputes a payment:
     // Business Form
     'business.form.badge': 'Registro de Negocio',
     'business.form.title': 'Cuéntanos sobre tu negocio',
-    'business.form.description': 'Completa este formulario para comenzar tu asociación con Lulo Market.',
+    'business.form.description': 'Completa este formulario para comenzar tu asociación con LuloCart.',
     'business.form.businessName': 'Nombre del Negocio',
     'business.form.businessNamePlaceholder': 'Nombre de tu negocio',
     'business.form.businessType': 'Tipo de Negocio',
@@ -2552,7 +2552,7 @@ If the customer disputes a payment:
 
     // Business Info
     'business.info.badge': 'Solicitud Enviada',
-    'business.info.title': '¡Bienvenido a Lulo Market!',
+    'business.info.title': '¡Bienvenido a LuloCart!',
     'business.info.description': 'Tu solicitud ha sido enviada exitosamente.',
     'business.info.successTitle': 'Solicitud Recibida',
     'business.info.successMessage': 'Nuestro equipo revisará tu solicitud y te contactará en 24-48 horas.',
@@ -3145,7 +3145,7 @@ If the customer disputes a payment:
     'metrics.exporting': 'Exportando...',
     'metrics.exportSuccess': '¡Datos de análisis exportados exitosamente!',
     'metrics.exportError': 'Error al exportar datos. Por favor intenta nuevamente.',
-    'metrics.exportTitle': 'Lulo Market - Exportación de Análisis',
+    'metrics.exportTitle': 'LuloCart - Exportación de Análisis',
     'metrics.exportStoreId': 'ID de Tienda:',
     'metrics.exportDate': 'Fecha de Exportación:',
     'metrics.exportTime': 'Hora de Exportación:',

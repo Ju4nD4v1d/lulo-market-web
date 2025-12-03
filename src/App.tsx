@@ -127,7 +127,7 @@ const AppRoutes = () => {
   const renderRoute = () => {
     // Admin routes
     if (currentRoute.startsWith('#admin-login')) {
-      updateTitle('Lulo Market - Admin Login');
+      updateTitle('LuloCart - Admin Login');
       return <AdminLoginPage />;
     }
 
@@ -136,7 +136,7 @@ const AppRoutes = () => {
         window.location.hash = '#admin-login';
         return <AdminLoginPage />;
       }
-      updateTitle('Lulo Market - Dispatcher');
+      updateTitle('LuloCart - Dispatcher');
       return <DispatcherPage />;
     }
 
@@ -145,7 +145,7 @@ const AppRoutes = () => {
         window.location.hash = '#admin-login';
         return <AdminLoginPage />;
       }
-      updateTitle('Lulo Market - Admin Dashboard');
+      updateTitle('LuloCart - Admin Dashboard');
       return <AdminDashboard />;
     }
 
@@ -201,7 +201,7 @@ const AppRoutes = () => {
       const productId = parts[0];
       const storeId = parts[1];
       if (productId && storeId) {
-        updateTitle('Lulo Market - Product Details');
+        updateTitle('LuloCart - Product Details');
         return <ProductDetails productId={productId} storeId={storeId} />;
       }
     }
@@ -236,7 +236,7 @@ const AppRoutes = () => {
     }
 
     if (currentRoute.startsWith('#help')) {
-      updateTitle('Lulo Market - Help & Support');
+      updateTitle('LuloCart - Help & Support');
       return <HelpPage />;
     }
 
@@ -249,7 +249,7 @@ const AppRoutes = () => {
     }
 
     if (currentRoute.startsWith('#business')) {
-      updateTitle('Lulo Market for Merchants – Partner Program & Pricing');
+      updateTitle('LuloCart for Merchants – Partner Program & Pricing');
       return <Business />;
     }
 
@@ -258,17 +258,17 @@ const AppRoutes = () => {
         window.location.hash = '#login';
         return <Login />;
       }
-      updateTitle('Lulo Market - Order History');
+      updateTitle('LuloCart - Order History');
       return <OrderHistory onBack={() => window.location.hash = '#'} />;
     }
 
     if (currentRoute.startsWith('#products')) {
-      updateTitle('Lulo Market - All Products');
+      updateTitle('LuloCart - All Products');
       return <ProductList onBack={() => window.location.hash = '#'} />;
     }
 
     if (currentRoute === '#cart') {
-      updateTitle('Lulo Market - Your Cart');
+      updateTitle('LuloCart - Your Cart');
       return <CartPage />;
     }
 
@@ -277,7 +277,7 @@ const AppRoutes = () => {
         // Redirect is handled by useEffect
         return <Login />;
       }
-      updateTitle('Lulo Market - Checkout');
+      updateTitle('LuloCart - Checkout');
       return <CheckoutPage />;
     }
 
@@ -297,7 +297,7 @@ const AppRoutes = () => {
     }
 
     // Default route now goes to Home (marketplace with hero)
-    updateTitle('Lulo Market - Browse Local Latino Stores & Products');
+    updateTitle('LuloCart - Browse Local Latino Stores & Products');
     return <Home />;
   };
 
