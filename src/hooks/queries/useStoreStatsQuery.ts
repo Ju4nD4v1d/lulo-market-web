@@ -8,8 +8,10 @@ import { queryKeys } from './queryKeys';
 import * as storeApi from '../../services/api/storeApi';
 
 interface StoreStats {
-  totalProducts: number;
-  totalOrders: number;
+  productCount: number;
+  orderCount: number;
+  rating: number;
+  status: string;
   loading: boolean;
 }
 
@@ -44,8 +46,10 @@ export const useStoreStatsQuery = (storeId: string | null): StoreStats => {
   const [productsQuery, ordersQuery] = results;
 
   return {
-    totalProducts: productsQuery.data || 0,
-    totalOrders: ordersQuery.data || 0,
+    productCount: productsQuery.data || 0,
+    orderCount: ordersQuery.data || 0,
+    rating: 0, // TODO: Implement rating query when reviews are added
+    status: 'active',
     loading: productsQuery.isLoading || ordersQuery.isLoading,
   };
 };
