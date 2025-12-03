@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { StoreData } from '../types/store';
+import { MultiSlotSchedule, DEFAULT_MULTI_SLOT_SCHEDULE } from '../types/schedule';
 import { useActiveDriversQuery } from './queries/useDriversQuery';
 import {
-  computeEffectiveHours,
-  isDeliveryAvailableNow,
-  getTodayEffectiveHours,
-  getAvailableDaysSummary,
-  getNextAvailableDay,
-  WeeklySchedule,
+  computeEffectiveHoursMultiSlot,
+  isDeliveryAvailableNowMultiSlot,
+  getTodayEffectiveHoursMultiSlot,
+  getAvailableDaysSummaryMultiSlot,
+  getNextAvailableDayMultiSlot,
 } from '../utils/effectiveHours';
+import { migrateFromLegacySchedule } from '../utils/scheduleUtils';
 
 interface UseEffectiveHoursOptions {
   store: StoreData | null;
@@ -16,11 +17,11 @@ interface UseEffectiveHoursOptions {
 }
 
 interface EffectiveHoursResult {
-  /** Computed effective schedule (intersection of store + driver availability) */
-  effectiveHours: WeeklySchedule | null;
+  /** Computed effective schedule (intersection of store + driver availability) - multi-slot */
+  effectiveHours: MultiSlotSchedule | null;
   /** Whether delivery is available right now */
   isDeliveryAvailable: boolean;
-  /** Today's hours as formatted string (e.g., "10:00 AM - 3:00 PM") */
+  /** Today's hours as formatted string (e.g., "10:00 AM - 3:00 PM" or "9:00 AM - 12:00 PM, 2:00 PM - 6:00 PM") */
   todayHoursText: string;
   /** List of available days (e.g., ["Fri", "Sat", "Sun"]) */
   availableDays: string[];
@@ -28,18 +29,20 @@ interface EffectiveHoursResult {
   nextAvailableDay: { day: string; isToday: boolean; isTomorrow: boolean } | null;
   /** Loading state */
   isLoading: boolean;
-  /** The store's raw hours (before driver intersection) */
-  rawStoreHours: WeeklySchedule | null;
+  /** The store's raw multi-slot schedule (before driver intersection) */
+  rawStoreSchedule: MultiSlotSchedule | null;
   /** Number of active drivers */
   activeDriverCount: number;
 }
 
 /**
- * Hook that computes effective store hours
+ * Hook that computes effective store hours (multi-slot version)
  *
  * Effective hours = INTERSECTION of:
- * - Store's raw delivery/business hours
- * - Combined availability of all active drivers (UNION)
+ * - Store's raw delivery schedule (multi-slot)
+ * - Combined availability of all active drivers (UNION of all drivers' multi-slot schedules)
+ *
+ * Supports up to 3 time slots per day for both stores and drivers.
  *
  * @example
  * const { effectiveHours, isDeliveryAvailable, todayHoursText } = useEffectiveHours({ store });
@@ -50,34 +53,48 @@ export const useEffectiveHours = ({
 }: UseEffectiveHoursOptions): EffectiveHoursResult => {
   const { drivers: activeDrivers, isLoading } = useActiveDriversQuery(enabled);
 
-  const rawStoreHours = useMemo(() => {
+  // Get store's multi-slot schedule (with migration from legacy format)
+  const rawStoreSchedule = useMemo((): MultiSlotSchedule | null => {
     if (!store) return null;
-    return (store.deliveryHours || store.businessHours) as WeeklySchedule | null;
-  }, [store?.deliveryHours, store?.businessHours]);
 
+    // Use new deliverySchedule if available
+    if (store.deliverySchedule) {
+      return store.deliverySchedule;
+    }
+
+    // Migrate from legacy deliveryHours or businessHours
+    const legacySchedule = store.deliveryHours || store.businessHours;
+    if (legacySchedule && Object.keys(legacySchedule).length > 0) {
+      return migrateFromLegacySchedule(legacySchedule as Record<string, { open: string; close: string; closed: boolean }>);
+    }
+
+    return DEFAULT_MULTI_SLOT_SCHEDULE;
+  }, [store?.deliverySchedule, store?.deliveryHours, store?.businessHours]);
+
+  // Compute effective hours using multi-slot intersection logic
   const effectiveHours = useMemo(() => {
-    if (!rawStoreHours) return null;
-    return computeEffectiveHours(rawStoreHours, activeDrivers);
-  }, [rawStoreHours, activeDrivers]);
+    if (!rawStoreSchedule) return null;
+    return computeEffectiveHoursMultiSlot(rawStoreSchedule, activeDrivers);
+  }, [rawStoreSchedule, activeDrivers]);
 
   const isDeliveryAvailable = useMemo(() => {
     if (!effectiveHours) return false;
-    return isDeliveryAvailableNow(effectiveHours);
+    return isDeliveryAvailableNowMultiSlot(effectiveHours);
   }, [effectiveHours]);
 
   const todayHoursText = useMemo(() => {
     if (!effectiveHours) return 'Schedule unavailable';
-    return getTodayEffectiveHours(effectiveHours);
+    return getTodayEffectiveHoursMultiSlot(effectiveHours);
   }, [effectiveHours]);
 
   const availableDays = useMemo(() => {
     if (!effectiveHours) return [];
-    return getAvailableDaysSummary(effectiveHours, true);
+    return getAvailableDaysSummaryMultiSlot(effectiveHours, true);
   }, [effectiveHours]);
 
   const nextAvailableDay = useMemo(() => {
     if (!effectiveHours) return null;
-    return getNextAvailableDay(effectiveHours);
+    return getNextAvailableDayMultiSlot(effectiveHours);
   }, [effectiveHours]);
 
   return {
@@ -87,7 +104,7 @@ export const useEffectiveHours = ({
     availableDays,
     nextAvailableDay,
     isLoading,
-    rawStoreHours,
+    rawStoreSchedule,
     activeDriverCount: activeDrivers.length,
   };
 };

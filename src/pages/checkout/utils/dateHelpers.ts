@@ -2,8 +2,65 @@
  * Date utility functions for checkout delivery dates
  */
 
+import { AvailableDeliveryDate } from '../../../utils/effectiveHours';
+import { TimeSlot } from '../../../types/schedule';
+
+/**
+ * Delivery date option for UI display
+ */
+export interface DeliveryDateOption {
+  value: string;       // ISO date string (YYYY-MM-DD)
+  label: string;       // Formatted display label
+  slots?: TimeSlot[];  // Available time slots for this date
+  isToday?: boolean;
+  isTomorrow?: boolean;
+}
+
+/**
+ * Format available delivery dates from effective schedule for checkout form
+ *
+ * @param availableDates - Dates from getAvailableDeliveryDatesMultiSlot()
+ * @param locale - User's locale ('en' or 'es')
+ * @param maxOptions - Maximum number of options to return (default 3)
+ * @returns Formatted date options for UI display
+ */
+export const formatDeliveryDateOptions = (
+  availableDates: AvailableDeliveryDate[],
+  locale: string = 'en',
+  maxOptions: number = 3
+): DeliveryDateOption[] => {
+  const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
+
+  return availableDates.slice(0, maxOptions).map((dateInfo) => {
+    const dateValue = dateInfo.date.toISOString().split('T')[0];
+    const dayName = dateInfo.date.toLocaleDateString(dateLocale, { weekday: 'long' });
+    const monthDay = dateInfo.date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' });
+
+    // Format label based on isToday/isTomorrow
+    let label: string;
+    if (dateInfo.isToday) {
+      label = locale === 'es' ? `Hoy, ${monthDay}` : `Today, ${monthDay}`;
+    } else if (dateInfo.isTomorrow) {
+      label = locale === 'es' ? `Mañana, ${monthDay}` : `Tomorrow, ${monthDay}`;
+    } else {
+      // Capitalize first letter of day name
+      const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      label = `${capitalizedDay}, ${monthDay}`;
+    }
+
+    return {
+      value: dateValue,
+      label,
+      slots: dateInfo.slots,
+      isToday: dateInfo.isToday,
+      isTomorrow: dateInfo.isTomorrow,
+    };
+  });
+};
+
 /**
  * Get three closest available delivery dates (more than 24 hours from now, within 1 week)
+ * @deprecated Use formatDeliveryDateOptions with getAvailableDeliveryDatesMultiSlot instead
  * @returns Array of date objects with value (ISO date) and label (formatted display)
  */
 export const getThreeClosestDeliveryDates = (): Array<{ value: string; label: string }> => {

@@ -72,6 +72,10 @@ interface PaymentFormData {
   isDelivery: boolean;
   orderNotes: string;
   deliveryDate: string;
+  deliveryTimeWindow?: {
+    open: string;
+    close: string;
+  };
   useProfileAsDeliveryContact?: boolean;
 }
 

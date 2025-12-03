@@ -1,5 +1,8 @@
 /**
  * Custom hook for login/register form management
+ *
+ * NOTE: This hook does NOT handle redirects after login/registration.
+ * All redirect logic is centralized in App.tsx to avoid race conditions.
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -27,7 +30,7 @@ const initialAddress: AddressData = {
 };
 
 export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
-  const { login, register, currentUser, redirectAfterLogin } = useAuth();
+  const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,15 +42,6 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Handle redirect after login
-  useEffect(() => {
-    if (currentUser) {
-      if (!redirectAfterLogin) {
-        window.location.hash = '#';
-      }
-    }
-  }, [currentUser, redirectAfterLogin]);
 
   // Check URL parameters to determine initial mode
   useEffect(() => {
@@ -90,16 +84,15 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     try {
       if (isLogin) {
         await login(email, password);
-        // Redirect will be handled by the useEffect above
+        // Redirect is handled by App.tsx after auth state updates
       } else {
         // Only pass address if at least one field is filled
         const hasAddress = address.street || address.city || address.province || address.postalCode;
         await register(email, password, fullName, hasAddress ? address : undefined);
 
-        setSuccess('Account created successfully! You can now access your dashboard.');
-        setTimeout(() => {
-          window.location.hash = '#';
-        }, 1500);
+        setSuccess('Account created successfully!');
+        // Redirect is handled by App.tsx after auth state updates
+        // This allows proper redirect to checkout if user was in checkout flow
       }
     } catch (err: unknown) {
       const firebaseError = err as { code?: string; message: string };
@@ -120,11 +113,17 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     setFullName('');
     setAddress(initialAddress);
 
-    // Update URL to reflect current mode
-    if (loginMode) {
-      window.location.hash = '#login';
-    } else {
-      window.location.hash = '#login?mode=register';
+    // Only update URL if we're on the login page directly (not embedded in checkout/other routes)
+    // This preserves the redirect URL when Login is shown inline for protected routes
+    const currentHash = window.location.hash;
+    const isOnLoginPage = currentHash === '#login' || currentHash.startsWith('#login?');
+
+    if (isOnLoginPage) {
+      if (loginMode) {
+        window.location.hash = '#login';
+      } else {
+        window.location.hash = '#login?mode=register';
+      }
     }
   }, []);
 

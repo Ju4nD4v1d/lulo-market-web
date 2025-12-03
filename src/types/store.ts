@@ -1,5 +1,6 @@
 import { Product } from './product';
 import { SearchMetadata } from './search';
+import { MultiSlotSchedule } from './schedule';
 
 export interface AboutUsSection {
   id: string;
@@ -39,6 +40,9 @@ export interface StoreData {
   instagram?: string;
   facebook?: string;
   twitter?: string;
+  // Multi-slot delivery schedule (NEW - supports up to 3 time slots per day)
+  deliverySchedule?: MultiSlotSchedule;
+  // Legacy single-slot format - use deliverySchedule for new stores
   deliveryHours?: {
     [key: string]: {
       open: string;
@@ -46,7 +50,7 @@ export interface StoreData {
       closed: boolean;
     };
   };
-  // Legacy field for backwards compatibility - use deliveryHours instead
+  // Legacy field for backwards compatibility - use deliverySchedule instead
   businessHours?: {
     [key: string]: {
       open: string;

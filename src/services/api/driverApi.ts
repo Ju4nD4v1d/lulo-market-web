@@ -21,6 +21,8 @@ import {
   DriverSchedule,
   DEFAULT_DRIVER_SCHEDULE,
 } from '../../types/driver';
+import { MultiSlotSchedule, LegacySchedule } from '../../types/schedule';
+import { migrateFromLegacySchedule } from '../../utils/scheduleUtils';
 import { COLLECTIONS, safeDate } from './types';
 
 // ============================================================================
@@ -31,6 +33,7 @@ export interface CreateDriverData {
   name: string;
   isActive?: boolean;
   startingAddress: DriverAddress;
+  availabilityScheduleV2?: MultiSlotSchedule;
   availabilitySchedule?: DriverSchedule;
   notes?: string;
   phone?: string;
@@ -41,6 +44,7 @@ export interface UpdateDriverData {
   name?: string;
   isActive?: boolean;
   startingAddress?: DriverAddress;
+  availabilityScheduleV2?: MultiSlotSchedule;
   availabilitySchedule?: DriverSchedule;
   notes?: string;
   phone?: string;
@@ -58,6 +62,8 @@ export function transformDriverDocument(
   docId: string,
   data: Record<string, unknown>
 ): Driver {
+  const legacySchedule = (data.availabilitySchedule as DriverSchedule) || DEFAULT_DRIVER_SCHEDULE;
+
   return {
     id: docId,
     name: (data.name as string) || '',
@@ -68,8 +74,12 @@ export function transformDriverDocument(
       province: '',
       postalCode: '',
     },
-    availabilitySchedule:
-      (data.availabilitySchedule as DriverSchedule) || DEFAULT_DRIVER_SCHEDULE,
+    // Multi-slot availability schedule with migration from legacy format
+    availabilityScheduleV2: data.availabilityScheduleV2
+      ? (data.availabilityScheduleV2 as MultiSlotSchedule)
+      : migrateFromLegacySchedule(legacySchedule as unknown as LegacySchedule),
+    // Legacy single-slot format
+    availabilitySchedule: legacySchedule,
     createdAt: safeDate(data.createdAt),
     updatedAt: safeDate(data.updatedAt),
     notes: (data.notes as string) || '',
@@ -91,6 +101,10 @@ function prepareDriverForFirestore(
   if (data.isActive !== undefined) firestoreData.isActive = data.isActive;
   if (data.startingAddress !== undefined)
     firestoreData.startingAddress = data.startingAddress;
+  // Multi-slot availability schedule (NEW)
+  if (data.availabilityScheduleV2 !== undefined)
+    firestoreData.availabilityScheduleV2 = data.availabilityScheduleV2;
+  // Legacy single-slot format (keep for backward compatibility)
   if (data.availabilitySchedule !== undefined)
     firestoreData.availabilitySchedule = data.availabilitySchedule;
   if (data.notes !== undefined) firestoreData.notes = data.notes;

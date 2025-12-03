@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../../../../context/LanguageContext';
 import { StoreData } from '../../../../../types/store';
+import { DEFAULT_MULTI_SLOT_SCHEDULE, DAYS_OF_WEEK } from '../../../../../types/schedule';
+import { validateSchedule } from '../../../../../utils/scheduleUtils';
 import { StageProgressBar } from './StageProgressBar';
 import { StageContainer } from './StageContainer';
 import { getStageById, STAGES } from '../config/stageConfig';
@@ -134,8 +136,17 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storeData.email)) {
           return t('store.validation.emailInvalid');
         }
+        // Validate schedule for errors (overlapping slots, invalid times)
+        const schedule = storeData.deliverySchedule || DEFAULT_MULTI_SLOT_SCHEDULE;
+        const scheduleErrors = validateSchedule(schedule);
+        if (scheduleErrors.length > 0) {
+          const firstError = scheduleErrors[0];
+          if (firstError.type === 'overlap') return t('schedule.slotOverlap');
+          if (firstError.type === 'invalid_time') return t('schedule.invalidTime');
+          return t('schedule.slotOverlap'); // Default error
+        }
         // Validate at least one delivery hour is set
-        const hasDeliveryHours = Object.values(storeData.deliveryHours || {}).some(day => !day.closed);
+        const hasDeliveryHours = DAYS_OF_WEEK.some(day => !schedule[day].closed && schedule[day].slots.length > 0);
         if (!hasDeliveryHours) return t('store.validation.deliveryHoursRequired');
         return null;
       case 4: // Agreements (shown only when not yet accepted)
@@ -272,14 +283,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 website={storeData.website || ''}
                 instagram={storeData.instagram || ''}
                 facebook={storeData.facebook || ''}
-                deliveryHours={storeData.deliveryHours || {}}
+                deliverySchedule={storeData.deliverySchedule || DEFAULT_MULTI_SLOT_SCHEDULE}
                 lowStockThreshold={storeData.lowStockThreshold ?? 10}
                 onPhoneChange={(value) => setStoreData({ ...storeData, phone: value })}
                 onEmailChange={(value) => setStoreData({ ...storeData, email: value })}
                 onWebsiteChange={(value) => setStoreData({ ...storeData, website: value })}
                 onInstagramChange={(value) => setStoreData({ ...storeData, instagram: value })}
                 onFacebookChange={(value) => setStoreData({ ...storeData, facebook: value })}
-                onDeliveryHoursChange={(hours) => setStoreData({ ...storeData, deliveryHours: hours })}
+                onDeliveryScheduleChange={(schedule) => setStoreData({ ...storeData, deliverySchedule: schedule })}
                 onLowStockThresholdChange={(value) => setStoreData({ ...storeData, lowStockThreshold: value })}
               />
             </StageContainer>

@@ -1,0 +1,499 @@
+/**
+ * MultiSlotScheduleEditor Styles
+ *
+ * Mobile-first responsive design
+ * Clean, accessible time slot editing
+ */
+
+/* =============================================
+   CONTAINER
+   ============================================= */
+.container {
+  background: var(--color-gray-50, #f9fafb);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+/* =============================================
+   DAY ROW
+   ============================================= */
+.dayRow {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.dayRow:last-child {
+  border-bottom: none;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.dayName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-gray-800, #1f2937);
+}
+
+.toggleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-primary, #84cc16);
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 0.8125rem;
+  color: var(--color-gray-600, #4b5563);
+}
+
+/* =============================================
+   SLOTS CONTAINER
+   ============================================= */
+.slotsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* =============================================
+   SLOT CONTAINER (wrapper for card + error)
+   ============================================= */
+.slotContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* =============================================
+   SLOT CARD
+   ============================================= */
+.slotCard {
+  display: flex;
+  align-items: stretch;
+  gap: 0.625rem;
+  padding: 0.625rem;
+  background: white;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.slotCardError {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+/* Slot number badge */
+.slotNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--color-gray-100, #f3f4f6);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #6b7280);
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+/* =============================================
+   TIME RANGE (contains from + separator + to)
+   ============================================= */
+.timeRange {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 480px) {
+  .timeRange {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}
+
+/* =============================================
+   TIME BLOCK (label + picker wrapper)
+   ============================================= */
+.timeBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 480px) {
+  .timeBlock {
+    flex: 1;
+  }
+}
+
+.timeLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =============================================
+   TIME PICKER WRAPPER
+   ============================================= */
+.timePickerWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Hidden native input - covers the display for clicking */
+.timePicker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Visible time display */
+.timeValueDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  background: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
+}
+
+.timePickerWrapper:hover .timeValueDisplay {
+  background: var(--color-gray-100, #f3f4f6);
+  border-color: var(--color-gray-300, #d1d5db);
+}
+
+.timePickerWrapper:focus-within .timeValueDisplay {
+  background: white;
+  border-color: var(--color-primary, #84cc16);
+  box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.15);
+}
+
+.clockIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-gray-400, #9ca3af);
+  flex-shrink: 0;
+}
+
+.timeValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-800, #1f2937);
+  white-space: nowrap;
+}
+
+/* =============================================
+   TIME SEPARATOR
+   ============================================= */
+.timeSeparatorBlock {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.25rem;
+  align-self: flex-end;
+  height: 2.5rem;
+}
+
+@media (min-width: 480px) {
+  .timeSeparatorBlock {
+    display: flex;
+  }
+}
+
+.timeSeparatorText {
+  color: var(--color-gray-400, #9ca3af);
+  font-size: 1rem;
+}
+
+/* =============================================
+   DELETE BUTTON
+   ============================================= */
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.375rem;
+  color: var(--color-gray-400, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.deleteBtnIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (min-width: 480px) {
+  .deleteBtn {
+    align-self: flex-end;
+    margin-top: 0;
+    height: 2.5rem;
+  }
+}
+
+/* =============================================
+   ADD SLOT BUTTON
+   ============================================= */
+.addSlotButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary, #84cc16);
+  background: transparent;
+  border: 1px dashed var(--color-primary, #84cc16);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.addSlotButton:hover {
+  background: #f7fee7;
+  border-style: solid;
+}
+
+.addSlotIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* =============================================
+   CLOSED STATE
+   ============================================= */
+.closedLabel {
+  margin-top: 0.25rem;
+}
+
+.closedText {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+/* =============================================
+   ERROR MESSAGES
+   ============================================= */
+.errorMessage {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+.slotErrorMsg {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 0.25rem;
+}
+
+.slotErrorIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   DESKTOP ENHANCEMENTS (768px+)
+   ============================================= */
+@media (min-width: 768px) {
+  .dayRow {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+
+  .dayHeader {
+    flex-shrink: 0;
+    min-width: 8rem;
+    margin-bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .slotsContainer {
+    flex: 1;
+    margin-top: 0;
+  }
+
+  .closedLabel {
+    margin-top: 0;
+  }
+
+  .slotCard {
+    padding: 0.75rem;
+  }
+
+  .slotNumber {
+    align-self: center;
+    margin-top: 0;
+  }
+
+  .timeLabel {
+    display: none;
+  }
+
+  .timeBlock {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .timeBlock::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-gray-500, #6b7280);
+    text-transform: uppercase;
+    min-width: 3rem;
+  }
+
+  .timeBlock:first-child::before {
+    content: 'From';
+  }
+
+  .timeBlock:last-child::before {
+    content: 'To';
+  }
+}
+
+/* Spanish language support for desktop labels */
+:global([lang="es"]) .timeBlock:first-child::before {
+  content: 'Desde';
+}
+
+:global([lang="es"]) .timeBlock:last-child::before {
+  content: 'Hasta';
+}
+
+/* =============================================
+   LEGACY STYLES (kept for backward compatibility)
+   ============================================= */
+.slotRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.slotRowError {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.slotLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  min-width: 1rem;
+  text-align: center;
+}
+
+.timeSeparator {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.timeInput {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  color: #374151;
+}
+
+.timeInputError {
+  border-color: #f87171;
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteIcon {
+  width: 1rem;
+  height: 1rem;
+}

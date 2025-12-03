@@ -117,6 +117,10 @@ export interface Order {
   // Enhanced: Delivery Details
   preferredDeliveryTime?: Date; // Customer's preferred delivery time
   estimatedDeliveryTime?: Date; // Store's estimated delivery time
+  deliveryTimeWindow?: { // Time window for delivery (from store schedule)
+    open: string; // "09:00" format
+    close: string; // "17:00" format
+  };
   actualDeliveryTime?: Date; // When actually delivered
   deliveredAt?: Date; // Existing field kept for compatibility
   deliveryNotes?: string; // Driver/delivery notes

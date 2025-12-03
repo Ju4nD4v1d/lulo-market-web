@@ -88,7 +88,7 @@ Component → Page Hook → TanStack Query Hook → API Layer (services/api/) �
 - **Platform Fee:** $2.00
 - **Currency:** CAD only
 - **Cart:** Single store per cart
-- **Order Flow:** pending → processing → confirmed → preparing → ready → out_for_delivery → delivered
+- **Order Flow:** pending_payment → confirmed → preparing → ready → out_for_delivery → delivered
 
 ## Code Standards
 
@@ -107,7 +107,26 @@ Component → Page Hook → TanStack Query Hook → API Layer (services/api/) �
 
 ## Firebase Collections
 
-`stores`, `products`, `orders`, `users`, `waitlist`
+`stores`, `products`, `orders`, `users`, `waitlist`, `drivers`
+
+## Key Flows
+
+### Checkout (`src/pages/checkout/`)
+- Multi-step wizard: Customer Info → Address → Review → Payment
+- `CheckoutContext` manages all state (form, wizard, payment)
+- Delivery dates computed from **effective hours** (store schedule ∩ driver availability)
+- Key files: `CheckoutContext.tsx`, `usePaymentFlow.ts`, `orderDataBuilder.ts`
+
+### Order Tracking (`src/pages/order-tracking/`)
+- Real-time order status updates via Firestore subscription
+- Displays `estimatedDeliveryTime` and `deliveryTimeWindow`
+- Receipt generation (PDF via Cloud Function)
+
+### Schedule System
+- **Multi-slot schedules:** Stores/drivers can have up to 3 time slots per day
+- **Effective hours:** `src/utils/effectiveHours.ts` - Computes intersection of store + driver schedules
+- `useEffectiveHours` hook provides available delivery windows
+- Type: `MultiSlotSchedule` in `src/types/schedule.ts`
 
 ## Environment Variables
 

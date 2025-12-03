@@ -132,6 +132,9 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
     estimatedDeliveryTime: data.estimatedDeliveryTime ? safeDate(data.estimatedDeliveryTime) : undefined,
     deliveredAt: data.deliveredAt ? safeDate(data.deliveredAt) : undefined,
 
+    // Delivery time window (time slot from store schedule)
+    deliveryTimeWindow: data.deliveryTimeWindow || undefined,
+
     // Payment info
     paymentStatus: (() => {
       if (data.paymentStatus && ['pending', 'processing', 'paid', 'failed', 'refunded'].includes(data.paymentStatus)) {

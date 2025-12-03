@@ -6,13 +6,13 @@ import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useDriverMutations } from '../../../../hooks/mutations/useDriverMutations';
-import { ScheduleEditor } from '../ScheduleEditor';
+import { MultiSlotScheduleEditor } from '../../../../components/MultiSlotScheduleEditor';
 import {
   Driver,
-  DriverSchedule,
   DriverAddress,
-  DEFAULT_DRIVER_SCHEDULE,
 } from '../../../../types/driver';
+import { MultiSlotSchedule, DEFAULT_MULTI_SLOT_SCHEDULE, DAYS_OF_WEEK } from '../../../../types/schedule';
+import { validateSchedule } from '../../../../utils/scheduleUtils';
 import styles from './DriverModal.module.css';
 
 interface DriverModalProps {
@@ -40,8 +40,8 @@ export const DriverModal = ({ driver, onClose, onSuccess }: DriverModalProps) =>
       postalCode: '',
     }
   );
-  const [schedule, setSchedule] = useState<DriverSchedule>(
-    driver?.availabilitySchedule || DEFAULT_DRIVER_SCHEDULE
+  const [schedule, setSchedule] = useState<MultiSlotSchedule>(
+    driver?.availabilityScheduleV2 || DEFAULT_MULTI_SLOT_SCHEDULE
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -55,6 +55,27 @@ export const DriverModal = ({ driver, onClose, onSuccess }: DriverModalProps) =>
       return;
     }
 
+    // Validate schedule for overlapping or invalid slots
+    const scheduleErrors = validateSchedule(schedule);
+    if (scheduleErrors.length > 0) {
+      const firstError = scheduleErrors[0];
+      if (firstError.type === 'overlap') {
+        setError(t('schedule.slotOverlap'));
+      } else if (firstError.type === 'invalid_time') {
+        setError(t('schedule.invalidTime'));
+      } else {
+        setError(t('schedule.slotOverlap'));
+      }
+      return;
+    }
+
+    // Validate at least one availability slot is set
+    const hasAvailability = DAYS_OF_WEEK.some(day => !schedule[day].closed && schedule[day].slots.length > 0);
+    if (!hasAvailability) {
+      setError(t('driver.form.availabilityRequired') || 'At least one availability slot is required');
+      return;
+    }
+
     try {
       if (isEditing && driver) {
         await updateDriver.mutateAsync({
@@ -65,7 +86,7 @@ export const DriverModal = ({ driver, onClose, onSuccess }: DriverModalProps) =>
             email: email.trim(),
             notes: notes.trim(),
             startingAddress: address,
-            availabilitySchedule: schedule,
+            availabilityScheduleV2: schedule,
           },
         });
       } else {
@@ -75,7 +96,7 @@ export const DriverModal = ({ driver, onClose, onSuccess }: DriverModalProps) =>
           email: email.trim(),
           notes: notes.trim(),
           startingAddress: address,
-          availabilitySchedule: schedule,
+          availabilityScheduleV2: schedule,
           isActive: true,
         });
       }
@@ -190,7 +211,7 @@ export const DriverModal = ({ driver, onClose, onSuccess }: DriverModalProps) =>
           {/* Schedule */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>{t('driver.schedule')}</h3>
-            <ScheduleEditor schedule={schedule} onChange={setSchedule} />
+            <MultiSlotScheduleEditor schedule={schedule} onChange={setSchedule} />
           </div>
 
           {/* Notes */}

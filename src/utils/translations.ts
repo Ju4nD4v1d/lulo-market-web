@@ -971,11 +971,14 @@ export const translations = {
     'driver.form.saving': 'Saving...',
     'driver.form.cancel': 'Cancel',
     'driver.form.nameRequired': 'Driver name is required',
+    'driver.form.availabilityRequired': 'At least one availability slot is required',
 
     // Schedule
     'schedule.day': 'Day',
     'schedule.open': 'Open',
     'schedule.close': 'Close',
+    'schedule.from': 'From',
+    'schedule.to': 'To',
     'schedule.closed': 'Closed',
     'schedule.available': 'Available',
     'schedule.sunday': 'Sunday',
@@ -985,6 +988,13 @@ export const translations = {
     'schedule.thursday': 'Thursday',
     'schedule.friday': 'Friday',
     'schedule.saturday': 'Saturday',
+    // Multi-slot schedule
+    'schedule.addSlot': 'Add time slot',
+    'schedule.removeSlot': 'Remove slot',
+    'schedule.maxSlots': 'Maximum 3 time slots per day',
+    'schedule.slotOverlap': 'Time slots cannot overlap',
+    'schedule.invalidTime': 'End time must be after start time',
+    'schedule.slot': 'Slot',
 
     // Address
     'address.street': 'Street',
@@ -1797,9 +1807,12 @@ If the customer disputes a payment:
     'deliverySchedule.title': 'Delivery Days',
     'deliverySchedule.today': 'Today',
     'deliverySchedule.tomorrow': 'Tomorrow',
+    'deliverySchedule.next': 'Next',
     'deliverySchedule.nextDelivery': 'Next delivery',
     'deliverySchedule.noService': 'No delivery service available',
     'deliverySchedule.noDeliveryDays': 'No delivery days configured',
+    'deliverySchedule.dayAvailable': 'day available',
+    'deliverySchedule.daysAvailable': 'days available',
 
     // Categories
     'category.all': 'All',
@@ -2202,6 +2215,8 @@ If the customer disputes a payment:
     'checkout.deliveryOnly': 'All orders are delivered to your address',
     'checkout.selectDeliveryDate': 'Select Delivery Date',
     'checkout.deliveryDateNote': 'Delivery available from tomorrow onwards. Select your preferred date within 2 weeks.',
+    'checkout.noDeliveryDates': 'No delivery dates available. Please check back later.',
+    'checkout.loadingSchedule': 'Loading delivery schedule...',
     'checkout.haveAccount': 'Already have an account?',
     'checkout.haveAccountOneLine': 'Already have an account? Log in to automatically fill your contact information',
     'checkout.loginToAutofill': 'Log in to automatically fill your contact information',
@@ -3239,11 +3254,14 @@ If the customer disputes a payment:
     'driver.form.saving': 'Guardando...',
     'driver.form.cancel': 'Cancelar',
     'driver.form.nameRequired': 'El nombre del conductor es requerido',
+    'driver.form.availabilityRequired': 'Se requiere al menos un horario de disponibilidad',
 
     // Schedule
     'schedule.day': 'Día',
     'schedule.open': 'Abre',
     'schedule.close': 'Cierra',
+    'schedule.from': 'Desde',
+    'schedule.to': 'Hasta',
     'schedule.closed': 'Cerrado',
     'schedule.available': 'Disponible',
     'schedule.sunday': 'Domingo',
@@ -3253,6 +3271,13 @@ If the customer disputes a payment:
     'schedule.thursday': 'Jueves',
     'schedule.friday': 'Viernes',
     'schedule.saturday': 'Sábado',
+    // Multi-slot schedule
+    'schedule.addSlot': 'Agregar horario',
+    'schedule.removeSlot': 'Eliminar horario',
+    'schedule.maxSlots': 'Máximo 3 horarios por día',
+    'schedule.slotOverlap': 'Los horarios no pueden superponerse',
+    'schedule.invalidTime': 'La hora de cierre debe ser posterior a la apertura',
+    'schedule.slot': 'Horario',
 
     // Address
     'address.street': 'Calle',
@@ -4034,9 +4059,12 @@ Si el cliente disputa el pago:
     'deliverySchedule.title': 'Días de Entrega',
     'deliverySchedule.today': 'Hoy',
     'deliverySchedule.tomorrow': 'Mañana',
+    'deliverySchedule.next': 'Próximo',
     'deliverySchedule.nextDelivery': 'Próxima entrega',
     'deliverySchedule.noService': 'Servicio de entrega no disponible',
     'deliverySchedule.noDeliveryDays': 'No hay días de entrega configurados',
+    'deliverySchedule.dayAvailable': 'día disponible',
+    'deliverySchedule.daysAvailable': 'días disponibles',
 
     // Categories
     'category.all': 'Todo',
@@ -4439,6 +4467,8 @@ Si el cliente disputa el pago:
     'checkout.deliveryOnly': 'Todos los pedidos se entregan a tu dirección',
     'checkout.selectDeliveryDate': 'Seleccionar Fecha de Entrega',
     'checkout.deliveryDateNote': 'Entrega disponible desde mañana en adelante. Selecciona tu fecha preferida dentro de 2 semanas.',
+    'checkout.noDeliveryDates': 'No hay fechas de entrega disponibles. Por favor, vuelve más tarde.',
+    'checkout.loadingSchedule': 'Cargando horario de entrega...',
     'checkout.haveAccount': '¿Ya tienes una cuenta?',
     'checkout.haveAccountOneLine': '¿Ya tienes una cuenta? Inicia sesión para llenar automáticamente tu información de contacto',
     'checkout.loginToAutofill': 'Inicia sesión para llenar automáticamente tu información de contacto',
