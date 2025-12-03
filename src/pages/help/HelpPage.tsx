@@ -21,12 +21,13 @@ import {
   CreditCard,
   ChevronDown,
   Mail,
-  AlertCircle
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import styles from './HelpPage.module.css';
 
-type Category = 'all' | 'orders' | 'stores' | 'payments' | 'account';
+type Category = 'all' | 'orders' | 'stores' | 'payments' | 'refunds' | 'account';
 
 interface FAQ {
   id: string;
@@ -86,6 +87,31 @@ export const HelpPage: React.FC = () => {
       category: 'payments',
       question: t('help.faq.payment2.question'),
       answer: t('help.faq.payment2.answer')
+    },
+    // Refunds & Cancellations
+    {
+      id: 'refund-1',
+      category: 'refunds',
+      question: t('help.faq.refund1.question'),
+      answer: t('help.faq.refund1.answer')
+    },
+    {
+      id: 'refund-2',
+      category: 'refunds',
+      question: t('help.faq.refund2.question'),
+      answer: t('help.faq.refund2.answer')
+    },
+    {
+      id: 'refund-3',
+      category: 'refunds',
+      question: t('help.faq.refund3.question'),
+      answer: t('help.faq.refund3.answer')
+    },
+    {
+      id: 'refund-4',
+      category: 'refunds',
+      question: t('help.faq.refund4.question'),
+      answer: t('help.faq.refund4.answer')
     },
     // Account
     {
@@ -172,6 +198,13 @@ export const HelpPage: React.FC = () => {
           >
             <CreditCard size={18} />
             {t('help.categories.payments')}
+          </button>
+          <button
+            className={`${styles.tab} ${selectedCategory === 'refunds' ? styles.active : ''}`}
+            onClick={() => setSelectedCategory('refunds')}
+          >
+            <RotateCcw size={18} />
+            {t('help.categories.refunds')}
           </button>
           <button
             className={`${styles.tab} ${selectedCategory === 'account' ? styles.active : ''}`}

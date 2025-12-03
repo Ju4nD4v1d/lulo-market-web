@@ -8,6 +8,7 @@ import { SaveProgressModal } from './components/SaveProgressModal';
 import { StoreProfileView } from './components/StoreProfileView';
 import { useStoreByOwnerQuery } from '../../../../hooks/queries/useStoreByOwnerQuery';
 import { useStoreStatsQuery } from '../../../../hooks/queries/useStoreStatsQuery';
+import { useAllLatestAgreementsQuery } from '../../../../hooks/queries';
 import { useStoreMutations } from '../../../../hooks/mutations/useStoreMutations';
 import { StoreData } from '../../../../types/store';
 import { useAddressGeocoding } from './hooks/useAddressGeocoding';
@@ -86,6 +87,9 @@ export const StoreSetupPage = () => {
   const storeStats = useStoreStatsQuery(storeId);
   const { saveStore, isSaving, error } = useStoreMutations(currentUser?.uid || '');
   const { geocode, isGeocoding } = useAddressGeocoding();
+
+  // Fetch latest agreement versions for saving with acceptances
+  const { data: latestAgreements, isLoading: agreementsDataLoading } = useAllLatestAgreementsQuery(!agreementsAlreadyAccepted);
 
   // Fetch existing acceptances to determine if agreements should be shown
   useEffect(() => {
@@ -235,9 +239,21 @@ export const StoreSetupPage = () => {
           await saveStoreAcceptances({
             storeId: storeIdToUse,
             ownerId: currentUser.uid,
-            sellerAgreementAccepted: agreements.sellerAgreement,
-            payoutPolicyAccepted: agreements.payoutPolicy,
-            refundPolicyAccepted: agreements.refundPolicy,
+            sellerAgreement: {
+              accepted: agreements.sellerAgreement,
+              versionId: latestAgreements?.sellerAgreement?.id || null,
+              version: latestAgreements?.sellerAgreement?.version || null,
+            },
+            payoutPolicy: {
+              accepted: agreements.payoutPolicy,
+              versionId: latestAgreements?.payoutPolicy?.id || null,
+              version: latestAgreements?.payoutPolicy?.version || null,
+            },
+            refundPolicy: {
+              accepted: agreements.refundPolicy,
+              versionId: latestAgreements?.refundPolicy?.id || null,
+              version: latestAgreements?.refundPolicy?.version || null,
+            },
           });
         } catch (acceptanceError) {
           // Log but don't fail the whole operation - store was saved successfully
@@ -339,8 +355,8 @@ export const StoreSetupPage = () => {
     );
   }
 
-  // Show loading state (including while checking agreement status)
-  if (dataLoading || acceptancesLoading) {
+  // Show loading state (including while checking agreement status and loading agreement versions)
+  if (dataLoading || acceptancesLoading || agreementsDataLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>

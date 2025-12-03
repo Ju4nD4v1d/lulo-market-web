@@ -4,6 +4,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { queryClient } from './services/queryClient';
+import { CookieConsent } from './components/CookieConsent';
 
 // Lazy load route components for code splitting
 const Home = lazy(() => import('./pages/home'));
@@ -300,6 +301,7 @@ function App() {
         <AuthProvider>
           <CartProvider>
             <AppRoutes />
+            <CookieConsent />
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>

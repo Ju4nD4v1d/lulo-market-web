@@ -46,4 +46,35 @@ export const COLLECTIONS = {
   WAITLIST: 'waitlist',
   DRIVERS: 'drivers',
   STORE_ACCEPTANCES: 'store_acceptances',
+  LEGAL_AGREEMENTS: 'legal_agreements',
 } as const;
+
+/**
+ * Agreement types for legal documents
+ */
+export type AgreementType = 'sellerAgreement' | 'payoutPolicy' | 'refundPolicy';
+
+/**
+ * Legal agreement document stored in Firestore
+ */
+export interface LegalAgreementDocument {
+  id: string;
+  agreementType: AgreementType;
+  version: string;
+  isLatest: boolean;
+  content: {
+    en: string;
+    es: string;
+  };
+  title: {
+    en: string;
+    es: string;
+  };
+  subtitle: {
+    en: string;
+    es: string;
+  };
+  lastUpdated: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

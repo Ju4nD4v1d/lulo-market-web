@@ -1,25 +1,75 @@
 import type * as React from 'react';
 /**
  * PayoutPolicyPage - Payout policy for Stripe compliance
+ *
+ * Fetches content from Firestore legal_agreements collection.
+ * Supports optional versionId query param to view specific signed versions.
  */
 
-import { Wallet } from 'lucide-react';
+import { Wallet, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { LegalPageLayout } from '../../components/shared/legal';
+import { useLegalAgreementQuery } from '../../hooks/queries';
 import styles from './PayoutPolicyPage.module.css';
 
 export const PayoutPolicyPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+
+  // Check for versionId in URL hash params (e.g., #payout-policy?v=abc123)
+  const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  const versionId = hashParams.get('v');
+
+  const { agreement, isLoading, isError } = useLegalAgreementQuery(
+    'payoutPolicy',
+    versionId
+  );
+
+  // Use Firestore content if available, otherwise fall back to translations
+  const title = agreement?.title?.[locale] || t('legal.payout.title');
+  const subtitle = agreement?.subtitle?.[locale] || t('legal.payout.subtitle');
+  const lastUpdated = agreement?.lastUpdated || t('legal.payout.lastUpdated');
+  const content = agreement?.content?.[locale] || t('legal.payout.content');
+
+  if (isLoading) {
+    return (
+      <LegalPageLayout
+        icon={Wallet}
+        title={t('legal.payout.title')}
+        subtitle={t('legal.payout.subtitle')}
+        lastUpdated=""
+      >
+        <div className={styles.loadingContainer}>
+          <Loader2 className={styles.spinner} />
+          <p>{t('common.loading')}</p>
+        </div>
+      </LegalPageLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <LegalPageLayout
+        icon={Wallet}
+        title={t('legal.payout.title')}
+        subtitle={t('legal.payout.subtitle')}
+        lastUpdated=""
+      >
+        <div className={styles.content}>
+          <p className={styles.preformatted}>{t('legal.payout.content')}</p>
+        </div>
+      </LegalPageLayout>
+    );
+  }
 
   return (
     <LegalPageLayout
       icon={Wallet}
-      title={t('legal.payout.title')}
-      subtitle={t('legal.payout.subtitle')}
-      lastUpdated={t('legal.payout.lastUpdated')}
+      title={title}
+      subtitle={subtitle}
+      lastUpdated={lastUpdated}
     >
       <div className={styles.content}>
-        <p className={styles.preformatted}>{t('legal.payout.content')}</p>
+        <p className={styles.preformatted}>{content}</p>
       </div>
     </LegalPageLayout>
   );
