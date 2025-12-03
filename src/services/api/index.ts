@@ -31,9 +31,11 @@ export * as waitlistApi from './waitlistApi';
 export * as leadsApi from './leadsApi';
 export * as driverApi from './driverApi';
 export * as storeAcceptancesApi from './storeAcceptancesApi';
+export * as legalAgreementsApi from './legalAgreementsApi';
 
 // Shared types and helpers
 export { COLLECTIONS, safeDate } from './types';
+export type { AgreementType, LegalAgreementDocument } from './types';
 
 // Re-export individual functions for backwards compatibility with old api.ts imports
 // This allows gradual migration without breaking existing code
@@ -102,4 +104,16 @@ export {
   getStoreAcceptances,
   areAllAgreementsAccepted,
 } from './storeAcceptancesApi';
-export type { StoreAcceptance, StoreAcceptanceInput } from './storeAcceptancesApi';
+export type {
+  StoreAcceptance,
+  StoreAcceptanceInput,
+  AgreementAcceptance,
+  AgreementAcceptanceInput,
+} from './storeAcceptancesApi';
+
+export {
+  getLatestAgreement,
+  getAgreementById,
+  getAllAgreementVersions,
+  getAllLatestAgreements,
+} from './legalAgreementsApi';

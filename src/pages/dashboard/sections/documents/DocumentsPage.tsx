@@ -1,15 +1,19 @@
 import type * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FileText, Wallet, Handshake, RotateCcw, ExternalLink, CheckCircle, Clock } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useStore } from '../../../../context/StoreContext';
-import { getStoreAcceptances } from '../../../../services/api';
+import { useAuth } from '../../../../context/AuthContext';
+import { getStoreAcceptances, saveStoreAcceptances } from '../../../../services/api';
 import type { StoreAcceptance } from '../../../../services/api';
+import type { AgreementType } from '../../../../services/api/types';
+import { AgreementModal } from './components/AgreementModal';
 import styles from './DocumentsPage.module.css';
 
 interface DocumentCard {
   id: string;
   acceptanceKey: keyof Pick<StoreAcceptance, 'sellerAgreement' | 'payoutPolicy' | 'refundPolicy'>;
+  agreementType: AgreementType;
   icon: React.ElementType;
   titleKey: string;
   descriptionKey: string;
@@ -20,6 +24,7 @@ const documents: DocumentCard[] = [
   {
     id: 'seller-agreement',
     acceptanceKey: 'sellerAgreement',
+    agreementType: 'sellerAgreement',
     icon: Handshake,
     titleKey: 'documents.sellerAgreement',
     descriptionKey: 'documents.sellerAgreementDesc',
@@ -28,6 +33,7 @@ const documents: DocumentCard[] = [
   {
     id: 'payout-policy',
     acceptanceKey: 'payoutPolicy',
+    agreementType: 'payoutPolicy',
     icon: Wallet,
     titleKey: 'documents.payoutPolicy',
     descriptionKey: 'documents.payoutPolicyDesc',
@@ -36,6 +42,7 @@ const documents: DocumentCard[] = [
   {
     id: 'refund-policy',
     acceptanceKey: 'refundPolicy',
+    agreementType: 'refundPolicy',
     icon: RotateCcw,
     titleKey: 'documents.refundPolicy',
     descriptionKey: 'documents.refundPolicyDesc',
@@ -46,13 +53,32 @@ const documents: DocumentCard[] = [
 export const DocumentsPage: React.FC = () => {
   const { t, locale } = useLanguage();
   const { storeId } = useStore();
+  const { currentUser } = useAuth();
   const [acceptances, setAcceptances] = useState<StoreAcceptance | null>(null);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAgreementType, setSelectedAgreementType] = useState<AgreementType | null>(null);
+
+  const fetchAcceptances = useCallback(async () => {
+    if (!storeId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await getStoreAcceptances(storeId);
+      setAcceptances(data);
+    } catch (err) {
+      console.error('Error fetching acceptances:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [storeId]);
 
   useEffect(() => {
     let isCancelled = false;
 
-    const fetchAcceptances = async () => {
+    const loadAcceptances = async () => {
       if (!storeId) {
         setLoading(false);
         return;
@@ -74,17 +100,74 @@ export const DocumentsPage: React.FC = () => {
       }
     };
 
-    fetchAcceptances();
+    loadAcceptances();
 
     return () => {
       isCancelled = true;
     };
   }, [storeId]);
 
-  const handleDocumentClick = (href: string) => {
-    // Set back navigation path so legal pages know to return here
-    localStorage.setItem('backNavigationPath', '#dashboard/documents');
-    window.location.hash = href;
+  const handleDocumentClick = (doc: DocumentCard) => {
+    const acceptance = getAcceptanceInfo(doc.acceptanceKey);
+    const isAccepted = acceptance?.accepted;
+    const versionId = acceptance?.versionId;
+
+    if (isAccepted) {
+      // If already accepted, navigate to view the signed version
+      localStorage.setItem('backNavigationPath', '#dashboard/documents');
+      if (versionId) {
+        window.location.hash = `${doc.href}?v=${versionId}`;
+      } else {
+        window.location.hash = doc.href;
+      }
+    } else {
+      // If not accepted, open the modal
+      setSelectedAgreementType(doc.agreementType);
+      setModalOpen(true);
+    }
+  };
+
+  const handleAcceptAgreement = async (
+    agreementType: AgreementType,
+    versionId: string,
+    version: string
+  ) => {
+    if (!storeId || !currentUser?.uid) {
+      throw new Error('Store ID and user ID are required');
+    }
+
+    // Build the acceptance input, preserving existing acceptances
+    const existingSellerAgreement = acceptances?.sellerAgreement;
+    const existingPayoutPolicy = acceptances?.payoutPolicy;
+    const existingRefundPolicy = acceptances?.refundPolicy;
+
+    await saveStoreAcceptances({
+      storeId,
+      ownerId: currentUser.uid,
+      sellerAgreement: {
+        accepted: agreementType === 'sellerAgreement' ? true : existingSellerAgreement?.accepted || false,
+        versionId: agreementType === 'sellerAgreement' ? versionId : existingSellerAgreement?.versionId || null,
+        version: agreementType === 'sellerAgreement' ? version : existingSellerAgreement?.version || null,
+      },
+      payoutPolicy: {
+        accepted: agreementType === 'payoutPolicy' ? true : existingPayoutPolicy?.accepted || false,
+        versionId: agreementType === 'payoutPolicy' ? versionId : existingPayoutPolicy?.versionId || null,
+        version: agreementType === 'payoutPolicy' ? version : existingPayoutPolicy?.version || null,
+      },
+      refundPolicy: {
+        accepted: agreementType === 'refundPolicy' ? true : existingRefundPolicy?.accepted || false,
+        versionId: agreementType === 'refundPolicy' ? versionId : existingRefundPolicy?.versionId || null,
+        version: agreementType === 'refundPolicy' ? version : existingRefundPolicy?.version || null,
+      },
+    });
+
+    // Refresh acceptances after saving
+    await fetchAcceptances();
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedAgreementType(null);
   };
 
   const formatAcceptanceDate = (date: Date | null): string => {
@@ -122,17 +205,18 @@ export const DocumentsPage: React.FC = () => {
           const acceptance = getAcceptanceInfo(doc.acceptanceKey);
           const isAccepted = acceptance?.accepted;
           const acceptedAt = acceptance?.acceptedAt;
+          const version = acceptance?.version;
 
           return (
             <div
               key={doc.id}
               className={`${styles.documentCard} ${isAccepted ? styles.documentCardAccepted : ''}`}
-              onClick={() => handleDocumentClick(doc.href)}
+              onClick={() => handleDocumentClick(doc)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                  handleDocumentClick(doc.href);
+                  handleDocumentClick(doc);
                 }
               }}
             >
@@ -152,6 +236,11 @@ export const DocumentsPage: React.FC = () => {
                       <CheckCircle className={styles.statusIcon} />
                       <span className={styles.statusText}>
                         {t('documents.acceptedOn')} {formatAcceptanceDate(acceptedAt || null)}
+                        {version && (
+                          <span className={styles.versionBadge}>
+                            v{version}
+                          </span>
+                        )}
                       </span>
                     </>
                   ) : (
@@ -165,7 +254,7 @@ export const DocumentsPage: React.FC = () => {
 
               <div className={styles.cardAction}>
                 <span className={styles.viewLink}>
-                  {t('documents.viewDocument')}
+                  {isAccepted ? t('documents.viewDocument') : t('documents.reviewAndAccept')}
                   <ExternalLink className={styles.linkIcon} />
                 </span>
               </div>
@@ -173,6 +262,16 @@ export const DocumentsPage: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Agreement Modal */}
+      {selectedAgreementType && (
+        <AgreementModal
+          isOpen={modalOpen}
+          agreementType={selectedAgreementType}
+          onClose={handleCloseModal}
+          onAccept={handleAcceptAgreement}
+        />
+      )}
     </div>
   );
 };

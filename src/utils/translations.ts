@@ -346,6 +346,11 @@ export const translations = {
     'footer.privacy': 'Privacy Policy',
     'footer.copyright': '© 2024 LuloCart. All rights reserved.',
 
+    // Cookie Consent
+    'cookieConsent.message': 'We use cookies to analyze site usage and improve your experience.',
+    'cookieConsent.accept': 'Accept',
+    'cookieConsent.decline': 'Decline',
+
     // Help & Support
     'help.title': 'Help & Support',
     'help.subtitle': 'Find answers to common questions and get help with your orders',
@@ -354,6 +359,7 @@ export const translations = {
     'help.categories.orders': 'Orders',
     'help.categories.stores': 'Stores',
     'help.categories.payments': 'Payments',
+    'help.categories.refunds': 'Refunds & Cancellations',
     'help.categories.account': 'Account',
     'help.faqTitle': 'Frequently Asked Questions',
     'help.troubleshootingTitle': 'Common Issues',
@@ -364,11 +370,11 @@ export const translations = {
 
     // FAQ - Orders
     'help.faq.order1.question': 'How do I track my order?',
-    'help.faq.order1.answer': 'Once your order is confirmed, you\'ll receive an email with a tracking link. You can also view your order status in the Order History section of your account.',
-    'help.faq.order2.question': 'Can I cancel or modify my order?',
-    'help.faq.order2.answer': 'You can cancel or modify your order within 5 minutes of placing it. After that, please contact the store directly through the order details page or reach out to our support team.',
+    'help.faq.order1.answer': 'Once your order is confirmed, you\'ll receive an email confirmation. Go to "My Orders" in your account to see real-time status updates. Our drivers provide photo evidence at pickup and delivery for full transparency.',
+    'help.faq.order2.question': 'Can I modify my order after placing it?',
+    'help.faq.order2.answer': 'Once an order is placed, modifications are not available through the app. If you need to make changes, please contact our support team as soon as possible and we\'ll do our best to help.',
     'help.faq.order3.question': 'What is the delivery time?',
-    'help.faq.order3.answer': 'Delivery times vary by store and location. Most orders are delivered within 30-60 minutes. You can see the estimated delivery time during checkout.',
+    'help.faq.order3.answer': 'Your order will be delivered within the 4-hour window you selected at checkout. For cold or frozen items, we guarantee the cold chain is maintained throughout delivery.',
 
     // FAQ - Stores
     'help.faq.store1.question': 'How do I find stores near me?',
@@ -378,9 +384,19 @@ export const translations = {
 
     // FAQ - Payments
     'help.faq.payment1.question': 'What payment methods do you accept?',
-    'help.faq.payment1.answer': 'We accept all major credit and debit cards through our secure Stripe payment system. Your payment information is encrypted and never stored on our servers.',
+    'help.faq.payment1.answer': 'We accept all major credit cards through our secure payment system. Your payment information is encrypted and never stored on our servers.',
     'help.faq.payment2.question': 'Is my payment information secure?',
-    'help.faq.payment2.answer': 'Yes! We use Stripe, a industry-leading payment processor, to handle all transactions securely. Your payment details are encrypted and protected with the highest security standards.',
+    'help.faq.payment2.answer': 'Yes! We use industry-leading payment processing to handle all transactions securely. Your payment details are encrypted and protected with the highest security standards.',
+
+    // FAQ - Refunds & Cancellations
+    'help.faq.refund1.question': 'How do I cancel my order?',
+    'help.faq.refund1.answer': 'You can cancel your order up to 24 hours before your scheduled delivery. Go to "My Orders", select your order, and click the "Cancel Order" button. If your delivery is less than 24 hours away, the cancel option won\'t be available. Note: Orders placed with less than 24 hours until delivery cannot be cancelled, and you\'ll be informed of this before completing your purchase.',
+    'help.faq.refund2.question': 'How do I request a refund?',
+    'help.faq.refund2.answer': 'If something is wrong with your order after delivery, go to "My Orders" and select the order. Click "Request Refund" and choose a reason: missing items, wrong items, expired products, damaged items, or order not delivered. Upload photos showing the issue, add a brief description, and submit. Our team will review your request and get back to you.',
+    'help.faq.refund3.question': 'What do I need to submit a refund request?',
+    'help.faq.refund3.answer': 'To process your refund request, we need: your order number (automatically filled in when you start the request), clear photos showing the problem, and a brief description of what went wrong. The more details you provide, the faster we can resolve your issue.',
+    'help.faq.refund4.question': 'How long does a refund take to process?',
+    'help.faq.refund4.answer': 'Our team reviews all refund requests along with delivery evidence from our drivers. Most requests are processed within 2-3 business days. Once approved, the refund will be returned to your original payment method. You\'ll receive an email confirmation when your refund is processed.',
 
     // FAQ - Account
     'help.faq.account1.question': 'How do I reset my password?',
@@ -789,8 +805,16 @@ export const translations = {
     'documents.refundPolicy': 'Refund & Cancellation Policy',
     'documents.refundPolicyDesc': 'How refunds and cancellations are handled for orders',
     'documents.viewDocument': 'View Document',
+    'documents.reviewAndAccept': 'Review & Accept',
     'documents.acceptedOn': 'Accepted on',
     'documents.notAccepted': 'Not yet accepted',
+    'documents.modal.loading': 'Loading agreement...',
+    'documents.modal.loadError': 'Failed to load agreement. Please try again.',
+    'documents.modal.scrollToRead': 'Please scroll down to read the entire agreement',
+    'documents.modal.agreeCheckbox': 'I have read, understood, and agree to this agreement',
+    'documents.modal.acceptButton': 'Accept Agreement',
+    'documents.modal.accepting': 'Accepting...',
+    'documents.modal.acceptError': 'Failed to accept agreement. Please try again.',
 
     // Legal Agreement Checkboxes
     'legal.agreements.title': 'Legal Agreements',
@@ -2002,6 +2026,9 @@ If the customer disputes a payment:
     'paymentSettings.error.linkFailed': 'Failed to create Stripe link',
     'paymentSettings.error.createFailed': 'Failed to create Stripe account',
     'paymentSettings.error.unexpected': 'An unexpected error occurred',
+    'paymentSettings.agreementRequired.title': 'Legal agreements required',
+    'paymentSettings.agreementRequired.description': 'You must accept all legal agreements before you can connect your payment account.',
+    'paymentSettings.agreementRequired.link': 'Go to Documents',
 
     // Order Processing Steps
     'processing.verifyingPayment': 'Verifying payment...',
@@ -2580,6 +2607,11 @@ If the customer disputes a payment:
     'footer.privacy': 'Política de Privacidad',
     'footer.copyright': '© 2024 LuloCart. Todos los derechos reservados.',
 
+    // Cookie Consent
+    'cookieConsent.message': 'Usamos cookies para analizar el uso del sitio y mejorar tu experiencia.',
+    'cookieConsent.accept': 'Aceptar',
+    'cookieConsent.decline': 'Rechazar',
+
     // Help & Support
     'help.title': 'Ayuda y Soporte',
     'help.subtitle': 'Encuentra respuestas a preguntas comunes y obtén ayuda con tus pedidos',
@@ -2588,6 +2620,7 @@ If the customer disputes a payment:
     'help.categories.orders': 'Pedidos',
     'help.categories.stores': 'Tiendas',
     'help.categories.payments': 'Pagos',
+    'help.categories.refunds': 'Reembolsos y Cancelaciones',
     'help.categories.account': 'Cuenta',
     'help.faqTitle': 'Preguntas Frecuentes',
     'help.troubleshootingTitle': 'Problemas Comunes',
@@ -2598,11 +2631,11 @@ If the customer disputes a payment:
 
     // FAQ - Orders
     'help.faq.order1.question': '¿Cómo rastreo mi pedido?',
-    'help.faq.order1.answer': 'Una vez confirmado tu pedido, recibirás un correo electrónico con un enlace de seguimiento. También puedes ver el estado de tu pedido en la sección Historial de Pedidos de tu cuenta.',
-    'help.faq.order2.question': '¿Puedo cancelar o modificar mi pedido?',
-    'help.faq.order2.answer': 'Puedes cancelar o modificar tu pedido dentro de los 5 minutos posteriores a realizarlo. Después de eso, comunícate directamente con la tienda a través de la página de detalles del pedido o contacta a nuestro equipo de soporte.',
+    'help.faq.order1.answer': 'Una vez confirmado tu pedido, recibirás un correo de confirmación. Ve a "Mis Pedidos" en tu cuenta para ver actualizaciones en tiempo real. Nuestros conductores proporcionan evidencia fotográfica en la recogida y entrega para total transparencia.',
+    'help.faq.order2.question': '¿Puedo modificar mi pedido después de realizarlo?',
+    'help.faq.order2.answer': 'Una vez realizado un pedido, las modificaciones no están disponibles a través de la aplicación. Si necesitas hacer cambios, por favor contacta a nuestro equipo de soporte lo antes posible y haremos lo posible por ayudarte.',
     'help.faq.order3.question': '¿Cuál es el tiempo de entrega?',
-    'help.faq.order3.answer': 'Los tiempos de entrega varían según la tienda y la ubicación. La mayoría de los pedidos se entregan en 30-60 minutos. Puedes ver el tiempo estimado de entrega durante el proceso de pago.',
+    'help.faq.order3.answer': 'Tu pedido será entregado dentro de la ventana de 4 horas que seleccionaste al hacer tu compra. Para productos fríos o congelados, garantizamos que se mantiene la cadena de frío durante toda la entrega.',
 
     // FAQ - Stores
     'help.faq.store1.question': '¿Cómo encuentro tiendas cerca de mí?',
@@ -2612,9 +2645,19 @@ If the customer disputes a payment:
 
     // FAQ - Payments
     'help.faq.payment1.question': '¿Qué métodos de pago aceptan?',
-    'help.faq.payment1.answer': 'Aceptamos todas las tarjetas de crédito y débito principales a través de nuestro sistema de pago seguro Stripe. Tu información de pago está encriptada y nunca se almacena en nuestros servidores.',
+    'help.faq.payment1.answer': 'Aceptamos todas las tarjetas de crédito principales a través de nuestro sistema de pago seguro. Tu información de pago está encriptada y nunca se almacena en nuestros servidores.',
     'help.faq.payment2.question': '¿Es segura mi información de pago?',
-    'help.faq.payment2.answer': '¡Sí! Utilizamos Stripe, un procesador de pagos líder en la industria, para manejar todas las transacciones de forma segura. Tus detalles de pago están encriptados y protegidos con los más altos estándares de seguridad.',
+    'help.faq.payment2.answer': '¡Sí! Utilizamos procesamiento de pagos líder en la industria para manejar todas las transacciones de forma segura. Tus detalles de pago están encriptados y protegidos con los más altos estándares de seguridad.',
+
+    // FAQ - Refunds & Cancellations
+    'help.faq.refund1.question': '¿Cómo cancelo mi pedido?',
+    'help.faq.refund1.answer': 'Puedes cancelar tu pedido hasta 24 horas antes de tu entrega programada. Ve a "Mis Pedidos", selecciona tu pedido y haz clic en el botón "Cancelar Pedido". Si tu entrega es en menos de 24 horas, la opción de cancelar no estará disponible. Nota: Los pedidos realizados con menos de 24 horas hasta la entrega no pueden cancelarse, y se te informará de esto antes de completar tu compra.',
+    'help.faq.refund2.question': '¿Cómo solicito un reembolso?',
+    'help.faq.refund2.answer': 'Si algo está mal con tu pedido después de la entrega, ve a "Mis Pedidos" y selecciona el pedido. Haz clic en "Solicitar Reembolso" y elige un motivo: artículos faltantes, artículos incorrectos, productos vencidos, artículos dañados o pedido no entregado. Sube fotos que muestren el problema, agrega una breve descripción y envía. Nuestro equipo revisará tu solicitud y te contactará.',
+    'help.faq.refund3.question': '¿Qué necesito para enviar una solicitud de reembolso?',
+    'help.faq.refund3.answer': 'Para procesar tu solicitud de reembolso, necesitamos: tu número de pedido (se llena automáticamente cuando inicias la solicitud), fotos claras que muestren el problema, y una breve descripción de lo que salió mal. Mientras más detalles proporciones, más rápido podremos resolver tu problema.',
+    'help.faq.refund4.question': '¿Cuánto tiempo tarda en procesarse un reembolso?',
+    'help.faq.refund4.answer': 'Nuestro equipo revisa todas las solicitudes de reembolso junto con la evidencia de entrega de nuestros conductores. La mayoría de las solicitudes se procesan en 2-3 días hábiles. Una vez aprobado, el reembolso se devolverá a tu método de pago original. Recibirás un correo de confirmación cuando se procese tu reembolso.',
 
     // FAQ - Account
     'help.faq.account1.question': '¿Cómo restablezco mi contraseña?',
@@ -3023,8 +3066,16 @@ If the customer disputes a payment:
     'documents.refundPolicy': 'Política de Reembolsos y Cancelaciones',
     'documents.refundPolicyDesc': 'Cómo se manejan los reembolsos y cancelaciones de pedidos',
     'documents.viewDocument': 'Ver Documento',
+    'documents.reviewAndAccept': 'Revisar y Aceptar',
     'documents.acceptedOn': 'Aceptado el',
     'documents.notAccepted': 'Aún no aceptado',
+    'documents.modal.loading': 'Cargando acuerdo...',
+    'documents.modal.loadError': 'Error al cargar el acuerdo. Por favor intenta de nuevo.',
+    'documents.modal.scrollToRead': 'Por favor desplázate hacia abajo para leer el acuerdo completo',
+    'documents.modal.agreeCheckbox': 'He leído, entendido y acepto este acuerdo',
+    'documents.modal.acceptButton': 'Aceptar Acuerdo',
+    'documents.modal.accepting': 'Aceptando...',
+    'documents.modal.acceptError': 'Error al aceptar el acuerdo. Por favor intenta de nuevo.',
 
     // Legal Agreement Checkboxes
     'legal.agreements.title': 'Acuerdos Legales',
@@ -4212,6 +4263,9 @@ Si el cliente disputa el pago:
     'paymentSettings.error.linkFailed': 'Error al crear enlace de Stripe',
     'paymentSettings.error.createFailed': 'Error al crear cuenta de Stripe',
     'paymentSettings.error.unexpected': 'Ocurrió un error inesperado',
+    'paymentSettings.agreementRequired.title': 'Acuerdos legales requeridos',
+    'paymentSettings.agreementRequired.description': 'Debes aceptar todos los acuerdos legales antes de poder conectar tu cuenta de pagos.',
+    'paymentSettings.agreementRequired.link': 'Ir a Documentos',
 
     // Order Processing Steps
     'processing.verifyingPayment': 'Verificando pago...',

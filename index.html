@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- Google Maps API will be loaded dynamically when needed -->
 
-    <!-- Meta Pixel Code - loads in all environments, but tracking events only fire in production -->
+    <!-- Meta Pixel Code - Consent-aware: only tracks if user accepted cookies -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -30,14 +30,20 @@
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '366537997530463');
-      fbq('track', 'PageView');
+      // Default to revoked consent until user explicitly accepts
+      fbq('consent', 'revoke');
+      // Check if user previously accepted cookies
+      var consent = localStorage.getItem('lulocart_analytics_consent');
+      if (consent === 'accepted') {
+        fbq('consent', 'grant');
+        fbq('init', '366537997530463');
+        fbq('track', 'PageView');
+      }
     </script>
     <!-- End Meta Pixel Code -->
   </head>
   <body>
-    <!-- Meta Pixel noscript fallback -->
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=366537997530463&ev=PageView&noscript=1" /></noscript>
+    <!-- Note: Meta Pixel noscript fallback removed for GDPR compliance (requires consent) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

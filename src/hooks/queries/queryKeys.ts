@@ -61,4 +61,13 @@ export const queryKeys = {
     active: () => [...queryKeys.drivers.all, 'active'] as const,
     detail: (id: string) => [...queryKeys.drivers.all, 'detail', id] as const,
   },
+
+  // Legal agreements queries
+  legalAgreements: {
+    all: ['legalAgreements'] as const,
+    latest: (type: string) => [...queryKeys.legalAgreements.all, 'latest', type] as const,
+    byId: (id: string) => [...queryKeys.legalAgreements.all, 'detail', id] as const,
+    allLatest: () => [...queryKeys.legalAgreements.all, 'allLatest'] as const,
+    versions: (type: string) => [...queryKeys.legalAgreements.all, 'versions', type] as const,
+  },
 } as const;

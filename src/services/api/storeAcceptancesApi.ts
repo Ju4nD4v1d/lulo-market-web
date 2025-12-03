@@ -16,48 +16,50 @@ import { COLLECTIONS } from './types';
 // Types
 // ============================================================================
 
+export interface AgreementAcceptance {
+  accepted: boolean;
+  acceptedAt: Date | null;
+  versionId: string | null;  // Document ID of signed version
+  version: string | null;    // Version string for display (e.g., "1.0.0")
+}
+
 export interface StoreAcceptance {
   storeId: string;
   ownerId: string;
-  sellerAgreement: {
-    accepted: boolean;
-    acceptedAt: Date | null;
-  };
-  payoutPolicy: {
-    accepted: boolean;
-    acceptedAt: Date | null;
-  };
-  refundPolicy: {
-    accepted: boolean;
-    acceptedAt: Date | null;
-  };
+  sellerAgreement: AgreementAcceptance;
+  payoutPolicy: AgreementAcceptance;
+  refundPolicy: AgreementAcceptance;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AgreementAcceptanceInput {
+  accepted: boolean;
+  versionId: string | null;
+  version: string | null;
 }
 
 export interface StoreAcceptanceInput {
   storeId: string;
   ownerId: string;
-  sellerAgreementAccepted: boolean;
-  payoutPolicyAccepted: boolean;
-  refundPolicyAccepted: boolean;
+  sellerAgreement: AgreementAcceptanceInput;
+  payoutPolicy: AgreementAcceptanceInput;
+  refundPolicy: AgreementAcceptanceInput;
+}
+
+interface FirestoreAgreementAcceptance {
+  accepted: boolean;
+  acceptedAt: Timestamp | null;
+  versionId: string | null;
+  version: string | null;
 }
 
 interface FirestoreAcceptance {
   storeId: string;
   ownerId: string;
-  sellerAgreement: {
-    accepted: boolean;
-    acceptedAt: Timestamp | null;
-  };
-  payoutPolicy: {
-    accepted: boolean;
-    acceptedAt: Timestamp | null;
-  };
-  refundPolicy: {
-    accepted: boolean;
-    acceptedAt: Timestamp | null;
-  };
+  sellerAgreement: FirestoreAgreementAcceptance;
+  payoutPolicy: FirestoreAgreementAcceptance;
+  refundPolicy: FirestoreAgreementAcceptance;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -66,22 +68,24 @@ interface FirestoreAcceptance {
 // Helper Functions
 // ============================================================================
 
+function transformAgreementAcceptance(
+  agreement: FirestoreAgreementAcceptance | undefined
+): AgreementAcceptance {
+  return {
+    accepted: agreement?.accepted || false,
+    acceptedAt: agreement?.acceptedAt?.toDate() || null,
+    versionId: agreement?.versionId || null,
+    version: agreement?.version || null,
+  };
+}
+
 function transformAcceptanceDocument(data: FirestoreAcceptance): StoreAcceptance {
   return {
     storeId: data.storeId,
     ownerId: data.ownerId,
-    sellerAgreement: {
-      accepted: data.sellerAgreement?.accepted || false,
-      acceptedAt: data.sellerAgreement?.acceptedAt?.toDate() || null,
-    },
-    payoutPolicy: {
-      accepted: data.payoutPolicy?.accepted || false,
-      acceptedAt: data.payoutPolicy?.acceptedAt?.toDate() || null,
-    },
-    refundPolicy: {
-      accepted: data.refundPolicy?.accepted || false,
-      acceptedAt: data.refundPolicy?.acceptedAt?.toDate() || null,
-    },
+    sellerAgreement: transformAgreementAcceptance(data.sellerAgreement),
+    payoutPolicy: transformAgreementAcceptance(data.payoutPolicy),
+    refundPolicy: transformAgreementAcceptance(data.refundPolicy),
     createdAt: data.createdAt?.toDate() || new Date(),
     updatedAt: data.updatedAt?.toDate() || new Date(),
   };
@@ -94,7 +98,7 @@ function transformAcceptanceDocument(data: FirestoreAcceptance): StoreAcceptance
 /**
  * Save or update store acceptances
  * Uses storeId as document ID for easy lookup
- * Preserves existing acceptedAt timestamps to maintain audit trail
+ * Preserves existing acceptedAt timestamps and version info to maintain audit trail
  */
 export async function saveStoreAcceptances(input: StoreAcceptanceInput): Promise<void> {
   // Input validation
@@ -112,38 +116,44 @@ export async function saveStoreAcceptances(input: StoreAcceptanceInput): Promise
 
     const now = serverTimestamp();
 
-    // Preserve existing timestamps if agreement was already accepted
-    const getAcceptedAt = (
-      newAccepted: boolean,
-      existingAcceptance?: { accepted: boolean; acceptedAt: Timestamp | null }
+    // Build agreement acceptance data, preserving existing if already accepted
+    const buildAgreementData = (
+      newAgreement: AgreementAcceptanceInput,
+      existingAgreement?: FirestoreAgreementAcceptance
     ) => {
-      // If already accepted before, preserve the original timestamp
-      if (existingAcceptance?.accepted && existingAcceptance?.acceptedAt) {
-        return existingAcceptance.acceptedAt;
+      // If already accepted before, preserve all original data
+      if (existingAgreement?.accepted && existingAgreement?.acceptedAt) {
+        return {
+          accepted: existingAgreement.accepted,
+          acceptedAt: existingAgreement.acceptedAt,
+          versionId: existingAgreement.versionId,
+          version: existingAgreement.version,
+        };
       }
-      // If newly accepting, set current timestamp
-      if (newAccepted) {
-        return now;
+      // If newly accepting, set current data
+      if (newAgreement.accepted) {
+        return {
+          accepted: true,
+          acceptedAt: now,
+          versionId: newAgreement.versionId,
+          version: newAgreement.version,
+        };
       }
       // Not accepted
-      return null;
+      return {
+        accepted: false,
+        acceptedAt: null,
+        versionId: null,
+        version: null,
+      };
     };
 
     const acceptanceData = {
       storeId: input.storeId,
       ownerId: input.ownerId,
-      sellerAgreement: {
-        accepted: input.sellerAgreementAccepted,
-        acceptedAt: getAcceptedAt(input.sellerAgreementAccepted, existingData?.sellerAgreement),
-      },
-      payoutPolicy: {
-        accepted: input.payoutPolicyAccepted,
-        acceptedAt: getAcceptedAt(input.payoutPolicyAccepted, existingData?.payoutPolicy),
-      },
-      refundPolicy: {
-        accepted: input.refundPolicyAccepted,
-        acceptedAt: getAcceptedAt(input.refundPolicyAccepted, existingData?.refundPolicy),
-      },
+      sellerAgreement: buildAgreementData(input.sellerAgreement, existingData?.sellerAgreement),
+      payoutPolicy: buildAgreementData(input.payoutPolicy, existingData?.payoutPolicy),
+      refundPolicy: buildAgreementData(input.refundPolicy, existingData?.refundPolicy),
       updatedAt: now,
       ...(existingDoc.exists() ? {} : { createdAt: now }),
     };

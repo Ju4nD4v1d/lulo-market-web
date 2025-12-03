@@ -5,10 +5,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { CreditCard, CheckCircle, Clock, AlertTriangle, AlertCircle, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
+import { CreditCard, CheckCircle, Clock, AlertTriangle, AlertCircle, ExternalLink, RefreshCw, Loader2, FileText } from 'lucide-react';
 import { useLanguage } from '../../../../../../context/LanguageContext';
 import { useAuth } from '../../../../../../context/AuthContext';
 import { getStoreStripeAccount } from '../../../../../../services/api/storeApi';
+import { getStoreAcceptances } from '../../../../../../services/api/storeAcceptancesApi';
 import {
   createStripeConnectAccount,
   createStripeAccountLink,
@@ -43,6 +44,35 @@ export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, store
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [agreementsAccepted, setAgreementsAccepted] = useState<boolean | null>(null);
+  const [checkingAgreements, setCheckingAgreements] = useState(true);
+
+  // Check if all agreements are accepted
+  useEffect(() => {
+    const checkAgreements = async () => {
+      if (!storeId) {
+        setCheckingAgreements(false);
+        return;
+      }
+
+      try {
+        const acceptances = await getStoreAcceptances(storeId);
+        const allAccepted = !!(
+          acceptances?.sellerAgreement?.accepted &&
+          acceptances?.payoutPolicy?.accepted &&
+          acceptances?.refundPolicy?.accepted
+        );
+        setAgreementsAccepted(allAccepted);
+      } catch (err) {
+        console.error('Error checking agreements:', err);
+        setAgreementsAccepted(false);
+      } finally {
+        setCheckingAgreements(false);
+      }
+    };
+
+    checkAgreements();
+  }, [storeId]);
 
   // Fetch current status on mount and when storeId changes
   useEffect(() => {
@@ -279,6 +309,13 @@ export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, store
   const config = getStatusConfig();
   const IconComponent = config.icon;
 
+  const handleGoToDocuments = () => {
+    window.location.hash = '#dashboard/documents';
+  };
+
+  // Determine if Stripe actions should be disabled due to missing agreements
+  const isBlockedByAgreements = agreementsAccepted === false && !checkingAgreements;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -295,6 +332,30 @@ export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, store
           <RefreshCw className={`${styles.refreshIcon} ${stripeState.status === 'loading' ? styles.spinning : ''}`} />
         </button>
       </div>
+
+      {/* Agreement Warning Banner */}
+      {isBlockedByAgreements && (
+        <div className={styles.agreementWarning}>
+          <div className={styles.agreementWarningContent}>
+            <FileText className={styles.agreementWarningIcon} />
+            <div className={styles.agreementWarningText}>
+              <p className={styles.agreementWarningTitle}>
+                {t('paymentSettings.agreementRequired.title')}
+              </p>
+              <p className={styles.agreementWarningDescription}>
+                {t('paymentSettings.agreementRequired.description')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleGoToDocuments}
+            className={styles.agreementWarningLink}
+          >
+            {t('paymentSettings.agreementRequired.link')}
+            <ExternalLink className={styles.agreementWarningLinkIcon} />
+          </button>
+        </div>
+      )}
 
       <div className={styles.content}>
         <div className={styles.statusCard}>
@@ -335,7 +396,7 @@ export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, store
             <div className={styles.actions}>
               <button
                 onClick={handleConnectStripe}
-                disabled={isLoading}
+                disabled={isLoading || isBlockedByAgreements}
                 className={`${styles.actionButton} ${stripeState.status === 'enabled' ? styles.actionButtonSecondary : styles.actionButtonPrimary}`}
               >
                 {isLoading ? (

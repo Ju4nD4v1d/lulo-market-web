@@ -8,3 +8,9 @@ export { useStoreByOwnerQuery } from './useStoreByOwnerQuery';
 export { useStoreQuery } from './useStoreQuery';
 export { useOrderTrackingQuery } from './useOrderTrackingQuery';
 export { useDriversQuery, useActiveDriversQuery } from './useDriversQuery';
+export {
+  useLegalAgreementQuery,
+  useLatestAgreementQuery,
+  useAgreementByIdQuery,
+  useAllLatestAgreementsQuery,
+} from './useLegalAgreementQuery';
