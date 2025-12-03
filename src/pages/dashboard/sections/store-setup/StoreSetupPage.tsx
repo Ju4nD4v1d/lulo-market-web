@@ -168,8 +168,7 @@ export const StoreSetupPage = () => {
         setStoreImage({});
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queriedStoreId, queriedStoreData?.storeImage, queriedStoreData?.images?.[0]]); // React to image changes
+  }, [queriedStoreId, queriedStoreData]); // Sync all store data when query returns
 
   // Reset modal state when component unmounts or user navigates away
   useEffect(() => {

@@ -1,6 +1,6 @@
 import type * as React from 'react';
 
-import { ArrowLeft, Star, Search, ShoppingCart, Globe } from 'lucide-react';
+import { ArrowLeft, Search, ShoppingCart, Globe } from 'lucide-react';
 import { StoreInfo } from '../types';
 import { UserButton } from '../../../components/UserButton';
 import { UserMenuDropdown } from '../../../components/shared/user/UserMenuDropdown';
@@ -61,12 +61,6 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({
             </button>
             <div className={styles.info}>
               <h1 className={styles.name}>{store.name}</h1>
-              <div className={styles.meta}>
-                <Star className={styles.starIcon} />
-                <span className={styles.metaItem}>
-                  {store.rating} ({store.reviewCount})
-                </span>
-              </div>
             </div>
           </div>
 

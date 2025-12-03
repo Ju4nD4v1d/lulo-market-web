@@ -75,7 +75,7 @@ export const translations = {
     // Business Form
     'business.form.badge': 'Business Registration',
     'business.form.title': 'Tell us about your business',
-    'business.form.description': 'Complete this form to start your partnership with Lulo Market.',
+    'business.form.description': 'Complete this form to start your partnership with LuloCart.',
     'business.form.businessName': 'Business Name',
     'business.form.businessNamePlaceholder': 'Name of your business',
     'business.form.businessType': 'Business Type',
@@ -101,7 +101,7 @@ export const translations = {
 
     // Business Info
     'business.info.badge': 'Application Submitted',
-    'business.info.title': 'Welcome to Lulo Market!',
+    'business.info.title': 'Welcome to LuloCart!',
     'business.info.description': 'Your application has been submitted successfully.',
     'business.info.successTitle': 'Application Received',
     'business.info.successMessage': 'Our team will review your application and contact you within 24-48 hours.',
@@ -869,7 +869,7 @@ export const translations = {
     'metrics.exporting': 'Exporting...',
     'metrics.exportSuccess': 'Analytics data exported successfully!',
     'metrics.exportError': 'Failed to export data. Please try again.',
-    'metrics.exportTitle': 'Lulo Market - Analytics Export',
+    'metrics.exportTitle': 'LuloCart - Analytics Export',
     'metrics.exportStoreId': 'Store ID:',
     'metrics.exportDate': 'Export Date:',
     'metrics.exportTime': 'Export Time:',
@@ -948,6 +948,29 @@ export const translations = {
     'dispatcher.noDriversMatch': 'No drivers match your search',
     'dispatcher.addFirstDriver': 'Add First Driver',
     'dispatcher.confirmDelete': 'Are you sure you want to delete this driver?',
+
+    // Delivery Fee Simulator
+    'deliveryFeeSimulator.title': 'Delivery Fee Simulator',
+    'deliveryFeeSimulator.subtitle': 'Configure and test delivery fee calculations',
+    'deliveryFeeSimulator.enableDynamicFees': 'Enable Dynamic Fees',
+    'deliveryFeeSimulator.baseFee': 'Base Fee',
+    'deliveryFeeSimulator.minFee': 'Minimum Fee',
+    'deliveryFeeSimulator.maxFee': 'Maximum Fee',
+    'deliveryFeeSimulator.distanceTiers': 'Distance Tiers',
+    'deliveryFeeSimulator.from': 'From (km)',
+    'deliveryFeeSimulator.to': 'To (km)',
+    'deliveryFeeSimulator.rate': 'Rate ($/km)',
+    'deliveryFeeSimulator.addTier': 'Add Tier',
+    'deliveryFeeSimulator.removeTier': 'Remove',
+    'deliveryFeeSimulator.testCalculation': 'Test Calculation',
+    'deliveryFeeSimulator.distance': 'Distance (km)',
+    'deliveryFeeSimulator.calculate': 'Calculate',
+    'deliveryFeeSimulator.totalFee': 'Total Delivery Fee',
+    'deliveryFeeSimulator.breakdown': 'Breakdown',
+    'deliveryFeeSimulator.distanceFee': 'Distance Fee',
+    'deliveryFeeSimulator.feeCappedAt': 'Fee capped at',
+    'deliveryFeeSimulator.resetToDefaults': 'Reset to Defaults',
+    'deliveryFeeSimulator.unlimited': 'Unlimited',
 
     // Driver
     'driver.name': 'Name',
@@ -2526,7 +2549,7 @@ If the customer disputes a payment:
     // Business Form
     'business.form.badge': 'Registro de Negocio',
     'business.form.title': 'Cuéntanos sobre tu negocio',
-    'business.form.description': 'Completa este formulario para comenzar tu asociación con Lulo Market.',
+    'business.form.description': 'Completa este formulario para comenzar tu asociación con LuloCart.',
     'business.form.businessName': 'Nombre del Negocio',
     'business.form.businessNamePlaceholder': 'Nombre de tu negocio',
     'business.form.businessType': 'Tipo de Negocio',
@@ -2552,7 +2575,7 @@ If the customer disputes a payment:
 
     // Business Info
     'business.info.badge': 'Solicitud Enviada',
-    'business.info.title': '¡Bienvenido a Lulo Market!',
+    'business.info.title': '¡Bienvenido a LuloCart!',
     'business.info.description': 'Tu solicitud ha sido enviada exitosamente.',
     'business.info.successTitle': 'Solicitud Recibida',
     'business.info.successMessage': 'Nuestro equipo revisará tu solicitud y te contactará en 24-48 horas.',
@@ -3145,7 +3168,7 @@ If the customer disputes a payment:
     'metrics.exporting': 'Exportando...',
     'metrics.exportSuccess': '¡Datos de análisis exportados exitosamente!',
     'metrics.exportError': 'Error al exportar datos. Por favor intenta nuevamente.',
-    'metrics.exportTitle': 'Lulo Market - Exportación de Análisis',
+    'metrics.exportTitle': 'LuloCart - Exportación de Análisis',
     'metrics.exportStoreId': 'ID de Tienda:',
     'metrics.exportDate': 'Fecha de Exportación:',
     'metrics.exportTime': 'Hora de Exportación:',
@@ -3231,6 +3254,29 @@ If the customer disputes a payment:
     'dispatcher.noDriversMatch': 'Ningun conductor coincide con tu busqueda',
     'dispatcher.addFirstDriver': 'Agregar Primer Conductor',
     'dispatcher.confirmDelete': 'Estas seguro de que deseas eliminar este conductor?',
+
+    // Delivery Fee Simulator
+    'deliveryFeeSimulator.title': 'Simulador de Tarifa de Envío',
+    'deliveryFeeSimulator.subtitle': 'Configura y prueba los cálculos de tarifa de envío',
+    'deliveryFeeSimulator.enableDynamicFees': 'Habilitar Tarifas Dinámicas',
+    'deliveryFeeSimulator.baseFee': 'Tarifa Base',
+    'deliveryFeeSimulator.minFee': 'Tarifa Mínima',
+    'deliveryFeeSimulator.maxFee': 'Tarifa Máxima',
+    'deliveryFeeSimulator.distanceTiers': 'Niveles de Distancia',
+    'deliveryFeeSimulator.from': 'Desde (km)',
+    'deliveryFeeSimulator.to': 'Hasta (km)',
+    'deliveryFeeSimulator.rate': 'Tarifa ($/km)',
+    'deliveryFeeSimulator.addTier': 'Agregar Nivel',
+    'deliveryFeeSimulator.removeTier': 'Eliminar',
+    'deliveryFeeSimulator.testCalculation': 'Probar Cálculo',
+    'deliveryFeeSimulator.distance': 'Distancia (km)',
+    'deliveryFeeSimulator.calculate': 'Calcular',
+    'deliveryFeeSimulator.totalFee': 'Tarifa Total de Envío',
+    'deliveryFeeSimulator.breakdown': 'Desglose',
+    'deliveryFeeSimulator.distanceFee': 'Tarifa por Distancia',
+    'deliveryFeeSimulator.feeCappedAt': 'Tarifa limitada a',
+    'deliveryFeeSimulator.resetToDefaults': 'Restablecer Valores',
+    'deliveryFeeSimulator.unlimited': 'Ilimitado',
 
     // Driver
     'driver.name': 'Nombre',

@@ -5,7 +5,7 @@ import { generateReceiptAPI } from '../../../config/api';
 interface UseReceiptReturn {
   receiptLoading: boolean;
   generateReceipt: () => Promise<void>;
-  downloadReceipt: () => void;
+  downloadReceipt: () => Promise<void>;
   isReceiptExpired: boolean;
   error: string | null;
 }
@@ -51,15 +51,34 @@ export const useReceipt = (
     }
   };
 
-  const downloadReceipt = () => {
+  const downloadReceipt = async () => {
     if (!order?.receiptUrl) return;
 
-    const link = document.createElement('a');
-    link.href = order.receiptUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.download = `receipt-${order.id}.pdf`;
-    link.click();
+    try {
+      setReceiptLoading(true);
+      setError(null);
+
+      // Try to fetch PDF as blob for direct download
+      // This may fail due to CORS if GCS bucket isn't configured
+      const response = await fetch(order.receiptUrl, { mode: 'cors' });
+      const blob = await response.blob();
+
+      // Create blob URL and trigger download
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `receipt-${order.id}.pdf`;
+      link.click();
+
+      // Clean up blob URL
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      // CORS error or network issue - fall back to opening in new tab
+      console.warn('Blob download failed (likely CORS), falling back to new tab:', err);
+      window.open(order.receiptUrl, '_blank', 'noopener,noreferrer');
+    } finally {
+      setReceiptLoading(false);
+    }
   };
 
   return {

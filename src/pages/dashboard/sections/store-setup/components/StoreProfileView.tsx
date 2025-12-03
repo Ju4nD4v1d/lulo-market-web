@@ -9,7 +9,6 @@ import {
   Building2,
   Edit3,
   CheckCircle2,
-  Star,
   Users,
   Calendar,
   ExternalLink,
@@ -173,22 +172,6 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
               </div>
             </div>
           </div>
-
-          <div className={`${styles.statCard} ${styles.statCardYellow}`}>
-            <div className={styles.statCardContent}>
-              <div>
-                <p className={styles.statLabel}>{t('store.dashboard.rating')}</p>
-                {storeStats.loading ? (
-                  <div className={styles.statSkeleton}></div>
-                ) : (
-                  <p className={styles.statValueYellow}>{storeStats.rating}</p>
-                )}
-              </div>
-              <div className={styles.statIconYellow}>
-                <Star className={styles.statIcon} />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Payment Settings Section */}
@@ -310,18 +293,30 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
               </div>
               <div className={styles.cardContent}>
                 {daysOrder.map(day => {
-                  const hours = storeData.deliveryHours?.[day] || storeData.businessHours?.[day];
+                  // Use new multi-slot deliverySchedule, fallback to legacy deliveryHours/businessHours
+                  const dayKey = day as 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
+                  const schedule = storeData.deliverySchedule?.[dayKey];
+                  const legacyHours = storeData.deliveryHours?.[day] || storeData.businessHours?.[day];
+
+                  // Determine if closed - check schedule.closed directly
+                  const isClosed = schedule !== undefined
+                    ? schedule.closed
+                    : legacyHours ? legacyHours.closed : true;
+
+                  // Get hours to display (first slot for multi-slot, or legacy format)
+                  const displayHours = schedule?.slots?.[0] || legacyHours;
+
                   return (
                     <div key={day} className={styles.hoursRow}>
                       <span className={styles.hoursDay}>{getDayName(day, t)}</span>
-                      {!hours ? (
+                      {isClosed ? (
                         <span className={styles.hoursClosed}>{t('store.dashboard.closed')}</span>
-                      ) : hours.closed ? (
-                        <span className={styles.hoursClosed}>{t('store.dashboard.closed')}</span>
-                      ) : (
+                      ) : displayHours ? (
                         <span className={styles.hoursOpen}>
-                          {hours.open} - {hours.close}
+                          {displayHours.open} - {displayHours.close}
                         </span>
+                      ) : (
+                        <span className={styles.hoursClosed}>{t('store.dashboard.closed')}</span>
                       )}
                     </div>
                   );
