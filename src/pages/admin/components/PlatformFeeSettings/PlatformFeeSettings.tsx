@@ -10,7 +10,7 @@ import { DollarSign, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useAuth } from '../../../../context/AuthContext';
 import { ConfirmDialog } from '../../../../components/ConfirmDialog';
-import { usePlatformFeeSettings, PLATFORM_FEE_LIMITS } from './hooks/usePlatformFeeSettings';
+import { usePlatformFeeSettings, PLATFORM_FEE_LIMITS, COMMISSION_RATE_LIMITS } from './hooks/usePlatformFeeSettings';
 import styles from './PlatformFeeSettings.module.css';
 
 export function PlatformFeeSettings() {
@@ -27,6 +27,7 @@ export function PlatformFeeSettings() {
     isDirty,
     setFixedAmount,
     setEnabled,
+    setCommissionRate,
     saveConfig,
     resetToDefaults,
     discardChanges,
@@ -106,6 +107,7 @@ export function PlatformFeeSettings() {
 
         {/* Fee Configuration */}
         <div className={styles.configGrid}>
+          {/* Platform Fee Amount */}
           <div className={styles.configField}>
             <label className={styles.configLabel}>{t('admin.platformFee.fixedAmount')}</label>
             <div className={styles.currencyInputWrapper}>
@@ -118,7 +120,6 @@ export function PlatformFeeSettings() {
                 step={0.01}
                 onChange={(e) => {
                   const value = parseFloat(e.target.value);
-                  // Allow clearing the field (NaN) but validate on actual numbers
                   setFixedAmount(isNaN(value) ? 0 : value);
                 }}
                 className={styles.currencyInput}
@@ -126,6 +127,29 @@ export function PlatformFeeSettings() {
               />
             </div>
             <span className={styles.configHint}>{t('admin.platformFee.hint')}</span>
+          </div>
+
+          {/* Commission Rate */}
+          <div className={styles.configField}>
+            <label className={styles.configLabel}>{t('admin.platformFee.commissionRate')}</label>
+            <div className={styles.percentInputWrapper}>
+              <input
+                type="number"
+                value={Math.round(config.commissionRate * 100 * 10) / 10}
+                min={COMMISSION_RATE_LIMITS.MIN * 100}
+                max={COMMISSION_RATE_LIMITS.MAX * 100}
+                step={0.5}
+                onChange={(e) => {
+                  const percentValue = parseFloat(e.target.value);
+                  const decimalValue = isNaN(percentValue) ? 0 : percentValue / 100;
+                  setCommissionRate(decimalValue);
+                }}
+                className={styles.percentInput}
+                disabled={!config.enabled}
+              />
+              <span className={styles.percentSuffix}>%</span>
+            </div>
+            <span className={styles.configHint}>{t('admin.platformFee.commissionHint')}</span>
           </div>
         </div>
 

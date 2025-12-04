@@ -123,11 +123,10 @@ export const OrdersPage = () => {
     setOrderToCancel(null);
   };
 
-  const getStatusText = (status: OrderStatus) => {
+  const getStatusText = (status: OrderStatus | string) => {
     switch (status) {
-      case OrderStatus.PENDING_PAYMENT:
-        return t('order.status.pendingPayment');
       case OrderStatus.PENDING:
+      case 'pending_payment': // Legacy backward compatibility
         return t('order.status.pending');
       case OrderStatus.PROCESSING:
         return t('order.status.processing');
@@ -142,8 +141,10 @@ export const OrdersPage = () => {
       case OrderStatus.DELIVERED:
         return t('order.status.delivered');
       case OrderStatus.CANCELLED:
+      case 'canceled': // Backend may use US spelling
         return t('order.status.cancelled');
-      case OrderStatus.PAYMENT_FAILED:
+      case OrderStatus.FAILED:
+      case 'payment_failed': // Legacy backward compatibility
         return t('order.status.paymentFailed');
       default:
         return status;

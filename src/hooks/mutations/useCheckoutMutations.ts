@@ -9,16 +9,50 @@ import * as orderApi from '../../services/api/orderApi';
 import { Order } from '../../types/order';
 
 /**
- * Payment intent request data
+ * Payment intent request data (aligned with backend validation format)
  */
 interface CreatePaymentIntentRequest {
   amount: number;
   currency: string;
   storeId: string;
   orderId: string;
-  stripeAccountId: string;
-  platformFeeAmount: number;
-  orderData: unknown;
+  storeStripeAccountId: string;
+  // Payment split amounts for backend validation
+  lulocartAmount: number;   // commission + deliveryFee + platformFee
+  storeAmount: number;      // (subtotal × 0.94) + tax
+  orderData: {
+    storeName: string;
+    customerEmail: string;
+    customerName: string;
+    customerPhone: string;
+    subtotal: number;
+    tax: number;
+    deliveryFee: number;
+    platformFee: number;
+    total: number;
+    finalTotal: number;
+    commissionRate: number;
+    commissionAmount: number;
+    storeAmount: number;
+    lulocartAmount: number;
+    isDelivery: boolean;
+    orderNotes: string;
+    itemCount: number;
+    items: Array<{
+      id: string;
+      productId: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }>;
+    deliveryAddress: {
+      street: string;
+      city: string;
+      province: string;
+      postalCode: string;
+      country: string;
+    };
+  };
 }
 
 /**
@@ -115,12 +149,16 @@ export const useCheckoutMutations = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Math.round(request.amount * 100), // Convert to cents
-          currency: request.currency,
-          storeId: request.storeId,
+          // Core payment info
           orderId: request.orderId,
-          stripeAccountId: request.stripeAccountId,
-          platformFeeAmount: Math.round(request.platformFeeAmount * 100),
+          storeId: request.storeId,
+          storeStripeAccountId: request.storeStripeAccountId,
+          amount: request.amount,                   // Total amount to charge (finalTotal in dollars)
+          currency: request.currency,
+          // Payment split amounts (for backend validation)
+          lulocartAmount: request.lulocartAmount,   // In dollars, backend converts to cents
+          storeAmount: request.storeAmount,         // In dollars, backend converts to cents
+          // Order details with commission breakdown
           orderData: request.orderData
         }),
       });
@@ -130,6 +168,17 @@ export const useCheckoutMutations = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ Payment intent error:', errorData);
+
+        // Handle fee validation errors (HTTP 400)
+        if (response.status === 400 && errorData.code === 'FEE_VALIDATION_FAILED') {
+          console.error('❌ Fee validation failed:', errorData.validationErrors);
+          // Log validation details for debugging
+          errorData.validationErrors?.forEach((err: { field: string; expected: number; received: number; message: string }) => {
+            console.error(`  - ${err.field}: expected ${err.expected}, got ${err.received}`);
+          });
+          throw new Error('Payment processing error. Please refresh and try again.');
+        }
+
         throw new Error(errorData.error || 'Failed to create payment intent');
       }
 

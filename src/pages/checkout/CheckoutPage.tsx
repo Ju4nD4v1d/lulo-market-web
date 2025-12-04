@@ -68,6 +68,7 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     cart,
     currentStep,
     isPaymentReady,
+    isCreatingPaymentIntent,
     t
   } = useCheckoutContext();
 
@@ -87,7 +88,7 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   // Empty cart check
   if (cart.items.length === 0) {
     return (
-      <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t}>
+      <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t} isProcessing={isCreatingPaymentIntent}>
         <EmptyCartView onBack={onBack} t={t} />
       </CheckoutWizard>
     );
@@ -100,7 +101,7 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   // Regular checkout steps
   return (
-    <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t}>
+    <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t} isProcessing={isCreatingPaymentIntent}>
       {currentStep === 'info' && <CustomerInfoStepWrapper />}
       {currentStep === 'address' && <DeliveryAddressStepWrapper />}
       {currentStep === 'review' && <ReviewStepWrapper />}

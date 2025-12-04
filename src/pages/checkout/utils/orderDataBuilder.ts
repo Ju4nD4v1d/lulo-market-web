@@ -92,6 +92,11 @@ export interface CartSummaryData {
   platformFee: number;
   finalTotal: number;
   itemCount: number;
+  // Payment split fields (Stripe Connect)
+  commissionRate: number;
+  commissionAmount: number;
+  storeAmount: number;
+  lulocartAmount: number;
   discountAmount?: number;
 }
 
@@ -135,9 +140,22 @@ export const buildEnhancedOrderData = (
   locale: string,
   storeInfo: StoreReceiptInfo,
   paymentIntentId?: string,
-  orderStatus: OrderStatus = OrderStatus.PENDING_PAYMENT,
+  orderStatus: OrderStatus = OrderStatus.PENDING, // Backend expects "pending", not "pending_payment"
   estimatedDistance?: number | null
 ) => {
+  // DEBUG: Log cart summary values
+  console.log('🔍 [orderDataBuilder] Cart summary received:', {
+    subtotal: cart.summary.subtotal,
+    tax: cart.summary.tax,
+    deliveryFee: cart.summary.deliveryFee,
+    platformFee: cart.summary.platformFee,
+    total: cart.summary.total,
+    finalTotal: cart.summary.finalTotal,
+    commissionRate: cart.summary.commissionRate,
+    lulocartAmount: cart.summary.lulocartAmount,
+    storeAmount: cart.summary.storeAmount,
+  });
+
   // Calculate tax breakdown
   const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
 
@@ -192,13 +210,24 @@ export const buildEnhancedOrderData = (
       itemNotes: item.itemNotes || ''
     })),
     summary: {
-      ...cart.summary,
-      storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
-      platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0,
+      // Base amounts
+      subtotal: cart.summary.subtotal,
+      tax: cart.summary.tax,
+      deliveryFee: cart.summary.deliveryFee,
+      total: cart.summary.total,
+      platformFee: cart.summary.platformFee,
+      finalTotal: cart.summary.finalTotal,
+      itemCount: cart.summary.itemCount,
+      // Payment split (Stripe Connect) - pre-calculated values
+      commissionRate: cart.summary.commissionRate,
+      commissionAmount: cart.summary.commissionAmount,
+      storeAmount: cart.summary.storeAmount,      // (subtotal × 0.94) + tax
+      lulocartAmount: cart.summary.lulocartAmount, // commission + delivery + platform
+      // Optional fields
+      taxBreakdown,
       discountAmount: cart.summary.discountAmount || 0,
       tipAmount: formData.tipAmount || 0,
       serviceFee: 0,
-      taxBreakdown
     },
     status: orderStatus,
     orderNotes: formData.orderNotes || '',

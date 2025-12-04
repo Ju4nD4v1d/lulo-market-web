@@ -17,10 +17,17 @@ export interface CartSummary {
   subtotal: number;
   tax: number;
   deliveryFee: number;
-  total: number; // Base total before platform fee
-  platformFee: number; // 2 CAD platform fee charged to customer
+  total: number; // Base total before platform fee (subtotal + tax + deliveryFee)
+  platformFee: number; // Fixed platform fee charged to customer (from Firestore config)
   finalTotal: number; // Total amount customer pays (total + platformFee)
   itemCount: number;
+
+  // Payment split fields (Stripe Connect)
+  commissionRate: number; // Commission rate as decimal (e.g., 0.06 for 6%)
+  commissionAmount: number; // subtotal * commissionRate - Lulocart's commission
+  storeAmount: number; // (subtotal * (1 - commissionRate)) + tax - what store receives
+  lulocartAmount: number; // commissionAmount + deliveryFee + platformFee - what Lulocart keeps
+
   // Enhanced: Receipt fields
   discountAmount?: number; // Amount discounted from promotional codes
   tipAmount?: number; // Customer tip amount
@@ -39,4 +46,10 @@ export interface CartState {
   storeName: string | null;
   storeImage: string | null; // Store image URL for display in cart
   summary: CartSummary;
+  // Configured fees from Firestore (persist even when cart is empty)
+  configuredPlatformFee?: number | null;
+  configuredCommissionRate?: number | null;
 }
+
+// Alias for backward compatibility
+export type Cart = CartState;

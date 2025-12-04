@@ -1,15 +1,34 @@
+/**
+ * Order status values - must match backend exactly
+ * Backend sets: "pending", "confirmed", "failed", "canceled", "processing"
+ * Plus fulfillment states: "preparing", "ready", "out_for_delivery", "delivered"
+ */
 export enum OrderStatus {
-  PENDING_PAYMENT = 'pending_payment', // Order created, awaiting payment
   PENDING = 'pending',
   PROCESSING = 'processing',
   CONFIRMED = 'confirmed',
+  FAILED = 'failed',           // Payment/order failed
+  CANCELLED = 'cancelled',     // Also accepts 'canceled' from backend
   PREPARING = 'preparing',
   READY = 'ready',
   OUT_FOR_DELIVERY = 'out_for_delivery',
   DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-  PAYMENT_FAILED = 'payment_failed' // Payment was attempted but failed
 }
+
+/**
+ * Payment status values - must match backend exactly
+ * Backend sets: "pending", "paid", "failed", "canceled", "processing"
+ */
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'canceled' | 'processing';
+
+/**
+ * @deprecated Use OrderStatus.PENDING instead
+ * Kept for backward compatibility during migration
+ */
+export const LEGACY_STATUS = {
+  PENDING_PAYMENT: 'pending_payment',
+  PAYMENT_FAILED: 'payment_failed',
+} as const;
 
 export interface OrderItem {
   id: string;
@@ -51,12 +70,16 @@ export interface OrderSummary {
   subtotal: number;
   tax: number;
   deliveryFee: number;
-  total: number; // Base total before platform fee
-  platformFee: number; // 2 CAD platform fee charged to customer
+  total: number; // Base total before platform fee (subtotal + tax + deliveryFee)
+  platformFee: number; // Fixed platform fee charged to customer (from Firestore config)
   finalTotal: number; // Total amount customer pays (total + platformFee)
-  storeAmount: number; // Amount that goes to store after platform fees
-  platformAmount: number; // Amount that goes to platform (2 CAD + 10% of order)
   itemCount: number;
+  // Payment split fields (Stripe Connect)
+  commissionRate: number; // Commission rate as decimal (e.g., 0.06 for 6%)
+  commissionAmount: number; // subtotal × commissionRate - Lulocart's commission
+  storeAmount: number; // (subtotal × (1 - commissionRate)) + tax - what store receives
+  lulocartAmount: number; // commissionAmount + deliveryFee + platformFee - what Lulocart keeps
+  platformAmount: number; // Alias for lulocartAmount (backward compatibility)
   // Enhanced: Receipt fields
   discountAmount?: number; // Amount discounted from promotional codes
   tipAmount?: number; // Customer tip amount

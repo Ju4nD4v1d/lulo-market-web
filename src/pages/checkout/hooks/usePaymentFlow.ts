@@ -39,6 +39,11 @@ interface CartSummary {
   platformFee: number;
   finalTotal: number;
   itemCount: number;
+  // Payment split fields (Stripe Connect)
+  commissionRate: number;
+  commissionAmount: number;
+  storeAmount: number;
+  lulocartAmount: number;
 }
 
 /**
@@ -131,12 +136,13 @@ export const usePaymentFlow = ({
    *
    * Flow:
    * 1. Generate order ID
-   * 2. Build order data with PENDING_PAYMENT status
+   * 2. Build order data with status: "pending", paymentStatus: "pending"
    * 3. Create order in Firestore FIRST
    * 4. Create payment intent
    * 5. Update order with paymentId
    *
    * This ensures the order exists when the Stripe webhook fires.
+   * Webhook will update paymentStatus to "paid" or "failed".
    */
   const proceedToPayment = useCallback(async () => {
     console.log('💳 proceedToPayment called');
@@ -173,7 +179,20 @@ export const usePaymentFlow = ({
       console.log('📝 Generated order ID:', orderId);
       setPendingOrderId(orderId);
 
-      // 2. Build order data with PENDING_PAYMENT status
+      // DEBUG: Log cart summary before building order
+      console.log('🔍 [usePaymentFlow] Cart summary before order build:', {
+        subtotal: cart.summary.subtotal,
+        tax: cart.summary.tax,
+        deliveryFee: cart.summary.deliveryFee,
+        platformFee: cart.summary.platformFee,
+        total: cart.summary.total,
+        finalTotal: cart.summary.finalTotal,
+        commissionRate: cart.summary.commissionRate,
+        lulocartAmount: cart.summary.lulocartAmount,
+        storeAmount: cart.summary.storeAmount,
+      });
+
+      // 2. Build order data with PENDING status (paymentStatus: "pending")
       const orderData = buildEnhancedOrderData(
         orderId,
         cart,
@@ -182,7 +201,7 @@ export const usePaymentFlow = ({
         locale,
         storeReceiptInfo,
         undefined, // No paymentIntentId yet
-        OrderStatus.PENDING_PAYMENT,
+        OrderStatus.PENDING, // Backend expects "pending", paymentStatus: "pending"
         estimatedDistance // Distance from delivery fee calculation
       );
 
@@ -190,10 +209,7 @@ export const usePaymentFlow = ({
 
       // 3. Create order in Firestore FIRST
       await createOrder.mutateAsync({ orderId, orderData });
-      console.log('✅ Order created in Firestore with status: pending_payment');
-
-      // Platform fee is the fixed amount from Firestore config (no percentage)
-      const totalApplicationFee = cart.summary.platformFee;
+      console.log('✅ Order created in Firestore with status: pending, paymentStatus: pending');
 
       // 4. Create payment intent
       console.log('🔄 Now creating payment intent...');
@@ -202,8 +218,10 @@ export const usePaymentFlow = ({
         currency: 'cad',
         storeId: cart.storeId,
         orderId: orderId,
-        stripeAccountId: stripeAccount.stripeAccountId,
-        platformFeeAmount: totalApplicationFee,
+        storeStripeAccountId: stripeAccount.stripeAccountId,
+        // Payment split amounts (for backend validation)
+        lulocartAmount: cart.summary.lulocartAmount,  // commission + delivery + platform
+        storeAmount: cart.summary.storeAmount,        // (subtotal × 0.94) + tax
         orderData: {
           storeName: cart.storeName,
           customerEmail: formData.customerInfo.email,
@@ -213,8 +231,14 @@ export const usePaymentFlow = ({
           tax: cart.summary.tax,
           deliveryFee: cart.summary.deliveryFee,
           platformFee: cart.summary.platformFee,
-          total: cart.summary.total,
+          // Backend validates total = subtotal + tax + deliveryFee + platformFee
+          total: cart.summary.finalTotal,
           finalTotal: cart.summary.finalTotal,
+          // Payment split fields for Stripe Connect
+          commissionRate: cart.summary.commissionRate,
+          commissionAmount: cart.summary.commissionAmount,
+          storeAmount: cart.summary.storeAmount,
+          lulocartAmount: cart.summary.lulocartAmount,
           isDelivery: formData.isDelivery,
           orderNotes: formData.orderNotes || '',
           itemCount: cart.summary.itemCount,
@@ -253,7 +277,7 @@ export const usePaymentFlow = ({
       onError(errorMessage);
 
       // If we have a pending order that failed, we could update its status
-      // But for now, orders in pending_payment status will be cleaned up by backend
+      // But for now, orders with paymentStatus: "pending" will be cleaned up by backend
       throw error;
     } finally {
       setIsCreatingPaymentIntent(false);

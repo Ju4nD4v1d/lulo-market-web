@@ -14,6 +14,8 @@ interface CheckoutWizardProps {
   onBack: () => void;
   children: React.ReactNode;
   t: (key: string) => string;
+  /** Disable back button during payment processing */
+  isProcessing?: boolean;
 }
 
 const STEPS: CheckoutStep[] = ['info', 'address', 'review', 'payment'];
@@ -22,7 +24,8 @@ export const CheckoutWizard: React.FC<CheckoutWizardProps> = ({
   currentStep,
   onBack,
   children,
-  t
+  t,
+  isProcessing = false
 }) => {
   const currentStepIndex = STEPS.indexOf(currentStep);
 
@@ -36,6 +39,8 @@ export const CheckoutWizard: React.FC<CheckoutWizardProps> = ({
               onClick={onBack}
               className={styles.backButton}
               type="button"
+              disabled={isProcessing}
+              style={isProcessing ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
             >
               <ArrowLeft className={styles.backIcon} />
             </button>

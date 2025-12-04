@@ -4,7 +4,6 @@ import type * as React from 'react';
  */
 
 
-import { useState } from 'react';
 import { CreditCard } from 'lucide-react';
 import { StripePaymentForm } from '../StripePaymentForm';
 import { Order } from '../../../../types/order';
@@ -16,8 +15,9 @@ interface PaymentStepProps {
   onPaymentSuccess: (paymentIntentId: string) => void;
   onPaymentFailure: (paymentIntentId: string, error: string) => void;
   onPaymentError: (error: string) => void;
-  onBack: () => void;
   t: (key: string) => string;
+  /** Callback to notify parent when processing state changes */
+  onProcessingChange?: (isProcessing: boolean) => void;
 }
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({
@@ -26,10 +26,13 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   onPaymentSuccess,
   onPaymentFailure,
   onPaymentError,
-  onBack,
-  t
+  t,
+  onProcessingChange
 }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
+  // Wrapper to notify parent of processing state changes
+  const handleProcessingChange = (processing: boolean) => {
+    onProcessingChange?.(processing);
+  };
 
   return (
     <div className={sharedStyles.stepContainer}>
@@ -44,17 +47,10 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
         onPaymentSuccess={onPaymentSuccess}
         onPaymentFailure={onPaymentFailure}
         onPaymentError={onPaymentError}
-        onProcessing={setIsProcessing}
+        onProcessing={handleProcessingChange}
       />
 
-      <button
-        onClick={onBack}
-        className={`${sharedStyles.button} ${sharedStyles.buttonSecondary} ${sharedStyles.buttonStandalone}`}
-        type="button"
-        disabled={isProcessing}
-      >
-        {t('order.back')}
-      </button>
+      {/* No back button - once payment is initiated, user must complete or let it fail */}
     </div>
   );
 };
