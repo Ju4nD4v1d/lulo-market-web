@@ -27,6 +27,8 @@ interface CartContextType {
   setPlatformFee: (fee: number) => void;
   /** The currently set platform fee override (null = using default) */
   platformFeeOverride: number | null;
+  /** The commission rate override (null = using default from Firestore config) */
+  commissionRateOverride: number | null;
 }
 
 type CartAction =
@@ -36,20 +38,24 @@ type CartAction =
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; payload: CartState }
   | { type: 'SET_DELIVERY_FEE'; payload: number }
-  | { type: 'SET_PLATFORM_FEE'; payload: number };
+  | { type: 'SET_PLATFORM_FEE'; payload: number }
+  | { type: 'SET_COMMISSION_RATE'; payload: number };
 
 const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
 
 /**
- * Calculate cart summary with optional fee overrides.
- * When deliveryFeeOverride is provided (from dynamic calculation), use it.
- * When platformFeeOverride is provided (from Firestore config), use it.
- * When null/undefined, fees use defaults or 0 (calculated at checkout).
+ * Calculate cart summary with optional fee overrides and payment split.
+ *
+ * Payment Split (Stripe Connect):
+ * - Customer pays: subtotal + tax + deliveryFee + platformFee
+ * - Lulocart keeps: (subtotal × commissionRate) + deliveryFee + platformFee
+ * - Store receives: (subtotal × (1 - commissionRate)) + tax
  */
 const calculateSummary = (
   items: CartItem[],
   deliveryFeeOverride?: number | null,
-  platformFeeOverride?: number | null
+  platformFeeOverride?: number | null,
+  commissionRateOverride?: number | null
 ): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
   const tax = subtotal * TAX_RATE;
@@ -61,6 +67,14 @@ const calculateSummary = (
   const finalTotal = total + platformFee; // What customer actually pays
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Commission calculation (Stripe Connect payment split)
+  const commissionRate = commissionRateOverride ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate;
+  const commissionAmount = subtotal * commissionRate;
+  // Store gets: (subtotal × (1 - rate)) + 100% of tax
+  const storeAmount = (subtotal * (1 - commissionRate)) + tax;
+  // Lulocart keeps: commission + 100% of delivery fee + platform fee
+  const lulocartAmount = commissionAmount + deliveryFee + platformFee;
+
   return {
     subtotal: Number(subtotal.toFixed(2)),
     tax: Number(tax.toFixed(2)),
@@ -68,7 +82,12 @@ const calculateSummary = (
     total: Number(total.toFixed(2)),
     platformFee: Number(platformFee.toFixed(2)),
     finalTotal: Number(finalTotal.toFixed(2)),
-    itemCount
+    itemCount,
+    // Payment split fields
+    commissionRate,
+    commissionAmount: Number(commissionAmount.toFixed(2)),
+    storeAmount: Number(storeAmount.toFixed(2)),
+    lulocartAmount: Number(lulocartAmount.toFixed(2)),
   };
 };
 
@@ -84,8 +103,16 @@ const initialState: CartState = {
     total: 0,
     platformFee: 0,
     finalTotal: 0,
-    itemCount: 0
-  }
+    itemCount: 0,
+    // Payment split fields (default values)
+    commissionRate: DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+    commissionAmount: 0,
+    storeAmount: 0,
+    lulocartAmount: 0,
+  },
+  // Configured fees from Firestore (null = not yet loaded)
+  configuredPlatformFee: null,
+  configuredCommissionRate: null,
 };
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
@@ -124,7 +151,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           storeId: storeId,
           storeName: storeName,
           storeImage: storeImage || state.storeImage, // Keep existing image if not provided
-          summary: calculateSummary(newItems)
+          summary: calculateSummary(
+            newItems,
+            state.summary.deliveryFee,
+            state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+            state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+          )
         };
       }
 
@@ -141,18 +173,23 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         storeId: newItems.length === 0 ? null : state.storeId,
         storeName: newItems.length === 0 ? null : state.storeName,
         storeImage: newItems.length === 0 ? null : state.storeImage,
-        summary: calculateSummary(newItems)
+        summary: calculateSummary(
+          newItems,
+          state.summary.deliveryFee,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+        )
       };
     }
 
     case 'UPDATE_QUANTITY': {
       const { itemId, quantity } = action.payload;
-      
+
       if (quantity <= 0) {
         // Remove item if quantity is 0 or negative
         return cartReducer(state, { type: 'REMOVE_ITEM', payload: { itemId } });
       }
-      
+
       const newItems = state.items.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       );
@@ -160,12 +197,23 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {
         ...state,
         items: newItems,
-        summary: calculateSummary(newItems)
+        summary: calculateSummary(
+          newItems,
+          state.summary.deliveryFee,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+        )
       };
     }
 
     case 'CLEAR_CART': {
-      return initialState;
+      // Clear cart items but PRESERVE Firestore config values
+      // (platformFee and commissionRate don't change when cart is cleared)
+      return {
+        ...initialState,
+        configuredPlatformFee: state.configuredPlatformFee,
+        configuredCommissionRate: state.configuredCommissionRate,
+      };
     }
 
     case 'LOAD_CART': {
@@ -173,18 +221,52 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     }
 
     case 'SET_DELIVERY_FEE': {
-      // Recalculate summary with the new delivery fee, preserving current platform fee
+      // Recalculate summary with the new delivery fee, using configured fees
       return {
         ...state,
-        summary: calculateSummary(state.items, action.payload, state.summary.platformFee)
+        summary: calculateSummary(
+          state.items,
+          action.payload,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+        )
       };
     }
 
     case 'SET_PLATFORM_FEE': {
-      // Recalculate summary with the new platform fee, preserving current delivery fee
+      // Store the configured value and recalculate summary
+      const newSummary = calculateSummary(
+        state.items,
+        state.summary.deliveryFee,
+        action.payload,
+        state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+      );
+      console.log('🔍 [CartReducer] SET_PLATFORM_FEE:', {
+        payload: action.payload,
+        itemCount: state.items.length,
+        oldPlatformFee: state.summary.platformFee,
+        newPlatformFee: newSummary.platformFee,
+        oldFinalTotal: state.summary.finalTotal,
+        newFinalTotal: newSummary.finalTotal,
+      });
       return {
         ...state,
-        summary: calculateSummary(state.items, state.summary.deliveryFee, action.payload)
+        configuredPlatformFee: action.payload,
+        summary: newSummary
+      };
+    }
+
+    case 'SET_COMMISSION_RATE': {
+      // Store the configured value and recalculate summary
+      return {
+        ...state,
+        configuredCommissionRate: action.payload,
+        summary: calculateSummary(
+          state.items,
+          state.summary.deliveryFee,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          action.payload
+        )
       };
     }
 
@@ -195,8 +277,14 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Lazy initializer for cart - loads from localStorage BEFORE first render
-// This prevents the race condition where save effect runs before load effect
+/**
+ * Lazy initializer for cart - loads from localStorage BEFORE first render
+ *
+ * NOTE: This loads the cart structure from localStorage but does NOT use
+ * the saved platformFee/commissionRate values. Instead, the useEffect in
+ * CartProvider fetches fresh values from Firestore and dispatches updates.
+ * This ensures the cart always uses the latest config from Firestore.
+ */
 const getInitialCart = (): CartState => {
   if (typeof window === 'undefined') return initialState;
 
@@ -223,35 +311,46 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [deliveryFeeOverride, setDeliveryFeeOverrideState] = useState<number | null>(null);
   // Platform fee override - null means "using default" (fetched from Firestore at checkout)
   const [platformFeeOverride, setPlatformFeeOverrideState] = useState<number | null>(null);
+  // Commission rate override - null means "using default" (fetched from Firestore config)
+  const [commissionRateOverride, setCommissionRateOverrideState] = useState<number | null>(null);
 
-  // Track previous platform fee to prevent unnecessary updates
+  // Track previous values to prevent unnecessary updates
   const prevPlatformFeeRef = useRef<number | null>(null);
+  const prevCommissionRateRef = useRef<number | null>(null);
 
   // Save cart to localStorage whenever cart changes
   useEffect(() => {
     localStorage.setItem('lulo-cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Fetch platform fee config from Firestore on mount
+  // Fetch platform fee config (including commission rate) from Firestore on mount
   useEffect(() => {
     let isCancelled = false;
 
-    const fetchPlatformFee = async () => {
+    const fetchPlatformFeeConfig = async () => {
       try {
         const config = await getPlatformFeeConfig();
-        const fee = config.enabled ? config.fixedAmount : 0;
 
-        if (!isCancelled && prevPlatformFeeRef.current !== fee) {
+        const fee = config.enabled ? config.fixedAmount : 0;
+        const commissionRate = config.commissionRate;
+
+        if (!isCancelled) {
+          // Always update fees from Firestore to ensure cart uses latest values
+          // (localStorage may have stale values from previous session)
           setPlatformFeeOverrideState(fee);
           dispatch({ type: 'SET_PLATFORM_FEE', payload: fee });
           prevPlatformFeeRef.current = fee;
+
+          setCommissionRateOverrideState(commissionRate);
+          dispatch({ type: 'SET_COMMISSION_RATE', payload: commissionRate });
+          prevCommissionRateRef.current = commissionRate;
         }
       } catch (error) {
         console.error('Error fetching platform fee config:', error);
       }
     };
 
-    fetchPlatformFee();
+    fetchPlatformFeeConfig();
 
     return () => {
       isCancelled = true;
@@ -291,9 +390,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
-    // Reset fees when cart is cleared
+    // Only reset delivery fee (distance-based, changes per order)
+    // Keep platform fee and commission rate (from Firestore config, doesn't change per order)
     setDeliveryFeeOverrideState(null);
-    setPlatformFeeOverrideState(null);
   };
 
   /**
@@ -332,6 +431,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     deliveryFeeOverride,
     setPlatformFee,
     platformFeeOverride,
+    commissionRateOverride,
   };
 
   return (

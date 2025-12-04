@@ -41,6 +41,7 @@ export async function getPlatformFeeConfig(): Promise<PlatformFeeConfig> {
       return {
         fixedAmount: data.fixedAmount ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
         enabled: data.enabled ?? DEFAULT_PLATFORM_FEE_CONFIG.enabled,
+        commissionRate: data.commissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
       };
     }
 
@@ -69,6 +70,7 @@ export function subscribeToPlatformFeeConfig(
         callback({
           fixedAmount: data.fixedAmount ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
           enabled: data.enabled ?? DEFAULT_PLATFORM_FEE_CONFIG.enabled,
+          commissionRate: data.commissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
         });
       } else {
         // Document doesn't exist, use defaults
@@ -104,6 +106,7 @@ export async function savePlatformFeeConfig(
     const dataToSave: PlatformFeeConfigDocument = {
       fixedAmount: config.fixedAmount,
       enabled: config.enabled,
+      commissionRate: config.commissionRate,
       updatedBy: userId,
     };
 

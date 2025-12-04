@@ -14,6 +14,7 @@ import { PlatformFeeConfig } from './types';
 export const DEFAULT_PLATFORM_FEE_CONFIG: PlatformFeeConfig = {
   fixedAmount: 0.99,  // Default $0.99 CAD
   enabled: true,
+  commissionRate: 0.06,  // Default 6% commission on subtotal
 };
 
 /**

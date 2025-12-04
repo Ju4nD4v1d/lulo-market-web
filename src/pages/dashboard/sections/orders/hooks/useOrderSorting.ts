@@ -10,16 +10,15 @@ interface UseOrderSortingReturn {
 }
 
 const STATUS_PRIORITY: Record<OrderStatus, number> = {
-  [OrderStatus.PENDING]: 1,
-  [OrderStatus.CONFIRMED]: 2,
-  [OrderStatus.PREPARING]: 3,
-  [OrderStatus.READY]: 4,
-  [OrderStatus.OUT_FOR_DELIVERY]: 5,
-  [OrderStatus.DELIVERED]: 6,
-  [OrderStatus.CANCELLED]: 7,
-  [OrderStatus.PENDING_PAYMENT]: 0,
-  [OrderStatus.PROCESSING]: 1,
-  [OrderStatus.PAYMENT_FAILED]: 8,
+  [OrderStatus.PENDING]: 0,           // Awaiting payment confirmation
+  [OrderStatus.PROCESSING]: 1,        // Payment processing
+  [OrderStatus.CONFIRMED]: 2,         // Payment confirmed
+  [OrderStatus.PREPARING]: 3,         // Order being prepared
+  [OrderStatus.READY]: 4,             // Ready for pickup/delivery
+  [OrderStatus.OUT_FOR_DELIVERY]: 5,  // Out for delivery
+  [OrderStatus.DELIVERED]: 6,         // Completed
+  [OrderStatus.CANCELLED]: 7,         // Cancelled
+  [OrderStatus.FAILED]: 8,            // Payment failed
 };
 
 const STORAGE_KEY = 'orders_sort_option';

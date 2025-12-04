@@ -20,6 +20,12 @@ export const PLATFORM_FEE_LIMITS = {
   MAX: 50, // Reasonable maximum for a platform fee in CAD
 } as const;
 
+// Validation constants for commission rate
+export const COMMISSION_RATE_LIMITS = {
+  MIN: 0,    // 0%
+  MAX: 0.5,  // 50% maximum
+} as const;
+
 interface UsePlatformFeeSettingsReturn {
   // Current config state (local edits)
   config: PlatformFeeConfig;
@@ -40,6 +46,7 @@ interface UsePlatformFeeSettingsReturn {
   // Config setters
   setFixedAmount: (value: number) => void;
   setEnabled: (enabled: boolean) => void;
+  setCommissionRate: (rate: number) => void;
 
   // Persistence operations
   saveConfig: (userId: string) => Promise<void>;
@@ -104,6 +111,20 @@ export function usePlatformFeeSettings(): UsePlatformFeeSettingsReturn {
     return { isValid: true };
   };
 
+  // Validate commission rate value
+  const validateCommissionRate = (rate: number): { isValid: boolean; error?: string } => {
+    if (!isFinite(rate) || isNaN(rate)) {
+      return { isValid: false, error: 'Please enter a valid number' };
+    }
+    if (rate < COMMISSION_RATE_LIMITS.MIN) {
+      return { isValid: false, error: `Commission rate cannot be less than ${COMMISSION_RATE_LIMITS.MIN * 100}%` };
+    }
+    if (rate > COMMISSION_RATE_LIMITS.MAX) {
+      return { isValid: false, error: `Commission rate cannot exceed ${COMMISSION_RATE_LIMITS.MAX * 100}%` };
+    }
+    return { isValid: true };
+  };
+
   // Config setters with validation
   const setFixedAmount = useCallback((fixedAmount: number) => {
     const validation = validateFeeAmount(fixedAmount);
@@ -119,14 +140,31 @@ export function usePlatformFeeSettings(): UsePlatformFeeSettingsReturn {
     setConfig((prev) => ({ ...prev, enabled }));
   }, []);
 
+  const setCommissionRate = useCallback((commissionRate: number) => {
+    const validation = validateCommissionRate(commissionRate);
+    if (!validation.isValid) {
+      setError(validation.error || 'Invalid commission rate');
+      return;
+    }
+    setError(null);
+    setConfig((prev) => ({ ...prev, commissionRate }));
+  }, []);
+
   // Save config to Firestore with validation
   const saveConfigFn = useCallback(
     async (userId: string) => {
-      // Validate before saving
-      const validation = validateFeeAmount(config.fixedAmount);
-      if (!validation.isValid) {
-        setError(validation.error || 'Invalid fee amount');
-        throw new Error(validation.error || 'Invalid fee amount');
+      // Validate fee amount before saving
+      const feeValidation = validateFeeAmount(config.fixedAmount);
+      if (!feeValidation.isValid) {
+        setError(feeValidation.error || 'Invalid fee amount');
+        throw new Error(feeValidation.error || 'Invalid fee amount');
+      }
+
+      // Validate commission rate before saving
+      const rateValidation = validateCommissionRate(config.commissionRate);
+      if (!rateValidation.isValid) {
+        setError(rateValidation.error || 'Invalid commission rate');
+        throw new Error(rateValidation.error || 'Invalid commission rate');
       }
 
       try {
@@ -177,6 +215,7 @@ export function usePlatformFeeSettings(): UsePlatformFeeSettingsReturn {
     isDirty,
     setFixedAmount,
     setEnabled,
+    setCommissionRate,
     saveConfig: saveConfigFn,
     resetToDefaults,
     discardChanges,

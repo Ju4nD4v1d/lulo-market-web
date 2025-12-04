@@ -10,7 +10,7 @@
  * This keeps Stripe configuration separate from CheckoutPage logic
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCheckoutContext } from '../../context/CheckoutContext';
 import { createTemporaryOrder } from '../../utils/createTemporaryOrder';
@@ -35,12 +35,14 @@ export const PaymentStepWithStripe: React.FC<PaymentStepWithStripeProps> = ({ on
     stripePromise,
     paymentClientSecret,
     pendingOrderId,
-    goToPreviousStep,
     handlePaymentSuccess,
     handlePaymentFailure,
     handlePaymentError,
     t
   } = useCheckoutContext();
+
+  // Track when Stripe payment is being processed
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   // Build temporary order object for payment form
   const temporaryOrder = createTemporaryOrder(
@@ -70,15 +72,15 @@ export const PaymentStepWithStripe: React.FC<PaymentStepWithStripeProps> = ({ on
         },
       }}
     >
-      <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t}>
+      <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t} isProcessing={isPaymentProcessing}>
         <PaymentStep
           order={temporaryOrder}
           clientSecret={paymentClientSecret!}
           onPaymentSuccess={handlePaymentSuccess}
           onPaymentFailure={handlePaymentFailure}
           onPaymentError={handlePaymentError}
-          onBack={goToPreviousStep}
           t={t}
+          onProcessingChange={setIsPaymentProcessing}
         />
       </CheckoutWizard>
     </Elements>

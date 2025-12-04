@@ -13,6 +13,13 @@ interface OrderSummaryProps {
 export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
   const { t } = useLanguage();
 
+  // Calculate platform fee - use stored value, or derive from totals difference
+  const platformFee = order.summary.platformFee ??
+    (order.summary.finalTotal ? order.summary.finalTotal - order.summary.total : 0);
+
+  // Use finalTotal if available, otherwise calculate it
+  const finalTotal = order.summary.finalTotal ?? (order.summary.total + platformFee);
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>
@@ -32,16 +39,15 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
           <span className={styles.label}>{t('order.deliveryFee')}</span>
           <span className={styles.value}>{formatPrice(order.summary.deliveryFee)}</span>
         </div>
-        {order.summary.platformFee && (
-          <div className={styles.row}>
-            <span className={styles.label}>{t('order.platformFee')}</span>
-            <span className={styles.value}>{formatPrice(order.summary.platformFee)}</span>
-          </div>
-        )}
+        {/* Platform fee - always show */}
+        <div className={styles.row}>
+          <span className={styles.label}>{t('order.platformFee')}</span>
+          <span className={styles.value}>{formatPrice(platformFee)}</span>
+        </div>
         <div className={styles.divider}></div>
         <div className={`${styles.row} ${styles.total}`}>
           <span className={styles.totalLabel}>{t('order.total')}</span>
-          <span className={styles.totalValue}>{formatPrice(order.summary.total)}</span>
+          <span className={styles.totalValue}>{formatPrice(finalTotal)}</span>
         </div>
       </div>
     </div>

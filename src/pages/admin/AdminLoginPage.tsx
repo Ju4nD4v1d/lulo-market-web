@@ -97,7 +97,7 @@ export const AdminLoginPage = () => {
             {isLoggingIn ? (
               <>
                 <Loader2 className={`${styles.buttonIcon} ${styles.spinning}`} />
-                {t('business.login.signingIn')}
+                {t('admin.login.signingIn')}
               </>
             ) : (
               <>

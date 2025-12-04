@@ -109,9 +109,15 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             <span className={styles.summaryLabel}>{t('cart.deliveryFee')}</span>
             <span>${cartSummary.deliveryFee.toFixed(2)}</span>
           </div>
+          {cartSummary.platformFee !== undefined && cartSummary.platformFee > 0 && (
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>{t('cart.platformFee')}</span>
+              <span>${cartSummary.platformFee.toFixed(2)}</span>
+            </div>
+          )}
           <div className={styles.totalRow}>
             <span>{t('cart.total')}</span>
-            <span className={styles.totalAmount}>${cartSummary.total.toFixed(2)}</span>
+            <span className={styles.totalAmount}>${(cartSummary.finalTotal ?? cartSummary.total).toFixed(2)}</span>
           </div>
         </div>
       </div>

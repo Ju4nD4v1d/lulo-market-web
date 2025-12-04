@@ -13,6 +13,8 @@ export interface PlatformFeeConfig {
   fixedAmount: number;
   /** Whether platform fee is enabled */
   enabled: boolean;
+  /** Commission rate as decimal (e.g., 0.06 for 6%) - Lulocart's cut of subtotal */
+  commissionRate: number;
 }
 
 /**

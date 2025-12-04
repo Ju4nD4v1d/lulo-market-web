@@ -101,7 +101,21 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
       tax: data.summary?.tax || (data.gstTax || 0) + (data.pstTax || 0),
       deliveryFee: data.summary?.deliveryFee || 0,
       total: data.summary?.total || data.totalOrderPrice || 0,
-      itemCount: data.summary?.itemCount || data.quantity || 1
+      itemCount: data.summary?.itemCount || data.quantity || 1,
+      // Platform fee and final total
+      platformFee: data.summary?.platformFee || 0,
+      finalTotal: data.summary?.finalTotal || data.summary?.total || data.totalOrderPrice || 0,
+      // Payment split fields (Stripe Connect)
+      storeAmount: data.summary?.storeAmount || 0,
+      platformAmount: data.summary?.platformAmount || data.summary?.lulocartAmount || 0,
+      commissionRate: data.summary?.commissionRate || 0,
+      commissionAmount: data.summary?.commissionAmount || 0,
+      lulocartAmount: data.summary?.lulocartAmount || 0,
+      // Optional fields
+      discountAmount: data.summary?.discountAmount,
+      tipAmount: data.summary?.tipAmount,
+      serviceFee: data.summary?.serviceFee,
+      taxBreakdown: data.summary?.taxBreakdown,
     },
 
     // Order status - ensure we use valid OrderStatus enum values
