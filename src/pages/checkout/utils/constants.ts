@@ -1,6 +1,8 @@
 /**
  * Checkout constants
+ *
+ * Note: Platform fee is now fetched from Firestore (platformFeeConfig collection)
+ * and set via the usePlatformFeeConfig hook in CheckoutContext.
  */
 
-// Platform fee configuration
-export const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
+// This file is kept for potential future checkout-related constants

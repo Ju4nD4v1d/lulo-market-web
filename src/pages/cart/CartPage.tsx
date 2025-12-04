@@ -10,38 +10,37 @@ import { CartItemList } from './components/CartItemList';
 import { CartSummary } from './components/CartSummary';
 import styles from './CartPage.module.css';
 
-// Business constants
-const PLATFORM_FEE = 2.0;
-const TAX_RATE = 0.12; // 12% HST
+// Note: Platform fee is fetched from Firestore config (default $0.99)
 // Note: Delivery fee is calculated dynamically at checkout based on distance
+// Note: Tax rate (12% HST) is applied in CartContext
 
 export const CartPage: React.FC = () => {
   const { t } = useLanguage();
   const { cart, updateQuantity, removeFromCart, deliveryFeeOverride } = useCart();
   const { currentUser } = useAuth();
 
-  // Calculate totals
+  // Calculate totals using cart.summary which has dynamic platform fee from Firestore
   // Delivery fee is null until calculated at checkout (based on distance)
   const calculations = useMemo(() => {
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.priceAtTime * item.quantity,
-      0
-    );
-    const tax = subtotal * TAX_RATE;
+    // Use cart.summary values which already include dynamic platform fee
+    const subtotal = cart.summary.subtotal;
+    const tax = cart.summary.tax;
+    const platformFee = cart.summary.platformFee;
+
     // When delivery fee is not yet calculated, show estimated total without delivery
     const deliveryFeeValue = deliveryFeeOverride ?? 0;
-    const total = subtotal + deliveryFeeValue + PLATFORM_FEE + tax;
+    const total = subtotal + deliveryFeeValue + platformFee + tax;
 
     return {
       subtotal,
       // Pass null to show "Calculated at checkout", or the actual fee if calculated
       deliveryFee: deliveryFeeOverride,
-      platformFee: PLATFORM_FEE,
+      platformFee,
       tax,
       total,
-      itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+      itemCount: cart.summary.itemCount,
     };
-  }, [cart.items, deliveryFeeOverride]);
+  }, [cart.summary, deliveryFeeOverride]);
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     updateQuantity(itemId, quantity);

@@ -1,7 +1,9 @@
 import type * as React from 'react';
-import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, useCallback, useRef } from 'react';
 import { CartItem, CartState, CartSummary } from '../types/cart';
 import { Product } from '../types/product';
+import { DEFAULT_PLATFORM_FEE_CONFIG } from '../services/platformFee/constants';
+import { getPlatformFeeConfig } from '../services/api/platformFeeConfigApi';
 
 interface StoreInfo {
   storeId: string;
@@ -21,6 +23,10 @@ interface CartContextType {
   setDeliveryFee: (fee: number) => void;
   /** The currently set delivery fee override (null = not yet calculated) */
   deliveryFeeOverride: number | null;
+  /** Set the platform fee (fetched from Firestore config) */
+  setPlatformFee: (fee: number) => void;
+  /** The currently set platform fee override (null = using default) */
+  platformFeeOverride: number | null;
 }
 
 type CartAction =
@@ -29,24 +35,29 @@ type CartAction =
   | { type: 'UPDATE_QUANTITY'; payload: { itemId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; payload: CartState }
-  | { type: 'SET_DELIVERY_FEE'; payload: number };
+  | { type: 'SET_DELIVERY_FEE'; payload: number }
+  | { type: 'SET_PLATFORM_FEE'; payload: number };
 
 const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
-const PLATFORM_FEE_BASE = 2.00; // 2 CAD base platform fee
-// PLATFORM_FEE_PERCENTAGE moved to CheckoutForm.tsx where it's used
 
 /**
- * Calculate cart summary with optional delivery fee override.
+ * Calculate cart summary with optional fee overrides.
  * When deliveryFeeOverride is provided (from dynamic calculation), use it.
- * When null/undefined, delivery fee shows as 0 (will be "Calculated at checkout").
+ * When platformFeeOverride is provided (from Firestore config), use it.
+ * When null/undefined, fees use defaults or 0 (calculated at checkout).
  */
-const calculateSummary = (items: CartItem[], deliveryFeeOverride?: number | null): CartSummary => {
+const calculateSummary = (
+  items: CartItem[],
+  deliveryFeeOverride?: number | null,
+  platformFeeOverride?: number | null
+): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
   const tax = subtotal * TAX_RATE;
   // Use override if provided, otherwise 0 (fee calculated at checkout)
   const deliveryFee = items.length > 0 ? (deliveryFeeOverride ?? 0) : 0;
   const total = subtotal + tax + deliveryFee; // Base total before platform fee
-  const platformFee = items.length > 0 ? PLATFORM_FEE_BASE : 0; // Platform fee shown to customer: only 2 CAD
+  // Use platform fee override if provided, otherwise use default from Firestore config
+  const platformFee = items.length > 0 ? (platformFeeOverride ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount) : 0;
   const finalTotal = total + platformFee; // What customer actually pays
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -162,10 +173,18 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     }
 
     case 'SET_DELIVERY_FEE': {
-      // Recalculate summary with the new delivery fee
+      // Recalculate summary with the new delivery fee, preserving current platform fee
       return {
         ...state,
-        summary: calculateSummary(state.items, action.payload)
+        summary: calculateSummary(state.items, action.payload, state.summary.platformFee)
+      };
+    }
+
+    case 'SET_PLATFORM_FEE': {
+      // Recalculate summary with the new platform fee, preserving current delivery fee
+      return {
+        ...state,
+        summary: calculateSummary(state.items, state.summary.deliveryFee, action.payload)
       };
     }
 
@@ -176,28 +195,68 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Lazy initializer for cart - loads from localStorage BEFORE first render
+// This prevents the race condition where save effect runs before load effect
+const getInitialCart = (): CartState => {
+  if (typeof window === 'undefined') return initialState;
+
+  const savedCart = localStorage.getItem('lulo-cart');
+  if (savedCart) {
+    try {
+      const parsed = JSON.parse(savedCart);
+      // Validate basic structure
+      if (parsed && Array.isArray(parsed.items)) {
+        return parsed;
+      }
+    } catch (error) {
+      console.error('Error parsing cart from localStorage:', error);
+    }
+  }
+  return initialState;
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, dispatch] = useReducer(cartReducer, initialState);
+  // Use lazy initialization to load from localStorage before first render
+  const [cart, dispatch] = useReducer(cartReducer, undefined, getInitialCart);
+
   // Delivery fee override - null means "not yet calculated" (shown as "Calculated at checkout")
   const [deliveryFeeOverride, setDeliveryFeeOverrideState] = useState<number | null>(null);
+  // Platform fee override - null means "using default" (fetched from Firestore at checkout)
+  const [platformFeeOverride, setPlatformFeeOverrideState] = useState<number | null>(null);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem('lulo-cart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        dispatch({ type: 'LOAD_CART', payload: parsedCart });
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-      }
-    }
-  }, []);
+  // Track previous platform fee to prevent unnecessary updates
+  const prevPlatformFeeRef = useRef<number | null>(null);
 
   // Save cart to localStorage whenever cart changes
   useEffect(() => {
     localStorage.setItem('lulo-cart', JSON.stringify(cart));
   }, [cart]);
+
+  // Fetch platform fee config from Firestore on mount
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchPlatformFee = async () => {
+      try {
+        const config = await getPlatformFeeConfig();
+        const fee = config.enabled ? config.fixedAmount : 0;
+
+        if (!isCancelled && prevPlatformFeeRef.current !== fee) {
+          setPlatformFeeOverrideState(fee);
+          dispatch({ type: 'SET_PLATFORM_FEE', payload: fee });
+          prevPlatformFeeRef.current = fee;
+        }
+      } catch (error) {
+        console.error('Error fetching platform fee config:', error);
+      }
+    };
+
+    fetchPlatformFee();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   const addToCart = (product: Product, quantity = 1, storeInfo?: StoreInfo) => {
     // Use product's storeId if not provided
@@ -232,8 +291,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
-    // Reset delivery fee when cart is cleared
+    // Reset fees when cart is cleared
     setDeliveryFeeOverrideState(null);
+    setPlatformFeeOverrideState(null);
   };
 
   /**
@@ -243,6 +303,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setDeliveryFee = useCallback((fee: number) => {
     setDeliveryFeeOverrideState(fee);
     dispatch({ type: 'SET_DELIVERY_FEE', payload: fee });
+  }, []);
+
+  /**
+   * Set the platform fee (fetched from Firestore config at checkout).
+   * This updates both the local state and recalculates the cart summary.
+   */
+  const setPlatformFee = useCallback((fee: number) => {
+    setPlatformFeeOverrideState(fee);
+    dispatch({ type: 'SET_PLATFORM_FEE', payload: fee });
   }, []);
 
   const canAddToCart = (storeId: string): boolean => {
@@ -261,6 +330,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     canAddToCart,
     setDeliveryFee,
     deliveryFeeOverride,
+    setPlatformFee,
+    platformFeeOverride,
   };
 
   return (

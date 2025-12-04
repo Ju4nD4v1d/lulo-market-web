@@ -10,7 +10,6 @@ import { useState, useCallback } from 'react';
 import { useCheckoutMutations } from '../../../hooks/mutations/useCheckoutMutations';
 import { useStoreStripeAccountQuery } from '../../../hooks/queries/useStoreStripeAccountQuery';
 import { generateOrderId } from '../../../utils/orderUtils';
-import { PLATFORM_FEE_PERCENTAGE } from '../utils/constants';
 import { buildEnhancedOrderData, StoreReceiptInfo } from '../utils/orderDataBuilder';
 import { OrderStatus } from '../../../types/order';
 
@@ -193,8 +192,8 @@ export const usePaymentFlow = ({
       await createOrder.mutateAsync({ orderId, orderData });
       console.log('✅ Order created in Firestore with status: pending_payment');
 
-      // Calculate platform fee
-      const totalApplicationFee = cart.summary.platformFee + (cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE);
+      // Platform fee is the fixed amount from Firestore config (no percentage)
+      const totalApplicationFee = cart.summary.platformFee;
 
       // 4. Create payment intent
       console.log('🔄 Now creating payment intent...');

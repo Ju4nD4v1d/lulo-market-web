@@ -16,8 +16,8 @@ import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
 import { generateOrderId, generateReceiptNumber, calculateTaxBreakdown } from '../utils/orderUtils';
 
-// Platform fee configuration
-const PLATFORM_FEE_PERCENTAGE = 0.10; // 10% hidden platform fee
+// Platform fee is now fetched from Firestore (platformFeeConfig collection)
+// and set via cart.summary.platformFee - no percentage fee anymore
 
 // Helper function to get store information for receipt
 const getStoreInfoForReceipt = async (storeId: string) => {
@@ -108,8 +108,8 @@ const buildEnhancedOrderData = async (
     })),
     summary: {
       ...cart.summary,
-      storeAmount: cart.summary?.total ? cart.summary.total * 0.9 : 0,
-      platformAmount: cart.summary ? cart.summary.platformFee + (cart.summary.total * 0.1) : 0,
+      storeAmount: cart.summary?.total ? cart.summary.total - cart.summary.platformFee : 0,
+      platformAmount: cart.summary ? cart.summary.platformFee : 0,
       discountAmount: cart.summary.discountAmount || 0,
       tipAmount: formData.tipAmount || 0,
       serviceFee: 0,
@@ -400,8 +400,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                 })),
                 summary: {
                   ...cart.summary,
-                  storeAmount: cart.summary.total * 0.9, // Store gets 90% of base total
-                  platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1) // Platform gets fee + 10%
+                  storeAmount: cart.summary.total - cart.summary.platformFee, // Store gets total minus platform fee
+                  platformAmount: cart.summary.platformFee // Platform gets fixed fee only
                 },
                 status: OrderStatus.CONFIRMED,
                 orderNotes: formData.orderNotes,
@@ -673,7 +673,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         currency: 'cad',
         isDelivery: formData.isDelivery,
         orderNotes: formData.orderNotes || '',
-        applicationFeeInCents: Math.round((cart.summary.platformFee + (cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE)) * 100),
+        applicationFeeInCents: Math.round(cart.summary.platformFee * 100),
         
         // Items summary
         itemCount: cart.summary.itemCount,
@@ -695,14 +695,12 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
         }
       };
 
-      const totalApplicationFee = cart.summary.platformFee + (cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE);
+      const totalApplicationFee = cart.summary.platformFee;
       console.log('Creating payment intent with data:', {
         amount: cart.summary.finalTotal,
         amountInCents,
         applicationFeeInCents: Math.round(totalApplicationFee * 100),
-        visiblePlatformFee: cart.summary.platformFee,
-        hiddenPlatformFee: cart.summary.subtotal * PLATFORM_FEE_PERCENTAGE,
-        totalPlatformFee: totalApplicationFee,
+        platformFee: cart.summary.platformFee,
         orderId: orderId,
         storeStripeAccountId
       });
@@ -895,8 +893,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             })),
             summary: {
               ...cart.summary,
-              storeAmount: cart.summary.total * 0.9,
-              platformAmount: cart.summary.platformFee + (cart.summary.total * 0.1)
+              storeAmount: cart.summary.total - cart.summary.platformFee,
+              platformAmount: cart.summary.platformFee
             },
             status: OrderStatus.CONFIRMED,
             orderNotes: formData.orderNotes,
@@ -908,7 +906,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
             isDelivery: formData.isDelivery,
             language: locale
           };
-          
+
           clearCart();
           onOrderComplete(fallbackOrder);
         }, 2000); // Show success for 2 seconds before redirect
@@ -1409,8 +1407,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                         total: cart.summary.total,
                         platformFee: cart.summary.platformFee,
                         finalTotal: cart.summary.finalTotal,
-                        storeAmount: cart.summary.total - (cart.summary.total * 0.10),
-                        platformAmount: cart.summary.platformFee + (cart.summary.total * 0.10),
+                        storeAmount: cart.summary.total - cart.summary.platformFee,
+                        platformAmount: cart.summary.platformFee,
                         itemCount: cart.summary.itemCount,
                       },
                       status: 'pending' as OrderStatus,

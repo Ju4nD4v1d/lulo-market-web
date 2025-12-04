@@ -1,0 +1,1 @@
+export { PlatformFeeSettings } from './PlatformFeeSettings';
