@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { DriverCard } from './components/DriverCard';
 import { DriverModal } from './components/DriverModal';
+import { DeliveryFeeSettings } from './components/DeliveryFeeSettings';
 import { DeliveryFeeSimulator } from './components/DeliveryFeeSimulator';
 import { useDriversQuery } from '../../hooks/queries/useDriversQuery';
 import { useDriverMutations } from '../../hooks/mutations/useDriverMutations';
@@ -242,7 +243,10 @@ export const DispatcherPage = () => {
           )}
         </main>
 
-        {/* Delivery Fee Simulator Section */}
+        {/* Delivery Fee Settings Section (Admin Config) */}
+        <DeliveryFeeSettings />
+
+        {/* Delivery Fee Simulator Section (Read-Only Test Calculator) */}
         <DeliveryFeeSimulator />
       </div>
 

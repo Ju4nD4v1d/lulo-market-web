@@ -43,7 +43,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onOrderComplete
 }) => {
   const handleBack = onBack ?? (() => {
-    window.location.hash = '#cart';
+    // Use browser's native back to avoid creating duplicate history entries
+    window.history.back();
   });
 
   const handleOrderComplete = onOrderComplete ?? ((order: Order) => {

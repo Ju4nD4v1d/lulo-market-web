@@ -58,6 +58,13 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Delivery Fee Configuration - admin only
+    // Used by delivery fee simulator and settings in admin dispatcher page
+    match /deliveryFeeConfig/{docId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
+    }
+
     // Default deny for any other collections
     match /{document=**} {
       allow read, write: if false;

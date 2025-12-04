@@ -73,8 +73,32 @@ export interface ActiveCustomersTrend {
 // ============================================================================
 
 /**
+ * Helper to fetch active customers count from the separate activeCustomers collection
+ * Backend stores customers in: activeCustomers/weekly_{YYYY-WNN}
+ */
+async function getActiveCustomersFromWeeklyDoc(weekKey: string): Promise<number> {
+    try {
+        const docRef = doc(db, 'activeCustomers', `weekly_${weekKey}`);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const customers = docSnap.data().customers || [];
+            return customers.length;
+        }
+    } catch (error) {
+        console.warn('Could not fetch active customers from weekly doc:', error);
+    }
+    return 0;
+}
+
+/**
  * Get current week metrics from new backend structure
  * Falls back to legacy monthlyRevenueSummary if new data unavailable
+ *
+ * Note: Backend uses different field names than frontend expects:
+ * - Backend: revenue, orders, products (in currentWeekMetrics)
+ * - Frontend: totalRevenue, totalOrders, totalProducts
+ * - Customers are stored in separate activeCustomers collection
  */
 export async function getCurrentWeekMetrics(storeId: string): Promise<CurrentWeekMetrics> {
     try {
@@ -91,11 +115,14 @@ export async function getCurrentWeekMetrics(storeId: string): Promise<CurrentWee
             const aggregatedData = snapshot.docs.reduce(
                 (acc, docSnap) => {
                     const data = docSnap.data();
+                    // Map backend field names to frontend expected names:
+                    // Backend uses: revenue, orders, products
+                    // Frontend expects: totalRevenue, totalOrders, totalProducts
                     return {
-                        totalRevenue: acc.totalRevenue + (data.totalRevenue || 0),
-                        totalOrders: acc.totalOrders + (data.totalOrders || 0),
-                        totalProducts: acc.totalProducts + (data.totalProducts || 0),
-                        activeCustomers: Math.max(acc.activeCustomers, (data.customers || []).length),
+                        totalRevenue: acc.totalRevenue + (data.revenue ?? data.totalRevenue ?? 0),
+                        totalOrders: acc.totalOrders + (data.orders ?? data.totalOrders ?? 0),
+                        totalProducts: acc.totalProducts + (data.products ?? data.totalProducts ?? 0),
+                        activeCustomers: acc.activeCustomers, // Fetched separately from activeCustomers collection
                         lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : null,
                     };
                 },
@@ -107,6 +134,10 @@ export async function getCurrentWeekMetrics(storeId: string): Promise<CurrentWee
                     lastUpdated: null as Date | null,
                 }
             );
+
+            // Fetch active customers from separate collection
+            const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey);
+            aggregatedData.activeCustomers = customersCount;
 
             return aggregatedData;
         }
@@ -174,15 +205,33 @@ export async function getPreviousWeekMetrics(storeId: string): Promise<CurrentWe
         const snapshot = await getDocs(q);
 
         if (snapshot.docs.length > 0) {
-            const docSnap = snapshot.docs[0];
-            const data = docSnap.data();
-            return {
-                totalRevenue: data.totalRevenue || 0,
-                totalOrders: data.totalOrders || 0,
-                totalProducts: data.totalProducts || 0,
-                activeCustomers: (data.customers || []).length,
-                lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : null,
-            };
+            // Aggregate all documents for this store/week
+            const aggregatedData = snapshot.docs.reduce(
+                (acc, docSnap) => {
+                    const data = docSnap.data();
+                    // Map backend field names to frontend expected names
+                    return {
+                        totalRevenue: acc.totalRevenue + (data.revenue ?? data.totalRevenue ?? 0),
+                        totalOrders: acc.totalOrders + (data.orders ?? data.totalOrders ?? 0),
+                        totalProducts: acc.totalProducts + (data.products ?? data.totalProducts ?? 0),
+                        activeCustomers: acc.activeCustomers,
+                        lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : acc.lastUpdated,
+                    };
+                },
+                {
+                    totalRevenue: 0,
+                    totalOrders: 0,
+                    totalProducts: 0,
+                    activeCustomers: 0,
+                    lastUpdated: null as Date | null,
+                }
+            );
+
+            // Fetch active customers from separate collection
+            const customersCount = await getActiveCustomersFromWeeklyDoc(prevWeekKey);
+            aggregatedData.activeCustomers = customersCount;
+
+            return aggregatedData;
         }
     } catch (error) {
         console.warn('Previous week metrics unavailable:', error);
@@ -401,13 +450,15 @@ export async function getProductsTrend(storeId: string): Promise<WeeklyProductDa
             const weeklyArray = docData.weekly || [];
 
             return weeklyArray
-                .filter((item: unknown): item is { week: number; productsSold: number } => {
-                    const i = item as { week?: number; productsSold?: number };
-                    return typeof i.week === 'number' && typeof i.productsSold === 'number';
+                .filter((item: unknown): item is { week: number; products?: number; productsSold?: number } => {
+                    const i = item as { week?: number; products?: number; productsSold?: number };
+                    // Accept either 'products' (backend) or 'productsSold' (legacy)
+                    return typeof i.week === 'number' && (typeof i.products === 'number' || typeof i.productsSold === 'number');
                 })
-                .map((item: { week: number; productsSold: number }) => ({
+                .map((item: { week: number; products?: number; productsSold?: number }) => ({
                     week: item.week,
-                    productsSold: item.productsSold,
+                    // Map backend field 'products' to frontend expected 'productsSold'
+                    productsSold: item.products ?? item.productsSold ?? 0,
                 }))
                 .sort((a: WeeklyProductData, b: WeeklyProductData) => a.week - b.week);
         }
@@ -476,16 +527,17 @@ export function subscribeToCurrentWeekMetrics(
 
     return onSnapshot(
         q,
-        (snapshot) => {
+        async (snapshot) => {
             if (snapshot.docs.length > 0) {
                 const aggregatedData = snapshot.docs.reduce(
                     (acc, docSnap) => {
                         const data = docSnap.data();
+                        // Map backend field names to frontend expected names
                         return {
-                            totalRevenue: acc.totalRevenue + (data.totalRevenue || 0),
-                            totalOrders: acc.totalOrders + (data.totalOrders || 0),
-                            totalProducts: acc.totalProducts + (data.totalProducts || 0),
-                            activeCustomers: Math.max(acc.activeCustomers, (data.customers || []).length),
+                            totalRevenue: acc.totalRevenue + (data.revenue ?? data.totalRevenue ?? 0),
+                            totalOrders: acc.totalOrders + (data.orders ?? data.totalOrders ?? 0),
+                            totalProducts: acc.totalProducts + (data.products ?? data.totalProducts ?? 0),
+                            activeCustomers: acc.activeCustomers, // Fetched separately
                             lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : null,
                         };
                     },
@@ -497,6 +549,10 @@ export function subscribeToCurrentWeekMetrics(
                         lastUpdated: null as Date | null,
                     }
                 );
+
+                // Fetch active customers from separate collection
+                const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey);
+                aggregatedData.activeCustomers = customersCount;
 
                 callback(aggregatedData);
             } else {

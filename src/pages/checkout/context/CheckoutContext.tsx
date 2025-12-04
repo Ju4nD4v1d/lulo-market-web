@@ -17,22 +17,21 @@
  */
 
 import type * as React from 'react';
-import { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { Stripe } from '@stripe/stripe-js';
 import { User as FirebaseUser } from 'firebase/auth';
 import { useCart } from '../../../context/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../context/AuthContext';
-import { getStripePromise } from '../../../config/stripe';
 import { useCheckoutForm } from '../hooks/useCheckoutForm';
 import { useCheckoutWizard, CheckoutStep } from '../hooks/useCheckoutWizard';
-import { usePaymentFlow } from '../hooks/usePaymentFlow';
-import { useOrderCreation } from '../hooks/useOrderCreation';
 import { useStoreReceiptQuery, StoreReceiptInfo } from '../../../hooks/queries/useStoreReceiptQuery';
 import { useStoreQuery } from '../../../hooks/queries/useStoreQuery';
-import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
-import { getAvailableDeliveryDatesMultiSlot } from '../../../utils/effectiveHours';
-import { formatDeliveryDateOptions, DeliveryDateOption, getThreeClosestDeliveryDates } from '../utils/dateHelpers';
+import { useCheckoutDeliverySchedule } from '../hooks/useCheckoutDeliverySchedule';
+import { useCheckoutProfileAddress } from '../hooks/useCheckoutProfileAddress';
+import { useCheckoutDeliveryFee } from '../hooks/useCheckoutDeliveryFee';
+import { useCheckoutPaymentState } from '../hooks/useCheckoutPaymentState';
+import { DeliveryDateOption } from '../utils/dateHelpers';
 import { Order } from '../../../types/order';
 import { Cart } from '../../../types/cart';
 import { UserProfile } from '../../../types/user';
@@ -124,6 +123,20 @@ interface CheckoutContextValue {
   handlePaymentFailure: (intentId: string, error: string) => Promise<void>;
   handlePaymentError: (error: string) => void;
   proceedToPayment: () => Promise<void>;
+
+  // Delivery fee calculation
+  /** Calculated delivery fee (null if not yet calculated) */
+  deliveryFee: number | null;
+  /** Distance in km between store and customer (null if not yet calculated) */
+  deliveryDistance: number | null;
+  /** Error message if delivery fee calculation failed */
+  deliveryFeeError: string | null;
+  /** Whether delivery fee is currently being calculated */
+  isCalculatingDeliveryFee: boolean;
+  /** Calculate delivery fee based on current address - call when address step is complete */
+  calculateDeliveryFeeForAddress: () => Promise<boolean>;
+  /** Reset delivery fee calculation state */
+  resetDeliveryFee: () => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -141,21 +154,11 @@ interface CheckoutProviderProps {
  */
 export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   children,
-  onOrderComplete
+  onOrderComplete,
 }) => {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, setDeliveryFee: setCartDeliveryFee } = useCart();
   const { t, locale } = useLanguage();
   const { currentUser, userProfile } = useAuth();
-
-  // Payment flow state
-  const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
-  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
-
-  // Stripe promise - memoized by locale
-  const stripePromise = useMemo(
-    () => getStripePromise(locale === 'es' ? 'es-419' : 'en'),
-    [locale]
-  );
 
   // Initialize form with user profile data if available
   // Prioritize userProfile (Firestore) over currentUser (Firebase Auth)
@@ -165,173 +168,95 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
         customerInfo: {
           name: userProfile?.displayName || currentUser?.displayName || '',
           email: userProfile?.email || currentUser?.email || '',
-          phone: userProfile?.phoneNumber || currentUser?.phoneNumber || ''
-        }
+          phone: userProfile?.phoneNumber || currentUser?.phoneNumber || '',
+        },
       };
     }
     return undefined;
   }, [currentUser, userProfile]);
 
-  // Custom hooks
+  // Core hooks
   const checkoutForm = useCheckoutForm({ t, initialData: initialFormData });
   const checkoutWizard = useCheckoutWizard();
 
+  // Store data queries
   const { data: storeReceiptInfo } = useStoreReceiptQuery({
     storeId: cart.storeId,
-    enabled: !!cart.storeId
+    enabled: !!cart.storeId,
   });
 
-  // Fetch store data for effective hours calculation
   const { store: storeData, isLoading: isLoadingStore } = useStoreQuery(cart.storeId);
 
-  // Get effective hours (intersection of store schedule + driver availability)
-  const { effectiveHours, isLoading: isLoadingDrivers } = useEffectiveHours({
-    store: storeData || null,
-    enabled: !!cart.storeId
-  });
-
-  // Combined loading state for schedule (store + drivers)
-  const isLoadingSchedule = isLoadingStore || isLoadingDrivers;
-
-  // Compute available delivery dates from effective schedule
-  const availableDeliveryDates = useMemo((): DeliveryDateOption[] => {
-    // Don't compute dates until both store and drivers are loaded
-    if (isLoadingSchedule || !effectiveHours) {
-      return [];
+  // Get store coordinates for delivery fee calculation
+  const storeCoordinates = useMemo(() => {
+    const coords = storeData?.location?.coordinates;
+    if (coords?.lat && coords?.lng) {
+      return { lat: coords.lat, lng: coords.lng };
     }
+    return null;
+  }, [storeData]);
 
-    const availableDates = getAvailableDeliveryDatesMultiSlot(effectiveHours, 14, 24);
-
-    if (availableDates.length === 0) {
-      return [];
-    }
-
-    return formatDeliveryDateOptions(availableDates, locale, 5);
-  }, [effectiveHours, locale, isLoadingSchedule]);
-
-  // Check if there are no delivery dates available (after loading is complete)
-  const hasNoDeliveryDates = !isLoadingSchedule && effectiveHours && availableDeliveryDates.length === 0;
-
-  // Update delivery date and time window in form when available dates are computed
-  useEffect(() => {
-    if (availableDeliveryDates.length > 0 && !isLoadingSchedule) {
-      const currentDeliveryDate = checkoutForm.formData.deliveryDate;
-      const matchingDate = availableDeliveryDates.find(d => d.value === currentDeliveryDate);
-
-      if (!matchingDate) {
-        // Current date is not valid, update to first available with its time window
-        const firstDate = availableDeliveryDates[0];
-        const firstSlot = firstDate.slots?.[0];
-        const timeWindow = firstSlot ? { open: firstSlot.open, close: firstSlot.close } : undefined;
-        checkoutForm.setEntireFormData({
-          deliveryDate: firstDate.value,
-          deliveryTimeWindow: timeWindow
-        });
-      } else {
-        // Current date is valid, ensure time window is set
-        const firstSlot = matchingDate.slots?.[0];
-        if (firstSlot && !checkoutForm.formData.deliveryTimeWindow) {
-          checkoutForm.setEntireFormData({
-            deliveryTimeWindow: { open: firstSlot.open, close: firstSlot.close }
-          });
-        }
-      }
-    }
-  }, [availableDeliveryDates, isLoadingSchedule]);
-
-  // Order creation hook - for monitoring order status after payment
-  // Note: Order is now created in usePaymentFlow BEFORE payment
+  // Delivery schedule hook
   const {
-    handlePaymentSuccess: handlePaymentSuccessBase,
-    handlePaymentFailure: handlePaymentFailureBase,
-    handlePaymentError
-  } = useOrderCreation({
-    cart,
-    currentUser,
-    onOrderComplete,
-    clearCart
+    availableDeliveryDates,
+    isLoadingSchedule,
+    hasNoDeliveryDates,
+  } = useCheckoutDeliverySchedule({
+    storeData: storeData || null,
+    isLoadingStore,
+    locale,
+    formData: checkoutForm.formData,
+    setEntireFormData: checkoutForm.setEntireFormData,
   });
 
-  // Payment flow hook - creates order in Firestore BEFORE payment intent
-  const { proceedToPayment, isCreatingPaymentIntent } = usePaymentFlow({
+  // Profile address hook
+  const {
+    hasSavedAddress,
+    applyProfileAddressAndSkipToReview,
+  } = useCheckoutProfileAddress({
+    currentUser,
+    userProfile,
+    formData: checkoutForm.formData,
+    setEntireFormData: checkoutForm.setEntireFormData,
+    goToStep: checkoutWizard.goToStep,
+  });
+
+  // Delivery fee hook
+  const {
+    deliveryFee,
+    deliveryDistance,
+    deliveryFeeError,
+    isCalculatingDeliveryFee,
+    calculateDeliveryFeeForAddress,
+    resetDeliveryFee,
+  } = useCheckoutDeliveryFee({
+    deliveryAddress: checkoutForm.formData.deliveryAddress,
+    storeCoordinates,
+    setCartDeliveryFee,
+  });
+
+  // Payment state hook
+  const {
+    paymentClientSecret,
+    pendingOrderId,
+    stripePromise,
+    isPaymentReady,
+    isCreatingPaymentIntent,
+    handlePaymentSuccess,
+    handlePaymentFailure,
+    handlePaymentError,
+    proceedToPayment,
+  } = useCheckoutPaymentState({
     cart,
     formData: checkoutForm.formData,
     currentUser,
     locale,
     storeReceiptInfo: storeReceiptInfo || null,
-    onPaymentIntentCreated: (clientSecret, _intentId, orderId) => {
-      setPaymentClientSecret(clientSecret);
-      setPendingOrderId(orderId);
-      checkoutWizard.goToStep('payment');
-    },
-    onError: (error) => {
-      console.error('Payment flow error:', error);
-    }
+    estimatedDistance: deliveryDistance,
+    goToStep: checkoutWizard.goToStep,
+    onOrderComplete,
+    clearCart,
   });
-
-  // Auto-fill form from user profile
-  // Prioritize userProfile (Firestore) over currentUser (Firebase Auth)
-  useEffect(() => {
-    if ((currentUser || userProfile) && checkoutForm.formData.useProfileAsDeliveryContact) {
-      checkoutForm.setEntireFormData({
-        customerInfo: {
-          name: userProfile?.displayName || currentUser?.displayName || checkoutForm.formData.customerInfo.name,
-          email: userProfile?.email || currentUser?.email || checkoutForm.formData.customerInfo.email,
-          phone: userProfile?.phoneNumber || currentUser?.phoneNumber || checkoutForm.formData.customerInfo.phone
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.uid, userProfile, checkoutForm.formData.useProfileAsDeliveryContact]);
-
-  // Payment success handler wrapper
-  // Note: Order already exists in Firestore - just start monitoring for webhook
-  const handlePaymentSuccess = async (intentId: string) => {
-    const orderIdToUse = pendingOrderId || `fallback_${Date.now()}`;
-    await handlePaymentSuccessBase(intentId, orderIdToUse);
-  };
-
-  // Payment failure handler wrapper
-  const handlePaymentFailure = async (intentId: string, error: string) => {
-    if (!pendingOrderId) {
-      console.warn('No pending order ID for failed payment');
-      return;
-    }
-    await handlePaymentFailureBase(intentId, error, pendingOrderId);
-  };
-
-  // Check if payment is ready (has all required data)
-  const isPaymentReady = !!(paymentClientSecret && pendingOrderId && storeReceiptInfo);
-
-  // Check if user has a saved address in their profile
-  const hasSavedAddress = useMemo(() => {
-    const location = userProfile?.preferences?.defaultLocation;
-    return !!(location?.address && location?.city && location?.province && location?.postalCode);
-  }, [userProfile]);
-
-  // Apply profile address to form and skip to review step
-  const applyProfileAddressAndSkipToReview = useCallback(() => {
-    const location = userProfile?.preferences?.defaultLocation;
-    if (!location) return;
-
-    // Parse the address - the location.address may be a full formatted string
-    // Extract components if available
-    const addressData = {
-      street: location.address || '',
-      city: location.city || '',
-      province: location.province || '',
-      postalCode: location.postalCode || '',
-      country: 'CA'
-    };
-
-    // Update the delivery address form data
-    checkoutForm.setEntireFormData({
-      deliveryAddress: addressData
-    });
-
-    // Skip address step and go directly to review
-    checkoutWizard.goToStep('review');
-  }, [userProfile, checkoutForm.setEntireFormData, checkoutWizard.goToStep]);
 
   // Memoize context value to prevent unnecessary re-renders
   const value = useMemo<CheckoutContextValue>(
@@ -386,7 +311,15 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       handlePaymentSuccess,
       handlePaymentFailure,
       handlePaymentError,
-      proceedToPayment
+      proceedToPayment,
+
+      // Delivery fee
+      deliveryFee,
+      deliveryDistance,
+      deliveryFeeError,
+      isCalculatingDeliveryFee,
+      calculateDeliveryFeeForAddress,
+      resetDeliveryFee,
     }),
     [
       cart,
@@ -417,7 +350,16 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       availableDeliveryDates,
       isLoadingSchedule,
       hasNoDeliveryDates,
-      proceedToPayment
+      handlePaymentSuccess,
+      handlePaymentFailure,
+      handlePaymentError,
+      proceedToPayment,
+      deliveryFee,
+      deliveryDistance,
+      deliveryFeeError,
+      isCalculatingDeliveryFee,
+      calculateDeliveryFeeForAddress,
+      resetDeliveryFee,
     ]
   );
 

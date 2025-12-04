@@ -972,6 +972,35 @@ export const translations = {
     'deliveryFeeSimulator.resetToDefaults': 'Reset to Defaults',
     'deliveryFeeSimulator.unlimited': 'Unlimited',
 
+    // Delivery Fee Settings (Admin)
+    'deliveryFeeSettings.title': 'Delivery Fee Settings',
+    'deliveryFeeSettings.subtitle': 'Configure delivery fee calculation parameters',
+    'deliveryFeeSettings.loading': 'Loading configuration...',
+    'deliveryFeeSettings.enableDynamicFees': 'Enable Dynamic Fees',
+    'deliveryFeeSettings.baseFee': 'Base Fee',
+    'deliveryFeeSettings.minFee': 'Minimum Fee',
+    'deliveryFeeSettings.maxFee': 'Maximum Fee',
+    'deliveryFeeSettings.distanceTiers': 'Distance Tiers',
+    'deliveryFeeSettings.from': 'From (km)',
+    'deliveryFeeSettings.to': 'To (km)',
+    'deliveryFeeSettings.rate': 'Rate ($/km)',
+    'deliveryFeeSettings.addTier': 'Add Tier',
+    'deliveryFeeSettings.removeTier': 'Remove',
+    'deliveryFeeSettings.unlimited': 'Unlimited',
+    'deliveryFeeSettings.unsavedChanges': 'Unsaved changes',
+    'deliveryFeeSettings.saveChanges': 'Save Changes',
+    'deliveryFeeSettings.saving': 'Saving...',
+    'deliveryFeeSettings.discardChanges': 'Discard',
+    'deliveryFeeSettings.resetToDefaults': 'Reset to Defaults',
+    'deliveryFeeSettings.confirmSave.title': 'Confirm Changes',
+    'deliveryFeeSettings.confirmSave.message': 'Are you sure you want to update the delivery fee configuration? These changes will affect the fee calculator.',
+    'deliveryFeeSettings.confirmSave.confirm': 'Save Changes',
+    'deliveryFeeSettings.confirmSave.cancel': 'Cancel',
+    'deliveryFeeSettings.confirmReset.title': 'Reset to Defaults',
+    'deliveryFeeSettings.confirmReset.message': 'Are you sure you want to reset all delivery fee settings to their default values?',
+    'deliveryFeeSettings.confirmReset.confirm': 'Reset',
+    'deliveryFeeSettings.confirmReset.cancel': 'Cancel',
+
     // Driver
     'driver.name': 'Name',
     'driver.status': 'Status',
@@ -1895,6 +1924,10 @@ If the customer disputes a payment:
     'cart.summary.proceedToCheckout': 'Proceed to Checkout',
     'cart.summary.secureCheckout': 'Secure checkout powered by Stripe',
     'cart.summary.loginRequired': 'You\'ll be asked to log in or create an account to complete your order',
+
+    // Dynamic Delivery Fee
+    'cart.deliveryFeeAtCheckout': 'Calculated at checkout',
+    'checkout.validatingAddress': 'Validating address...',
 
     // Product Rating and General
     'product.noRating': 'No rating',
@@ -3278,6 +3311,35 @@ If the customer disputes a payment:
     'deliveryFeeSimulator.resetToDefaults': 'Restablecer Valores',
     'deliveryFeeSimulator.unlimited': 'Ilimitado',
 
+    // Delivery Fee Settings (Admin)
+    'deliveryFeeSettings.title': 'Configuración de Tarifa de Envío',
+    'deliveryFeeSettings.subtitle': 'Configura los parámetros de cálculo de tarifa de envío',
+    'deliveryFeeSettings.loading': 'Cargando configuración...',
+    'deliveryFeeSettings.enableDynamicFees': 'Habilitar Tarifas Dinámicas',
+    'deliveryFeeSettings.baseFee': 'Tarifa Base',
+    'deliveryFeeSettings.minFee': 'Tarifa Mínima',
+    'deliveryFeeSettings.maxFee': 'Tarifa Máxima',
+    'deliveryFeeSettings.distanceTiers': 'Niveles de Distancia',
+    'deliveryFeeSettings.from': 'Desde (km)',
+    'deliveryFeeSettings.to': 'Hasta (km)',
+    'deliveryFeeSettings.rate': 'Tarifa ($/km)',
+    'deliveryFeeSettings.addTier': 'Agregar Nivel',
+    'deliveryFeeSettings.removeTier': 'Eliminar',
+    'deliveryFeeSettings.unlimited': 'Ilimitado',
+    'deliveryFeeSettings.unsavedChanges': 'Cambios sin guardar',
+    'deliveryFeeSettings.saveChanges': 'Guardar Cambios',
+    'deliveryFeeSettings.saving': 'Guardando...',
+    'deliveryFeeSettings.discardChanges': 'Descartar',
+    'deliveryFeeSettings.resetToDefaults': 'Restablecer Valores',
+    'deliveryFeeSettings.confirmSave.title': 'Confirmar Cambios',
+    'deliveryFeeSettings.confirmSave.message': '¿Estás seguro de que deseas actualizar la configuración de tarifa de envío? Estos cambios afectarán el calculador de tarifas.',
+    'deliveryFeeSettings.confirmSave.confirm': 'Guardar Cambios',
+    'deliveryFeeSettings.confirmSave.cancel': 'Cancelar',
+    'deliveryFeeSettings.confirmReset.title': 'Restablecer Valores',
+    'deliveryFeeSettings.confirmReset.message': '¿Estás seguro de que deseas restablecer toda la configuración de tarifa de envío a sus valores predeterminados?',
+    'deliveryFeeSettings.confirmReset.confirm': 'Restablecer',
+    'deliveryFeeSettings.confirmReset.cancel': 'Cancelar',
+
     // Driver
     'driver.name': 'Nombre',
     'driver.status': 'Estado',
@@ -4170,6 +4232,10 @@ Si el cliente disputa el pago:
     'cart.summary.proceedToCheckout': 'Continuar al Pago',
     'cart.summary.secureCheckout': 'Pago seguro con Stripe',
     'cart.summary.loginRequired': 'Se te pedirá iniciar sesión o crear una cuenta para completar tu pedido',
+
+    // Dynamic Delivery Fee
+    'cart.deliveryFeeAtCheckout': 'Calculado al pagar',
+    'checkout.validatingAddress': 'Validando dirección...',
 
     // Product Rating and General
     'product.noRating': 'Sin calificación',
