@@ -109,6 +109,23 @@ Component → Page Hook → TanStack Query Hook → API Layer (services/api/) �
 
 `stores`, `products`, `orders`, `users`, `waitlist`, `drivers`
 
+### Analytics Collections
+
+| Collection | Purpose | Key Fields |
+|------------|---------|------------|
+| `currentWeekMetrics` | Weekly KPIs per store | `storeId`, `weekKey` (YYYY-WNN), `revenue`, `orders`, `products` |
+| `monthlyRevenueSummary` | Monthly aggregates + weekly breakdown | `storeId`, `month`, `totalRevenue`, `weekly[]` |
+| `activeCustomers` | Unique customers tracking | `weekly_{YYYY-WNN}` docs with `customers[]` array |
+| `analytics/topProducts` | Platform-wide top sellers (hourly refresh) | `byQuantity[]`, `byRevenue[]`, `byCurrentWeek[]` |
+| `productSales` | Per-product sales tracking | `productId`, `totalQuantitySold`, `weeklySales{}` |
+
+**Frontend-Backend Field Mapping** (in `analyticsApi.ts`):
+- Backend `revenue` → Frontend `totalRevenue`
+- Backend `orders` → Frontend `totalOrders`
+- Backend `products` → Frontend `totalProducts`
+- Backend `weekly[].products` → Frontend `productsSold`
+- Active customers fetched from separate `activeCustomers/weekly_{weekKey}` collection
+
 ## Key Flows
 
 ### Checkout (`src/pages/checkout/`)

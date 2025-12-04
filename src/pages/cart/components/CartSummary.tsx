@@ -5,7 +5,8 @@ import styles from './CartSummary.module.css';
 
 interface CartSummaryProps {
   subtotal: number;
-  deliveryFee: number;
+  /** Delivery fee - null means "calculated at checkout" */
+  deliveryFee: number | null;
   platformFee: number;
   tax: number;
   total: number;
@@ -47,7 +48,12 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             <Truck className={styles.lineIcon} />
             {t('cart.summary.delivery')}
           </span>
-          <span className={styles.lineValue}>CAD ${deliveryFee.toFixed(2)}</span>
+          <span className={styles.lineValue}>
+            {deliveryFee !== null
+              ? `CAD $${deliveryFee.toFixed(2)}`
+              : t('cart.deliveryFeeAtCheckout')
+            }
+          </span>
         </div>
 
         <div className={styles.line}>

@@ -124,6 +124,7 @@ export interface CurrentUserData {
  * @param storeInfo Store information for receipt
  * @param paymentIntentId Optional Stripe payment intent ID
  * @param orderStatus Order status (defaults to PENDING)
+ * @param estimatedDistance Optional estimated distance in km (from delivery fee calculation)
  * @returns Complete order data object
  */
 export const buildEnhancedOrderData = (
@@ -134,7 +135,8 @@ export const buildEnhancedOrderData = (
   locale: string,
   storeInfo: StoreReceiptInfo,
   paymentIntentId?: string,
-  orderStatus: OrderStatus = OrderStatus.PENDING_PAYMENT
+  orderStatus: OrderStatus = OrderStatus.PENDING_PAYMENT,
+  estimatedDistance?: number | null
 ) => {
   // Calculate tax breakdown
   const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
@@ -174,7 +176,7 @@ export const buildEnhancedOrderData = (
       deliveryInstructions: formData.deliveryAddress.deliveryInstructions || '',
       accessInstructions: formData.accessInstructions || '',
       deliveryZone: formData.deliveryAddress.city || '',
-      estimatedDistance: 0 // Could be calculated later
+      estimatedDistance: estimatedDistance ?? 0
     },
     items: cart.items.map((item: CartItemData) => ({
       id: item.id || '',

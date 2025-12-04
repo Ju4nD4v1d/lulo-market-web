@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
 import { CartItem, CartState, CartSummary } from '../types/cart';
 import { Product } from '../types/product';
 
@@ -17,6 +17,10 @@ interface CartContextType {
   clearCart: () => void;
   isCartEmpty: boolean;
   canAddToCart: (storeId: string) => boolean;
+  /** Set the delivery fee (calculated dynamically at checkout) */
+  setDeliveryFee: (fee: number) => void;
+  /** The currently set delivery fee override (null = not yet calculated) */
+  deliveryFeeOverride: number | null;
 }
 
 type CartAction =
@@ -24,17 +28,23 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: { itemId: string } }
   | { type: 'UPDATE_QUANTITY'; payload: { itemId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
-  | { type: 'LOAD_CART'; payload: CartState };
+  | { type: 'LOAD_CART'; payload: CartState }
+  | { type: 'SET_DELIVERY_FEE'; payload: number };
 
 const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
-const DELIVERY_BASE_FEE = 3.00; // Base delivery fee
 const PLATFORM_FEE_BASE = 2.00; // 2 CAD base platform fee
 // PLATFORM_FEE_PERCENTAGE moved to CheckoutForm.tsx where it's used
 
-const calculateSummary = (items: CartItem[]): CartSummary => {
+/**
+ * Calculate cart summary with optional delivery fee override.
+ * When deliveryFeeOverride is provided (from dynamic calculation), use it.
+ * When null/undefined, delivery fee shows as 0 (will be "Calculated at checkout").
+ */
+const calculateSummary = (items: CartItem[], deliveryFeeOverride?: number | null): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
   const tax = subtotal * TAX_RATE;
-  const deliveryFee = items.length > 0 ? DELIVERY_BASE_FEE : 0;
+  // Use override if provided, otherwise 0 (fee calculated at checkout)
+  const deliveryFee = items.length > 0 ? (deliveryFeeOverride ?? 0) : 0;
   const total = subtotal + tax + deliveryFee; // Base total before platform fee
   const platformFee = items.length > 0 ? PLATFORM_FEE_BASE : 0; // Platform fee shown to customer: only 2 CAD
   const finalTotal = total + platformFee; // What customer actually pays
@@ -151,6 +161,14 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return action.payload;
     }
 
+    case 'SET_DELIVERY_FEE': {
+      // Recalculate summary with the new delivery fee
+      return {
+        ...state,
+        summary: calculateSummary(state.items, action.payload)
+      };
+    }
+
     default:
       return state;
   }
@@ -160,6 +178,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, dispatch] = useReducer(cartReducer, initialState);
+  // Delivery fee override - null means "not yet calculated" (shown as "Calculated at checkout")
+  const [deliveryFeeOverride, setDeliveryFeeOverrideState] = useState<number | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -212,7 +232,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
+    // Reset delivery fee when cart is cleared
+    setDeliveryFeeOverrideState(null);
   };
+
+  /**
+   * Set the delivery fee (calculated dynamically at checkout based on distance).
+   * This updates both the local state and recalculates the cart summary.
+   */
+  const setDeliveryFee = useCallback((fee: number) => {
+    setDeliveryFeeOverrideState(fee);
+    dispatch({ type: 'SET_DELIVERY_FEE', payload: fee });
+  }, []);
 
   const canAddToCart = (storeId: string): boolean => {
     return !cart.storeId || cart.storeId === storeId;
@@ -227,7 +258,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateQuantity,
     clearCart,
     isCartEmpty,
-    canAddToCart
+    canAddToCart,
+    setDeliveryFee,
+    deliveryFeeOverride,
   };
 
   return (

@@ -100,6 +100,64 @@ export interface UpdateStoreData {
 // ============================================================================
 
 /**
+ * Transform Firestore GeoPoint to {lat, lng} format
+ * Handles both GeoPoint objects and plain {lat, lng} objects
+ */
+function transformGeoPoint(coordinates: unknown): { lat: number; lng: number } {
+  if (!coordinates) {
+    return { lat: 0, lng: 0 };
+  }
+
+  // Handle Firestore GeoPoint (has latitude/longitude properties)
+  if (typeof coordinates === 'object' && coordinates !== null) {
+    const coords = coordinates as Record<string, unknown>;
+
+    // GeoPoint uses latitude/longitude
+    if ('latitude' in coords && 'longitude' in coords) {
+      return {
+        lat: coords.latitude as number,
+        lng: coords.longitude as number,
+      };
+    }
+
+    // Already in {lat, lng} format
+    if ('lat' in coords && 'lng' in coords) {
+      return {
+        lat: coords.lat as number,
+        lng: coords.lng as number,
+      };
+    }
+  }
+
+  return { lat: 0, lng: 0 };
+}
+
+/**
+ * Transform raw Firestore location data to normalized StoreLocation
+ */
+function transformLocation(locationData: unknown): StoreData['location'] {
+  if (!locationData || typeof locationData !== 'object') {
+    return {
+      address: '',
+      city: '',
+      province: '',
+      postalCode: '',
+      coordinates: { lat: 0, lng: 0 },
+    };
+  }
+
+  const loc = locationData as Record<string, unknown>;
+  return {
+    address: (loc.address as string) || '',
+    city: (loc.city as string) || '',
+    province: (loc.province as string) || '',
+    postalCode: (loc.postalCode as string) || '',
+    coordinates: transformGeoPoint(loc.coordinates),
+    placeId: (loc.placeId as string) || undefined,
+  };
+}
+
+/**
  * Transform raw Firestore data to normalized StoreData
  * Handles missing fields and legacy data structures
  */
@@ -111,14 +169,7 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     category: (data.category as string) || '',
     cuisine: (data.cuisine as string) || (data.category as string) || '',
     country: (data.country as string) || 'Canada',
-    location: (data.location as StoreData['location']) || {
-      address: '',
-      city: '',
-      province: '',
-      postalCode: '',
-      country: 'Canada',
-      coordinates: { lat: 0, lng: 0 }
-    },
+    location: transformLocation(data.location),
     address: (data.address as string) || (data.location as Record<string, unknown>)?.address as string || '',
     phone: (data.phone as string) || '',
     email: (data.email as string) || '',

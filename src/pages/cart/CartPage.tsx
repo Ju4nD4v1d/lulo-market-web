@@ -11,33 +11,37 @@ import { CartSummary } from './components/CartSummary';
 import styles from './CartPage.module.css';
 
 // Business constants
-const DELIVERY_FEE = 3.0;
 const PLATFORM_FEE = 2.0;
 const TAX_RATE = 0.12; // 12% HST
+// Note: Delivery fee is calculated dynamically at checkout based on distance
 
 export const CartPage: React.FC = () => {
   const { t } = useLanguage();
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, deliveryFeeOverride } = useCart();
   const { currentUser } = useAuth();
 
   // Calculate totals
+  // Delivery fee is null until calculated at checkout (based on distance)
   const calculations = useMemo(() => {
     const subtotal = cart.items.reduce(
       (sum, item) => sum + item.priceAtTime * item.quantity,
       0
     );
     const tax = subtotal * TAX_RATE;
-    const total = subtotal + DELIVERY_FEE + PLATFORM_FEE + tax;
+    // When delivery fee is not yet calculated, show estimated total without delivery
+    const deliveryFeeValue = deliveryFeeOverride ?? 0;
+    const total = subtotal + deliveryFeeValue + PLATFORM_FEE + tax;
 
     return {
       subtotal,
-      deliveryFee: DELIVERY_FEE,
+      // Pass null to show "Calculated at checkout", or the actual fee if calculated
+      deliveryFee: deliveryFeeOverride,
       platformFee: PLATFORM_FEE,
       tax,
       total,
       itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
     };
-  }, [cart.items]);
+  }, [cart.items, deliveryFeeOverride]);
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     updateQuantity(itemId, quantity);

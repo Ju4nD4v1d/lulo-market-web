@@ -96,6 +96,8 @@ interface UsePaymentFlowOptions {
   currentUser: CurrentUserData | null;
   locale: string;
   storeReceiptInfo: StoreReceiptInfo | null;
+  /** Estimated distance in km (from delivery fee calculation) */
+  estimatedDistance?: number | null;
   onPaymentIntentCreated: (clientSecret: string, paymentIntentId: string, orderId: string) => void;
   onError: (error: string) => void;
 }
@@ -112,6 +114,7 @@ export const usePaymentFlow = ({
   currentUser,
   locale,
   storeReceiptInfo,
+  estimatedDistance,
   onPaymentIntentCreated,
   onError
 }: UsePaymentFlowOptions) => {
@@ -180,7 +183,8 @@ export const usePaymentFlow = ({
         locale,
         storeReceiptInfo,
         undefined, // No paymentIntentId yet
-        OrderStatus.PENDING_PAYMENT
+        OrderStatus.PENDING_PAYMENT,
+        estimatedDistance // Distance from delivery fee calculation
       );
 
       console.log('📦 Creating order in Firestore FIRST (before payment intent)...');
@@ -261,6 +265,7 @@ export const usePaymentFlow = ({
     currentUser,
     locale,
     storeReceiptInfo,
+    estimatedDistance,
     stripeAccount,
     createOrder,
     updateOrder,

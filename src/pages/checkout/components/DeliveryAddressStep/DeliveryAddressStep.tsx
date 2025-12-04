@@ -4,7 +4,7 @@ import type * as React from 'react';
  */
 
 
-import { MapPin, AlertCircle } from 'lucide-react';
+import { MapPin, AlertCircle, Loader2 } from 'lucide-react';
 import { DeliveryAddressData, ValidationErrors } from '../../utils/validationHelpers';
 import sharedStyles from '../shared.module.css';
 
@@ -15,6 +15,10 @@ interface DeliveryAddressStepProps {
   onContinue: () => void;
   onBack: () => void;
   t: (key: string) => string;
+  /** Whether delivery fee is being calculated (geocoding + distance calculation) */
+  isCalculating?: boolean;
+  /** Error message if address validation/geocoding failed */
+  calculationError?: string | null;
 }
 
 export const DeliveryAddressStep: React.FC<DeliveryAddressStepProps> = ({
@@ -23,7 +27,9 @@ export const DeliveryAddressStep: React.FC<DeliveryAddressStepProps> = ({
   onChange,
   onContinue,
   onBack,
-  t
+  t,
+  isCalculating = false,
+  calculationError = null,
 }) => {
   return (
     <div className={sharedStyles.stepContainer}>
@@ -123,12 +129,37 @@ export const DeliveryAddressStep: React.FC<DeliveryAddressStepProps> = ({
         </div>
       </div>
 
+      {/* Address validation/geocoding error */}
+      {calculationError && (
+        <div className={sharedStyles.error} style={{ marginBottom: '1rem' }}>
+          <AlertCircle className={sharedStyles.errorIcon} />
+          <span>{calculationError}</span>
+        </div>
+      )}
+
       <div className={sharedStyles.buttonRow}>
-        <button onClick={onBack} className={`${sharedStyles.button} ${sharedStyles.buttonSecondary}`} type="button">
+        <button
+          onClick={onBack}
+          className={`${sharedStyles.button} ${sharedStyles.buttonSecondary}`}
+          type="button"
+          disabled={isCalculating}
+        >
           {t('order.back')}
         </button>
-        <button onClick={onContinue} className={`${sharedStyles.button} ${sharedStyles.buttonPrimary}`} type="button">
-          {t('button.continueToReview')}
+        <button
+          onClick={onContinue}
+          className={`${sharedStyles.button} ${sharedStyles.buttonPrimary}`}
+          type="button"
+          disabled={isCalculating}
+        >
+          {isCalculating ? (
+            <>
+              <Loader2 className={sharedStyles.spinner} style={{ marginRight: '0.5rem' }} />
+              {t('checkout.validatingAddress')}
+            </>
+          ) : (
+            t('button.continueToReview')
+          )}
         </button>
       </div>
     </div>
