@@ -160,6 +160,9 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const { t, locale } = useLanguage();
   const { currentUser, userProfile } = useAuth();
 
+  // Note: Platform fee is now fetched in CartContext so it's available everywhere
+  // No need to fetch it again here
+
   // Initialize form with user profile data if available
   // Prioritize userProfile (Firestore) over currentUser (Firebase Auth)
   const initialFormData = useMemo(() => {
@@ -173,7 +176,15 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       };
     }
     return undefined;
-  }, [currentUser, userProfile]);
+  }, [
+    // Include specific properties to ensure updates when they change
+    currentUser?.displayName,
+    currentUser?.email,
+    currentUser?.phoneNumber,
+    userProfile?.displayName,
+    userProfile?.email,
+    userProfile?.phoneNumber,
+  ]);
 
   // Core hooks
   const checkoutForm = useCheckoutForm({ t, initialData: initialFormData });
@@ -194,7 +205,11 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       return { lat: coords.lat, lng: coords.lng };
     }
     return null;
-  }, [storeData]);
+  }, [
+    // Include specific coordinate properties for accurate dependency tracking
+    storeData?.location?.coordinates?.lat,
+    storeData?.location?.coordinates?.lng,
+  ]);
 
   // Delivery schedule hook
   const {

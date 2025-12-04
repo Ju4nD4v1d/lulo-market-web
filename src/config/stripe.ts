@@ -69,9 +69,9 @@ export const STRIPE_MODE = {
 } as const;
 
 // Platform fee configuration
+// Note: This is a fallback - the actual fee is fetched from Firestore (platformFeeConfig)
 export const PLATFORM_FEE = {
-  FIXED_AMOUNT: parseFloat(import.meta.env.VITE_PLATFORM_FEE_FIXED || '2.00'), // 2 CAD
-  PERCENTAGE: parseFloat(import.meta.env.VITE_PLATFORM_FEE_PERCENTAGE || '0.10'), // 10%
+  FIXED_AMOUNT: 0.99, // Default $0.99 CAD - actual value comes from Firestore
 };
 
 // Stripe configuration
@@ -84,19 +84,19 @@ export const STRIPE_CONFIG = {
 
 /**
  * Calculate platform fees for an order
- * Platform gets: Fixed fee (2 CAD) + percentage of order total (10%)
- * Store gets: Remaining amount after platform fees
+ * Platform gets: Fixed fee only (configurable via Firestore)
+ * Store gets: Remaining amount after platform fee
+ *
+ * @param orderTotal - The total order amount
+ * @param platformFee - The platform fee amount (from Firestore config or fallback)
  */
-export function calculatePlatformFees(orderTotal: number) {
-  const fixedFee = PLATFORM_FEE.FIXED_AMOUNT;
-  const percentageFee = orderTotal * PLATFORM_FEE.PERCENTAGE;
-  const totalPlatformFee = fixedFee + percentageFee;
+export function calculatePlatformFees(orderTotal: number, platformFee: number = PLATFORM_FEE.FIXED_AMOUNT) {
+  const totalPlatformFee = platformFee;
   const storeAmount = orderTotal - totalPlatformFee;
-  
+
   return {
     orderTotal,
-    fixedFee,
-    percentageFee,
+    fixedFee: platformFee,
     totalPlatformFee,
     storeAmount,
     // Convert to cents for Stripe
@@ -118,11 +118,12 @@ export function formatCurrency(amount: number): string {
 
 /**
  * Calculate the final order total including platform fee
- * This is what the customer pays: original order total + 2 CAD platform fee
+ * This is what the customer pays: original order total + platform fee
+ * Note: Actual fee value comes from Firestore (platformFeeConfig), default $0.99 CAD
  */
 export function calculateCustomerTotal(orderSubtotal: number, tax: number, deliveryFee: number) {
   const baseOrderTotal = orderSubtotal + tax + deliveryFee;
-  const platformFeeForCustomer = PLATFORM_FEE.FIXED_AMOUNT; // Customer pays 2 CAD extra
+  const platformFeeForCustomer = PLATFORM_FEE.FIXED_AMOUNT; // Default $0.99, actual from Firestore
   const finalCustomerTotal = baseOrderTotal + platformFeeForCustomer;
   
   return {
