@@ -1,7 +1,6 @@
-import { Star, MapPin, Clock, Store, Instagram, Facebook, Award } from 'lucide-react';
+import { Star, MapPin, Store, Instagram, Facebook, Award } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
-import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
 import styles from './StoreHeroSection.module.css';
 
 interface StoreHeroSectionProps {
@@ -19,10 +18,8 @@ interface StoreHeroSectionProps {
  */
 export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
   const { t } = useLanguage();
-  const { isDeliveryAvailable, todayHoursText } = useEffectiveHours({ store });
 
   const imageUrl = store.storeImage || store.imageUrl;
-  const isOpen = isDeliveryAvailable;
 
   return (
     <div className={styles.container}>
@@ -106,19 +103,6 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
             </div>
           )}
 
-          {/* Hours */}
-          <div className={styles.metaItem}>
-            <div className={styles.metaIconWrapper}>
-              <Clock className={styles.metaIcon} />
-            </div>
-            <div className={styles.metaContent}>
-              <div className={styles.metaLabel}>{t('storeHero.todayHours')}</div>
-              <div className={`${styles.metaValue} ${isOpen ? styles.metaValueOpen : styles.metaValueClosed}`}>
-                {isOpen ? t('storeHero.openNow') : t('storeHero.closed')}
-              </div>
-              <div className={styles.metaValue}>{todayHoursText}</div>
-            </div>
-          </div>
         </div>
 
         {/* Social Media Links */}
@@ -126,7 +110,7 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
           <div className={styles.socialLinks}>
             {store.instagram && (
               <a
-                href={`https://instagram.com/${store.instagram}`}
+                href={store.instagram.startsWith('http') ? store.instagram : `https://instagram.com/${store.instagram}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.socialLink}

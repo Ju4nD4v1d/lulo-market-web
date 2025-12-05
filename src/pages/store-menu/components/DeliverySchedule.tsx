@@ -86,6 +86,14 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
   const nextDeliveryLabel = getNextDeliveryLabel();
   const today = new Date().getDay();
 
+  // Sort days from closest to furthest (starting from today)
+  const sortedOpenDays = [...openDays].sort((a, b) => {
+    // Calculate days until each day from today
+    const daysUntilA = (a.dayIndex - today + 7) % 7;
+    const daysUntilB = (b.dayIndex - today + 7) % 7;
+    return daysUntilA - daysUntilB;
+  });
+
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -125,7 +133,7 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
 
       {/* Schedule - Mobile: List / Desktop: Grid */}
       <div className={styles.schedule}>
-        {openDays.map((day) => {
+        {sortedOpenDays.map((day) => {
           const isToday = day.dayIndex === today;
 
           return (
