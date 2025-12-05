@@ -56,9 +56,6 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   // Check if can add more (has remaining stock)
   const canAddMore = remainingStock > 0;
 
-  // Low stock warning threshold (show when stock < 10)
-  const isLowStock = productStock > 0 && productStock <= 10;
-
   // Stock error state
   const [stockError, setStockError] = useState<string | null>(null);
 
@@ -182,14 +179,6 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs">
           <AlertTriangle className="w-3 h-3" />
           <span>{stockError}</span>
-        </div>
-      )}
-
-      {/* Low Stock Warning */}
-      {isLowStock && !stockError && (
-        <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs">
-          <AlertTriangle className="w-3 h-3" />
-          <span>{t('cart.onlyXLeft').replace('{count}', productStock.toString())}</span>
         </div>
       )}
 

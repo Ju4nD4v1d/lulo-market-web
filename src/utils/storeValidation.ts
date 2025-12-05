@@ -11,9 +11,18 @@ import { StoreAcceptance } from '../services/api/storeAcceptancesApi';
 
 /**
  * Check if a store has a valid Stripe account for receiving payments
+ *
+ * A store is only ready if:
+ * 1. Has a Stripe account ID (account created)
+ * 2. Stripe has enabled payouts (verification complete)
+ * 3. Details have been submitted to Stripe
  */
 export function hasValidStripeAccount(store: StoreData): boolean {
-  return Boolean(store.stripeAccountId && store.stripeAccountId.trim() !== '');
+  const hasAccountId = Boolean(store.stripeAccountId && store.stripeAccountId.trim() !== '');
+  const hasPayoutsEnabled = Boolean(store.stripePayoutsEnabled);
+  const hasDetailsSubmitted = Boolean(store.stripeDetailsSubmitted);
+
+  return hasAccountId && hasPayoutsEnabled && hasDetailsSubmitted;
 }
 
 /**
