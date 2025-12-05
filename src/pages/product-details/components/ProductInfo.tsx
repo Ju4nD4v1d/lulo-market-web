@@ -36,17 +36,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
   storeId,
   storeImage,
 }) => {
-  const getStockStatus = () => {
-    if (status === 'outOfStock' || stock === 0) {
-      return { label: t('productDetails.outOfStock'), className: styles.outOfStock };
-    }
-    if (stock < 5) {
-      return { label: t('productDetails.lowStock'), className: styles.lowStock };
-    }
-    return { label: t('productDetails.inStock'), className: styles.inStock };
-  };
-
-  const stockStatus = getStockStatus();
+  const isOutOfStock = status === 'outOfStock' || stock === 0;
 
   return (
     <div className={styles.container}>
@@ -61,9 +51,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         {category && (
           <span className={styles.category}>{getCategoryLabel(category, t)}</span>
         )}
-        <span className={`${styles.stockBadge} ${stockStatus.className}`}>
-          {stockStatus.label}
-        </span>
+        {isOutOfStock && (
+          <span className={`${styles.stockBadge} ${styles.outOfStock}`}>
+            {t('productDetails.outOfStock')}
+          </span>
+        )}
       </div>
 
       {averageRating !== undefined && averageRating > 0 && (
