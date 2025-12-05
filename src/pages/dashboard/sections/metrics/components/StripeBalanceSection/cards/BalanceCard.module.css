@@ -1,0 +1,388 @@
+/* Mobile-first Stripe Balance Card Styles */
+
+/* Card Container - Stripe themed */
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s;
+}
+
+@media (min-width: 768px) {
+  .card {
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading State */
+.loadingCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 6rem;
+}
+
+@media (min-width: 768px) {
+  .loadingCard {
+    min-height: 7rem;
+  }
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #635BFF;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .loadingSpinner {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 0.75rem;
+  color: #6B7280;
+}
+
+/* Card Layout */
+.cardContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .cardContent {
+    gap: 1rem;
+  }
+}
+
+.cardMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardLabel {
+  color: #6B7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .cardLabel {
+    font-size: 0.875rem;
+  }
+}
+
+.cardValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  transition: color 0.3s;
+}
+
+@media (min-width: 640px) {
+  .cardValue {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardValue {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.card:hover .cardValue {
+  color: #635BFF;
+}
+
+.cardDescription {
+  font-size: 0.625rem;
+  color: #9CA3AF;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .cardDescription {
+    font-size: 0.75rem;
+  }
+}
+
+/* Icon Wrapper - Stripe purple theme */
+.iconContainer {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.iconWrapper {
+  padding: 0.75rem;
+  background: linear-gradient(to bottom right, #635BFF, #4F46E5);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(99, 91, 255, 0.3), 0 2px 4px -1px rgba(99, 91, 255, 0.2);
+  transition: box-shadow 0.3s;
+}
+
+@media (min-width: 768px) {
+  .iconWrapper {
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
+}
+
+.card:hover .iconWrapper {
+  box-shadow: 0 10px 15px -3px rgba(99, 91, 255, 0.3), 0 4px 6px -2px rgba(99, 91, 255, 0.2);
+}
+
+.cardIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+@media (min-width: 768px) {
+  .cardIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* Pending variant - amber theme */
+.pendingCard .iconWrapper {
+  background: linear-gradient(to bottom right, #F59E0B, #D97706);
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3), 0 2px 4px -1px rgba(245, 158, 11, 0.2);
+}
+
+.pendingCard:hover .cardValue {
+  color: #D97706;
+}
+
+.pendingCard:hover .iconWrapper {
+  box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.2);
+}
+
+/* In-transit variant - blue theme */
+.transitCard .iconWrapper {
+  background: linear-gradient(to bottom right, #3B82F6, #2563EB);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2);
+}
+
+.transitCard:hover .cardValue {
+  color: #2563EB;
+}
+
+.transitCard:hover .iconWrapper {
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
+}
+
+/* Error State */
+.errorCard .cardContent {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.errorIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #DC2626;
+}
+
+.errorText {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #DC2626;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .errorText {
+    font-size: 0.875rem;
+  }
+}
+
+.errorIconWrapper {
+  padding: 0.75rem;
+  background: linear-gradient(to bottom right, #FEE2E2, #FEF2F2);
+  border-radius: 1rem;
+}
+
+@media (min-width: 768px) {
+  .errorIconWrapper {
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
+}
+
+.errorCardIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #EF4444;
+}
+
+@media (min-width: 768px) {
+  .errorCardIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* Primary card variant - Total Balance (featured, green theme) */
+.primaryCard {
+  background: linear-gradient(to bottom right, #F0FDF4, #DCFCE7);
+  border: 1px solid #86EFAC;
+}
+
+.primaryCard:hover {
+  border-color: #22C55E;
+}
+
+.primaryCard .iconWrapper {
+  background: linear-gradient(to bottom right, #22C55E, #16A34A);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3), 0 2px 4px -1px rgba(34, 197, 94, 0.2);
+}
+
+.primaryCard:hover .cardValue {
+  color: #16A34A;
+}
+
+.primaryCard:hover .iconWrapper {
+  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3), 0 4px 6px -2px rgba(34, 197, 94, 0.2);
+}
+
+.primaryCard .cardValue {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .primaryCard .cardValue {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .primaryCard .cardValue {
+    font-size: 2rem;
+  }
+}
+
+/* Card hint - additional descriptive text below the card content */
+.cardHint {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.6875rem;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .cardHint {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    font-size: 0.75rem;
+  }
+}
+
+.primaryCard .cardHint {
+  border-top-color: rgba(34, 197, 94, 0.2);
+  color: #166534;
+}
+
+/* Dashboard Button */
+.dashboardButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  background: linear-gradient(to bottom right, #22C55E, #16A34A);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+}
+
+@media (min-width: 768px) {
+  .dashboardButton {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    border-radius: 0.625rem;
+  }
+}
+
+.dashboardButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+}
+
+.dashboardButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.dashboardButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .buttonIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.buttonSpinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  animation: spin 1s linear infinite;
+}
+
+@media (min-width: 768px) {
+  .buttonSpinner {
+    width: 1rem;
+    height: 1rem;
+  }
+}

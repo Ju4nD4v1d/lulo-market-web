@@ -8,6 +8,7 @@ import { CartHeader } from './components/CartHeader';
 import { CartEmptyState } from './components/CartEmptyState';
 import { CartItemList } from './components/CartItemList';
 import { CartSummary } from './components/CartSummary';
+import { DeliveryInfoBanner } from './components/DeliveryInfoBanner';
 import styles from './CartPage.module.css';
 
 // Note: Platform fee is fetched from Firestore config (default $0.99)
@@ -24,7 +25,9 @@ export const CartPage: React.FC = () => {
   const calculations = useMemo(() => {
     // Use cart.summary values which already include dynamic platform fee
     const subtotal = cart.summary.subtotal;
-    const tax = cart.summary.tax;
+    const gst = cart.summary.gst;
+    const pst = cart.summary.pst;
+    const tax = cart.summary.tax; // Total tax (gst + pst)
     const platformFee = cart.summary.platformFee;
 
     // When delivery fee is not yet calculated, show estimated total without delivery
@@ -36,7 +39,8 @@ export const CartPage: React.FC = () => {
       // Pass null to show "Calculated at checkout", or the actual fee if calculated
       deliveryFee: deliveryFeeOverride,
       platformFee,
-      tax,
+      gst,
+      pst,
       total,
       itemCount: cart.summary.itemCount,
     };
@@ -104,6 +108,10 @@ export const CartPage: React.FC = () => {
               <h2 className={styles.sectionTitle}>
                 {t('cart.yourItems')} ({calculations.itemCount})
               </h2>
+
+              {/* Delivery Info Banner */}
+              {cart.storeId && <DeliveryInfoBanner storeId={cart.storeId} />}
+
               <CartItemList
                 items={cart.items}
                 onQuantityChange={handleQuantityChange}
@@ -117,7 +125,8 @@ export const CartPage: React.FC = () => {
                 subtotal={calculations.subtotal}
                 deliveryFee={calculations.deliveryFee}
                 platformFee={calculations.platformFee}
-                tax={calculations.tax}
+                gst={calculations.gst}
+                pst={calculations.pst}
                 total={calculations.total}
                 itemCount={calculations.itemCount}
                 onCheckout={handleCheckout}

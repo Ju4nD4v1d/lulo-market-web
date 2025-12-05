@@ -70,4 +70,10 @@ export const queryKeys = {
     allLatest: () => [...queryKeys.legalAgreements.all, 'allLatest'] as const,
     versions: (type: string) => [...queryKeys.legalAgreements.all, 'versions', type] as const,
   },
+
+  // Stripe queries
+  stripe: {
+    all: ['stripe'] as const,
+    balance: (storeId: string) => [...queryKeys.stripe.all, 'balance', storeId] as const,
+  },
 } as const;

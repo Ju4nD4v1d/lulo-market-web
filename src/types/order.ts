@@ -68,7 +68,9 @@ export interface DeliveryAddress {
 
 export interface OrderSummary {
   subtotal: number;
-  tax: number;
+  tax: number; // Total tax (gst + pst) - kept for backward compatibility
+  gst: number; // GST calculated from product gstPercentage
+  pst: number; // PST calculated from product pstPercentage
   deliveryFee: number;
   total: number; // Base total before platform fee (subtotal + tax + deliveryFee)
   platformFee: number; // Fixed platform fee charged to customer (from Firestore config)
@@ -84,11 +86,6 @@ export interface OrderSummary {
   discountAmount?: number; // Amount discounted from promotional codes
   tipAmount?: number; // Customer tip amount
   serviceFee?: number; // Additional service fees
-  taxBreakdown?: {
-    gst: number; // 5% GST
-    pst: number; // 7% PST
-    hst?: number; // HST if applicable
-  };
 }
 
 export interface Order {

@@ -283,10 +283,18 @@ export const StoreOrdersTab = ({ storeId }: StoreOrdersTabProps) => {
                       <span>{t('cart.subtotal')}</span>
                       <span>{formatPrice(order.summary.subtotal)}</span>
                     </div>
-                    <div className={styles.summaryRow}>
-                      <span>{t('cart.tax')}</span>
-                      <span>{formatPrice(order.summary.tax)}</span>
-                    </div>
+                    {(order.summary.gst ?? 0) > 0 && (
+                      <div className={styles.summaryRow}>
+                        <span>{t('cart.summary.gst')}</span>
+                        <span>{formatPrice(order.summary.gst)}</span>
+                      </div>
+                    )}
+                    {(order.summary.pst ?? 0) > 0 && (
+                      <div className={styles.summaryRow}>
+                        <span>{t('cart.summary.pst')}</span>
+                        <span>{formatPrice(order.summary.pst)}</span>
+                      </div>
+                    )}
                     <div className={styles.summaryRow}>
                       <span>{t('cart.deliveryFee')}</span>
                       <span>{formatPrice(order.summary.deliveryFee)}</span>

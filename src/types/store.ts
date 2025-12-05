@@ -108,6 +108,8 @@ export interface StoreData {
   lowStockThreshold?: number;    // Products below this quantity show warnings (default: 10)
   // Founder program
   isFounderStore?: boolean;      // Flag for early adopter stores - shown with special badge
+  // Marketplace readiness (set by backend when Stripe + legal agreements are complete)
+  isMarketplaceReady?: boolean;
 }
 
 // Stripe Connect account status

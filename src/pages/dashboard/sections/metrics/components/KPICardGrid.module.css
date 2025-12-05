@@ -1,8 +1,91 @@
+.section {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .sectionHeader {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.sectionIconWrapper {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, #C8E400, #A3C700);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(200, 228, 0, 0.3), 0 2px 4px -1px rgba(200, 228, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .sectionIconWrapper {
+    padding: 0.625rem;
+    border-radius: 1rem;
+  }
+}
+
+.sectionIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+@media (min-width: 768px) {
+  .sectionIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.sectionTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+.sectionSubtitle {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .sectionSubtitle {
+    font-size: 0.875rem;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
 @media (min-width: 768px) {

@@ -14,7 +14,7 @@ import * as storeApi from '../services/api/storeApi';
 import * as orderApi from '../services/api/orderApi';
 import { getStripePromise } from '../config/stripe';
 import { StripePaymentForm } from './StripePaymentForm';
-import { generateOrderId, generateReceiptNumber, calculateTaxBreakdown } from '../utils/orderUtils';
+import { generateOrderId, generateReceiptNumber } from '../utils/orderUtils';
 
 // Platform fee is now fetched from Firestore (platformFeeConfig collection)
 // and set via cart.summary.platformFee - no percentage fee anymore
@@ -59,10 +59,7 @@ const buildEnhancedOrderData = async (
 ) => {
   // Get store information for receipt
   const storeInfo = await getStoreInfoForReceipt(cart.storeId || '');
-  
-  // Calculate tax breakdown
-  const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
-  
+
   // Generate receipt number
   const receiptNumber = generateReceiptNumber(orderId);
   
@@ -113,7 +110,6 @@ const buildEnhancedOrderData = async (
       discountAmount: cart.summary.discountAmount || 0,
       tipAmount: formData.tipAmount || 0,
       serviceFee: 0,
-      taxBreakdown
     },
     status: orderStatus,
     orderNotes: formData.orderNotes || '',
@@ -1500,10 +1496,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <span className="text-gray-600 text-sm">{t('order.subtotal')}</span>
                   <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">{t('order.tax')}</span>
-                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.tax)}</span>
-                </div>
+                {cart.summary.gst > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">{t('cart.summary.gst')}</span>
+                    <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.gst)}</span>
+                  </div>
+                )}
+                {cart.summary.pst > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">{t('cart.summary.pst')}</span>
+                    <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.pst)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">{t('order.deliveryFee')}</span>
                   <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.deliveryFee)}</span>
@@ -1934,10 +1938,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack, onOrderCompl
                   <span className="text-gray-600 text-sm">{t('order.subtotal')}</span>
                   <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">{t('order.tax')}</span>
-                  <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.tax)}</span>
-                </div>
+                {cart.summary.gst > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">{t('cart.summary.gst')}</span>
+                    <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.gst)}</span>
+                  </div>
+                )}
+                {cart.summary.pst > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">{t('cart.summary.pst')}</span>
+                    <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.pst)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">{t('order.deliveryFee')}</span>
                   <span className="font-semibold text-gray-900 text-sm">{formatPrice(cart.summary.deliveryFee)}</span>

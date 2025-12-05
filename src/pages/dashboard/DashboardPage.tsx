@@ -10,7 +10,6 @@ import { MetricsPage } from './sections/metrics';
 import { StoreSetupPage } from './sections/store-setup';
 import { ProductsPage } from './sections/products';
 import { OrdersPage } from './sections/orders';
-import { MessagesSection } from './sections/messages';
 import { InventoryPage } from './sections/inventory';
 import { DocumentsPage } from './sections/documents';
 
@@ -47,7 +46,7 @@ export const DashboardPage = () => {
 
   // Determine current page from hash
   const hash = window.location.hash;
-  let currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'messages' | 'inventory' | 'documents' = 'store';
+  let currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents' = 'store';
 
   if (hash.includes('/products')) {
     currentPage = 'products';
@@ -55,8 +54,6 @@ export const DashboardPage = () => {
     currentPage = 'metrics';
   } else if (hash.includes('/orders')) {
     currentPage = 'orders';
-  } else if (hash.includes('/messages')) {
-    currentPage = 'messages';
   } else if (hash.includes('/inventory')) {
     currentPage = 'inventory';
   } else if (hash.includes('/documents')) {
@@ -106,8 +103,6 @@ export const DashboardPage = () => {
         return <MetricsPage />;
       case 'orders':
         return <OrdersPage />;
-      case 'messages':
-        return <MessagesSection />;
       case 'inventory':
         return <InventoryPage />;
       case 'documents':
