@@ -428,10 +428,18 @@ export const OrdersPage = () => {
                         <span>{t('cart.subtotal')}</span>
                         <span>{formatPrice(order.summary?.subtotal || 0)}</span>
                       </div>
-                      <div className={styles.summaryRow}>
-                        <span>{t('cart.tax')}</span>
-                        <span>{formatPrice(order.summary?.tax || 0)}</span>
-                      </div>
+                      {(order.summary?.gst ?? 0) > 0 && (
+                        <div className={styles.summaryRow}>
+                          <span>{t('cart.summary.gst')}</span>
+                          <span>{formatPrice(order.summary?.gst || 0)}</span>
+                        </div>
+                      )}
+                      {(order.summary?.pst ?? 0) > 0 && (
+                        <div className={styles.summaryRow}>
+                          <span>{t('cart.summary.pst')}</span>
+                          <span>{formatPrice(order.summary?.pst || 0)}</span>
+                        </div>
+                      )}
                       <div className={styles.summaryRow}>
                         <span>{t('cart.deliveryFee')}</span>
                         <span>{formatPrice(order.summary?.deliveryFee || 0)}</span>

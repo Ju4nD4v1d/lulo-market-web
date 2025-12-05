@@ -31,10 +31,18 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
           <span className={styles.label}>{t('order.subtotal')}</span>
           <span className={styles.value}>{formatPrice(order.summary.subtotal)}</span>
         </div>
-        <div className={styles.row}>
-          <span className={styles.label}>{t('order.tax')}</span>
-          <span className={styles.value}>{formatPrice(order.summary.tax)}</span>
-        </div>
+        {(order.summary.gst ?? 0) > 0 && (
+          <div className={styles.row}>
+            <span className={styles.label}>{t('cart.summary.gst')}</span>
+            <span className={styles.value}>{formatPrice(order.summary.gst)}</span>
+          </div>
+        )}
+        {(order.summary.pst ?? 0) > 0 && (
+          <div className={styles.row}>
+            <span className={styles.label}>{t('cart.summary.pst')}</span>
+            <span className={styles.value}>{formatPrice(order.summary.pst)}</span>
+          </div>
+        )}
         <div className={styles.row}>
           <span className={styles.label}>{t('order.deliveryFee')}</span>
           <span className={styles.value}>{formatPrice(order.summary.deliveryFee)}</span>

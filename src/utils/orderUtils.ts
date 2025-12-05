@@ -58,57 +58,16 @@ export function generateReceiptNumber(orderId: string): string {
       // Get last 4 digits of timestamp
       const timestamp = parts[1];
       const last4 = timestamp.slice(-4);
-      
+
       // Get first 4 characters of random string, uppercase
       const randomPart = parts[2].substring(0, 4).toUpperCase();
-      
+
       return `#${last4}-${randomPart}`;
     }
-    
+
     // Fallback for non-standard order IDs
     return `#${Date.now().toString().slice(-4)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
   } catch {
     return `#${Date.now().toString().slice(-4)}-XXXX`;
   }
-}
-
-/**
- * Calculate tax breakdown for Canadian provinces
- */
-export function calculateTaxBreakdown(subtotal: number, province: string = 'BC') {
-  const gstRate = 0.05; // 5% GST everywhere in Canada
-  const gst = subtotal * gstRate;
-  
-  let pst = 0;
-  let hst = 0;
-  
-  switch (province.toUpperCase()) {
-    case 'BC':
-      pst = subtotal * 0.07; // 7% PST in BC
-      break;
-    case 'ON':
-    case 'NB':
-    case 'NL':
-    case 'NS':
-    case 'PE':
-      hst = subtotal * 0.13; // 13% HST
-      break;
-    case 'SK':
-    case 'MB':
-      pst = subtotal * 0.06; // 6% PST
-      break;
-    case 'QC':
-      pst = subtotal * 0.09975; // 9.975% QST
-      break;
-    // AB, YT, NT, NU only have GST
-    default:
-      break;
-  }
-  
-  return {
-    gst: Math.round(gst * 100) / 100,
-    pst: Math.round(pst * 100) / 100,
-    hst: Math.round(hst * 100) / 100,
-    total: Math.round((gst + pst + hst) * 100) / 100
-  };
 }

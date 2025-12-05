@@ -8,7 +8,8 @@ interface CartSummaryProps {
   /** Delivery fee - null means "calculated at checkout" */
   deliveryFee: number | null;
   platformFee: number;
-  tax: number;
+  gst: number;
+  pst: number;
   total: number;
   itemCount: number;
   onCheckout: () => void;
@@ -20,7 +21,8 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   subtotal,
   deliveryFee,
   platformFee,
-  tax,
+  gst,
+  pst,
   total,
   itemCount,
   onCheckout,
@@ -64,13 +66,27 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           <span className={styles.lineValue}>CAD ${platformFee.toFixed(2)}</span>
         </div>
 
-        <div className={styles.line}>
-          <span className={styles.lineLabel}>
-            <Receipt className={styles.lineIcon} />
-            {t('cart.summary.tax')}
-          </span>
-          <span className={styles.lineValue}>CAD ${tax.toFixed(2)}</span>
-        </div>
+        {/* GST - only show if > 0 */}
+        {gst > 0 && (
+          <div className={styles.line}>
+            <span className={styles.lineLabel}>
+              <Receipt className={styles.lineIcon} />
+              {t('cart.summary.gst')}
+            </span>
+            <span className={styles.lineValue}>CAD ${gst.toFixed(2)}</span>
+          </div>
+        )}
+
+        {/* PST - only show if > 0 */}
+        {pst > 0 && (
+          <div className={styles.line}>
+            <span className={styles.lineLabel}>
+              <Receipt className={styles.lineIcon} />
+              {t('cart.summary.pst')}
+            </span>
+            <span className={styles.lineValue}>CAD ${pst.toFixed(2)}</span>
+          </div>
+        )}
       </div>
 
       {/* Divider */}

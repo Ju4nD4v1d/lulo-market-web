@@ -4,6 +4,7 @@ import { CartItem, CartState, CartSummary } from '../types/cart';
 import { Product } from '../types/product';
 import { DEFAULT_PLATFORM_FEE_CONFIG } from '../services/platformFee/constants';
 import { getPlatformFeeConfig } from '../services/api/platformFeeConfigApi';
+import { getProductById } from '../services/api/productApi';
 
 interface StoreInfo {
   storeId: string;
@@ -39,12 +40,12 @@ type CartAction =
   | { type: 'LOAD_CART'; payload: CartState }
   | { type: 'SET_DELIVERY_FEE'; payload: number }
   | { type: 'SET_PLATFORM_FEE'; payload: number }
-  | { type: 'SET_COMMISSION_RATE'; payload: number };
-
-const TAX_RATE = 0.12; // 12% tax rate (HST in BC, Canada)
+  | { type: 'SET_COMMISSION_RATE'; payload: number }
+  | { type: 'REFRESH_PRODUCTS'; payload: { updatedItems: CartItem[]; removedProductIds: string[] } };
 
 /**
  * Calculate cart summary with optional fee overrides and payment split.
+ * Tax is calculated per-product using gstPercentage and pstPercentage from product data.
  *
  * Payment Split (Stripe Connect):
  * - Customer pays: subtotal + tax + deliveryFee + platformFee
@@ -58,7 +59,21 @@ const calculateSummary = (
   commissionRateOverride?: number | null
 ): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
-  const tax = subtotal * TAX_RATE;
+
+  // Calculate GST and PST per-product based on product tax percentages
+  let gst = 0;
+  let pst = 0;
+
+  items.forEach(item => {
+    const itemTotal = item.priceAtTime * item.quantity;
+    const gstRate = (item.product.gstPercentage ?? 0) / 100; // Convert percentage to decimal
+    const pstRate = (item.product.pstPercentage ?? 0) / 100; // Convert percentage to decimal
+    gst += itemTotal * gstRate;
+    pst += itemTotal * pstRate;
+  });
+
+  const tax = gst + pst; // Total tax is sum of GST and PST
+
   // Use override if provided, otherwise 0 (fee calculated at checkout)
   const deliveryFee = items.length > 0 ? (deliveryFeeOverride ?? 0) : 0;
   const total = subtotal + tax + deliveryFee; // Base total before platform fee
@@ -78,6 +93,8 @@ const calculateSummary = (
   return {
     subtotal: Number(subtotal.toFixed(2)),
     tax: Number(tax.toFixed(2)),
+    gst: Number(gst.toFixed(2)),
+    pst: Number(pst.toFixed(2)),
     deliveryFee: Number(deliveryFee.toFixed(2)),
     total: Number(total.toFixed(2)),
     platformFee: Number(platformFee.toFixed(2)),
@@ -99,6 +116,8 @@ const initialState: CartState = {
   summary: {
     subtotal: 0,
     tax: 0,
+    gst: 0,
+    pst: 0,
     deliveryFee: 0,
     total: 0,
     platformFee: 0,
@@ -262,6 +281,40 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       };
     }
 
+    case 'REFRESH_PRODUCTS': {
+      // Update cart items with fresh product data from Firestore
+      // Also removes items for products that no longer exist or are unavailable
+      const { updatedItems, removedProductIds } = action.payload;
+
+      // If all items were removed, clear the cart
+      if (updatedItems.length === 0 && state.items.length > 0) {
+        return {
+          ...initialState,
+          configuredPlatformFee: state.configuredPlatformFee,
+          configuredCommissionRate: state.configuredCommissionRate,
+        };
+      }
+
+      // Log removed products for debugging
+      if (removedProductIds.length > 0) {
+        console.info('Cart: Removed unavailable products:', removedProductIds);
+      }
+
+      return {
+        ...state,
+        items: updatedItems,
+        storeId: updatedItems.length === 0 ? null : state.storeId,
+        storeName: updatedItems.length === 0 ? null : state.storeName,
+        storeImage: updatedItems.length === 0 ? null : state.storeImage,
+        summary: calculateSummary(
+          updatedItems,
+          state.summary.deliveryFee,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+        )
+      };
+    }
+
     default:
       return state;
   }
@@ -348,6 +401,84 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isCancelled = true;
     };
   }, []);
+
+  // Refresh product data from Firestore on mount to prevent stale cart data
+  // This ensures prices, tax percentages, and availability are always current
+  useEffect(() => {
+    let isCancelled = false;
+
+    const refreshCartProducts = async () => {
+      // Skip if cart is empty
+      if (cart.items.length === 0) return;
+
+      try {
+        const updatedItems: CartItem[] = [];
+        const removedProductIds: string[] = [];
+
+        // Fetch fresh data for each product in parallel
+        const productPromises = cart.items.map(async (item) => {
+          try {
+            const freshProduct = await getProductById(item.product.id);
+
+            // Check if product is still active/available
+            if (freshProduct.status !== 'active') {
+              removedProductIds.push(item.product.id);
+              return null;
+            }
+
+            // Return updated cart item with fresh product data and current price
+            return {
+              ...item,
+              product: freshProduct,
+              priceAtTime: freshProduct.price, // Update to current price
+            };
+          } catch (error) {
+            // Product not found or error fetching - remove from cart
+            console.warn(`Cart: Could not fetch product ${item.product.id}, removing from cart`);
+            removedProductIds.push(item.product.id);
+            return null;
+          }
+        });
+
+        const results = await Promise.all(productPromises);
+
+        // Filter out null results (removed products)
+        results.forEach(item => {
+          if (item !== null) {
+            updatedItems.push(item);
+          }
+        });
+
+        // Only dispatch if there are changes and component is still mounted
+        if (!isCancelled) {
+          const hasChanges = removedProductIds.length > 0 ||
+            updatedItems.some((item, index) => {
+              const original = cart.items[index];
+              return !original ||
+                item.priceAtTime !== original.priceAtTime ||
+                item.product.gstPercentage !== original.product.gstPercentage ||
+                item.product.pstPercentage !== original.product.pstPercentage;
+            });
+
+          if (hasChanges) {
+            dispatch({
+              type: 'REFRESH_PRODUCTS',
+              payload: { updatedItems, removedProductIds }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error refreshing cart products:', error);
+      }
+    };
+
+    refreshCartProducts();
+
+    return () => {
+      isCancelled = true;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - cart.items intentionally excluded to prevent loops
 
   const addToCart = (product: Product, quantity = 1, storeInfo?: StoreInfo) => {
     // Use product's storeId if not provided

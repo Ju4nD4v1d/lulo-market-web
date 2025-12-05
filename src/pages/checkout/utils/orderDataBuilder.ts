@@ -5,7 +5,7 @@
 
 import { serverTimestamp } from 'firebase/firestore';
 import { OrderStatus } from '../../../types/order';
-import { generateReceiptNumber, calculateTaxBreakdown } from '../../../utils/orderUtils';
+import { generateReceiptNumber } from '../../../utils/orderUtils';
 
 /**
  * Store information for receipts
@@ -87,6 +87,8 @@ export interface CartItemData {
 export interface CartSummaryData {
   subtotal: number;
   tax: number;
+  gst: number;
+  pst: number;
   deliveryFee: number;
   total: number;
   platformFee: number;
@@ -147,6 +149,8 @@ export const buildEnhancedOrderData = (
   console.log('🔍 [orderDataBuilder] Cart summary received:', {
     subtotal: cart.summary.subtotal,
     tax: cart.summary.tax,
+    gst: cart.summary.gst,
+    pst: cart.summary.pst,
     deliveryFee: cart.summary.deliveryFee,
     platformFee: cart.summary.platformFee,
     total: cart.summary.total,
@@ -155,9 +159,6 @@ export const buildEnhancedOrderData = (
     lulocartAmount: cart.summary.lulocartAmount,
     storeAmount: cart.summary.storeAmount,
   });
-
-  // Calculate tax breakdown
-  const taxBreakdown = calculateTaxBreakdown(cart.summary.subtotal, formData.deliveryAddress.province);
 
   // Generate receipt number
   const receiptNumber = generateReceiptNumber(orderId);
@@ -213,6 +214,8 @@ export const buildEnhancedOrderData = (
       // Base amounts
       subtotal: cart.summary.subtotal,
       tax: cart.summary.tax,
+      gst: cart.summary.gst,
+      pst: cart.summary.pst,
       deliveryFee: cart.summary.deliveryFee,
       total: cart.summary.total,
       platformFee: cart.summary.platformFee,
@@ -224,7 +227,6 @@ export const buildEnhancedOrderData = (
       storeAmount: cart.summary.storeAmount,      // (subtotal × 0.94) + tax
       lulocartAmount: cart.summary.lulocartAmount, // commission + delivery + platform
       // Optional fields
-      taxBreakdown,
       discountAmount: cart.summary.discountAmount || 0,
       tipAmount: formData.tipAmount || 0,
       serviceFee: 0,

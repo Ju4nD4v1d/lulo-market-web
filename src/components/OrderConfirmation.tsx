@@ -215,10 +215,18 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
                   <span className="text-gray-600 flex-1">{t('order.subtotal')}</span>
                   <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600 flex-1">{t('order.tax')}</span>
-                  <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.tax)}</span>
-                </div>
+                {(order.summary.gst ?? 0) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600 flex-1">{t('cart.summary.gst')}</span>
+                    <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.gst)}</span>
+                  </div>
+                )}
+                {(order.summary.pst ?? 0) > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600 flex-1">{t('cart.summary.pst')}</span>
+                    <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.pst)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600 flex-1">{t('order.deliveryFee')}</span>
                   <span className="font-medium whitespace-nowrap ml-2">{formatPrice(order.summary.deliveryFee)}</span>

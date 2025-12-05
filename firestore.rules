@@ -132,10 +132,11 @@ service cloud.firestore {
 
     // ============================================================================
     // DRIVERS (Dispatcher management)
+    // Public read: needed for delivery time calculations on cart/checkout
     // ============================================================================
 
     match /drivers/{driverId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAdmin();
     }
 

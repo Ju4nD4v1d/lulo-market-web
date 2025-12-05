@@ -25,7 +25,9 @@ export const CartPage: React.FC = () => {
   const calculations = useMemo(() => {
     // Use cart.summary values which already include dynamic platform fee
     const subtotal = cart.summary.subtotal;
-    const tax = cart.summary.tax;
+    const gst = cart.summary.gst;
+    const pst = cart.summary.pst;
+    const tax = cart.summary.tax; // Total tax (gst + pst)
     const platformFee = cart.summary.platformFee;
 
     // When delivery fee is not yet calculated, show estimated total without delivery
@@ -37,7 +39,8 @@ export const CartPage: React.FC = () => {
       // Pass null to show "Calculated at checkout", or the actual fee if calculated
       deliveryFee: deliveryFeeOverride,
       platformFee,
-      tax,
+      gst,
+      pst,
       total,
       itemCount: cart.summary.itemCount,
     };
@@ -122,7 +125,8 @@ export const CartPage: React.FC = () => {
                 subtotal={calculations.subtotal}
                 deliveryFee={calculations.deliveryFee}
                 platformFee={calculations.platformFee}
-                tax={calculations.tax}
+                gst={calculations.gst}
+                pst={calculations.pst}
                 total={calculations.total}
                 itemCount={calculations.itemCount}
                 onCheckout={handleCheckout}
