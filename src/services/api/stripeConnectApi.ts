@@ -2,6 +2,8 @@
  * Stripe Connect API - Operations for store payment onboarding
  */
 
+import { auth } from '../../config/firebase';
+
 const isProduction = import.meta.env.VITE_ENV === 'production';
 const CLOUD_FUNCTIONS_BASE = isProduction
   ? 'https://us-central1-lulocart-prod.cloudfunctions.net'
@@ -69,6 +71,23 @@ export interface CreateLoginLinkResponse {
   data?: {
     url: string;
   };
+  error?: string;
+}
+
+export interface GetConnectedAccountBalanceRequest {
+  storeId: string;
+}
+
+export interface StripeBalanceData {
+  available: number;   // Amount in cents
+  pending: number;     // Amount in cents
+  inTransit: number;   // Amount in cents
+  currency: string;    // e.g., 'cad'
+}
+
+export interface GetConnectedAccountBalanceResponse {
+  success: boolean;
+  data?: StripeBalanceData;
   error?: string;
 }
 
@@ -211,6 +230,58 @@ export async function createStripeLoginLink(
     };
   } catch (error) {
     console.error('Error creating Stripe login link:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Network error',
+    };
+  }
+}
+
+/**
+ * Get the balance information for a connected Stripe account
+ * Returns available balance, pending payouts, and in-transit amounts
+ *
+ * Requires Firebase authentication - the backend validates store ownership
+ */
+export async function getConnectedAccountBalance(
+  request: GetConnectedAccountBalanceRequest
+): Promise<GetConnectedAccountBalanceResponse> {
+  try {
+    // Get Firebase auth token for backend authentication
+    const user = auth.currentUser;
+    if (!user) {
+      return {
+        success: false,
+        error: 'User not authenticated',
+      };
+    }
+
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${CLOUD_FUNCTIONS_BASE}/getConnectedAccountBalance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(request),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.error || 'Failed to get account balance',
+      };
+    }
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error('Error getting connected account balance:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Network error',

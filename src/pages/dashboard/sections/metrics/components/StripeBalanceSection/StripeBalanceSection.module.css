@@ -1,0 +1,138 @@
+/* Mobile-first Stripe Balance Section Styles */
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section {
+    margin-bottom: 2rem;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .sectionHeader {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.sectionIconWrapper {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, #635BFF, #4F46E5);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(99, 91, 255, 0.3), 0 2px 4px -1px rgba(99, 91, 255, 0.2);
+}
+
+@media (min-width: 768px) {
+  .sectionIconWrapper {
+    padding: 0.625rem;
+    border-radius: 1rem;
+  }
+}
+
+.sectionIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+@media (min-width: 768px) {
+  .sectionIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* Total Balance - featured card wrapper */
+.totalBalanceWrapper {
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .totalBalanceWrapper {
+    margin-bottom: 1.25rem;
+  }
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Empty state - no Stripe account */
+.emptyState {
+  background: linear-gradient(to right, #F5F3FF, #EEF2FF);
+  border: 1px dashed #C7D2FE;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .emptyState {
+    padding: 2rem;
+    border-radius: 1.5rem;
+  }
+}
+
+.emptyStateIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #635BFF;
+  margin: 0 auto 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .emptyStateIcon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.emptyStateText {
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .emptyStateText {
+    font-size: 1rem;
+  }
+}

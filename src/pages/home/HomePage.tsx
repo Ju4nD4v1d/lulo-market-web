@@ -44,8 +44,8 @@ export const HomePage = () => {
     ), [stores]
   );
 
-  // Validate stores for marketplace (must have Stripe + legal agreements)
-  const { validatedStores, isValidating } = useMarketplaceStores(activeStores);
+  // Filter to marketplace-ready stores (backend sets isMarketplaceReady)
+  const { validatedStores } = useMarketplaceStores(activeStores);
 
   // Local UI state
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -125,8 +125,8 @@ export const HomePage = () => {
     );
   }, [searchQuery, validatedStores]);
 
-  // Combined loading state (fetching + validating)
-  const isLoading = loading || isValidating;
+  // Loading state from store fetching
+  const isLoading = loading;
 
   return (
     <div className={styles.container}>

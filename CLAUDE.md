@@ -84,11 +84,12 @@ Component → Page Hook → TanStack Query Hook → API Layer (services/api/) �
 ## Business Rules
 
 - **Tax:** 12% HST (BC, Canada)
-- **Delivery Fee:** $3.00 base
-- **Platform Fee:** $2.00
+- **Delivery Fee:** Dynamic from Firestore (`deliveryFeeConfig`)
+- **Platform Fee:** Dynamic from Firestore (`platformFeeConfig`)
+- **Commission:** 6% of subtotal (configurable in `platformFeeConfig`)
 - **Currency:** CAD only
 - **Cart:** Single store per cart
-- **Order Flow:** pending_payment → confirmed → preparing → ready → out_for_delivery → delivered
+- **Order Flow:** pending → confirmed → preparing → ready → out_for_delivery → delivered
 
 ## Code Standards
 
@@ -107,7 +108,19 @@ Component → Page Hook → TanStack Query Hook → API Layer (services/api/) �
 
 ## Firebase Collections
 
-`stores`, `products`, `orders`, `users`, `waitlist`, `drivers`
+`stores`, `products`, `orders`, `users`, `waitlist`, `drivers`, `platformFeeConfig`, `deliveryFeeConfig`, `store_acceptances`, `legal_agreements`
+
+## Firestore Security Rules & Indexes
+
+- **Rules:** `firestore.rules` - Update when adding new collections
+- **Indexes:** `firestore.indexes.json` - Add composite indexes for queries with multiple `where` clauses or `where` + `orderBy`
+
+> **IMPORTANT:** The `firestore.rules` file is the **single source of truth** shared with the backend team. If you modify this file, notify the user so they can share the updated version with backend. Backend must deploy this exact file to maintain frontend-backend alignment.
+
+```bash
+firebase deploy --only firestore:rules --project <project-id>
+firebase deploy --only firestore:indexes --project <project-id>
+```
 
 ### Analytics Collections
 

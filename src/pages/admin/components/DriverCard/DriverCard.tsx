@@ -35,8 +35,14 @@ export const DriverCard = ({
 }: DriverCardProps) => {
   const { t } = useLanguage();
 
-  // Get available days summary
+  // Get available days summary - prefer V2 format if available
   const availableDays = DAYS_OF_WEEK.filter((day) => {
+    // Check V2 format first (multi-slot), then fall back to legacy
+    if (driver.availabilityScheduleV2) {
+      const slotV2 = driver.availabilityScheduleV2[day];
+      return slotV2 && !slotV2.closed && slotV2.slots && slotV2.slots.length > 0;
+    }
+    // Legacy format fallback
     const slot = driver.availabilitySchedule[day];
     return slot && !slot.closed;
   }).map((day) => day.slice(0, 3)); // Abbreviate to 3 letters

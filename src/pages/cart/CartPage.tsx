@@ -8,6 +8,7 @@ import { CartHeader } from './components/CartHeader';
 import { CartEmptyState } from './components/CartEmptyState';
 import { CartItemList } from './components/CartItemList';
 import { CartSummary } from './components/CartSummary';
+import { DeliveryInfoBanner } from './components/DeliveryInfoBanner';
 import styles from './CartPage.module.css';
 
 // Note: Platform fee is fetched from Firestore config (default $0.99)
@@ -104,6 +105,10 @@ export const CartPage: React.FC = () => {
               <h2 className={styles.sectionTitle}>
                 {t('cart.yourItems')} ({calculations.itemCount})
               </h2>
+
+              {/* Delivery Info Banner */}
+              {cart.storeId && <DeliveryInfoBanner storeId={cart.storeId} />}
+
               <CartItemList
                 items={cart.items}
                 onQuantityChange={handleQuantityChange}

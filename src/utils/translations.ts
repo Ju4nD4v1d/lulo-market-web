@@ -904,6 +904,7 @@ export const translations = {
     'metrics.topProductsSubtitle': 'Best selling items',
     'metrics.week': 'Week',
     'metrics.month': 'Month',
+    'metrics.weeklyPerformance': 'Weekly Performance',
     'metrics.loadingRevenue': 'Loading revenue insights...',
     'metrics.productsThisWeek': 'Products Sold This Week',
     'metrics.activeCustomers': 'Active Customers',
@@ -922,13 +923,28 @@ export const translations = {
     'metrics.revenue': 'Revenue',
     'metrics.unitsSold': 'Units Sold',
 
+    // Stripe Balance Section
+    'metrics.stripeBalance.title': 'Stripe Balance',
+    'metrics.stripeBalance.total': 'Total Balance',
+    'metrics.stripeBalance.totalDesc': 'Your complete Stripe balance',
+    'metrics.stripeBalance.totalHint': 'This is the sum of available funds plus scheduled payouts. It matches what you see in your Stripe dashboard.',
+    'metrics.stripeBalance.available': 'Available Now',
+    'metrics.stripeBalance.availableDesc': 'These funds will automatically transfer to your bank account on the next payout schedule, unless you have set up manual payouts',
+    'metrics.stripeBalance.pending': 'Future Payouts',
+    'metrics.stripeBalance.pendingDesc': 'Recent customer payments that are being processed. Funds typically take 2-7 days to clear and become available',
+    'metrics.stripeBalance.inTransit': 'In Transit',
+    'metrics.stripeBalance.inTransitDesc': 'Funds currently being transferred to your bank. Usually arrives within 1-2 business days',
+    'metrics.stripeBalance.loading': 'Loading...',
+    'metrics.stripeBalance.error': 'Unable to load balance',
+    'metrics.stripeBalance.noAccount': 'Connect Stripe to view balance',
+    'metrics.stripeBalance.viewDashboard': 'View Stripe Dashboard',
+
     // Admin Menu
     'admin.menu.store': 'Store Setup',
     'admin.menu.products': 'Products',
     'admin.menu.metrics': 'Analytics',
     'admin.menu.inventory': 'Inventory',
     'admin.menu.orders': 'Orders',
-    'admin.menu.messages': 'Messages',
     'admin.menu.documents': 'Documents',
     'admin.menu.dispatcher': 'Dispatcher',
 
@@ -1179,42 +1195,6 @@ export const translations = {
     'order.urgency.today': 'Due Today',
     'order.urgency.tomorrow': 'Due Tomorrow',
 
-    // Messages
-    'messages.title': 'Messages',
-    'messages.search': 'Search conversations...',
-    'messages.all': 'All',
-    'messages.active': 'Active',
-    'messages.unread': 'Unread',
-    'messages.noChats': 'No conversations yet',
-    'messages.noChatsDescription': 'Messages from customers will appear here',
-    'messages.selectChat': 'Select a conversation to start messaging',
-    'messages.order': 'Order',
-    'messages.you': 'You',
-    'messages.typeMessage': 'Type a message...',
-    'messages.send': 'Send',
-    'messages.attachFile': 'Attach file',
-    'messages.attachment': 'Attachment',
-    'messages.viewAttachment': 'View attachment',
-    'messages.fileTooLarge': 'File is too large. Maximum size is 5MB.',
-    'messages.justNow': 'Just now',
-    'messages.minAgo': 'm ago',
-    'messages.hourAgo': 'h ago',
-    'messages.dayAgo': 'd ago',
-    'messages.today': 'Today',
-    'messages.yesterday': 'Yesterday',
-    'messages.orderDelivered': 'This order has been delivered. Messaging is disabled.',
-    'messages.orderCancelled': 'This order has been cancelled. Messaging is disabled.',
-    'messages.quickReply.preparing': 'We\'re preparing your order now!',
-    'messages.quickReply.readyIn30': 'Your order will be ready in 30 minutes',
-    'messages.quickReply.readyIn45': 'Your order will be ready in 45 minutes',
-    'messages.quickReply.readyIn15': 'Almost ready! Just 15 more minutes',
-    'messages.quickReply.almostReady': 'Your order is almost ready!',
-    'messages.quickReply.delayApology': 'Sorry for the delay, we\'re working on it',
-    'messages.quickReply.readyForPickup': 'Your order is ready for pickup!',
-    'messages.quickReply.onTheWay': 'Your order is on the way!',
-    'messages.quickReply.thankYou': 'Thank you for your order!',
-    'messages.quickReply.enjoyMeal': 'Enjoy your meal!',
-    
     // Store Dashboard
     'store.dashboard.editStore': 'Edit Store',
     'store.dashboard.storeStatus': 'Store Status',
@@ -1951,6 +1931,12 @@ If the customer disputes a payment:
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculated at checkout',
     'checkout.validatingAddress': 'Validating address...',
+
+    // Delivery Info Banner
+    'cart.deliveryInfo.cancellationPolicy': 'This delivery is coming up soon! If you proceed, please note that orders within 24 hours of delivery cannot be cancelled.',
+    'cart.deliveryInfo.nextDelivery': 'This order will be delivered:',
+    'cart.deliveryInfo.timeWindow': 'between {start} and {end}',
+    'cart.deliveryInfo.addNotesHint': 'Add buzzer code or delivery instructions at checkout',
 
     // Product Rating and General
     'product.noRating': 'No rating',
@@ -3259,6 +3245,7 @@ If the customer disputes a payment:
     'metrics.topProductsSubtitle': 'Artículos más vendidos',
     'metrics.week': 'Semana',
     'metrics.month': 'Mes',
+    'metrics.weeklyPerformance': 'Rendimiento Semanal',
     'metrics.loadingRevenue': 'Cargando información de ingresos...',
     'metrics.productsThisWeek': 'Productos Vendidos Esta Semana',
     'metrics.activeCustomers': 'Clientes Activos',
@@ -3284,13 +3271,31 @@ If the customer disputes a payment:
     'metrics.performance': 'Rendimiento',
     'metrics.performanceDesc': '¡Estás rindiendo por encima del promedio en tu categoría. Sigue con el excelente trabajo!',
 
+    // Stripe Balance Section
+    'metrics.stripeBalance.title': 'Saldo de Stripe',
+    'metrics.stripeBalance.total': 'Saldo Total',
+    'metrics.stripeBalance.totalDesc': 'Tu saldo completo en Stripe',
+    'metrics.stripeBalance.totalHint': 'Es la suma de fondos disponibles más pagos programados. Coincide con lo que ves en tu panel de Stripe.',
+    'metrics.stripeBalance.available': 'Disponible Ahora',
+    'metrics.stripeBalance.availableDesc':
+      'Estos fondos se transferirán automáticamente a tu cuenta bancaria en el próximo pago programado, a menos que hayas configurado pagos manuales',
+    'metrics.stripeBalance.pending': 'Pagos Futuros',
+    'metrics.stripeBalance.pendingDesc':
+      'Pagos recientes de clientes que están siendo procesados. Los fondos tardan típicamente de 2 a 7 días en procesarse y estar disponibles',
+    'metrics.stripeBalance.inTransit': 'En Tránsito',
+    'metrics.stripeBalance.inTransitDesc':
+      'Fondos actualmente en transferencia a tu banco. Generalmente llegan en 1-2 días hábiles',
+    'metrics.stripeBalance.loading': 'Cargando...',
+    'metrics.stripeBalance.error': 'No se pudo cargar el saldo',
+    'metrics.stripeBalance.noAccount': 'Conecta Stripe para ver el saldo',
+    'metrics.stripeBalance.viewDashboard': 'Ver Panel de Stripe',
+
     // Admin Menu
     'admin.menu.store': 'Configuración de Tienda',
     'admin.menu.products': 'Productos',
     'admin.menu.metrics': 'Análisis',
     'admin.menu.inventory': 'Inventario',
     'admin.menu.orders': 'Pedidos',
-    'admin.menu.messages': 'Mensajes',
     'admin.menu.documents': 'Documentos',
     'admin.menu.dispatcher': 'Despacho',
 
@@ -3541,42 +3546,6 @@ If the customer disputes a payment:
     'order.urgency.today': 'Para Hoy',
     'order.urgency.tomorrow': 'Para Mañana',
 
-    // Messages
-    'messages.title': 'Mensajes',
-    'messages.search': 'Buscar conversaciones...',
-    'messages.all': 'Todos',
-    'messages.active': 'Activos',
-    'messages.unread': 'No leídos',
-    'messages.noChats': 'Aún no hay conversaciones',
-    'messages.noChatsDescription': 'Los mensajes de clientes aparecerán aquí',
-    'messages.selectChat': 'Selecciona una conversación para comenzar a chatear',
-    'messages.order': 'Pedido',
-    'messages.you': 'Tú',
-    'messages.typeMessage': 'Escribe un mensaje...',
-    'messages.send': 'Enviar',
-    'messages.attachFile': 'Adjuntar archivo',
-    'messages.attachment': 'Archivo adjunto',
-    'messages.viewAttachment': 'Ver archivo adjunto',
-    'messages.fileTooLarge': 'El archivo es demasiado grande. El tamaño máximo es 5MB.',
-    'messages.justNow': 'Justo ahora',
-    'messages.minAgo': 'm',
-    'messages.hourAgo': 'h',
-    'messages.dayAgo': 'd',
-    'messages.today': 'Hoy',
-    'messages.yesterday': 'Ayer',
-    'messages.orderDelivered': 'Este pedido ha sido entregado. Los mensajes están deshabilitados.',
-    'messages.orderCancelled': 'Este pedido ha sido cancelado. Los mensajes están deshabilitados.',
-    'messages.quickReply.preparing': '¡Estamos preparando tu pedido ahora!',
-    'messages.quickReply.readyIn30': 'Tu pedido estará listo en 30 minutos',
-    'messages.quickReply.readyIn45': 'Tu pedido estará listo en 45 minutos',
-    'messages.quickReply.readyIn15': '¡Casi listo! Solo 15 minutos más',
-    'messages.quickReply.almostReady': '¡Tu pedido está casi listo!',
-    'messages.quickReply.delayApology': 'Disculpa la demora, estamos trabajando en ello',
-    'messages.quickReply.readyForPickup': '¡Tu pedido está listo para recoger!',
-    'messages.quickReply.onTheWay': '¡Tu pedido está en camino!',
-    'messages.quickReply.thankYou': '¡Gracias por tu pedido!',
-    'messages.quickReply.enjoyMeal': '¡Disfruta tu comida!',
-    
     // Store Dashboard
     'store.dashboard.editStore': 'Editar Tienda',
     'store.dashboard.storeStatus': 'Estado de la Tienda',
@@ -4282,6 +4251,12 @@ Si el cliente disputa el pago:
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculado al pagar',
     'checkout.validatingAddress': 'Validando dirección...',
+
+    // Delivery Info Banner
+    'cart.deliveryInfo.cancellationPolicy': 'Esta entrega es pronto. Si continuas, ten en cuenta que los pedidos dentro de 24 horas de la entrega no pueden cancelarse.',
+    'cart.deliveryInfo.nextDelivery': 'Esta orden sera entregada:',
+    'cart.deliveryInfo.timeWindow': 'entre {start} y {end}',
+    'cart.deliveryInfo.addNotesHint': 'Agrega codigo de timbre o instrucciones de entrega al pagar',
 
     // Product Rating and General
     'product.noRating': 'Sin calificación',

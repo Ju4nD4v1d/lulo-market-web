@@ -219,6 +219,8 @@ export function transformStoreDocument(docId: string, data: Record<string, unkno
     lowStockThreshold: (data.lowStockThreshold as number) ?? 10,
     // Founder program
     isFounderStore: (data.isFounderStore as boolean) ?? false,
+    // Marketplace readiness (set by backend)
+    isMarketplaceReady: (data.isMarketplaceReady as boolean) ?? false,
   };
 }
 

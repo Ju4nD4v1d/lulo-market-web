@@ -241,14 +241,6 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         action.payload,
         state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
       );
-      console.log('🔍 [CartReducer] SET_PLATFORM_FEE:', {
-        payload: action.payload,
-        itemCount: state.items.length,
-        oldPlatformFee: state.summary.platformFee,
-        newPlatformFee: newSummary.platformFee,
-        oldFinalTotal: state.summary.finalTotal,
-        newFinalTotal: newSummary.finalTotal,
-      });
       return {
         ...state,
         configuredPlatformFee: action.payload,
