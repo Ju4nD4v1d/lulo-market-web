@@ -3,11 +3,14 @@
  *
  * Handles fee calculation based on distance between store and customer,
  * tracks address changes to reset fee when address is modified,
- * and syncs the calculated fee with the cart context.
+ * syncs the calculated fee with the cart context,
+ * and applies new customer discount (20% off first 3 orders).
  */
 
 import { useCallback, useEffect, useRef } from 'react';
 import { useDeliveryFeeCalculation } from '../../../hooks/useDeliveryFeeCalculation';
+import { useDeliveryFeeDiscount, calculateDeliveryDiscount } from '../../../hooks/useDeliveryFeeDiscount';
+import { DeliveryFeeDiscountData } from '../../../context/CartContext';
 
 interface DeliveryAddress {
   street: string;
@@ -29,6 +32,12 @@ interface UseCheckoutDeliveryFeeProps {
   storeCoordinates: StoreCoordinates | null;
   /** Function to update cart delivery fee */
   setCartDeliveryFee: (fee: number) => void;
+  /** Function to update cart delivery fee discount */
+  setCartDeliveryFeeDiscount: (discount: DeliveryFeeDiscountData | null) => void;
+  /** User's total paid order count (for discount eligibility) */
+  userTotalOrders: number;
+  /** Whether user is logged in */
+  isLoggedIn: boolean;
 }
 
 interface UseCheckoutDeliveryFeeReturn {
@@ -50,6 +59,9 @@ export function useCheckoutDeliveryFee({
   deliveryAddress,
   storeCoordinates,
   setCartDeliveryFee,
+  setCartDeliveryFeeDiscount,
+  userTotalOrders,
+  isLoggedIn,
 }: UseCheckoutDeliveryFeeProps): UseCheckoutDeliveryFeeReturn {
   // Core delivery fee calculation hook
   const {
@@ -58,8 +70,17 @@ export function useCheckoutDeliveryFee({
     isCalculating: isCalculatingDeliveryFee,
     error: deliveryFeeError,
     calculate: calculateFee,
-    reset: resetDeliveryFee,
+    reset: resetDeliveryFeeBase,
   } = useDeliveryFeeCalculation();
+
+  // Calculate discount for new customers (20% off first 3 orders)
+  const discount = useDeliveryFeeDiscount(deliveryFee, userTotalOrders, isLoggedIn);
+
+  // Reset both fee and discount
+  const resetDeliveryFee = useCallback(() => {
+    resetDeliveryFeeBase();
+    setCartDeliveryFeeDiscount(null);
+  }, [resetDeliveryFeeBase, setCartDeliveryFeeDiscount]);
 
   // Track last calculated address to detect changes
   const lastCalculatedAddressRef = useRef<string | null>(null);
@@ -102,14 +123,20 @@ export function useCheckoutDeliveryFee({
       storeCoordinates
     );
 
-    // If calculation succeeded, update the cart with the new fee
+    // If calculation succeeded, update the cart with the new fee and discount
     if (result.fee !== null) {
       setCartDeliveryFee(result.fee);
+
+      // Calculate and set discount for new customers using shared pure function
+      // Note: We use the pure function here since the hook value won't update until re-render
+      const discountResult = calculateDeliveryDiscount(result.fee, userTotalOrders, isLoggedIn);
+      setCartDeliveryFeeDiscount(discountResult);
+
       return true;
     }
 
     return false;
-  }, [deliveryAddress, storeCoordinates, calculateFee, setCartDeliveryFee]);
+  }, [deliveryAddress, storeCoordinates, calculateFee, setCartDeliveryFee, setCartDeliveryFeeDiscount, isLoggedIn, userTotalOrders]);
 
   // Store the address hash when fee is calculated successfully
   useEffect(() => {

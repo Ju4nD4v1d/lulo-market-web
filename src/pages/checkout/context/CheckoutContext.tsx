@@ -27,10 +27,11 @@ import { useCheckoutForm } from '../hooks/useCheckoutForm';
 import { useCheckoutWizard, CheckoutStep } from '../hooks/useCheckoutWizard';
 import { useStoreReceiptQuery, StoreReceiptInfo } from '../../../hooks/queries/useStoreReceiptQuery';
 import { useStoreQuery } from '../../../hooks/queries/useStoreQuery';
-import { useCheckoutDeliverySchedule } from '../hooks/useCheckoutDeliverySchedule';
+import { useCheckoutDeliverySchedule } from '../hooks/useCheckoutDeliveryFlow';
 import { useCheckoutProfileAddress } from '../hooks/useCheckoutProfileAddress';
 import { useCheckoutDeliveryFee } from '../hooks/useCheckoutDeliveryFee';
 import { useCheckoutPaymentState } from '../hooks/useCheckoutPaymentState';
+import { useUserOrderCount } from '../../../hooks/useUserOrderCount';
 import { DeliveryDateOption } from '../utils/dateHelpers';
 import { Order } from '../../../types/order';
 import { Cart } from '../../../types/cart';
@@ -156,9 +157,12 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   children,
   onOrderComplete,
 }) => {
-  const { cart, clearCart, setDeliveryFee: setCartDeliveryFee } = useCart();
+  const { cart, clearCart, setDeliveryFee: setCartDeliveryFee, setDeliveryFeeDiscount: setCartDeliveryFeeDiscount } = useCart();
   const { t, locale } = useLanguage();
   const { currentUser, userProfile } = useAuth();
+
+  // Get user's paid order count for new customer discount eligibility
+  const { totalOrders: userTotalOrders } = useUserOrderCount(currentUser?.uid || null);
 
   // Note: Platform fee is now fetched in CartContext so it's available everywhere
   // No need to fetch it again here
@@ -236,7 +240,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     goToStep: checkoutWizard.goToStep,
   });
 
-  // Delivery fee hook
+  // Delivery fee hook (includes new customer discount calculation)
   const {
     deliveryFee,
     deliveryDistance,
@@ -248,6 +252,9 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     deliveryAddress: checkoutForm.formData.deliveryAddress,
     storeCoordinates,
     setCartDeliveryFee,
+    setCartDeliveryFeeDiscount,
+    userTotalOrders,
+    isLoggedIn: !!currentUser,
   });
 
   // Payment state hook

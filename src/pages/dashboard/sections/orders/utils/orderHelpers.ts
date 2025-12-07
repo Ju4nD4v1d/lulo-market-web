@@ -40,8 +40,9 @@ export const formatDate = (date: Date | string | number, locale: string = 'en-CA
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     }).format(validDate);
   } catch (error) {
     console.error('Error formatting date:', error, date);

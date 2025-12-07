@@ -11,6 +11,8 @@ import {
   DeliveryInfo,
   OrderSummary,
   ReceiptSection,
+  OrderProgressTimeline,
+  StoreContactCard,
 } from './components';
 import styles from './OrderTrackingPage.module.css';
 
@@ -120,8 +122,10 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
           {/* Order Details - Left Column */}
           <div className={styles.leftColumn}>
             <OrderStatus order={displayOrder} />
+            <OrderProgressTimeline order={displayOrder} />
             <OrderItems order={displayOrder} t={t} />
             <DeliveryInfo order={displayOrder} t={t} />
+            <StoreContactCard order={displayOrder} />
           </div>
 
           {/* Order Summary - Right Column */}

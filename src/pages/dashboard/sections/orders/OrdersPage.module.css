@@ -686,6 +686,43 @@
   color: var(--color-primary);
 }
 
+/* Delivery fee discount styles */
+.deliveryLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.discountBadge {
+  display: inline-flex;
+  padding: 0.125rem 0.375rem;
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.discountedPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.originalPrice {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.finalPrice {
+  font-weight: 600;
+  color: #16A34A;
+}
+
 .orderNotes {
   margin-top: 1rem;
   padding: 0.75rem;

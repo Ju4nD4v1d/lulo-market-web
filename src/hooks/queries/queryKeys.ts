@@ -38,6 +38,7 @@ export const queryKeys = {
   user: {
     all: ['user'] as const,
     profile: (userId: string) => [...queryKeys.user.all, 'profile', userId] as const,
+    orderCount: (userId: string) => [...queryKeys.user.all, 'orderCount', userId] as const,
   },
 
   // Review queries

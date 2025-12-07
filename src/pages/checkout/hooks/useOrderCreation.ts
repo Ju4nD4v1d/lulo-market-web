@@ -9,12 +9,14 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCheckoutMutations } from '../../../hooks/mutations/useCheckoutMutations';
 import { useOrderMonitoring } from './useOrderMonitoring';
 import { Order, OrderStatus } from '../../../types/order';
 import { Cart } from '../../../types/cart';
 import { trackPurchase } from '../../../services/analytics';
 import * as orderApi from '../../../services/api/orderApi';
+import { queryKeys } from '../../../hooks/queries/queryKeys';
 
 interface UseOrderCreationOptions {
   cart: Cart;
@@ -33,6 +35,7 @@ export const useOrderCreation = ({
   onOrderComplete,
   clearCart
 }: UseOrderCreationOptions) => {
+  const queryClient = useQueryClient();
   const [isMonitoringOrder, setIsMonitoringOrder] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
@@ -110,9 +113,13 @@ export const useOrderCreation = ({
       });
     }
 
+    // Invalidate user order count to refresh new customer discount eligibility
+    // This ensures the discount banner updates correctly after order completion
+    queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
+
     currentClearCart();
     currentOnOrderComplete(order);
-  }, []); // No dependencies needed - we use refs for current values
+  }, [queryClient]); // queryClient is stable, but included for completeness
 
   // Setup order monitoring
   useOrderMonitoring({

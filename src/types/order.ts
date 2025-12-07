@@ -86,6 +86,15 @@ export interface OrderSummary {
   discountAmount?: number; // Amount discounted from promotional codes
   tipAmount?: number; // Customer tip amount
   serviceFee?: number; // Additional service fees
+  // New customer delivery fee discount
+  deliveryFeeDiscount?: {
+    originalFee: number;
+    discountedFee: number;
+    discountAmount: number;
+    isEligible: boolean;
+    ordersRemaining: number;
+  };
+  newCustomerDiscountApplied?: boolean; // Flag indicating new customer discount was applied
 }
 
 export interface Order {

@@ -1,7 +1,16 @@
 import type * as React from 'react';
-import { ShoppingBag, Truck, Receipt, Shield, LogIn } from 'lucide-react';
+import { ShoppingBag, Truck, Receipt, Shield, LogIn, Gift } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './CartSummary.module.css';
+
+/** Delivery fee discount data for new customers */
+interface DeliveryFeeDiscountData {
+  originalFee: number;
+  discountedFee: number;
+  discountAmount: number;
+  isEligible: boolean;
+  ordersRemaining: number;
+}
 
 interface CartSummaryProps {
   subtotal: number;
@@ -15,6 +24,8 @@ interface CartSummaryProps {
   onCheckout: () => void;
   isProcessing?: boolean;
   isLoggedIn?: boolean;
+  /** Delivery fee discount info for new customers */
+  deliveryFeeDiscount?: DeliveryFeeDiscountData | null;
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
@@ -28,6 +39,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   onCheckout,
   isProcessing = false,
   isLoggedIn = true,
+  deliveryFeeDiscount,
 }) => {
   const { t } = useLanguage();
 
@@ -49,14 +61,43 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           <span className={styles.lineLabel}>
             <Truck className={styles.lineIcon} />
             {t('cart.summary.delivery')}
+            {deliveryFeeDiscount?.isEligible && (
+              <span className={styles.discountBadge}>
+                {t('cart.summary.newCustomerDiscount')}
+              </span>
+            )}
           </span>
           <span className={styles.lineValue}>
-            {deliveryFee !== null
-              ? `CAD $${deliveryFee.toFixed(2)}`
-              : t('cart.deliveryFeeAtCheckout')
-            }
+            {deliveryFee !== null ? (
+              deliveryFeeDiscount?.isEligible ? (
+                <span className={styles.discountedPrice}>
+                  <span className={styles.originalPrice}>
+                    CAD ${deliveryFeeDiscount.originalFee.toFixed(2)}
+                  </span>
+                  <span className={styles.finalPrice}>
+                    CAD ${deliveryFeeDiscount.discountedFee.toFixed(2)}
+                  </span>
+                </span>
+              ) : (
+                `CAD $${deliveryFee.toFixed(2)}`
+              )
+            ) : (
+              t('cart.deliveryFeeAtCheckout')
+            )}
           </span>
         </div>
+
+        {/* New Customer Discount Banner */}
+        {deliveryFeeDiscount?.isEligible && deliveryFee !== null && (
+          <div className={styles.discountBanner}>
+            <Gift className={styles.discountBannerIcon} />
+            <span>
+              {deliveryFeeDiscount.ordersRemaining === 1
+                ? t('cart.summary.ordersRemainingSingular')
+                : t('cart.summary.ordersRemaining').replace('{count}', String(deliveryFeeDiscount.ordersRemaining))}
+            </span>
+          </div>
+        )}
 
         <div className={styles.line}>
           <span className={styles.lineLabel}>

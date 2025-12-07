@@ -4,7 +4,7 @@ import type * as React from 'react';
  */
 
 
-import { Clock, User, MapPin, ShoppingBag, Loader2 } from 'lucide-react';
+import { Clock, User, MapPin, ShoppingBag, Loader2, Gift } from 'lucide-react';
 import { CartItem, CartSummary } from '../../../../types/cart';
 import { CustomerInfo, DeliveryAddress } from '../../../../types/order';
 import sharedStyles from '../shared.module.css';
@@ -114,9 +114,40 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             </div>
           )}
           <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>{t('cart.deliveryFee')}</span>
-            <span>${cartSummary.deliveryFee.toFixed(2)}</span>
+            <span className={styles.summaryLabel}>
+              {t('cart.deliveryFee')}
+              {cartSummary.deliveryFeeDiscount?.isEligible && (
+                <span className={styles.discountBadge}>
+                  {t('cart.summary.newCustomerDiscount')}
+                </span>
+              )}
+            </span>
+            <span>
+              {cartSummary.deliveryFeeDiscount?.isEligible ? (
+                <span className={styles.discountedPrice}>
+                  <span className={styles.originalPrice}>
+                    ${cartSummary.deliveryFeeDiscount.originalFee.toFixed(2)}
+                  </span>
+                  <span className={styles.finalPrice}>
+                    ${cartSummary.deliveryFeeDiscount.discountedFee.toFixed(2)}
+                  </span>
+                </span>
+              ) : (
+                `$${cartSummary.deliveryFee.toFixed(2)}`
+              )}
+            </span>
           </div>
+          {/* New Customer Discount Banner */}
+          {cartSummary.deliveryFeeDiscount?.isEligible && (
+            <div className={styles.discountBanner}>
+              <Gift className={styles.discountBannerIcon} />
+              <span>
+                {cartSummary.deliveryFeeDiscount.ordersRemaining === 1
+                  ? t('cart.summary.ordersRemainingSingular')
+                  : t('cart.summary.ordersRemaining').replace('{count}', String(cartSummary.deliveryFeeDiscount.ordersRemaining))}
+              </span>
+            </div>
+          )}
           {cartSummary.platformFee !== undefined && cartSummary.platformFee > 0 && (
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>{t('cart.platformFee')}</span>

@@ -35,6 +35,15 @@ export interface CartSummary {
   tipAmount?: number; // Customer tip amount
   serviceFee?: number; // Additional service fees
   appliedPromoCodes?: string[]; // Applied promotional codes
+
+  // New customer delivery fee discount (first 3 orders)
+  deliveryFeeDiscount?: {
+    originalFee: number; // Original delivery fee before discount
+    discountedFee: number; // Discounted delivery fee
+    discountAmount: number; // Amount saved
+    isEligible: boolean; // Whether discount was applied
+    ordersRemaining: number; // Discounted orders remaining (0-3)
+  };
 }
 
 export interface CartState {

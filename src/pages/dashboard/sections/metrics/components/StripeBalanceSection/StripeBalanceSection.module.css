@@ -51,6 +51,12 @@
   }
 }
 
+.sectionTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .sectionTitle {
   font-size: 1rem;
   font-weight: 700;
@@ -61,6 +67,19 @@
 @media (min-width: 768px) {
   .sectionTitle {
     font-size: 1.25rem;
+  }
+}
+
+.sectionDisclaimer {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .sectionDisclaimer {
+    font-size: 0.8125rem;
   }
 }
 

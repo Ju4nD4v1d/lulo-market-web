@@ -8,7 +8,7 @@
 import { Truck, Clock, Loader2 } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { useLanguage } from '../../../context/LanguageContext';
-import { useEffectiveHours } from '../../../hooks/useEffectiveHours';
+import { useDeliveryAvailability } from '../../../hooks/useDeliveryAvailability';
 import { formatTime12Hour } from '../../../utils/scheduleUtils';
 import { DayOfWeek } from '../../../types/schedule';
 import styles from './DeliverySchedule.module.css';
@@ -28,7 +28,7 @@ interface DayInfo {
 
 export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
   const { t } = useLanguage();
-  const { effectiveHours, nextAvailableDay, isLoading } = useEffectiveHours({ store });
+  const { deliverySchedule, nextAvailableDay, isLoading } = useDeliveryAvailability({ store });
 
   const daysConfig: Array<{ dayName: DayOfWeek; fullKey: string; shortKey: string }> = [
     { dayName: 'Sunday', fullKey: 'days.sunday', shortKey: 'days.sun' },
@@ -41,11 +41,11 @@ export const DeliverySchedule = ({ store }: DeliveryScheduleProps) => {
   ];
 
   const getOpenDays = (): DayInfo[] => {
-    if (!effectiveHours) return [];
+    if (!deliverySchedule) return [];
 
     return daysConfig
       .map((config, index) => {
-        const daySchedule = effectiveHours[config.dayName];
+        const daySchedule = deliverySchedule[config.dayName];
         const isOpen = daySchedule && !daySchedule.closed && daySchedule.slots.length > 0;
 
         const timeWindows: string[] = [];

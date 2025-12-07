@@ -99,6 +99,9 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
     summary: {
       subtotal: data.summary?.subtotal || data.subtotal || data.totalOrderPrice || 0,
       tax: data.summary?.tax || (data.gstTax || 0) + (data.pstTax || 0),
+      // GST and PST breakdown - essential for order tracking display
+      gst: data.summary?.gst || 0,
+      pst: data.summary?.pst || 0,
       deliveryFee: data.summary?.deliveryFee || 0,
       total: data.summary?.total || data.totalOrderPrice || 0,
       itemCount: data.summary?.itemCount || data.quantity || 1,
@@ -116,6 +119,10 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
       tipAmount: data.summary?.tipAmount,
       serviceFee: data.summary?.serviceFee,
       taxBreakdown: data.summary?.taxBreakdown,
+      // New customer delivery fee discount
+      ...(data.summary?.deliveryFeeDiscount && {
+        deliveryFeeDiscount: data.summary.deliveryFeeDiscount,
+      }),
     },
 
     // Order status - ensure we use valid OrderStatus enum values
