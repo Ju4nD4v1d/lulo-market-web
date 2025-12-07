@@ -91,7 +91,10 @@ export const StripeBalanceSection: React.FC<StripeBalanceSectionProps> = ({ stor
         <div className={styles.sectionIconWrapper}>
           <CreditCard className={styles.sectionIcon} />
         </div>
-        <h2 className={styles.sectionTitle}>{t('metrics.stripeBalance.title')}</h2>
+        <div className={styles.sectionTitleGroup}>
+          <h2 className={styles.sectionTitle}>{t('metrics.stripeBalance.title')}</h2>
+          <p className={styles.sectionDisclaimer}>{t('metrics.stripeBalance.disclaimer')}</p>
+        </div>
       </div>
       {/* Total Balance - featured card spanning full width on mobile */}
       <div className={styles.totalBalanceWrapper}>

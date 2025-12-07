@@ -95,6 +95,8 @@ export const useCheckoutMutations = () => {
     onSuccess: (orderId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.checkout.orderMonitoring(orderId) });
+      // Invalidate user order count to refresh new customer discount eligibility
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
     },
     onError: (error) => {
       console.error('Error creating order:', error);
@@ -111,6 +113,8 @@ export const useCheckoutMutations = () => {
     onSuccess: (_, { orderId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.checkout.orderMonitoring(orderId) });
+      // Invalidate user order count to refresh new customer discount eligibility
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
     },
     onError: (error) => {
       console.error('Error updating order:', error);

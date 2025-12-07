@@ -26,9 +26,19 @@ import {
 import {
   computeEffectiveDaySlots,
   mergeOverlappingSlots,
-  timeToMinutes as scheduleTimeToMinutes,
-  minutesToTime as scheduleMinutesToTime,
+  timeToMinutes,
+  minutesToTime,
+  formatTime12Hour,
 } from './scheduleUtils';
+import {
+  CHECKOUT_LEAD_HOURS,
+  DELIVERY_LOOKAHEAD_DAYS,
+  MIN_HOURS_FOR_SAME_DAY,
+  DAYS_IN_WEEK,
+  DAY_ABBREVIATIONS,
+  MS_PER_HOUR,
+  HOURS_PER_DAY,
+} from './schedule/constants';
 
 export interface TimeSlot {
   open: string;
@@ -103,36 +113,14 @@ function getScheduleSlot(
   return undefined;
 }
 
-// ============================================================================
-// Time Conversion Helpers
-// ============================================================================
-
-/**
- * Convert time string (HH:MM) to minutes since midnight
- */
-function timeToMinutes(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-}
-
-/**
- * Convert minutes since midnight to time string (HH:MM)
- */
-function minutesToTime(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-}
-
-/**
- * Format 24-hour time to 12-hour format with AM/PM
- */
-export function formatTime12Hour(time24: string): string {
-  const [hours, minutes] = time24.split(':').map(Number);
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const hours12 = hours % 12 || 12;
-  return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
-}
+// Re-exports for convenience
+export { formatTime12Hour } from './scheduleUtils';
+export {
+  CHECKOUT_LEAD_HOURS,
+  CART_DISPLAY_LEAD_HOURS,
+  DELIVERY_LOOKAHEAD_DAYS,
+  DAY_ABBREVIATIONS,
+} from './schedule/constants';
 
 // ============================================================================
 // Time Intersection Logic
@@ -164,209 +152,7 @@ function getTimeIntersection(
 }
 
 // ============================================================================
-// Driver Schedule Combination
-// ============================================================================
-
-/**
- * Combine multiple driver schedules using UNION
- * A day is available if ANY driver is available that day
- * The time window is the earliest start to the latest end
- */
-function combineDriverSchedules(drivers: Driver[]): WeeklySchedule {
-  const combined: WeeklySchedule = {};
-
-  for (const day of DAYS_OF_WEEK) {
-    let earliestOpen: number | null = null;
-    let latestClose: number | null = null;
-    let anyDriverAvailable = false;
-
-    for (const driver of drivers) {
-      if (!driver.isActive) continue;
-
-      const slot = driver.availabilitySchedule[day as DayOfWeek];
-      if (slot && !slot.closed) {
-        anyDriverAvailable = true;
-        const openMins = timeToMinutes(slot.open);
-        const closeMins = timeToMinutes(slot.close);
-
-        if (earliestOpen === null || openMins < earliestOpen) {
-          earliestOpen = openMins;
-        }
-        if (latestClose === null || closeMins > latestClose) {
-          latestClose = closeMins;
-        }
-      }
-    }
-
-    combined[day] =
-      anyDriverAvailable && earliestOpen !== null && latestClose !== null
-        ? { open: minutesToTime(earliestOpen), close: minutesToTime(latestClose), closed: false }
-        : { open: '00:00', close: '00:00', closed: true };
-  }
-
-  return combined;
-}
-
-// ============================================================================
-// Main Effective Hours Function
-// ============================================================================
-
-/**
- * Compute effective store hours
- *
- * @param storeSchedule - The store's raw delivery/business hours
- * @param activeDrivers - Array of active drivers
- * @returns WeeklySchedule with effective hours (intersection of store + drivers)
- */
-export function computeEffectiveHours(
-  storeSchedule: WeeklySchedule | undefined,
-  activeDrivers: Driver[]
-): WeeklySchedule {
-  // Create a closed schedule as default
-  const closedSchedule = DAYS_OF_WEEK.reduce((acc, day) => {
-    acc[day] = { open: '00:00', close: '00:00', closed: true };
-    return acc;
-  }, {} as WeeklySchedule);
-
-  // Check if store schedule is empty (object with no keys)
-  const hasStoreSchedule = storeSchedule && Object.keys(storeSchedule).length > 0;
-
-  // If no store schedule or no drivers, return closed
-  if (!storeSchedule || !hasStoreSchedule || activeDrivers.length === 0) {
-    return closedSchedule;
-  }
-
-  // Get combined driver availability
-  const combinedDriverSchedule = combineDriverSchedules(activeDrivers);
-
-  // Compute intersection for each day
-  const effectiveSchedule: WeeklySchedule = {};
-
-  for (const day of DAYS_OF_WEEK) {
-    // Use flexible slot lookup that handles various day name formats
-    const storeSlot = getScheduleSlot(storeSchedule, day);
-    const driverSlot = combinedDriverSchedule[day];
-
-    // If either is closed, the effective is closed
-    if (!storeSlot || storeSlot.closed || !driverSlot || driverSlot.closed) {
-      effectiveSchedule[day] = { open: '00:00', close: '00:00', closed: true };
-      continue;
-    }
-
-    // Compute time intersection
-    const intersection = getTimeIntersection(storeSlot, driverSlot);
-
-    if (intersection) {
-      effectiveSchedule[day] = { ...intersection, closed: false };
-    } else {
-      effectiveSchedule[day] = { open: '00:00', close: '00:00', closed: true };
-    }
-  }
-
-  return effectiveSchedule;
-}
-
-// ============================================================================
-// Helper Functions for UI
-// ============================================================================
-
-/**
- * Check if delivery is available right now based on effective schedule
- */
-export function isDeliveryAvailableNow(effectiveSchedule: WeeklySchedule): boolean {
-  const now = new Date();
-  const dayName = DAYS_OF_WEEK[now.getDay()];
-  const daySchedule = effectiveSchedule[dayName];
-
-  if (!daySchedule || daySchedule.closed) return false;
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const openMinutes = timeToMinutes(daySchedule.open);
-  const closeMinutes = timeToMinutes(daySchedule.close);
-
-  return currentMinutes >= openMinutes && currentMinutes < closeMinutes;
-}
-
-/**
- * Get today's effective hours as a formatted string
- */
-export function getTodayEffectiveHours(
-  effectiveSchedule: WeeklySchedule,
-  noDeliveryText: string = 'No delivery today'
-): string {
-  const dayName = DAYS_OF_WEEK[new Date().getDay()];
-  const daySchedule = effectiveSchedule[dayName];
-
-  if (!daySchedule || daySchedule.closed) {
-    return noDeliveryText;
-  }
-
-  return `${formatTime12Hour(daySchedule.open)} - ${formatTime12Hour(daySchedule.close)}`;
-}
-
-/**
- * Get a summary of available days (e.g., "Fri, Sat, Sun")
- */
-export function getAvailableDaysSummary(
-  effectiveSchedule: WeeklySchedule,
-  abbreviated: boolean = true
-): string[] {
-  const abbreviations: Record<string, string> = {
-    Sunday: 'Sun',
-    Monday: 'Mon',
-    Tuesday: 'Tue',
-    Wednesday: 'Wed',
-    Thursday: 'Thu',
-    Friday: 'Fri',
-    Saturday: 'Sat',
-  };
-
-  return DAYS_OF_WEEK.filter((day) => {
-    const slot = effectiveSchedule[day];
-    return slot && !slot.closed;
-  }).map((day) => (abbreviated ? abbreviations[day] : day));
-}
-
-/**
- * Find the next available delivery day
- */
-export function getNextAvailableDay(
-  effectiveSchedule: WeeklySchedule
-): { day: string; isToday: boolean; isTomorrow: boolean } | null {
-  const now = new Date();
-  const currentDayIndex = now.getDay();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  // Check up to 7 days ahead
-  for (let i = 0; i < 7; i++) {
-    const dayIndex = (currentDayIndex + i) % 7;
-    const dayName = DAYS_OF_WEEK[dayIndex];
-    const slot = effectiveSchedule[dayName];
-
-    if (slot && !slot.closed) {
-      // If it's today, check if we're still within the time window
-      if (i === 0) {
-        const closeMinutes = timeToMinutes(slot.close);
-        if (currentMinutes < closeMinutes) {
-          return { day: dayName, isToday: true, isTomorrow: false };
-        }
-        // Today's window has passed, continue to tomorrow
-        continue;
-      }
-
-      return {
-        day: dayName,
-        isToday: false,
-        isTomorrow: i === 1,
-      };
-    }
-  }
-
-  return null;
-}
-
-// ============================================================================
-// Multi-Slot Schedule Functions (NEW)
+// Multi-Slot Schedule Functions
 // ============================================================================
 
 /**
@@ -479,8 +265,8 @@ export function isDeliveryAvailableNowMultiSlot(effectiveSchedule: MultiSlotSche
 
   // Check if current time falls within any slot
   return daySchedule.slots.some(slot => {
-    const openMinutes = scheduleTimeToMinutes(slot.open);
-    const closeMinutes = scheduleTimeToMinutes(slot.close);
+    const openMinutes = timeToMinutes(slot.open);
+    const closeMinutes = timeToMinutes(slot.close);
     return currentMinutes >= openMinutes && currentMinutes < closeMinutes;
   });
 }
@@ -512,20 +298,10 @@ export function getAvailableDaysSummaryMultiSlot(
   effectiveSchedule: MultiSlotSchedule,
   abbreviated: boolean = true
 ): string[] {
-  const abbreviations: Record<string, string> = {
-    Sunday: 'Sun',
-    Monday: 'Mon',
-    Tuesday: 'Tue',
-    Wednesday: 'Wed',
-    Thursday: 'Thu',
-    Friday: 'Fri',
-    Saturday: 'Sat',
-  };
-
   return SCHEDULE_DAYS.filter((day) => {
     const schedule = effectiveSchedule[day];
     return schedule && !schedule.closed && schedule.slots.length > 0;
-  }).map((day) => (abbreviated ? abbreviations[day] : day));
+  }).map((day) => (abbreviated ? DAY_ABBREVIATIONS[day] : day));
 }
 
 /**
@@ -539,8 +315,8 @@ export function getNextAvailableDayMultiSlot(
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   // Check up to 7 days ahead
-  for (let i = 0; i < 7; i++) {
-    const dayIndex = (currentDayIndex + i) % 7;
+  for (let i = 0; i < DAYS_IN_WEEK; i++) {
+    const dayIndex = (currentDayIndex + i) % DAYS_IN_WEEK;
     const dayName = SCHEDULE_DAYS[dayIndex] as DayOfWeek;
     const daySchedule = effectiveSchedule[dayName];
 
@@ -548,7 +324,7 @@ export function getNextAvailableDayMultiSlot(
       // If it's today, check if we're still within any time window
       if (i === 0) {
         const hasAvailableSlot = daySchedule.slots.some(slot => {
-          const closeMinutes = scheduleTimeToMinutes(slot.close);
+          const closeMinutes = timeToMinutes(slot.close);
           return currentMinutes < closeMinutes;
         });
         if (hasAvailableSlot) {
@@ -587,20 +363,20 @@ export interface AvailableDeliveryDate {
  * Respects minimum hours from now rule (default 24 hours).
  *
  * @param effectiveSchedule - The computed effective schedule (store ∩ drivers)
- * @param maxDays - Maximum days ahead to check (default 14)
- * @param minHoursFromNow - Minimum hours from now for first available date (default 24)
+ * @param maxDays - Maximum days ahead to check (default DELIVERY_LOOKAHEAD_DAYS)
+ * @param minHoursFromNow - Minimum hours from now for first available date (default CHECKOUT_LEAD_HOURS)
  * @returns Array of available dates with their time slots
  */
 export function getAvailableDeliveryDatesMultiSlot(
   effectiveSchedule: MultiSlotSchedule,
-  maxDays: number = 14,
-  minHoursFromNow: number = 24
+  maxDays: number = DELIVERY_LOOKAHEAD_DAYS,
+  minHoursFromNow: number = CHECKOUT_LEAD_HOURS
 ): AvailableDeliveryDate[] {
   const results: AvailableDeliveryDate[] = [];
   const now = new Date();
 
   // Calculate the minimum date (now + minHoursFromNow)
-  const minDate = new Date(now.getTime() + minHoursFromNow * 60 * 60 * 1000);
+  const minDate = new Date(now.getTime() + minHoursFromNow * MS_PER_HOUR);
 
   // Start checking from tomorrow at midnight (or today if minHours allows)
   const startDate = new Date(minDate);
@@ -610,9 +386,9 @@ export function getAvailableDeliveryDatesMultiSlot(
   if (minDate.getDate() !== startDate.getDate() || minDate > startDate) {
     // If we're past the start of minDate's day, check if any slots are still available
     // Otherwise start from the next full day
-    const hoursLeftInDay = 24 - minDate.getHours();
-    if (hoursLeftInDay < 2) {
-      // Less than 2 hours left in the day, start from tomorrow
+    const hoursLeftInDay = HOURS_PER_DAY - minDate.getHours();
+    if (hoursLeftInDay < MIN_HOURS_FOR_SAME_DAY) {
+      // Less than MIN_HOURS_FOR_SAME_DAY hours left in the day, start from tomorrow
       startDate.setDate(startDate.getDate() + 1);
     }
   }
@@ -647,7 +423,7 @@ export function getAvailableDeliveryDatesMultiSlot(
     if (isToday) {
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       availableSlots = daySchedule.slots.filter(slot => {
-        const closeMinutes = scheduleTimeToMinutes(slot.close);
+        const closeMinutes = timeToMinutes(slot.close);
         return currentMinutes < closeMinutes;
       });
 
@@ -657,9 +433,11 @@ export function getAvailableDeliveryDatesMultiSlot(
     }
 
     // Ensure the date respects minHoursFromNow
-    if (checkDate < minDate) {
-      // This day is before our minimum date, but might have late slots
-      // For simplicity, skip days before minDate entirely
+    // Skip this check for today since we already filtered available slots above
+    // The issue: checkDate is at midnight, but minDate includes current time,
+    // so "today at midnight < today at 10am" would incorrectly skip today
+    if (!isToday && checkDate < minDate) {
+      // This day is before our minimum date
       continue;
     }
 

@@ -33,11 +33,15 @@ export interface CurrentWeekMetrics {
 
 /**
  * Helper to fetch active customers count from the separate activeCustomers collection
- * Backend stores customers in: activeCustomers/weekly_{YYYY-WNN}
+ * Backend stores customers in: activeCustomers/weekly_{YYYY-WNN}_{storeId}
+ *
+ * @param weekKey - The week identifier in YYYY-WNN format
+ * @param storeId - The store ID to filter customers by
  */
-async function getActiveCustomersFromWeeklyDoc(weekKey: string): Promise<number> {
+async function getActiveCustomersFromWeeklyDoc(weekKey: string, storeId: string): Promise<number> {
   try {
-    const docRef = doc(db, 'activeCustomers', `weekly_${weekKey}`);
+    // Document path includes storeId to get per-store customer counts
+    const docRef = doc(db, 'activeCustomers', `weekly_${weekKey}_${storeId}`);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -87,8 +91,8 @@ export async function getCurrentWeekMetrics(storeId: string): Promise<CurrentWee
     }
   );
 
-  // Fetch active customers from separate collection
-  const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey);
+  // Fetch active customers from separate collection (per-store)
+  const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey, storeId);
   aggregatedData.activeCustomers = customersCount;
 
   return aggregatedData;
@@ -129,8 +133,8 @@ export async function getPreviousWeekMetrics(storeId: string): Promise<CurrentWe
         }
       );
 
-      // Fetch active customers from separate collection
-      const customersCount = await getActiveCustomersFromWeeklyDoc(prevWeekKey);
+      // Fetch active customers from separate collection (per-store)
+      const customersCount = await getActiveCustomersFromWeeklyDoc(prevWeekKey, storeId);
       aggregatedData.activeCustomers = customersCount;
 
       return aggregatedData;
@@ -183,8 +187,8 @@ export function subscribeToCurrentWeekMetrics(
         }
       );
 
-      // Fetch active customers from separate collection
-      const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey);
+      // Fetch active customers from separate collection (per-store)
+      const customersCount = await getActiveCustomersFromWeeklyDoc(weekKey, storeId);
       aggregatedData.activeCustomers = customersCount;
 
       callback(aggregatedData);

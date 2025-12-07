@@ -12,39 +12,7 @@ import { useStoreStripeAccountQuery } from '../../../hooks/queries/useStoreStrip
 import { generateOrderId } from '../../../utils/orderUtils';
 import { buildEnhancedOrderData, StoreReceiptInfo } from '../utils/orderDataBuilder';
 import { OrderStatus } from '../../../types/order';
-
-/**
- * Cart item interface
- */
-interface CartItem {
-  id: string;
-  product: {
-    id: string;
-    name: string;
-    images?: string[];
-  };
-  priceAtTime: number;
-  quantity: number;
-  specialInstructions?: string;
-}
-
-/**
- * Cart summary interface
- */
-interface CartSummary {
-  subtotal: number;
-  tax: number;
-  deliveryFee: number;
-  total: number;
-  platformFee: number;
-  finalTotal: number;
-  itemCount: number;
-  // Payment split fields (Stripe Connect)
-  commissionRate: number;
-  commissionAmount: number;
-  storeAmount: number;
-  lulocartAmount: number;
-}
+import { CartItem, CartSummary } from '../../../types/cart';
 
 /**
  * Cart interface
@@ -183,7 +151,10 @@ export const usePaymentFlow = ({
       console.log('🔍 [usePaymentFlow] Cart summary before order build:', {
         subtotal: cart.summary.subtotal,
         tax: cart.summary.tax,
+        gst: cart.summary.gst,
+        pst: cart.summary.pst,
         deliveryFee: cart.summary.deliveryFee,
+        deliveryFeeDiscount: cart.summary.deliveryFeeDiscount,
         platformFee: cart.summary.platformFee,
         total: cart.summary.total,
         finalTotal: cart.summary.finalTotal,

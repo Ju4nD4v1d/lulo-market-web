@@ -20,6 +20,17 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
   // Use finalTotal if available, otherwise calculate it
   const finalTotal = order.summary.finalTotal ?? (order.summary.total + platformFee);
 
+  // Check for delivery fee discount - be explicit to handle Firestore data
+  const deliveryFeeDiscount = order.summary.deliveryFeeDiscount;
+  const hasDiscount = deliveryFeeDiscount &&
+    deliveryFeeDiscount.isEligible === true &&
+    typeof deliveryFeeDiscount.discountAmount === 'number' &&
+    deliveryFeeDiscount.discountAmount > 0;
+
+  // Get GST/PST values - ensure they're numbers
+  const gstValue = typeof order.summary.gst === 'number' ? order.summary.gst : 0;
+  const pstValue = typeof order.summary.pst === 'number' ? order.summary.pst : 0;
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>
@@ -31,22 +42,48 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
           <span className={styles.label}>{t('order.subtotal')}</span>
           <span className={styles.value}>{formatPrice(order.summary.subtotal)}</span>
         </div>
-        {(order.summary.gst ?? 0) > 0 && (
+        {gstValue > 0 && (
           <div className={styles.row}>
             <span className={styles.label}>{t('cart.summary.gst')}</span>
-            <span className={styles.value}>{formatPrice(order.summary.gst)}</span>
+            <span className={styles.value}>{formatPrice(gstValue)}</span>
           </div>
         )}
-        {(order.summary.pst ?? 0) > 0 && (
+        {pstValue > 0 && (
           <div className={styles.row}>
             <span className={styles.label}>{t('cart.summary.pst')}</span>
-            <span className={styles.value}>{formatPrice(order.summary.pst)}</span>
+            <span className={styles.value}>{formatPrice(pstValue)}</span>
           </div>
         )}
         <div className={styles.row}>
-          <span className={styles.label}>{t('order.deliveryFee')}</span>
-          <span className={styles.value}>{formatPrice(order.summary.deliveryFee)}</span>
+          <span className={styles.label}>
+            {t('order.deliveryFee')}
+            {hasDiscount && (
+              <span className={styles.discountBadge}>
+                {t('cart.summary.newCustomerDiscount')}
+              </span>
+            )}
+          </span>
+          <span className={styles.value}>
+            {hasDiscount ? (
+              <span className={styles.discountedPrice}>
+                <span className={styles.originalPrice}>
+                  {formatPrice(deliveryFeeDiscount.originalFee)}
+                </span>
+                <span className={styles.finalPrice}>
+                  {formatPrice(deliveryFeeDiscount.discountedFee)}
+                </span>
+              </span>
+            ) : (
+              formatPrice(order.summary.deliveryFee)
+            )}
+          </span>
         </div>
+        {/* Show savings note if discount was applied */}
+        {hasDiscount && (
+          <div className={styles.savingsNote}>
+            {t('order.youSaved')} {formatPrice(deliveryFeeDiscount.discountAmount)}
+          </div>
+        )}
         {/* Platform fee - always show */}
         <div className={styles.row}>
           <span className={styles.label}>{t('order.platformFee')}</span>

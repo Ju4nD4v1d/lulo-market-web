@@ -6,6 +6,7 @@
 import { serverTimestamp } from 'firebase/firestore';
 import { OrderStatus } from '../../../types/order';
 import { generateReceiptNumber } from '../../../utils/orderUtils';
+import { DeliveryFeeDiscountData } from '../../../context/CartContext';
 
 /**
  * Store information for receipts
@@ -83,6 +84,7 @@ export interface CartItemData {
 
 /**
  * Cart summary structure
+ * Note: DeliveryFeeDiscountData is imported from CartContext
  */
 export interface CartSummaryData {
   subtotal: number;
@@ -100,6 +102,8 @@ export interface CartSummaryData {
   storeAmount: number;
   lulocartAmount: number;
   discountAmount?: number;
+  // New customer delivery fee discount
+  deliveryFeeDiscount?: DeliveryFeeDiscountData;
 }
 
 /**
@@ -230,6 +234,17 @@ export const buildEnhancedOrderData = (
       discountAmount: cart.summary.discountAmount || 0,
       tipAmount: formData.tipAmount || 0,
       serviceFee: 0,
+      // New customer delivery fee discount - only include if eligible (Firestore doesn't accept undefined)
+      ...(cart.summary.deliveryFeeDiscount?.isEligible && {
+        deliveryFeeDiscount: {
+          originalFee: cart.summary.deliveryFeeDiscount.originalFee,
+          discountedFee: cart.summary.deliveryFeeDiscount.discountedFee,
+          discountAmount: cart.summary.deliveryFeeDiscount.discountAmount,
+          isEligible: true,
+          ordersRemaining: cart.summary.deliveryFeeDiscount.ordersRemaining,
+        },
+      }),
+      newCustomerDiscountApplied: cart.summary.deliveryFeeDiscount?.isEligible ?? false,
     },
     status: orderStatus,
     orderNotes: formData.orderNotes || '',

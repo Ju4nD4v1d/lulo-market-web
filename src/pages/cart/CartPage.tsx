@@ -131,6 +131,7 @@ export const CartPage: React.FC = () => {
                 itemCount={calculations.itemCount}
                 onCheckout={handleCheckout}
                 isLoggedIn={!!currentUser}
+                deliveryFeeDiscount={cart.summary.deliveryFeeDiscount}
               />
             </div>
           </div>

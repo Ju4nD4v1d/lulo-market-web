@@ -99,6 +99,9 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
     summary: {
       subtotal: data.summary?.subtotal || data.subtotal || data.totalOrderPrice || 0,
       tax: data.summary?.tax || (data.gstTax || 0) + (data.pstTax || 0),
+      // GST and PST breakdown - essential for order tracking display
+      gst: data.summary?.gst || 0,
+      pst: data.summary?.pst || 0,
       deliveryFee: data.summary?.deliveryFee || 0,
       total: data.summary?.total || data.totalOrderPrice || 0,
       itemCount: data.summary?.itemCount || data.quantity || 1,
@@ -116,6 +119,10 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
       tipAmount: data.summary?.tipAmount,
       serviceFee: data.summary?.serviceFee,
       taxBreakdown: data.summary?.taxBreakdown,
+      // New customer delivery fee discount
+      ...(data.summary?.deliveryFeeDiscount && {
+        deliveryFeeDiscount: data.summary.deliveryFeeDiscount,
+      }),
     },
 
     // Order status - ensure we use valid OrderStatus enum values
@@ -359,6 +366,38 @@ export function subscribeToOrder(
     },
     (error) => {
       console.error('Error listening to order status:', error);
+      if (onError) {
+        onError(error);
+      }
+    }
+  );
+}
+
+/**
+ * Subscribe to real-time updates for all orders of a store
+ * Used for dashboard notifications
+ */
+export function subscribeToStoreOrders(
+  storeId: string,
+  onUpdate: (orders: Order[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const ordersRef = collection(db, COLLECTIONS.ORDERS);
+  const q = query(
+    ordersRef,
+    where('storeId', '==', storeId),
+    orderBy('createdAt', 'desc'),
+    limit(50)
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const orders = snapshot.docs.map(transformOrderDocument);
+      onUpdate(orders);
+    },
+    (error) => {
+      console.error('Error listening to store orders:', error);
       if (onError) {
         onError(error);
       }

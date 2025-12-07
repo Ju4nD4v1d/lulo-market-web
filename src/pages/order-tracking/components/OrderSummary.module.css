@@ -30,14 +30,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .label {
   color: #4b5563;
+  flex: 1;
+  min-width: 0;
 }
 
 .value {
   color: #111827;
+  white-space: nowrap;
 }
 
 .divider {
@@ -58,4 +62,45 @@
 .totalValue {
   color: #111827;
   font-weight: 600;
+}
+
+/* New Customer Discount Styles */
+.discountBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  margin-left: 0.5rem;
+  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: 9999px;
+}
+
+.discountedPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.originalPrice {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+.finalPrice {
+  font-weight: 600;
+  color: #16A34A;
+}
+
+.savingsNote {
+  font-size: 0.75rem;
+  color: #16A34A;
+  margin-top: 0.25rem;
+  text-align: right;
 }

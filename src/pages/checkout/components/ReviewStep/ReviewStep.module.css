@@ -154,3 +154,58 @@
 .totalAmount {
   color: var(--primary-400, #C8E400);
 }
+
+/* New Customer Discount Styles */
+.discountBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  margin-left: 0.5rem;
+  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: 9999px;
+}
+
+.discountedPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.originalPrice {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+.finalPrice {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #16A34A;
+}
+
+.discountBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  margin: 0.5rem 0;
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  color: #166534;
+}
+
+.discountBannerIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #22C55E;
+  flex-shrink: 0;
+}

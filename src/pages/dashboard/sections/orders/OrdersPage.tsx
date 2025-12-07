@@ -276,7 +276,7 @@ export const OrdersPage = () => {
 
                 <div className={styles.orderMeta}>
                   <div className={styles.priceInfo}>
-                    <p className={styles.price}>{formatPrice(order.summary.total)}</p>
+                    <p className={styles.price}>{formatPrice(order.summary.finalTotal ?? order.summary.total)}</p>
                     <p className={styles.itemCount}>{order.summary.itemCount} {t('common.items')}</p>
                   </div>
 
@@ -441,12 +441,36 @@ export const OrdersPage = () => {
                         </div>
                       )}
                       <div className={styles.summaryRow}>
-                        <span>{t('cart.deliveryFee')}</span>
-                        <span>{formatPrice(order.summary?.deliveryFee || 0)}</span>
+                        <span className={styles.deliveryLabel}>
+                          {t('order.deliveryFee')}
+                          {order.summary?.deliveryFeeDiscount?.isEligible && (
+                            <span className={styles.discountBadge}>
+                              {t('cart.summary.newCustomerDiscount')}
+                            </span>
+                          )}
+                        </span>
+                        <span>
+                          {order.summary?.deliveryFeeDiscount?.isEligible ? (
+                            <span className={styles.discountedPrice}>
+                              <span className={styles.originalPrice}>
+                                {formatPrice(order.summary.deliveryFeeDiscount.originalFee)}
+                              </span>
+                              <span className={styles.finalPrice}>
+                                {formatPrice(order.summary.deliveryFeeDiscount.discountedFee)}
+                              </span>
+                            </span>
+                          ) : (
+                            formatPrice(order.summary?.deliveryFee || 0)
+                          )}
+                        </span>
+                      </div>
+                      <div className={styles.summaryRow}>
+                        <span>{t('order.platformFee')}</span>
+                        <span>{formatPrice(order.summary?.platformFee || 0)}</span>
                       </div>
                       <div className={styles.summaryTotal}>
                         <span>{t('cart.total')}</span>
-                        <span className={styles.totalAmount}>{formatPrice(order.summary?.total || 0)}</span>
+                        <span className={styles.totalAmount}>{formatPrice(order.summary?.finalTotal || order.summary?.total || 0)}</span>
                       </div>
                     </div>
 

@@ -5,5 +5,6 @@
 
 export * from './useCheckoutForm';
 export * from './useCheckoutWizard';
+export * from './useCheckoutDeliveryFlow';
 export * from './usePaymentFlow';
 export * from './useOrderMonitoring';

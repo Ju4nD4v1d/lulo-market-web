@@ -7,8 +7,13 @@ import { useMemo } from 'react';
 import { Info, Calendar, FileText } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useStoreQuery } from '../../../../hooks/queries/useStoreQuery';
-import { useEffectiveHours } from '../../../../hooks/useEffectiveHours';
+import { useDeliveryAvailability } from '../../../../hooks/useDeliveryAvailability';
 import { getAvailableDeliveryDatesMultiSlot } from '../../../../utils/effectiveHours';
+import {
+  DELIVERY_LOOKAHEAD_DAYS,
+  CART_DISPLAY_LEAD_HOURS,
+  CHECKOUT_LEAD_HOURS,
+} from '../../../../utils/schedule/constants';
 import styles from './DeliveryInfoBanner.module.css';
 
 interface DeliveryInfoBannerProps {
@@ -18,18 +23,22 @@ interface DeliveryInfoBannerProps {
 export const DeliveryInfoBanner: React.FC<DeliveryInfoBannerProps> = ({ storeId }) => {
   const { t, locale } = useLanguage();
   const { store, isLoading: isLoadingStore } = useStoreQuery(storeId);
-  const { effectiveHours, isLoading: isLoadingHours } = useEffectiveHours({
+  const { deliverySchedule, isLoading: isLoadingHours } = useDeliveryAvailability({
     store,
     enabled: !!store,
   });
 
-  // Get the next available delivery date (without 24-hour cutoff - for display only)
+  // Get the next available delivery date (without lead time cutoff - for display only)
   const nextDelivery = useMemo(() => {
-    if (!effectiveHours) return null;
-    // Use minHoursFromNow = 0 to show actual next delivery slot
-    const dates = getAvailableDeliveryDatesMultiSlot(effectiveHours, 14, 0);
+    if (!deliverySchedule) return null;
+    // Use CART_DISPLAY_LEAD_HOURS (0) to show actual next delivery slot
+    const dates = getAvailableDeliveryDatesMultiSlot(
+      deliverySchedule,
+      DELIVERY_LOOKAHEAD_DAYS,
+      CART_DISPLAY_LEAD_HOURS
+    );
     return dates.length > 0 ? dates[0] : null;
-  }, [effectiveHours]);
+  }, [deliverySchedule]);
 
   // Format the date for display
   const formattedDate = useMemo(() => {
@@ -47,12 +56,12 @@ export const DeliveryInfoBanner: React.FC<DeliveryInfoBannerProps> = ({ storeId 
     );
   }, [nextDelivery, locale]);
 
-  // Check if delivery is within 24 hours
-  const isWithin24Hours = useMemo(() => {
+  // Check if delivery is within the lead time window (shows cancellation policy warning)
+  const isWithinLeadTime = useMemo(() => {
     if (!nextDelivery) return false;
     const now = new Date();
     const hoursUntilDelivery = (nextDelivery.date.getTime() - now.getTime()) / (1000 * 60 * 60);
-    return hoursUntilDelivery <= 24;
+    return hoursUntilDelivery <= CHECKOUT_LEAD_HOURS;
   }, [nextDelivery]);
 
   // Format time window
@@ -89,14 +98,14 @@ export const DeliveryInfoBanner: React.FC<DeliveryInfoBannerProps> = ({ storeId 
   }
 
   // If no delivery schedule available, don't show the banner
-  if (!effectiveHours || !nextDelivery) {
+  if (!deliverySchedule || !nextDelivery) {
     return null;
   }
 
   return (
     <div className={styles.banner}>
-      {/* Cancellation Policy - only shown when delivery is within 24 hours */}
-      {isWithin24Hours && (
+      {/* Cancellation Policy - only shown when delivery is within lead time */}
+      {isWithinLeadTime && (
         <div className={styles.infoRow}>
           <Info className={styles.icon} />
           <p className={styles.text}>{t('cart.deliveryInfo.cancellationPolicy')}</p>

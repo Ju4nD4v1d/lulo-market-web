@@ -12,6 +12,15 @@ interface StoreInfo {
   storeImage?: string;
 }
 
+/** Delivery fee discount data for new customers */
+export interface DeliveryFeeDiscountData {
+  originalFee: number;
+  discountedFee: number;
+  discountAmount: number;
+  isEligible: boolean;
+  ordersRemaining: number;
+}
+
 interface CartContextType {
   cart: CartState;
   addToCart: (product: Product, quantity?: number, storeInfo?: StoreInfo) => void;
@@ -30,6 +39,8 @@ interface CartContextType {
   platformFeeOverride: number | null;
   /** The commission rate override (null = using default from Firestore config) */
   commissionRateOverride: number | null;
+  /** Set the delivery fee discount for new customers (first 3 orders) */
+  setDeliveryFeeDiscount: (discount: DeliveryFeeDiscountData | null) => void;
 }
 
 type CartAction =
@@ -41,7 +52,8 @@ type CartAction =
   | { type: 'SET_DELIVERY_FEE'; payload: number }
   | { type: 'SET_PLATFORM_FEE'; payload: number }
   | { type: 'SET_COMMISSION_RATE'; payload: number }
-  | { type: 'REFRESH_PRODUCTS'; payload: { updatedItems: CartItem[]; removedProductIds: string[] } };
+  | { type: 'REFRESH_PRODUCTS'; payload: { updatedItems: CartItem[]; removedProductIds: string[] } }
+  | { type: 'SET_DELIVERY_FEE_DISCOUNT'; payload: DeliveryFeeDiscountData | null };
 
 /**
  * Calculate cart summary with optional fee overrides and payment split.
@@ -56,7 +68,8 @@ const calculateSummary = (
   items: CartItem[],
   deliveryFeeOverride?: number | null,
   platformFeeOverride?: number | null,
-  commissionRateOverride?: number | null
+  commissionRateOverride?: number | null,
+  existingDeliveryFeeDiscount?: CartSummary['deliveryFeeDiscount']
 ): CartSummary => {
   const subtotal = items.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
 
@@ -105,6 +118,8 @@ const calculateSummary = (
     commissionAmount: Number(commissionAmount.toFixed(2)),
     storeAmount: Number(storeAmount.toFixed(2)),
     lulocartAmount: Number(lulocartAmount.toFixed(2)),
+    // Preserve existing delivery fee discount if provided
+    ...(existingDeliveryFeeDiscount && { deliveryFeeDiscount: existingDeliveryFeeDiscount }),
   };
 };
 
@@ -174,7 +189,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             newItems,
             state.summary.deliveryFee,
             state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-            state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+            state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+            state.summary.deliveryFeeDiscount
           )
         };
       }
@@ -196,7 +212,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           newItems,
           state.summary.deliveryFee,
           state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+          state.summary.deliveryFeeDiscount
         )
       };
     }
@@ -220,7 +237,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           newItems,
           state.summary.deliveryFee,
           state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+          state.summary.deliveryFeeDiscount
         )
       };
     }
@@ -241,13 +259,15 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
     case 'SET_DELIVERY_FEE': {
       // Recalculate summary with the new delivery fee, using configured fees
+      // Note: We preserve delivery fee discount here; it will be updated separately
       return {
         ...state,
         summary: calculateSummary(
           state.items,
           action.payload,
           state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+          state.summary.deliveryFeeDiscount
         )
       };
     }
@@ -258,7 +278,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         state.items,
         state.summary.deliveryFee,
         action.payload,
-        state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+        state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+        state.summary.deliveryFeeDiscount
       );
       return {
         ...state,
@@ -276,7 +297,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           state.items,
           state.summary.deliveryFee,
           state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-          action.payload
+          action.payload,
+          state.summary.deliveryFeeDiscount
         )
       };
     }
@@ -310,8 +332,21 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           updatedItems,
           state.summary.deliveryFee,
           state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
-          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+          state.summary.deliveryFeeDiscount
         )
+      };
+    }
+
+    case 'SET_DELIVERY_FEE_DISCOUNT': {
+      // Set the delivery fee discount for new customers
+      const discount = action.payload;
+      return {
+        ...state,
+        summary: {
+          ...state.summary,
+          deliveryFeeDiscount: discount ?? undefined,
+        }
       };
     }
 
@@ -536,6 +571,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'SET_PLATFORM_FEE', payload: fee });
   }, []);
 
+  /**
+   * Set the delivery fee discount for new customers (first 3 orders).
+   * This updates the cart summary with discount information for display.
+   */
+  const setDeliveryFeeDiscount = useCallback((discount: DeliveryFeeDiscountData | null) => {
+    dispatch({ type: 'SET_DELIVERY_FEE_DISCOUNT', payload: discount });
+  }, []);
+
   const canAddToCart = (storeId: string): boolean => {
     return !cart.storeId || cart.storeId === storeId;
   };
@@ -555,6 +598,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPlatformFee,
     platformFeeOverride,
     commissionRateOverride,
+    setDeliveryFeeDiscount,
   };
 
   return (

@@ -905,16 +905,13 @@ export const translations = {
     'metrics.week': 'Week',
     'metrics.month': 'Month',
     'metrics.weeklyPerformance': 'Weekly Performance',
-    'metrics.loadingRevenue': 'Loading revenue insights...',
     'metrics.productsThisWeek': 'Products Sold This Week',
     'metrics.activeCustomers': 'Active Customers',
-    'metrics.revenueThisWeek': 'Total Revenue This Week',
     'metrics.ordersThisWeek': 'Total Orders This Week',
     'metrics.loadingCustomers': 'Loading customers...',
     'metrics.loadingOrders': 'Loading orders...',
     'metrics.couldNotLoadData': 'Couldn\'t load data',
     'metrics.loadingProducts': 'Analyzing top products...',
-    'metrics.unableToLoadRevenue': 'Unable to load revenue data',
     'metrics.unableToLoadProducts': 'Unable to load product data',
     'metrics.retry': 'Retry',
     'metrics.moreDataSoon': 'More data will appear as your business grows',
@@ -925,6 +922,7 @@ export const translations = {
 
     // Stripe Balance Section
     'metrics.stripeBalance.title': 'Stripe Balance',
+    'metrics.stripeBalance.disclaimer': 'Cumulative balance, not limited to this week. May include funds from previous periods.',
     'metrics.stripeBalance.total': 'Total Balance',
     'metrics.stripeBalance.totalDesc': 'Your complete Stripe balance',
     'metrics.stripeBalance.totalHint': 'This is the sum of available funds plus scheduled payouts. It matches what you see in your Stripe dashboard.',
@@ -947,6 +945,8 @@ export const translations = {
     'admin.menu.orders': 'Orders',
     'admin.menu.documents': 'Documents',
     'admin.menu.dispatcher': 'Dispatcher',
+    'admin.expandSidebar': 'Expand sidebar',
+    'admin.collapseSidebar': 'Collapse sidebar',
 
     // Dispatcher page
     'dispatcher.title': 'Driver Management',
@@ -1234,7 +1234,10 @@ export const translations = {
     'order.label': 'Order',
     'order.item': 'item',
     'order.unknownProduct': 'Unknown Product',
-    
+
+    // Notifications
+    'notifications.newOrder': 'New Order Received!',
+
     // Days of the week
     'day.sunday': 'Sunday',
     'day.monday': 'Monday',
@@ -1928,6 +1931,10 @@ If the customer disputes a payment:
     'cart.summary.proceedToCheckout': 'Proceed to Checkout',
     'cart.summary.secureCheckout': 'Secure checkout powered by Stripe',
     'cart.summary.loginRequired': 'You\'ll be asked to log in or create an account to complete your order',
+    'cart.summary.newCustomerDiscount': '20% OFF',
+    'cart.summary.ordersRemaining': '{count} discounted deliveries left',
+    'cart.summary.ordersRemainingSingular': '1 discounted delivery left',
+    'cart.summary.firstOrdersPromo': 'New customer: 20% off delivery on your first 3 orders!',
 
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculated at checkout',
@@ -2166,6 +2173,7 @@ If the customer disputes a payment:
     'order.deliveryFee': 'Delivery Fee',
     'order.platformFee': 'Platform Fee',
     'order.total': 'Total',
+    'order.youSaved': 'You saved',
     'order.payment': 'Payment',
     'order.loading': 'Loading order details...',
     'order.notFound': 'Order Not Found',
@@ -2199,6 +2207,24 @@ If the customer disputes a payment:
     'order.status.cancelled': 'Cancelled',
     'order.status.paymentFailed': 'Payment Failed',
     'order.error.submitFailed': 'Failed to place order. Please try again.',
+
+    // Order Timeline
+    'order.timeline.title': 'Order Progress',
+    'order.timeline.confirmed': 'Confirmed',
+    'order.timeline.preparing': 'Preparing',
+    'order.timeline.ready': 'Ready',
+    'order.timeline.outForDelivery': 'On the Way',
+    'order.timeline.delivered': 'Delivered',
+    'order.timeline.currentStep': 'Current',
+    'order.timeline.waitingConfirmation': 'Waiting',
+    'order.timeline.cancelled': 'This order has been cancelled',
+    'order.timeline.failed': 'This order could not be processed',
+
+    // Store Contact
+    'order.storeContact.title': 'Store',
+    'order.storeContact.callStore': 'Call Store',
+    'order.storeContact.callAriaLabel': 'Call {storeName}',
+    'order.storeContact.noPhone': 'Contact information not available',
 
     // Product Details Page
     'productDetails.back': 'Back',
@@ -3247,16 +3273,13 @@ If the customer disputes a payment:
     'metrics.week': 'Semana',
     'metrics.month': 'Mes',
     'metrics.weeklyPerformance': 'Rendimiento Semanal',
-    'metrics.loadingRevenue': 'Cargando información de ingresos...',
     'metrics.productsThisWeek': 'Productos Vendidos Esta Semana',
     'metrics.activeCustomers': 'Clientes Activos',
-    'metrics.revenueThisWeek': 'Ingresos Totales Esta Semana',
     'metrics.ordersThisWeek': 'Pedidos Totales Esta Semana',
     'metrics.loadingCustomers': 'Cargando clientes...',
     'metrics.loadingOrders': 'Cargando pedidos...',
     'metrics.couldNotLoadData': 'No se pudieron cargar los datos',
     'metrics.loadingProducts': 'Analizando productos principales...',
-    'metrics.unableToLoadRevenue': 'No se pudieron cargar los datos de ingresos',
     'metrics.unableToLoadProducts': 'No se pudieron cargar los datos de productos',
     'metrics.retry': 'Reintentar',
     'metrics.buildingInsights': 'Construyendo tus análisis de ingresos',
@@ -3274,6 +3297,7 @@ If the customer disputes a payment:
 
     // Stripe Balance Section
     'metrics.stripeBalance.title': 'Saldo de Stripe',
+    'metrics.stripeBalance.disclaimer': 'Saldo acumulado, no limitado a esta semana. Puede incluir fondos de periodos anteriores.',
     'metrics.stripeBalance.total': 'Saldo Total',
     'metrics.stripeBalance.totalDesc': 'Tu saldo completo en Stripe',
     'metrics.stripeBalance.totalHint': 'Es la suma de fondos disponibles más pagos programados. Coincide con lo que ves en tu panel de Stripe.',
@@ -3299,6 +3323,8 @@ If the customer disputes a payment:
     'admin.menu.orders': 'Pedidos',
     'admin.menu.documents': 'Documentos',
     'admin.menu.dispatcher': 'Despacho',
+    'admin.expandSidebar': 'Expandir menú',
+    'admin.collapseSidebar': 'Colapsar menú',
 
     // Dispatcher page
     'dispatcher.title': 'Gestión de Conductores',
@@ -3586,7 +3612,10 @@ If the customer disputes a payment:
     'order.label': 'Pedido',
     'order.item': 'artículo',
     'order.unknownProduct': 'Producto Desconocido',
-    
+
+    // Notifications
+    'notifications.newOrder': '¡Nuevo Pedido Recibido!',
+
     // Days of the week
     'day.sunday': 'Domingo',
     'day.monday': 'Lunes',
@@ -4249,6 +4278,10 @@ Si el cliente disputa el pago:
     'cart.summary.proceedToCheckout': 'Continuar al Pago',
     'cart.summary.secureCheckout': 'Pago seguro con Stripe',
     'cart.summary.loginRequired': 'Se te pedirá iniciar sesión o crear una cuenta para completar tu pedido',
+    'cart.summary.newCustomerDiscount': '20% DESC',
+    'cart.summary.ordersRemaining': '{count} envíos con descuento restantes',
+    'cart.summary.ordersRemainingSingular': '1 envío con descuento restante',
+    'cart.summary.firstOrdersPromo': 'Cliente nuevo: ¡20% de descuento en envío en tus primeros 3 pedidos!',
 
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculado al pagar',
@@ -4487,6 +4520,7 @@ Si el cliente disputa el pago:
     'order.deliveryFee': 'Costo de Envío',
     'order.platformFee': 'Comisión de Plataforma',
     'order.total': 'Total',
+    'order.youSaved': 'Ahorraste',
     'order.payment': 'Pago',
     'order.loading': 'Cargando detalles del pedido...',
     'order.notFound': 'Pedido No Encontrado',
@@ -4520,6 +4554,24 @@ Si el cliente disputa el pago:
     'order.status.cancelled': 'Cancelado',
     'order.status.paymentFailed': 'Pago Fallido',
     'order.error.submitFailed': 'Error al enviar el pedido. Inténtalo nuevamente.',
+
+    // Order Timeline
+    'order.timeline.title': 'Progreso del Pedido',
+    'order.timeline.confirmed': 'Confirmado',
+    'order.timeline.preparing': 'Preparando',
+    'order.timeline.ready': 'Listo',
+    'order.timeline.outForDelivery': 'En Camino',
+    'order.timeline.delivered': 'Entregado',
+    'order.timeline.currentStep': 'Actual',
+    'order.timeline.waitingConfirmation': 'Esperando',
+    'order.timeline.cancelled': 'Este pedido ha sido cancelado',
+    'order.timeline.failed': 'Este pedido no pudo ser procesado',
+
+    // Store Contact
+    'order.storeContact.title': 'Tienda',
+    'order.storeContact.callStore': 'Llamar a la Tienda',
+    'order.storeContact.callAriaLabel': 'Llamar a {storeName}',
+    'order.storeContact.noPhone': 'Información de contacto no disponible',
 
     // Product Details Page
     'productDetails.back': 'Volver',
