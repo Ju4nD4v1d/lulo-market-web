@@ -7,11 +7,12 @@ import styles from './DashboardLayout.module.css';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents';
+  ordersBadgeCount?: number;
 }
 
 const MOBILE_BREAKPOINT = 768;
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage, ordersBadgeCount }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Auto-collapse sidebar on mobile devices
@@ -35,6 +36,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, curr
         currentPage={currentPage}
         isCollapsed={isCollapsed}
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        ordersBadgeCount={ordersBadgeCount}
       />
       <main className={`${styles.main} ${isCollapsed ? styles.mainCollapsed : styles.mainExpanded}`}>
         <div className={styles.content}>

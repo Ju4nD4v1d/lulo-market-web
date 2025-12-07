@@ -372,3 +372,35 @@ export function subscribeToOrder(
     }
   );
 }
+
+/**
+ * Subscribe to real-time updates for all orders of a store
+ * Used for dashboard notifications
+ */
+export function subscribeToStoreOrders(
+  storeId: string,
+  onUpdate: (orders: Order[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const ordersRef = collection(db, COLLECTIONS.ORDERS);
+  const q = query(
+    ordersRef,
+    where('storeId', '==', storeId),
+    orderBy('createdAt', 'desc'),
+    limit(50)
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const orders = snapshot.docs.map(transformOrderDocument);
+      onUpdate(orders);
+    },
+    (error) => {
+      console.error('Error listening to store orders:', error);
+      if (onError) {
+        onError(error);
+      }
+    }
+  );
+}

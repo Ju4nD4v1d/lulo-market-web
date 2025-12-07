@@ -945,6 +945,8 @@ export const translations = {
     'admin.menu.orders': 'Orders',
     'admin.menu.documents': 'Documents',
     'admin.menu.dispatcher': 'Dispatcher',
+    'admin.expandSidebar': 'Expand sidebar',
+    'admin.collapseSidebar': 'Collapse sidebar',
 
     // Dispatcher page
     'dispatcher.title': 'Driver Management',
@@ -1232,7 +1234,10 @@ export const translations = {
     'order.label': 'Order',
     'order.item': 'item',
     'order.unknownProduct': 'Unknown Product',
-    
+
+    // Notifications
+    'notifications.newOrder': 'New Order Received!',
+
     // Days of the week
     'day.sunday': 'Sunday',
     'day.monday': 'Monday',
@@ -3318,6 +3323,8 @@ If the customer disputes a payment:
     'admin.menu.orders': 'Pedidos',
     'admin.menu.documents': 'Documentos',
     'admin.menu.dispatcher': 'Despacho',
+    'admin.expandSidebar': 'Expandir menú',
+    'admin.collapseSidebar': 'Colapsar menú',
 
     // Dispatcher page
     'dispatcher.title': 'Gestión de Conductores',
@@ -3605,7 +3612,10 @@ If the customer disputes a payment:
     'order.label': 'Pedido',
     'order.item': 'artículo',
     'order.unknownProduct': 'Producto Desconocido',
-    
+
+    // Notifications
+    'notifications.newOrder': '¡Nuevo Pedido Recibido!',
+
     // Days of the week
     'day.sunday': 'Domingo',
     'day.monday': 'Lunes',

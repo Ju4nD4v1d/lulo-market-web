@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from './components';
 import { StripeReturnToast } from './components/StripeReturnToast';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStore } from '../../context/StoreContext';
 import { useStripeConnectReturn } from './hooks/useStripeConnectReturn';
+import { useOrderNotifications } from '../../hooks/useOrderNotifications';
 
 // Import migrated sections
 import { MetricsPage } from './sections/metrics';
@@ -13,15 +15,52 @@ import { OrdersPage } from './sections/orders';
 import { InventoryPage } from './sections/inventory';
 import { DocumentsPage } from './sections/documents';
 
+type DashboardPageType = 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents';
+
+/**
+ * Determine current page from hash
+ */
+const getPageFromHash = (hash: string): DashboardPageType => {
+  if (hash.includes('/products')) return 'products';
+  if (hash.includes('/metrics')) return 'metrics';
+  if (hash.includes('/orders')) return 'orders';
+  if (hash.includes('/inventory')) return 'inventory';
+  if (hash.includes('/documents')) return 'documents';
+  return 'store';
+};
+
 export const DashboardPage = () => {
   const { currentUser, userType } = useAuth();
   const { t } = useLanguage();
+  const { storeId } = useStore();
   const [hasPermissions, setHasPermissions] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+
+  // Track current page with state for reactivity
+  const [currentPage, setCurrentPage] = useState<DashboardPageType>(() =>
+    getPageFromHash(window.location.hash)
+  );
 
   // Handle Stripe Connect return from onboarding
   const { status: stripeStatus, message: stripeMessage, clearStatus: clearStripeStatus } = useStripeConnectReturn();
 
+  // Real-time order notifications
+  const { unreadCount, markAllAsSeen } = useOrderNotifications({
+    storeId,
+    enabled: hasPermissions && !!storeId,
+  });
+
+  // Listen for hash changes to update currentPage
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentPage(getPageFromHash(window.location.hash));
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Check permissions
   useEffect(() => {
     const checkPermissions = async () => {
       // Check if user has business owner permissions
@@ -44,21 +83,33 @@ export const DashboardPage = () => {
     checkPermissions();
   }, [currentUser, userType]);
 
-  // Determine current page from hash
-  const hash = window.location.hash;
-  let currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents' = 'store';
+  // Mark orders as seen when viewing orders page
+  // Must be before any conditional returns to follow React hooks rules
+  useEffect(() => {
+    if (currentPage === 'orders' && unreadCount > 0 && hasPermissions) {
+      markAllAsSeen();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, hasPermissions]); // Only trigger on page change, not on unreadCount/markAllAsSeen changes
 
-  if (hash.includes('/products')) {
-    currentPage = 'products';
-  } else if (hash.includes('/metrics')) {
-    currentPage = 'metrics';
-  } else if (hash.includes('/orders')) {
-    currentPage = 'orders';
-  } else if (hash.includes('/inventory')) {
-    currentPage = 'inventory';
-  } else if (hash.includes('/documents')) {
-    currentPage = 'documents';
-  }
+  // Render current section based on route
+  const renderSection = useCallback(() => {
+    switch (currentPage) {
+      case 'products':
+        return <ProductsPage />;
+      case 'metrics':
+        return <MetricsPage />;
+      case 'orders':
+        return <OrdersPage />;
+      case 'inventory':
+        return <InventoryPage />;
+      case 'documents':
+        return <DocumentsPage />;
+      case 'store':
+      default:
+        return <StoreSetupPage />;
+    }
+  }, [currentPage]);
 
   // Show loading state
   if (isChecking) {
@@ -94,25 +145,6 @@ export const DashboardPage = () => {
     );
   }
 
-  // Render current section based on route
-  const renderSection = () => {
-    switch (currentPage) {
-      case 'products':
-        return <ProductsPage />;
-      case 'metrics':
-        return <MetricsPage />;
-      case 'orders':
-        return <OrdersPage />;
-      case 'inventory':
-        return <InventoryPage />;
-      case 'documents':
-        return <DocumentsPage />;
-      case 'store':
-      default:
-        return <StoreSetupPage />;
-    }
-  };
-
   return (
     <>
       <StripeReturnToast
@@ -120,7 +152,7 @@ export const DashboardPage = () => {
         message={stripeMessage}
         onClose={clearStripeStatus}
       />
-      <DashboardLayout currentPage={currentPage}>
+      <DashboardLayout currentPage={currentPage} ordersBadgeCount={unreadCount}>
         {renderSection()}
       </DashboardLayout>
     </>

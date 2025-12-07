@@ -22,6 +22,7 @@ interface DashboardSidebarProps {
   currentPage: 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents';
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  ordersBadgeCount?: number;
 }
 
 const MOBILE_BREAKPOINT = 768;
@@ -29,7 +30,8 @@ const MOBILE_BREAKPOINT = 768;
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   currentPage,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  ordersBadgeCount = 0
 }) => {
   const { currentUser, logout } = useAuth();
   const { t } = useLanguage();
@@ -115,7 +117,14 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 `}
                 title={isCollapsed ? item.label : undefined}
               >
-                <item.icon className={`${styles.menuIcon} ${isCollapsed ? styles.menuIconCollapsed : ''}`} />
+                <span className={styles.menuIconWrapper}>
+                  <item.icon className={`${styles.menuIcon} ${isCollapsed ? styles.menuIconCollapsed : ''}`} />
+                  {item.id === 'orders' && ordersBadgeCount > 0 && (
+                    <span className={styles.badge}>
+                      {ordersBadgeCount > 99 ? '99+' : ordersBadgeCount}
+                    </span>
+                  )}
+                </span>
                 <span className={isCollapsed ? styles.hidden : styles.menuLabel}>
                   {item.label}
                 </span>
