@@ -26,7 +26,7 @@ export const usePortalLogin = () => {
 
       // User has permissions - proceed with redirect
       // For business portal login, always redirect to dashboard regardless of redirectAfterLogin
-      setRedirectAfterLogin('#dashboard');
+      setRedirectAfterLogin('/dashboard');
       return true;
 
     } catch (error: unknown) {

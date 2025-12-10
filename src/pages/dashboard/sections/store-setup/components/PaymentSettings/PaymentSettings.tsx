@@ -17,6 +17,7 @@ import {
   getStripeConnectReturnUrls,
   verifyStripeConnectAccount,
 } from '../../../../../../services/api/stripeConnectApi';
+import { useDashboardNavigation } from '../../../../../../hooks/useDashboardNavigation';
 import styles from './PaymentSettings.module.css';
 
 interface PaymentSettingsProps {
@@ -36,6 +37,7 @@ interface StripeState {
 export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, storeName }) => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
+  const { goToDocuments } = useDashboardNavigation();
   const [stripeState, setStripeState] = useState<StripeState>({
     status: 'loading',
     accountId: null,
@@ -310,7 +312,7 @@ export const PaymentSettings: React.FC<PaymentSettingsProps> = ({ storeId, store
   const IconComponent = config.icon;
 
   const handleGoToDocuments = () => {
-    window.location.hash = '#dashboard/documents';
+    goToDocuments();
   };
 
   // Determine if Stripe actions should be disabled due to missing agreements

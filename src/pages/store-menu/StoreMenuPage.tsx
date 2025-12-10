@@ -1,25 +1,16 @@
 import type * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { CustomStoreDetail } from './components/CustomStoreDetail';
 import { StoreData } from '../../types/store';
 import { useStoreData } from '../../hooks/useStoreData';
 import { trackViewContent } from '../../services/analytics';
 
 export const StoreMenuPage: React.FC = () => {
-  const [storeId, setStoreId] = useState<string | null>(null);
+  const { storeId } = useParams<{ storeId: string }>();
+  const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
   const { stores } = useStoreData();
-
-  // Extract store ID from URL hash (#store/storeId is primary, #shopper-dashboard/ is legacy)
-  useEffect(() => {
-    const hash = window.location.hash;
-    const storeMatch = hash.match(/#store\/(.+)/);
-    const legacyMatch = hash.match(/#shopper-dashboard\/(.+)/);
-    const extractedId = storeMatch?.[1] || legacyMatch?.[1];
-    if (extractedId) {
-      setStoreId(extractedId);
-    }
-  }, []);
 
   // Find the store from the stores list
   useEffect(() => {
@@ -45,7 +36,7 @@ export const StoreMenuPage: React.FC = () => {
   }, [selectedStore]);
 
   const handleBack = () => {
-    window.location.hash = '#';
+    navigate('/');
   };
 
   // Loading state while fetching store

@@ -1,6 +1,7 @@
 import type * as React from 'react';
 
 import { Star, Clock, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Product } from '../../../types/product';
 import { AddToCartButton } from '../../../components/AddToCartButton';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -20,10 +21,11 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   storeImage,
 }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   // Navigate to product detail page when card/image is clicked
   const handleCardClick = () => {
-    window.location.hash = `#product/${product.id}/${storeId}`;
+    navigate(`/product/${product.id}/${storeId}`);
   };
 
   // Prevent card navigation when clicking the add button area

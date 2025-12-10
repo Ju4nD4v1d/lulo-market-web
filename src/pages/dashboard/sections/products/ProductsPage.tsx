@@ -19,6 +19,7 @@ import { ProductModal } from './components/ProductModal';
 import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
 import { useProductMutations } from '../../../../hooks/mutations/useProductMutations';
 import { useProductFilters } from './hooks/useProductFilters';
+import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
 import { Product } from '../../../../types/product';
 import { PRODUCT_CATEGORIES, getCategoryLabel } from '../../../../constants/productCategories';
 import styles from './ProductsPage.module.css';
@@ -26,6 +27,7 @@ import styles from './ProductsPage.module.css';
 export const ProductsPage = () => {
   const { t } = useLanguage();
   const { storeId, store } = useStore();
+  const { goToInventory } = useDashboardNavigation();
 
   // Default to list view on mobile, grid on desktop
   const getDefaultView = () => {
@@ -170,10 +172,7 @@ export const ProductsPage = () => {
             </span>
           </div>
           <button
-            onClick={() => {
-              // Navigate to Inventory section
-              window.location.hash = '#dashboard/inventory';
-            }}
+            onClick={goToInventory}
             className={styles.alertButton}
           >
             {t('products.viewLowStock')}

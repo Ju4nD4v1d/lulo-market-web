@@ -14,6 +14,7 @@ const NOTIFICATION_PERMISSION_KEY = 'lulocart_notification_permission_asked';
 interface UseOrderNotificationsOptions {
   storeId: string | null;
   enabled?: boolean;
+  onNavigate?: (path: string) => void;
 }
 
 interface UseOrderNotificationsResult {
@@ -73,7 +74,12 @@ const markPermissionAsked = (): void => {
 /**
  * Show browser notification for new order
  */
-const showBrowserNotification = (order: Order, tRef: React.MutableRefObject<(key: string) => string>): void => {
+const showBrowserNotification = (
+  order: Order,
+  tRef: React.MutableRefObject<(key: string) => string>,
+  storeId: string,
+  onNavigate?: (path: string) => void
+): void => {
   if (!('Notification' in window) || Notification.permission !== 'granted') {
     return;
   }
@@ -81,6 +87,9 @@ const showBrowserNotification = (order: Order, tRef: React.MutableRefObject<(key
   const t = tRef.current;
   const title = t('notifications.newOrder');
   const body = `${t('order.label')} #${order.id.slice(-8).toUpperCase()} - ${order.customerInfo.name}`;
+
+  // Build storeId-aware path
+  const ordersPath = `/dashboard/${storeId}/orders`;
 
   try {
     const notification = new Notification(title, {
@@ -92,7 +101,14 @@ const showBrowserNotification = (order: Order, tRef: React.MutableRefObject<(key
 
     notification.onclick = () => {
       window.focus();
-      window.location.hash = '#dashboard/orders';
+      if (onNavigate) {
+        onNavigate(ordersPath);
+      } else {
+        // Fallback: dispatch custom event for navigation
+        window.dispatchEvent(new CustomEvent('navigate-to-orders', {
+          detail: { path: ordersPath }
+        }));
+      }
       notification.close();
     };
   } catch (error) {
@@ -103,6 +119,7 @@ const showBrowserNotification = (order: Order, tRef: React.MutableRefObject<(key
 export const useOrderNotifications = ({
   storeId,
   enabled = true,
+  onNavigate,
 }: UseOrderNotificationsOptions): UseOrderNotificationsResult => {
   const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -209,8 +226,8 @@ export const useOrderNotifications = ({
           // Show notification for each new order
           newOrderIds.forEach((orderId) => {
             const newOrder = newOrders.find((o) => o.id === orderId);
-            if (newOrder) {
-              showBrowserNotification(newOrder, tRef);
+            if (newOrder && storeId) {
+              showBrowserNotification(newOrder, tRef, storeId, onNavigate);
             }
           });
         } else {
@@ -230,7 +247,7 @@ export const useOrderNotifications = ({
     return () => {
       unsubscribe();
     };
-  }, [storeId, enabled]); // Removed 't' from dependencies - using tRef instead
+  }, [storeId, enabled, onNavigate]); // Removed 't' from dependencies - using tRef instead
 
   // Mark all orders as seen - stable reference using useCallback
   const markAllAsSeen = useCallback(() => {

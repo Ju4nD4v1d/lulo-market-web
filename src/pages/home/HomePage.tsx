@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { StoreData } from '../../types';
 import { Product } from '../../types';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
@@ -28,6 +29,9 @@ import styles from './index.module.css';
  * - Shopping cart
  */
 export const HomePage = () => {
+  // Router hooks
+  const navigate = useNavigate();
+
   // Context hooks
   const { cart } = useCart();
   const { t, toggleLanguage, locale } = useLanguage();
@@ -64,15 +68,15 @@ export const HomePage = () => {
    * Handle store card click - navigate to store page
    */
   const handleStoreClick = useCallback((store: StoreData) => {
-    window.location.hash = `#store/${store.id}`;
-  }, []);
+    navigate(`/store/${store.id}`);
+  }, [navigate]);
 
   /**
    * Handle product card click - navigate to product details page
    */
   const handleProductClick = useCallback((product: Product, store: StoreData) => {
-    window.location.hash = `#product/${product.id}/${store.id}`;
-  }, []);
+    navigate(`/product/${product.id}/${store.id}`);
+  }, [navigate]);
 
   /**
    * Handle user logout
@@ -81,11 +85,11 @@ export const HomePage = () => {
     try {
       await logout();
       setShowUserMenu(false);
-      window.location.hash = '#';
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }
-  }, [logout]);
+  }, [logout, navigate]);
 
   /**
    * Toggle user menu
@@ -99,16 +103,16 @@ export const HomePage = () => {
    */
   const handleMenuNavigation = useCallback((path: string) => {
     setShowUserMenu(false);
-    localStorage.setItem('backNavigationPath', '#');
-    window.location.hash = path;
-  }, []);
+    localStorage.setItem('backNavigationPath', '/');
+    navigate(path);
+  }, [navigate]);
 
   /**
    * Navigate to cart page
    */
   const handleCartClick = useCallback(() => {
-    window.location.hash = '#cart';
-  }, []);
+    navigate('/cart');
+  }, [navigate]);
 
   // Filter validated stores based on search query
   const filteredStores = useMemo(() => {
@@ -145,8 +149,8 @@ export const HomePage = () => {
         onLogout={handleLogout}
         onMenuNavigate={handleMenuNavigation}
         onLoginRedirect={() => {
-          setRedirectAfterLogin(window.location.hash || '#');
-          window.location.hash = '#login';
+          setRedirectAfterLogin(window.location.pathname || '/');
+          navigate('/login');
         }}
         t={t}
       />

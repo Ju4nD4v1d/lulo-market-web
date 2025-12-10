@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Facebook, Instagram, Mail, MapPin, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { DeliveryAreasModal } from './DeliveryAreasModal';
@@ -6,6 +7,7 @@ import styles from './Footer.module.css';
 
 export const Footer = () => {
   const { toggleLanguage, t } = useLanguage();
+  const navigate = useNavigate();
   const [showDeliveryMap, setShowDeliveryMap] = useState(false);
 
   return (
@@ -21,7 +23,7 @@ export const Footer = () => {
               {t('home.partnerCta.description')}
             </p>
             <button
-              onClick={() => window.location.hash = '#business'}
+              onClick={() => navigate('/business')}
               className={`btn-primary focus-ring ${styles.businessCtaButton}`}
             >
               {t('home.partnerCta.button')}
@@ -70,9 +72,9 @@ export const Footer = () => {
               </h4>
               <ul className={styles.columnList}>
                 <li>
-                  <a href="#business?portal=true" className={styles.columnLink}>
+                  <Link to="/business?portal=true" className={styles.columnLink}>
                     {t('footer.sellerDashboard')}
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -84,9 +86,9 @@ export const Footer = () => {
               </h4>
               <ul className={styles.columnList}>
                 <li>
-                  <a href="#" className={styles.columnLink}>
+                  <Link to="/" className={styles.columnLink}>
                     {t('footer.browseStores')}
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <button
@@ -97,9 +99,9 @@ export const Footer = () => {
                   </button>
                 </li>
                 <li>
-                  <a href="#help" className={styles.columnLink}>
+                  <Link to="/help" className={styles.columnLink}>
                     {t('footer.helpSupport')}
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -127,12 +129,12 @@ export const Footer = () => {
               {t('footer.copyright')}
             </p>
             <div className={styles.legalLinks}>
-              <a href="#privacy" className={styles.legalLink}>
+              <Link to="/privacy" className={styles.legalLink}>
                 {t('footer.privacy')}
-              </a>
-              <a href="#terms" className={styles.legalLink}>
+              </Link>
+              <Link to="/terms" className={styles.legalLink}>
                 {t('footer.terms')}
-              </a>
+              </Link>
             </div>
           </div>
         </div>

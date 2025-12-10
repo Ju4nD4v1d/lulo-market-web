@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { validateLoginForm, validateRegisterForm } from '../utils/validation';
 import { getAuthErrorMessage } from '../../../utils/auth-errors';
@@ -31,6 +32,8 @@ const initialAddress: AddressData = {
 
 export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
   const { login, register } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,24 +48,9 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
 
   // Check URL parameters to determine initial mode
   useEffect(() => {
-    const checkMode = () => {
-      const hash = window.location.hash;
-      if (hash.includes('mode=register')) {
-        setIsLogin(false);
-      } else {
-        setIsLogin(true);
-      }
-    };
-
-    checkMode();
-
-    const handleHashChange = () => {
-      checkMode();
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+    const mode = searchParams.get('mode');
+    setIsLogin(mode !== 'register');
+  }, [searchParams]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,19 +101,13 @@ export const useLoginForm = ({ t, locale }: UseLoginFormOptions) => {
     setFullName('');
     setAddress(initialAddress);
 
-    // Only update URL if we're on the login page directly (not embedded in checkout/other routes)
-    // This preserves the redirect URL when Login is shown inline for protected routes
-    const currentHash = window.location.hash;
-    const isOnLoginPage = currentHash === '#login' || currentHash.startsWith('#login?');
-
-    if (isOnLoginPage) {
-      if (loginMode) {
-        window.location.hash = '#login';
-      } else {
-        window.location.hash = '#login?mode=register';
-      }
+    // Update URL with mode parameter if registering, otherwise navigate to clean login page
+    if (loginMode) {
+      navigate('/login', { replace: true });
+    } else {
+      navigate('/login?mode=register', { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   const clearMessages = useCallback(() => {
     setError('');

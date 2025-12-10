@@ -11,6 +11,7 @@ import {
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useStore } from '../../../../context/StoreContext';
 import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
+import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
 import { Product } from '../../../../types/product';
 import styles from './InventoryPage.module.css';
 
@@ -19,6 +20,7 @@ type StockFilter = 'all' | 'low' | 'out' | 'healthy';
 export const InventoryPage = () => {
   const { t } = useLanguage();
   const { storeId, store } = useStore();
+  const { goToProducts } = useDashboardNavigation();
   const { products, isLoading, error, refetch } = useProductsQuery({ storeId });
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -234,7 +236,7 @@ export const InventoryPage = () => {
                 key={product.id}
                 className={`${styles.productCard} ${styles[`productCard${status.charAt(0).toUpperCase()}${status.slice(1)}`]}`}
                 onClick={() => {
-                  window.location.hash = `#dashboard/products`;
+                  goToProducts();
                 }}
               >
                 <div className={styles.productImage}>

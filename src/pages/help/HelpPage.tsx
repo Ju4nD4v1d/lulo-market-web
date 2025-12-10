@@ -12,6 +12,7 @@
 
 import type * as React from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Search,
@@ -38,6 +39,7 @@ interface FAQ {
 
 export const HelpPage: React.FC = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
@@ -141,7 +143,7 @@ export const HelpPage: React.FC = () => {
         <div className={styles.headerContent}>
           <button
             className={styles.backButton}
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
           >
             <ArrowLeft size={18} />
             {t('common.back')}

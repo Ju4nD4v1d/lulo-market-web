@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../../../config/firebase';
 import { getUserProfile } from '../../../services/api/userApi';
@@ -14,6 +15,7 @@ interface LoginData {
 }
 
 export const useAdminLogin = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState<LoginData>({ email: '', password: '' });
   const [loginError, setLoginError] = useState('');
@@ -44,7 +46,7 @@ export const useAdminLogin = () => {
       }
 
       // User is admin - redirect to admin dashboard
-      window.location.hash = '#admin';
+      navigate('/admin');
       return true;
 
     } catch (error: unknown) {

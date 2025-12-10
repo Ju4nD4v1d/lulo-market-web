@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { DashboardLayout } from './components';
 import { StripeReturnToast } from './components/StripeReturnToast';
 import { useAuth } from '../../context/AuthContext';
@@ -18,28 +19,52 @@ import { DocumentsPage } from './sections/documents';
 type DashboardPageType = 'store' | 'products' | 'metrics' | 'orders' | 'inventory' | 'documents';
 
 /**
- * Determine current page from hash
+ * Determine current page from pathname
  */
-const getPageFromHash = (hash: string): DashboardPageType => {
-  if (hash.includes('/products')) return 'products';
-  if (hash.includes('/metrics')) return 'metrics';
-  if (hash.includes('/orders')) return 'orders';
-  if (hash.includes('/inventory')) return 'inventory';
-  if (hash.includes('/documents')) return 'documents';
+const getPageFromPathname = (pathname: string): DashboardPageType => {
+  if (pathname.includes('/products')) return 'products';
+  if (pathname.includes('/metrics')) return 'metrics';
+  if (pathname.includes('/orders')) return 'orders';
+  if (pathname.includes('/inventory')) return 'inventory';
+  if (pathname.includes('/documents')) return 'documents';
   return 'store';
 };
 
 export const DashboardPage = () => {
   const { currentUser, userType } = useAuth();
   const { t } = useLanguage();
-  const { storeId } = useStore();
+  const { storeId: contextStoreId } = useStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { storeId: urlStoreId } = useParams<{ storeId: string }>();
   const [hasPermissions, setHasPermissions] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Track current page with state for reactivity
-  const [currentPage, setCurrentPage] = useState<DashboardPageType>(() =>
-    getPageFromHash(window.location.hash)
-  );
+  // Use storeId from URL if available, otherwise from context
+  const storeId = urlStoreId || contextStoreId;
+
+  // Track current page based on pathname
+  const currentPage = getPageFromPathname(location.pathname);
+
+  // Redirect to URL with storeId if not present, or if URL storeId doesn't match user's store
+  useEffect(() => {
+    if (!isChecking && contextStoreId) {
+      if (!urlStoreId) {
+        // No storeId in URL - add it
+        const subPath = location.pathname.replace(/^\/dashboard\/?/, '');
+        const searchParams = location.search;
+        const newPath = `/dashboard/${contextStoreId}${subPath ? `/${subPath}` : ''}${searchParams}`;
+        navigate(newPath, { replace: true });
+      } else if (urlStoreId !== contextStoreId && userType !== 'admin') {
+        // URL storeId doesn't match user's store (and user is not admin)
+        // Redirect to user's actual store to prevent unauthorized access
+        const subPath = location.pathname.replace(/^\/dashboard\/[^/]+\/?/, '');
+        const searchParams = location.search;
+        const newPath = `/dashboard/${contextStoreId}${subPath ? `/${subPath}` : ''}${searchParams}`;
+        navigate(newPath, { replace: true });
+      }
+    }
+  }, [contextStoreId, urlStoreId, isChecking, userType, location.pathname, location.search, navigate]);
 
   // Handle Stripe Connect return from onboarding
   const { status: stripeStatus, message: stripeMessage, clearStatus: clearStripeStatus } = useStripeConnectReturn();
@@ -48,24 +73,15 @@ export const DashboardPage = () => {
   const { unreadCount, markAllAsSeen } = useOrderNotifications({
     storeId,
     enabled: hasPermissions && !!storeId,
+    onNavigate: navigate,
   });
-
-  // Listen for hash changes to update currentPage
-  useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentPage(getPageFromHash(window.location.hash));
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
 
   // Check permissions
   useEffect(() => {
     const checkPermissions = async () => {
       // Check if user has business owner permissions
       if (!currentUser) {
-        window.location.hash = '#login';
+        navigate('/login');
         return;
       }
 
@@ -81,7 +97,7 @@ export const DashboardPage = () => {
     };
 
     checkPermissions();
-  }, [currentUser, userType]);
+  }, [currentUser, userType, navigate]);
 
   // Mark orders as seen when viewing orders page
   // Must be before any conditional returns to follow React hooks rules
@@ -135,7 +151,7 @@ export const DashboardPage = () => {
             {t('admin.accessDeniedMessage')}
           </p>
           <button
-            onClick={() => window.location.hash = '#'}
+            onClick={() => navigate('/')}
             className="btn-primary"
           >
             {t('common.goHome')}

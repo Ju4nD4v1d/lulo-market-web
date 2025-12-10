@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Store, RefreshCw, Loader2, AlertCircle, CheckCircle, Wrench, Truck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import type { StoreData } from '../../../../types/store';
@@ -30,6 +31,7 @@ export const StoreSidebar = ({
   onSelectTools,
   onRefresh
 }: StoreSidebarProps) => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [isStoresExpanded, setIsStoresExpanded] = useState(true);
@@ -149,7 +151,7 @@ export const StoreSidebar = ({
         {/* Dispatcher Menu Item */}
         <button
           className={styles.navButton}
-          onClick={() => { window.location.hash = '#admin/dispatcher'; }}
+          onClick={() => { navigate('/admin/dispatcher'); }}
         >
           <Truck className={styles.navIcon} />
           <span className={styles.navLabel}>{t('admin.menu.dispatcher')}</span>

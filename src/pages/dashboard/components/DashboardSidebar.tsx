@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Store,
   Package,
@@ -35,7 +36,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const { currentUser, logout } = useAuth();
   const { t } = useLanguage();
-  const { hasStore } = useStore();
+  const { hasStore, storeId } = useStore();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [logoError, setLogoError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -56,7 +59,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const handleLogout = async () => {
     try {
       await logout();
-      window.location.hash = '#login';
+      navigate('/login');
     } catch (error) {
       console.error('Failed to log out:', error);
     }
@@ -66,13 +69,16 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setLogoError(true);
   };
 
+  // Build dashboard base path with storeId if available
+  const dashboardBase = storeId ? `/dashboard/${storeId}` : '/dashboard';
+
   const menuItems = [
-    { id: 'store' as const, label: t('admin.menu.store'), icon: Store, hash: '#dashboard', disabled: false },
-    { id: 'products' as const, label: t('admin.menu.products'), icon: Package, hash: '#dashboard/products', disabled: !hasStore },
-    { id: 'inventory' as const, label: t('admin.menu.inventory'), icon: Boxes, hash: '#dashboard/inventory', disabled: !hasStore },
-    { id: 'orders' as const, label: t('admin.menu.orders'), icon: ShoppingCart, hash: '#dashboard/orders', disabled: !hasStore },
-    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, hash: '#dashboard/metrics', disabled: !hasStore },
-    { id: 'documents' as const, label: t('admin.menu.documents'), icon: FileText, hash: '#dashboard/documents', disabled: !hasStore }
+    { id: 'store' as const, label: t('admin.menu.store'), icon: Store, path: dashboardBase, disabled: false },
+    { id: 'products' as const, label: t('admin.menu.products'), icon: Package, path: `${dashboardBase}/products`, disabled: !hasStore },
+    { id: 'inventory' as const, label: t('admin.menu.inventory'), icon: Boxes, path: `${dashboardBase}/inventory`, disabled: !hasStore },
+    { id: 'orders' as const, label: t('admin.menu.orders'), icon: ShoppingCart, path: `${dashboardBase}/orders`, disabled: !hasStore },
+    { id: 'metrics' as const, label: t('admin.menu.metrics'), icon: BarChart3, path: `${dashboardBase}/metrics`, disabled: !hasStore },
+    { id: 'documents' as const, label: t('admin.menu.documents'), icon: FileText, path: `${dashboardBase}/documents`, disabled: !hasStore }
   ];
 
   return (
@@ -104,33 +110,72 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {/* Navigation Menu */}
       <nav className={styles.nav}>
         <ul className={styles.menuList}>
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              <a
-                href={item.hash}
-                onClick={item.disabled ? (e) => e.preventDefault() : undefined}
-                className={`
-                  ${styles.menuItem}
-                  ${isCollapsed ? styles.menuItemCollapsed : ''}
-                  ${item.disabled ? styles.menuItemDisabled : ''}
-                  ${currentPage === item.id ? styles.menuItemActive : ''}
-                `}
-                title={isCollapsed ? item.label : undefined}
-              >
-                <span className={styles.menuIconWrapper}>
-                  <item.icon className={`${styles.menuIcon} ${isCollapsed ? styles.menuIconCollapsed : ''}`} />
-                  {item.id === 'orders' && ordersBadgeCount > 0 && (
-                    <span className={styles.badge}>
-                      {ordersBadgeCount > 99 ? '99+' : ordersBadgeCount}
+          {menuItems.map((item) => {
+            // Check if current path matches the menu item
+            // Handle both /dashboard and /dashboard/:storeId formats
+            // Known dashboard sub-paths that are NOT storeIds
+            const knownSubPaths = ['products', 'orders', 'metrics', 'inventory', 'documents'];
+            const pathSegments = location.pathname.split('/').filter(Boolean);
+            // Check if path is /dashboard/{something} where {something} is NOT a known sub-path
+            const isStoreIdPath = pathSegments.length === 2 &&
+              pathSegments[0] === 'dashboard' &&
+              !knownSubPaths.includes(pathSegments[1]);
+
+            const isStorePageActive = item.id === 'store' && (
+              location.pathname === dashboardBase ||
+              location.pathname === '/dashboard' ||
+              isStoreIdPath // matches /dashboard/:storeId (no sub-path)
+            );
+            const isActive = location.pathname === item.path || isStorePageActive;
+            return (
+              <li key={item.id}>
+                {item.disabled ? (
+                  <div
+                    className={`
+                      ${styles.menuItem}
+                      ${isCollapsed ? styles.menuItemCollapsed : ''}
+                      ${styles.menuItemDisabled}
+                    `}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <span className={styles.menuIconWrapper}>
+                      <item.icon className={`${styles.menuIcon} ${isCollapsed ? styles.menuIconCollapsed : ''}`} />
+                      {item.id === 'orders' && ordersBadgeCount > 0 && (
+                        <span className={styles.badge}>
+                          {ordersBadgeCount > 99 ? '99+' : ordersBadgeCount}
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
-                <span className={isCollapsed ? styles.hidden : styles.menuLabel}>
-                  {item.label}
-                </span>
-              </a>
-            </li>
-          ))}
+                    <span className={isCollapsed ? styles.hidden : styles.menuLabel}>
+                      {item.label}
+                    </span>
+                  </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`
+                      ${styles.menuItem}
+                      ${isCollapsed ? styles.menuItemCollapsed : ''}
+                      ${isActive ? styles.menuItemActive : ''}
+                    `}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <span className={styles.menuIconWrapper}>
+                      <item.icon className={`${styles.menuIcon} ${isCollapsed ? styles.menuIconCollapsed : ''}`} />
+                      {item.id === 'orders' && ordersBadgeCount > 0 && (
+                        <span className={styles.badge}>
+                          {ordersBadgeCount > 99 ? '99+' : ordersBadgeCount}
+                        </span>
+                      )}
+                    </span>
+                    <span className={isCollapsed ? styles.hidden : styles.menuLabel}>
+                      {item.label}
+                    </span>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

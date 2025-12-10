@@ -1,5 +1,6 @@
 import type * as React from 'react';
 
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,16 +17,13 @@ import {
 } from './components';
 import styles from './OrderTrackingPage.module.css';
 
-interface OrderTrackingPageProps {
-  orderId: string;
-  onBack: () => void;
-}
-
-export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, onBack }) => {
+export const OrderTrackingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { orderId } = useParams<{ orderId: string }>();
   const { currentUser } = useAuth();
   const { t, locale } = useLanguage();
   const { order, isLoading: loading, error, refetch } = useOrderTrackingQuery({
-    orderId,
+    orderId: orderId!,
     userId: currentUser?.uid,
     userEmail: currentUser?.email || '',
     enabled: !!currentUser
@@ -97,7 +95,7 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
           <p className={styles.errorMessage}>
             {error || t('order.notFoundMessage')}
           </p>
-          <button onClick={onBack} className={styles.backButton}>
+          <button onClick={() => navigate('/')} className={styles.backButton}>
             {t('order.goBack')}
           </button>
         </div>
@@ -110,7 +108,7 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({ orderId, o
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
-          <button onClick={onBack} className={styles.backLink}>
+          <button onClick={() => navigate('/')} className={styles.backLink}>
             <ArrowLeft className={styles.backIcon} />
             {t('order.back')}
           </button>

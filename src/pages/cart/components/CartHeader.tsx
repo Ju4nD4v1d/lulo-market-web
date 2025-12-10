@@ -1,4 +1,5 @@
 import type * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './CartHeader.module.css';
@@ -10,12 +11,13 @@ interface CartHeaderProps {
 
 export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount, onBack }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const handleBack = () => {
     if (onBack) {
       onBack();
     } else {
-      window.history.back();
+      navigate(-1);
     }
   };
 

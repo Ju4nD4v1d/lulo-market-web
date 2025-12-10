@@ -3,6 +3,7 @@ import type * as React from 'react';
 import clsx from 'clsx';
 import { User, ShoppingCart, Globe } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
+import { Link } from 'react-router-dom';
 import { UserButton } from '../../../components/UserButton';
 import { UserMenuDropdown } from '../../../components/shared/user/UserMenuDropdown';
 import styles from './HomeHeader.module.css';
@@ -64,12 +65,12 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
         <div className={styles.nav}>
           {/* Logo */}
           <div className={styles.logo}>
-            <button
-              onClick={() => (window.location.hash = '#')}
+            <Link
+              to="/"
               className={styles.logoButton}
             >
               <span>LuloCart</span>
-            </button>
+            </Link>
           </div>
 
           {/* Right side actions */}
@@ -86,12 +87,12 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
             </button>
 
             {/* For Business Link */}
-            <a
-              href="#business"
+            <Link
+              to="/business"
               className={clsx(buttonStyles.header, styles.businessLink)}
             >
               {t('nav.forBusiness')}
-            </a>
+            </Link>
 
             {/* Cart Button */}
             <button

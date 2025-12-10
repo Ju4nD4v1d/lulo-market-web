@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 /**
  * CheckoutPage - Simplified checkout flow orchestrator
  *
@@ -42,14 +43,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onBack,
   onOrderComplete
 }) => {
+  const navigate = useNavigate();
+
   const handleBack = onBack ?? (() => {
     // Use browser's native back to avoid creating duplicate history entries
-    window.history.back();
+    navigate(-1);
   });
 
   const handleOrderComplete = onOrderComplete ?? ((order: Order) => {
     // Navigate to order tracking page after successful order
-    window.location.hash = `#order/${order.id}`;
+    // Use replace: true to prevent going "back" to empty checkout
+    navigate(`/order/${order.id}`, { replace: true });
   });
 
   return (
@@ -69,6 +73,7 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     currentStep,
     isPaymentReady,
     isCreatingPaymentIntent,
+    pendingOrderId,
     t
   } = useCheckoutContext();
 
@@ -85,8 +90,9 @@ const CheckoutRouter: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   }, [cart.items, cart.summary]);
 
-  // Empty cart check
-  if (cart.items.length === 0) {
+  // Empty cart check - but don't show if order is being processed
+  // (cart gets cleared during order completion, we don't want to flash empty state)
+  if (cart.items.length === 0 && !pendingOrderId && !isCreatingPaymentIntent) {
     return (
       <CheckoutWizard currentStep={currentStep} onBack={onBack} t={t} isProcessing={isCreatingPaymentIntent}>
         <EmptyCartView onBack={onBack} t={t} />

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Star } from 'lucide-react';
 import styles from './Hero.module.css';
 
@@ -75,10 +76,10 @@ export const Hero = () => {
 
           {/* Primary CTA */}
           <div className={styles.ctaSection}>
-            <a href="#" className={styles.ctaButton}>
+            <Link to="/" className={styles.ctaButton}>
               Order Now - FREE Delivery
               <ArrowRight className={styles.ctaIcon} />
-            </a>
+            </Link>
             <p className={styles.ctaSubtext}>
               On orders over $25 • No signup required
             </p>

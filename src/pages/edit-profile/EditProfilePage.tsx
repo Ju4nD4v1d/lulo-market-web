@@ -5,6 +5,7 @@ import type * as React from 'react';
 
 
 import { ArrowLeft, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useEditProfileForm } from './hooks/useEditProfileForm';
@@ -21,6 +22,7 @@ import {
 export const EditProfilePage: React.FC = () => {
   const { t } = useLanguage();
   const { userProfile } = useAuth();
+  const navigate = useNavigate();
 
   const {
     formData,
@@ -75,9 +77,9 @@ export const EditProfilePage: React.FC = () => {
     const from = localStorage.getItem('editProfileFrom');
     if (from) {
       localStorage.removeItem('editProfileFrom');
-      window.location.hash = from;
+      navigate(from);
     } else {
-      window.location.hash = '#/';
+      navigate('/');
     }
   };
 

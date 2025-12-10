@@ -1,5 +1,4 @@
 import type * as React from 'react';
-
 import {
   Store,
   MapPin,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { StoreData } from '../../../../../types/store';
 import { PaymentSettings } from './PaymentSettings';
+import { useDashboardNavigation } from '../../../../../hooks/useDashboardNavigation';
 import styles from './StoreProfileView.module.css';
 
 interface StoreStats {
@@ -63,6 +63,8 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
   onEdit,
   t
 }) => {
+  const { goToProducts, goToOrders, goToMetrics } = useDashboardNavigation();
+
   // Filter out empty about sections for display
   // Support both aboutUsSections and aboutUs for backward compatibility
   const aboutItems = (storeData.aboutUsSections || storeData.aboutUs || []).filter(item => item.title || item.description || item.imageUrl);
@@ -329,19 +331,19 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
               <h3 className={styles.quickActionsTitle}>{t('store.dashboard.quickActions')}</h3>
               <div className={styles.quickActionsContent}>
                 <button
-                  onClick={() => window.location.hash = '#dashboard/products'}
+                  onClick={goToProducts}
                   className={`${styles.quickActionButton} ${styles.quickActionBlue}`}
                 >
                   {t('store.dashboard.manageProducts')}
                 </button>
                 <button
-                  onClick={() => window.location.hash = '#dashboard/orders'}
+                  onClick={goToOrders}
                   className={`${styles.quickActionButton} ${styles.quickActionPurple}`}
                 >
                   {t('store.dashboard.viewOrders')}
                 </button>
                 <button
-                  onClick={() => window.location.hash = '#dashboard/metrics'}
+                  onClick={goToMetrics}
                   className={`${styles.quickActionButton} ${styles.quickActionGreen}`}
                 >
                   {t('store.dashboard.analytics')}

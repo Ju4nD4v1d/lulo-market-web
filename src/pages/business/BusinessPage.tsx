@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, LogIn } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -14,20 +15,20 @@ import styles from './BusinessPage.module.css';
 
 export const BusinessPage = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { setRedirectAfterLogin } = useAuth();
   const [showPortalLogin, setShowPortalLogin] = useState(false);
 
   // Check for portal=true query parameter to auto-open login modal
   useEffect(() => {
-    const hash = window.location.hash;
-    const urlParams = new URLSearchParams(hash.split('?')[1] || '');
-    if (urlParams.get('portal') === 'true') {
+    if (searchParams.get('portal') === 'true') {
       setRedirectAfterLogin(null);
       setShowPortalLogin(true);
       // Clean up URL by removing the query parameter
-      window.history.replaceState(null, '', '#business');
+      setSearchParams({}, { replace: true });
     }
-  }, [setRedirectAfterLogin]);
+  }, [searchParams, setSearchParams, setRedirectAfterLogin]);
 
   // Portal login hook
   const {
@@ -81,7 +82,7 @@ export const BusinessPage = () => {
           <div className={styles.headerContent}>
             <div className={styles.headerLeft}>
               <button
-                onClick={() => window.location.hash = '#'}
+                onClick={() => navigate('/')}
                 className={styles.backButton}
               >
                 <ArrowLeft className={styles.backIcon} />

@@ -30,7 +30,7 @@ export const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
   if (!isOpen) return null;
 
   const handleOrderHistory = () => {
-    window.location.hash = '#order-history';
+    onNavigate('/order-history');
     onClose();
   };
 
@@ -49,7 +49,7 @@ export const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
 
         <div className={styles.menuItems}>
           <button
-            onClick={() => onNavigate('#profile/edit')}
+            onClick={() => onNavigate('/profile/edit')}
             className={styles.menuButton}
           >
             <Settings className={styles.icon} />
@@ -67,7 +67,7 @@ export const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
           <div className={styles.divider}></div>
 
           <button
-            onClick={() => onNavigate('#terms')}
+            onClick={() => onNavigate('/terms')}
             className={styles.menuButton}
           >
             <FileText className={styles.icon} />
@@ -75,7 +75,7 @@ export const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
           </button>
 
           <button
-            onClick={() => onNavigate('#privacy')}
+            onClick={() => onNavigate('/privacy')}
             className={styles.menuButton}
           >
             <Shield className={styles.icon} />

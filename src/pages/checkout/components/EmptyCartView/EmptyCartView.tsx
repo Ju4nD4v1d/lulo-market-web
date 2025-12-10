@@ -20,17 +20,17 @@ export const EmptyCartView: React.FC<EmptyCartViewProps> = ({ onBack, t }) => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>
-        {t('cart.empty')}
+        {t('cart.empty.luloCartEmpty')}
       </h2>
       <p className={styles.message}>
-        {t('cart.emptyMessage')}
+        {t('cart.empty.discoverProducts')}
       </p>
       <button
         onClick={onBack}
         className={styles.button}
         type="button"
       >
-        {t('button.continueShopping')}
+        {t('cart.empty.continueShopping')}
       </button>
     </div>
   );

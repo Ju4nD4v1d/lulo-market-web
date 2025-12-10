@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -15,23 +16,17 @@ import {
 } from './components';
 import styles from './ProductDetailsPage.module.css';
 
-interface ProductDetailsPageProps {
-  productId: string;
-  storeId: string;
-}
-
-export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
-  productId,
-  storeId,
-}) => {
+export const ProductDetailsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { productId, storeId } = useParams<{ productId: string; storeId: string }>();
   const { t, locale, toggleLanguage } = useLanguage();
   const { currentUser, userProfile, logout } = useAuth();
   const { cart } = useCart();
 
   // Data fetching with TanStack Query
   const { product, store, isLoading, isError } = useProductDetailsQuery({
-    productId,
-    storeId,
+    productId: productId!,
+    storeId: storeId!,
   });
 
   // Track ViewContent event when product loads
@@ -52,11 +47,11 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleBack = () => {
-    window.history.back();
+    navigate(-1);
   };
 
   const handleSignInClick = () => {
-    window.location.hash = '#login';
+    navigate('/login');
   };
 
   const handleLogout = async () => {
@@ -65,8 +60,8 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   };
 
   const handleCartClick = useCallback(() => {
-    window.location.hash = '#cart';
-  }, []);
+    navigate('/cart');
+  }, [navigate]);
 
   const languageLabel = locale === 'es' ? 'ES' : 'EN';
   const cartItemCount = cart.summary.itemCount;
@@ -167,7 +162,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
                 reviewCount={product.reviewCount}
                 t={t}
                 product={product}
-                storeId={storeId}
+                storeId={storeId!}
                 storeImage={store?.storeImage || store?.imageUrl}
               />
             </div>

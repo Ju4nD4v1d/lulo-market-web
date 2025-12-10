@@ -4,6 +4,7 @@ import type * as React from 'react';
  */
 
 
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, LucideIcon } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './LegalPageLayout.module.css';
@@ -24,18 +25,19 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
   children
 }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   // Check if user came from a specific page (e.g., dashboard/documents)
   const backPath = localStorage.getItem('backNavigationPath');
-  const hasBackPath = backPath && backPath !== window.location.hash;
+  const hasBackPath = backPath && backPath !== window.location.pathname;
   const isFromDashboard = backPath?.includes('dashboard');
 
   const handleBack = () => {
     if (hasBackPath) {
       localStorage.removeItem('backNavigationPath');
-      window.location.hash = backPath;
+      navigate(backPath);
     } else {
-      window.location.hash = '#';
+      navigate(-1);
     }
   };
 
