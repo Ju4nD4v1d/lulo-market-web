@@ -44,7 +44,7 @@ export const LoginPage: React.FC = () => {
           ? t('auth.welcomeSubtitle')
           : t('auth.joinSubtitle')
       }
-      backLink="#"
+      backLink="/"
       backText={t('auth.backToHome')}
     >
       {/* Tab Header */}
