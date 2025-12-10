@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { StoreData } from '../../../types/store';
 import { Product, ProductStatus } from '../../../types/product';
@@ -132,6 +133,7 @@ interface CustomStoreDetailProps {
 }
 
 export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onBack }) => {
+  const navigate = useNavigate();
   const { cart } = useCart();
   const { t, toggleLanguage } = useLanguage();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
@@ -255,7 +257,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
     try {
       await logout();
       setShowUserMenu(false);
-      window.location.hash = '#';
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -267,8 +269,8 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
 
   const handleMenuNavigation = (path: string) => {
     setShowUserMenu(false);
-    localStorage.setItem('backNavigationPath', '#');
-    window.location.hash = path;
+    localStorage.setItem('backNavigationPath', '/');
+    navigate(path);
   };
 
   return (
@@ -287,15 +289,15 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         onLanguageToggle={toggleLanguage}
         languageLabel={t('language.toggle')}
         cartItemCount={cart.summary.itemCount}
-        onCartClick={() => { window.location.hash = '#cart'; }}
+        onCartClick={() => { navigate('/cart'); }}
         currentUser={currentUser}
         userProfile={userProfile}
         onUserMenuClick={handleUserMenuClick}
         showUserMenu={showUserMenu}
         onLogout={handleLogout}
         onSignInClick={() => {
-          setRedirectAfterLogin(window.location.hash || '#');
-          window.location.hash = '#login';
+          setRedirectAfterLogin(window.location.pathname || '/');
+          navigate('/login');
         }}
         t={t}
       />

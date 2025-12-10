@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -30,6 +31,7 @@ import styles from './DispatcherPage.module.css';
 type FilterType = 'all' | 'active' | 'inactive';
 
 export const DispatcherPage = () => {
+  const navigate = useNavigate();
   const { userType } = useAuth();
   const { t } = useLanguage();
   const { drivers, isLoading, error, refetch } = useDriversQuery();
@@ -72,8 +74,8 @@ export const DispatcherPage = () => {
 
   // Handlers - memoized with useCallback for stable references
   const handleBack = useCallback(() => {
-    window.location.hash = '#admin';
-  }, []);
+    navigate('/admin');
+  }, [navigate]);
 
   const handleAddDriver = useCallback(() => {
     setEditingDriver(null);

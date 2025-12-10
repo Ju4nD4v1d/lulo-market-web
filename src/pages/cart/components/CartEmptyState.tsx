@@ -1,4 +1,5 @@
 import type * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../context/AuthContext';
 import { CartHeader } from './CartHeader';
@@ -8,13 +9,14 @@ import buttonStyles from '../../../styles/button.module.css';
 export const CartEmptyState: React.FC = () => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const handleContinueShopping = () => {
-    window.location.hash = '#';
+    navigate('/');
   };
 
   const handleLogin = () => {
-    window.location.hash = '#login';
+    navigate('/login');
   };
 
   return (

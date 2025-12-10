@@ -1,5 +1,6 @@
 import type * as React from 'react';
 
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, ShoppingCart } from 'lucide-react';
 import { UserButton } from '../../../components/UserButton';
 import { UserMenuDropdown } from '../../../components/shared/user/UserMenuDropdown';
@@ -34,8 +35,10 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
   onSignInClick,
   t,
 }) => {
+  const navigate = useNavigate();
+
   const handleNavigate = (path: string) => {
-    window.location.hash = path;
+    navigate(path);
     onUserMenuClick();
   };
 

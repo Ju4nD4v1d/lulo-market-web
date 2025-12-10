@@ -5,6 +5,7 @@ import type * as React from 'react';
 
 
 import { Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PasswordField } from './PasswordField';
 
 interface LoginFormProps {
@@ -76,9 +77,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             {t('auth.rememberMe')}
           </label>
         </div>
-        <a href="#forgot-password" className="text-sm font-medium text-gray-700 hover:text-gray-900 underline">
+        <Link to="/forgot-password" className="text-sm font-medium text-gray-700 hover:text-gray-900 underline">
           {t('auth.forgotPassword')}
-        </a>
+        </Link>
       </div>
     </>
   );

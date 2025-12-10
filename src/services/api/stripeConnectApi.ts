@@ -295,7 +295,7 @@ export async function getConnectedAccountBalance(
 export function getStripeConnectReturnUrls() {
   const baseUrl = window.location.origin;
   return {
-    returnUrl: `${baseUrl}/#dashboard?stripe=success`,
-    refreshUrl: `${baseUrl}/#dashboard?stripe=refresh`,
+    returnUrl: `${baseUrl}/dashboard?stripe=success`,
+    refreshUrl: `${baseUrl}/dashboard?stripe=refresh`,
   };
 }

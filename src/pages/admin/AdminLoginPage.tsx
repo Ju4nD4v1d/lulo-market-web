@@ -4,6 +4,7 @@
  */
 
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdminLogin } from './hooks/useAdminLogin';
 import styles from './AdminLoginPage.module.css';
@@ -109,10 +110,10 @@ export const AdminLoginPage = () => {
         </form>
 
         <div className={styles.footer}>
-          <a href="#" className={styles.backLink}>
+          <Link to="/" className={styles.backLink}>
             <ArrowLeft className={styles.backIcon} />
             {t('business.login.backToHome')}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

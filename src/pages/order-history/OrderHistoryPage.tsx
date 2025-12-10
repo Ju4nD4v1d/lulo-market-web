@@ -1,5 +1,6 @@
 import type * as React from 'react';
 
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,11 +8,8 @@ import { useOrderHistory, useOrderFilters } from './hooks';
 import { OrderCard, SearchBar, FilterBar, EmptyState } from './components';
 import styles from './OrderHistoryPage.module.css';
 
-interface OrderHistoryPageProps {
-  onBack?: () => void;
-}
-
-export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onBack }) => {
+export const OrderHistoryPage: React.FC = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { currentUser } = useAuth();
   const { orders, loading, error } = useOrderHistory(currentUser?.uid);
@@ -28,10 +26,10 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onBack }) =>
     availableStatuses,
   } = useOrderFilters(orders);
 
-  const handleBack = onBack || (() => window.history.back());
+  const handleBack = () => navigate(-1);
 
   const handleOrderClick = (orderId: string) => {
-    window.location.hash = `#order/${orderId}`;
+    navigate(`/order/${orderId}`);
   };
 
   if (loading) {

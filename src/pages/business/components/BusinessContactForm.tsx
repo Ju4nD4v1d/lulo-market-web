@@ -1,5 +1,6 @@
 import type * as React from 'react';
 
+import { Link } from 'react-router-dom';
 import { Check, ArrowRight } from 'lucide-react';
 import styles from './BusinessContactForm.module.css';
 
@@ -191,23 +192,23 @@ export const BusinessContactForm: React.FC<BusinessContactFormProps> = ({
             />
             <span className={styles.checkboxText}>
               {t('business.contact.form.agreeToTerms')}{' '}
-              <a
-                href="#privacy"
+              <Link
+                to="/privacy"
                 className={styles.link}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 {t('business.contact.form.privacyPolicy')}
-              </a>
+              </Link>
               {' '}{t('business.contact.form.and')}{' '}
-              <a
-                href="#terms"
+              <Link
+                to="/terms"
                 className={styles.link}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 {t('business.contact.form.termsOfService')}
-              </a>
+              </Link>
               .
             </span>
           </label>

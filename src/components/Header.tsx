@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +11,8 @@ import styles from './Header.module.css';
 export const Header = () => {
   const { t, toggleLanguage, locale } = useLanguage();
   const { currentUser, userProfile, logout, setRedirectAfterLogin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -52,15 +55,15 @@ export const Header = () => {
   };
 
   const handleSignInClick = () => {
-    setRedirectAfterLogin(window.location.hash || '#');
-    window.location.hash = '#login';
+    setRedirectAfterLogin(location.pathname || '/');
+    navigate('/login');
   };
 
   const handleLogout = async () => {
     try {
       await logout();
       setShowUserMenu(false);
-      window.location.hash = '#';
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -68,21 +71,21 @@ export const Header = () => {
 
   const handleMenuNavigation = (path: string) => {
     setShowUserMenu(false);
-    window.location.hash = path;
+    navigate(path);
   };
 
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
-    const isActive = href.replace('#', '') === activeSection;
+  const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => {
+    const isActive = to === activeSection;
     return (
-      <a
-        href={href}
+      <Link
+        to={to}
         className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
       >
         <span className={styles.navLinkInner}>
           {children}
           <span className={styles.navLinkUnderline} />
         </span>
-      </a>
+      </Link>
     );
   };
 
@@ -91,16 +94,16 @@ export const Header = () => {
       <nav className={`${styles.nav} ${isScrolled ? styles.navScrolled : ''}`}>
         <div className={styles.navContainer}>
           <div className={styles.navInner}>
-            <a href="#" className={styles.logoLink}>
+            <Link to="/" className={styles.logoLink}>
               <img src="/logo_lulo.png" alt="Lulo" className={styles.logo} />
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <div className={styles.desktopNav}>
-              <NavLink href="#">{t('nav.marketplace')}</NavLink>
-              <a href="#business" className={styles.businessLink}>
+              <NavLink to="/">{t('nav.marketplace')}</NavLink>
+              <Link to="/business" className={styles.businessLink}>
                 {t('nav.forBusiness')}
-              </a>
+              </Link>
               <button onClick={toggleLanguage} className={styles.languageButton}>
                 <Globe size={16} />
                 <span className={styles.languageButtonText}>{t('language.toggle')}</span>
@@ -160,27 +163,27 @@ export const Header = () => {
       {/* Mobile Menu */}
       <div className={`${styles.mobileMenuOverlay} ${isOpen ? styles.mobileMenuOverlayOpen : ''}`}>
         <nav className={styles.mobileMenuNav}>
-          <a
-            href="#"
+          <Link
+            to="/"
             className={styles.mobileMenuLink}
             onClick={() => setIsOpen(false)}
           >
             {t('nav.marketplace')}
-          </a>
-          <a
-            href="#business"
+          </Link>
+          <Link
+            to="/business"
             className={styles.mobileMenuLink}
             onClick={() => setIsOpen(false)}
           >
             {t('nav.forBusiness')}
-          </a>
+          </Link>
 
           {currentUser ? (
             <>
               <button
                 onClick={() => {
                   setIsOpen(false);
-                  handleMenuNavigation('#profile/edit');
+                  handleMenuNavigation('/profile/edit');
                 }}
                 className={styles.mobileMenuButton}
               >
@@ -189,7 +192,7 @@ export const Header = () => {
               <button
                 onClick={() => {
                   setIsOpen(false);
-                  handleMenuNavigation('#order-history');
+                  handleMenuNavigation('/order-history');
                 }}
                 className={styles.mobileMenuButton}
               >
@@ -206,13 +209,13 @@ export const Header = () => {
               </button>
             </>
           ) : (
-            <a
-              href="#login"
+            <Link
+              to="/login"
               className={`btn-primary ${styles.mobileMenuSignIn}`}
               onClick={() => setIsOpen(false)}
             >
               {t('nav.signIn')}
-            </a>
+            </Link>
           )}
         </nav>
       </div>

@@ -4,6 +4,7 @@
  */
 
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { useLanguage } from '../../../../context/LanguageContext';
@@ -14,12 +15,13 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const navigate = useNavigate();
   const { logout, currentUser } = useAuth();
   const { t } = useLanguage();
 
   const handleLogout = async () => {
     await logout();
-    window.location.hash = '#admin-login';
+    navigate('/admin-login');
   };
 
   return (

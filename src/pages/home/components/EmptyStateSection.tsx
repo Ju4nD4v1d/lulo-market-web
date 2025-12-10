@@ -1,12 +1,14 @@
 import { Store, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import styles from './EmptyStateSection.module.css';
 
 export const EmptyStateSection: React.FC = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const handlePartnerClick = () => {
-    window.location.hash = '#business';
+    navigate('/business');
   };
 
   return (

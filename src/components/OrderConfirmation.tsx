@@ -1,5 +1,6 @@
 import type * as React from 'react';
 
+import { useNavigate } from 'react-router-dom';
 import { Check, Clock, MapPin, Package, Phone, Mail, ArrowLeft, FileText, Eye } from 'lucide-react';
 import { Order, OrderStatus } from '../types/order';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,6 +11,7 @@ interface OrderConfirmationProps {
 }
 
 export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onBackToShopping }) => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const formatPrice = (price: number) => `CAD $${price.toFixed(2)}`;
@@ -289,10 +291,8 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ order, onB
                 <h3 className="font-bold text-orange-900">{t('order.tracking.title')}</h3>
               </div>
               <p className="text-sm text-orange-700 mb-4">{t('order.tracking.description')}</p>
-              <button 
-                onClick={() => {
-                  window.location.hash = '#order-history';
-                }}
+              <button
+                onClick={() => navigate('/order-history')}
                 className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2 rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-300 transform hover:scale-105 text-sm font-medium flex items-center gap-2"
               >
                 <FileText className="w-4 h-4" />

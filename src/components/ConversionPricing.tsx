@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 export const ConversionPricing = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45 });
 
@@ -132,7 +134,7 @@ export const ConversionPricing = () => {
 
             {/* CTA Button */}
             <button
-              onClick={() => window.location.hash = '#login'}
+              onClick={() => navigate('/login')}
               className="w-full bg-primary-400 text-black py-3 sm:py-4 px-5 sm:px-6 rounded-lg sm:rounded-xl hover:bg-primary-500 transition-all duration-200 font-bold text-base sm:text-lg flex items-center justify-center group"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >

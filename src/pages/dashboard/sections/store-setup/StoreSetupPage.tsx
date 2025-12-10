@@ -10,6 +10,7 @@ import { useStoreByOwnerQuery } from '../../../../hooks/queries/useStoreByOwnerQ
 import { useStoreStatsQuery } from '../../../../hooks/queries/useStoreStatsQuery';
 import { useAllLatestAgreementsQuery } from '../../../../hooks/queries';
 import { useStoreMutations } from '../../../../hooks/mutations/useStoreMutations';
+import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
 import { StoreData } from '../../../../types/store';
 import { DEFAULT_MULTI_SLOT_SCHEDULE } from '../../../../types/schedule';
 import { useAddressGeocoding } from './hooks/useAddressGeocoding';
@@ -71,6 +72,7 @@ export const StoreSetupPage = () => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
   const { hasStore, storeId, refreshStoreStatus } = useStore();
+  const { goToProducts } = useDashboardNavigation();
   const [isEditing, setIsEditing] = useState(false);
   const [localStoreData, setLocalStoreData] = useState<StoreData>(initialStoreData);
   const [storeImage, setStoreImage] = useState<{ file?: File; preview?: string; url?: string }>({});
@@ -274,7 +276,7 @@ export const StoreSetupPage = () => {
         setShowModal(false);
         setIsEditing(false);
         if (!hasStore) {
-          window.location.hash = '#dashboard/products';
+          goToProducts();
         }
       }, 1500);
     } catch (err) {

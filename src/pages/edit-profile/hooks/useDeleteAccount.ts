@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useProfileMutations } from '../../../hooks/mutations/useProfileMutations';
 import { getFirebaseErrorMessage } from '../utils/errorMessages';
@@ -20,6 +21,7 @@ export const useDeleteAccount = ({
 }: UseDeleteAccountOptions) => {
   const { currentUser, userProfile } = useAuth();
   const { deleteAccount } = useProfileMutations(currentUser?.uid || '');
+  const navigate = useNavigate();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
@@ -47,7 +49,7 @@ export const useDeleteAccount = ({
 
       // Wait 2 seconds to show success message, then redirect
       setTimeout(() => {
-        window.location.hash = '#';
+        navigate('/');
         window.location.reload();
       }, 2000);
     } catch (error: unknown) {
@@ -67,7 +69,7 @@ export const useDeleteAccount = ({
     }
     // Note: Don't set isDeleting to false on success - we want to keep showing loading until redirect
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.uid, deletePassword, deleteAccount, t, onError]); // Use uid instead of full userProfile object
+  }, [currentUser?.uid, deletePassword, deleteAccount, t, onError, navigate]); // Use uid instead of full userProfile object
 
   const closeDeleteModal = useCallback(() => {
     setShowDeleteConfirm(false);

@@ -7,6 +7,7 @@ import type * as React from 'react';
  */
 
 import { Wallet, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { LegalPageLayout } from '../../components/shared/legal';
 import { useLegalAgreementQuery } from '../../hooks/queries';
@@ -14,10 +15,10 @@ import styles from './PayoutPolicyPage.module.css';
 
 export const PayoutPolicyPage: React.FC = () => {
   const { t, locale } = useLanguage();
+  const [searchParams] = useSearchParams();
 
-  // Check for versionId in URL hash params (e.g., #payout-policy?v=abc123)
-  const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  const versionId = hashParams.get('v');
+  // Check for versionId in URL query params (e.g., /payout-policy?v=abc123)
+  const versionId = searchParams.get('v');
 
   const { agreement, isLoading, isError } = useLegalAgreementQuery(
     'payoutPolicy',

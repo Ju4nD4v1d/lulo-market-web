@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileText, Wallet, Handshake, RotateCcw, ExternalLink, CheckCircle, Clock } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useStore } from '../../../../context/StoreContext';
@@ -8,6 +9,7 @@ import { getStoreAcceptances, saveStoreAcceptances } from '../../../../services/
 import type { StoreAcceptance } from '../../../../services/api';
 import type { AgreementType } from '../../../../services/api/types';
 import { AgreementModal } from './components/AgreementModal';
+import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
 import styles from './DocumentsPage.module.css';
 
 interface DocumentCard {
@@ -54,6 +56,8 @@ export const DocumentsPage: React.FC = () => {
   const { t, locale } = useLanguage();
   const { storeId } = useStore();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { dashboardBase } = useDashboardNavigation();
   const [acceptances, setAcceptances] = useState<StoreAcceptance | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -114,11 +118,11 @@ export const DocumentsPage: React.FC = () => {
 
     if (isAccepted) {
       // If already accepted, navigate to view the signed version
-      localStorage.setItem('backNavigationPath', '#dashboard/documents');
+      localStorage.setItem('backNavigationPath', `${dashboardBase}/documents`);
       if (versionId) {
-        window.location.hash = `${doc.href}?v=${versionId}`;
+        navigate(`${doc.href.replace('#', '/')}?v=${versionId}`);
       } else {
-        window.location.hash = doc.href;
+        navigate(doc.href.replace('#', '/'));
       }
     } else {
       // If not accepted, open the modal

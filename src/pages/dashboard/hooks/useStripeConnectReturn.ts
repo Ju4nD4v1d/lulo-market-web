@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useStore } from '../../../context/StoreContext';
 import {
   createStripeAccountLink,
@@ -23,6 +24,7 @@ interface UseStripeConnectReturnResult {
 
 export function useStripeConnectReturn(): UseStripeConnectReturnResult {
   const { store, refreshStoreStatus } = useStore();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [status, setStatus] = useState<StripeReturnStatus>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const processedRef = useRef(false);
@@ -36,28 +38,25 @@ export function useStripeConnectReturn(): UseStripeConnectReturnResult {
     // Only process once
     if (processedRef.current) return;
 
-    // Check for stripe query param in hash
-    const hash = window.location.hash;
-    const match = hash.match(/[?&]stripe=(success|refresh)/);
+    // Check for stripe query param in URL
+    const stripeAction = searchParams.get('stripe');
 
-    if (!match) return;
+    if (!stripeAction || (stripeAction !== 'success' && stripeAction !== 'refresh')) return;
 
     // Need store ID to proceed
     if (!store?.id) return;
 
-    const stripeAction = match[1];
     processedRef.current = true;
 
     // Clean up the URL by removing the stripe param
-    const cleanHash = hash.replace(/[?&]stripe=(success|refresh)/, '').replace(/\?$/, '');
-    window.history.replaceState(null, '', window.location.pathname + cleanHash);
+    setSearchParams({}, { replace: true });
 
     if (stripeAction === 'success') {
       handleSuccess();
     } else if (stripeAction === 'refresh') {
       handleRefresh();
     }
-  }, [store?.id]);
+  }, [store?.id, searchParams, setSearchParams]);
 
   const handleSuccess = async () => {
     // User returned from Stripe onboarding - refresh store data to get actual status

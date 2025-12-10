@@ -42,7 +42,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({
   t,
 }) => {
   const handleNavigate = (path: string) => {
-    window.location.hash = path;
+    // Path is already provided by parent, just call navigate
     onUserMenuClick(); // Close menu
   };
   return (

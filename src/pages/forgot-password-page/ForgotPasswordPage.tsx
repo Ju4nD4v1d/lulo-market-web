@@ -5,6 +5,7 @@ import type * as React from 'react';
 
 
 import { Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { AuthLayout, FormMessage } from '../../components/shared/auth';
 import { useForgotPasswordForm } from './hooks/useForgotPasswordForm';
@@ -25,7 +26,7 @@ export const ForgotPasswordPage: React.FC = () => {
       heroTitle={t('forgot.heroTitle')}
       heroSubtitle={t('forgot.heroSubtitle')}
       backText={t('forgot.back')}
-      backLink="#login"
+      backLink="/login"
     >
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 font-heading">
@@ -72,7 +73,7 @@ export const ForgotPasswordPage: React.FC = () => {
         </button>
 
         <p className="text-center text-sm text-gray-600 mt-4">
-          {t('forgot.remember')} <a href="#login" className="text-primary-600 hover:text-primary-700 font-medium">{t('forgot.signIn')}</a>
+          {t('forgot.remember')} <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">{t('forgot.signIn')}</Link>
         </p>
       </form>
     </AuthLayout>

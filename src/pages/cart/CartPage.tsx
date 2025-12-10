@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Store } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -19,6 +20,7 @@ export const CartPage: React.FC = () => {
   const { t } = useLanguage();
   const { cart, updateQuantity, removeFromCart, deliveryFeeOverride } = useCart();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   // Calculate totals using cart.summary which has dynamic platform fee from Firestore
   // Delivery fee is null until calculated at checkout (based on distance)
@@ -55,12 +57,12 @@ export const CartPage: React.FC = () => {
   };
 
   const handleCheckout = () => {
-    window.location.hash = '#checkout';
+    navigate('/checkout');
   };
 
   const handleViewStore = () => {
     if (cart.storeId) {
-      window.location.hash = `#store/${cart.storeId}`;
+      navigate(`/store/${cart.storeId}`);
     }
   };
 
