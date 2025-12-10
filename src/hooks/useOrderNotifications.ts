@@ -13,6 +13,7 @@ const NOTIFICATION_PERMISSION_KEY = 'lulocart_notification_permission_asked';
 
 interface UseOrderNotificationsOptions {
   storeId: string | null;
+  storeSlug?: string | null;
   enabled?: boolean;
   onNavigate?: (path: string) => void;
 }
@@ -77,7 +78,7 @@ const markPermissionAsked = (): void => {
 const showBrowserNotification = (
   order: Order,
   tRef: React.MutableRefObject<(key: string) => string>,
-  storeId: string,
+  storeSlug: string,
   onNavigate?: (path: string) => void
 ): void => {
   if (!('Notification' in window) || Notification.permission !== 'granted') {
@@ -88,8 +89,8 @@ const showBrowserNotification = (
   const title = t('notifications.newOrder');
   const body = `${t('order.label')} #${order.id.slice(-8).toUpperCase()} - ${order.customerInfo.name}`;
 
-  // Build storeId-aware path
-  const ordersPath = `/dashboard/${storeId}/orders`;
+  // Build storeSlug-aware path for navigation
+  const ordersPath = `/dashboard/${storeSlug}/orders`;
 
   try {
     const notification = new Notification(title, {
@@ -118,9 +119,12 @@ const showBrowserNotification = (
 
 export const useOrderNotifications = ({
   storeId,
+  storeSlug,
   enabled = true,
   onNavigate,
 }: UseOrderNotificationsOptions): UseOrderNotificationsResult => {
+  // Use storeSlug for URLs, fallback to storeId for backward compatibility
+  const urlSlug = storeSlug || storeId;
   const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -226,8 +230,8 @@ export const useOrderNotifications = ({
           // Show notification for each new order
           newOrderIds.forEach((orderId) => {
             const newOrder = newOrders.find((o) => o.id === orderId);
-            if (newOrder && storeId) {
-              showBrowserNotification(newOrder, tRef, storeId, onNavigate);
+            if (newOrder && urlSlug) {
+              showBrowserNotification(newOrder, tRef, urlSlug, onNavigate);
             }
           });
         } else {

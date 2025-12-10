@@ -36,7 +36,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const { currentUser, logout } = useAuth();
   const { t } = useLanguage();
-  const { hasStore, storeId } = useStore();
+  const { hasStore, storeSlug } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [logoError, setLogoError] = useState(false);
@@ -69,8 +69,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setLogoError(true);
   };
 
-  // Build dashboard base path with storeId if available
-  const dashboardBase = storeId ? `/dashboard/${storeId}` : '/dashboard';
+  // Build dashboard base path with storeSlug if available
+  const dashboardBase = storeSlug ? `/dashboard/${storeSlug}` : '/dashboard';
 
   const menuItems = [
     { id: 'store' as const, label: t('admin.menu.store'), icon: Store, path: dashboardBase, disabled: false },

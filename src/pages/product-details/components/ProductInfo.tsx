@@ -19,6 +19,7 @@ interface ProductInfoProps {
   // Props for add-to-cart functionality
   product?: Product;
   storeId?: string;
+  storeSlug?: string;
   storeImage?: string;
 }
 
@@ -34,6 +35,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
   t,
   product,
   storeId,
+  storeSlug,
   storeImage,
 }) => {
   const isOutOfStock = status === 'outOfStock' || stock === 0;
@@ -76,6 +78,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           <AddToCartButton
             product={product}
             storeId={storeId}
+            storeSlug={storeSlug}
             storeName={storeName}
             storeImage={storeImage}
             size="lg"

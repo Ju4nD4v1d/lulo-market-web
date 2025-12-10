@@ -9,6 +9,7 @@ import { trackAddToCart } from '../services/analytics';
 interface AddToCartButtonProps {
   product: Product;
   storeId?: string;
+  storeSlug?: string;
   storeName?: string;
   storeImage?: string;
   className?: string;
@@ -20,6 +21,7 @@ interface AddToCartButtonProps {
 export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   product,
   storeId,
+  storeSlug,
   storeName,
   storeImage,
   className = '',
@@ -35,6 +37,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const [showStoreWarning, setShowStoreWarning] = useState(false);
 
   const targetStoreId = storeId || product.storeId;
+  const targetStoreSlug = storeSlug || targetStoreId; // Fallback to ID for backward compatibility
   const canAdd = canAddToCart(targetStoreId || '');
 
   // Stock and availability calculations
@@ -103,6 +106,7 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     try {
       addToCart(product, quantity, {
         storeId: targetStoreId,
+        storeSlug: targetStoreSlug,
         storeName,
         storeImage
       });

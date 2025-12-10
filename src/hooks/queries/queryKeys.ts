@@ -9,6 +9,7 @@ export const queryKeys = {
     list: (filters: string) => [...queryKeys.stores.lists(), { filters }] as const,
     details: () => [...queryKeys.stores.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.stores.details(), id] as const,
+    byIdentifier: (identifier: string) => [...queryKeys.stores.all, 'identifier', identifier] as const,
     stats: (id: string) => [...queryKeys.stores.all, 'stats', id] as const,
     byOwner: (ownerId: string) => [...queryKeys.stores.all, 'owner', ownerId] as const,
   },

@@ -33,38 +33,38 @@ const getPageFromPathname = (pathname: string): DashboardPageType => {
 export const DashboardPage = () => {
   const { currentUser, userType } = useAuth();
   const { t } = useLanguage();
-  const { storeId: contextStoreId } = useStore();
+  const { storeId: contextStoreId, storeSlug: contextStoreSlug } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const { storeId: urlStoreId } = useParams<{ storeId: string }>();
+  const { storeSlug: urlStoreSlug } = useParams<{ storeSlug: string }>();
   const [hasPermissions, setHasPermissions] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Use storeId from URL if available, otherwise from context
-  const storeId = urlStoreId || contextStoreId;
+  // Use storeId from context (URL slug is just for display, we always use context for actual store operations)
+  const storeId = contextStoreId;
 
   // Track current page based on pathname
   const currentPage = getPageFromPathname(location.pathname);
 
-  // Redirect to URL with storeId if not present, or if URL storeId doesn't match user's store
+  // Redirect to URL with storeSlug if not present, or normalize URL to use slug
   useEffect(() => {
-    if (!isChecking && contextStoreId) {
-      if (!urlStoreId) {
-        // No storeId in URL - add it
+    if (!isChecking && contextStoreSlug) {
+      if (!urlStoreSlug) {
+        // No slug in URL - add it
         const subPath = location.pathname.replace(/^\/dashboard\/?/, '');
         const searchParams = location.search;
-        const newPath = `/dashboard/${contextStoreId}${subPath ? `/${subPath}` : ''}${searchParams}`;
+        const newPath = `/dashboard/${contextStoreSlug}${subPath ? `/${subPath}` : ''}${searchParams}`;
         navigate(newPath, { replace: true });
-      } else if (urlStoreId !== contextStoreId && userType !== 'admin') {
-        // URL storeId doesn't match user's store (and user is not admin)
-        // Redirect to user's actual store to prevent unauthorized access
+      } else if (urlStoreSlug !== contextStoreSlug && userType !== 'admin') {
+        // URL doesn't match user's store slug (could be old ID or wrong slug)
+        // Redirect to user's actual store to prevent unauthorized access and normalize URL
         const subPath = location.pathname.replace(/^\/dashboard\/[^/]+\/?/, '');
         const searchParams = location.search;
-        const newPath = `/dashboard/${contextStoreId}${subPath ? `/${subPath}` : ''}${searchParams}`;
+        const newPath = `/dashboard/${contextStoreSlug}${subPath ? `/${subPath}` : ''}${searchParams}`;
         navigate(newPath, { replace: true });
       }
     }
-  }, [contextStoreId, urlStoreId, isChecking, userType, location.pathname, location.search, navigate]);
+  }, [contextStoreSlug, urlStoreSlug, isChecking, userType, location.pathname, location.search, navigate]);
 
   // Handle Stripe Connect return from onboarding
   const { status: stripeStatus, message: stripeMessage, clearStatus: clearStripeStatus } = useStripeConnectReturn();
@@ -72,6 +72,7 @@ export const DashboardPage = () => {
   // Real-time order notifications
   const { unreadCount, markAllAsSeen } = useOrderNotifications({
     storeId,
+    storeSlug: contextStoreSlug,
     enabled: hasPermissions && !!storeId,
     onNavigate: navigate,
   });

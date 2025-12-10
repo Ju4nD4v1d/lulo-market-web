@@ -8,6 +8,7 @@ import { getProductById } from '../services/api/productApi';
 
 interface StoreInfo {
   storeId: string;
+  storeSlug?: string;
   storeName?: string;
   storeImage?: string;
 }
@@ -44,7 +45,7 @@ interface CartContextType {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number; storeId: string; storeName: string; storeImage?: string } }
+  | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number; storeId: string; storeSlug: string; storeName: string; storeImage?: string } }
   | { type: 'REMOVE_ITEM'; payload: { itemId: string } }
   | { type: 'UPDATE_QUANTITY'; payload: { itemId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
@@ -126,6 +127,7 @@ const calculateSummary = (
 const initialState: CartState = {
   items: [],
   storeId: null,
+  storeSlug: null,
   storeName: null,
   storeImage: null,
   summary: {
@@ -152,7 +154,7 @@ const initialState: CartState = {
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const { product, quantity, storeId, storeName, storeImage } = action.payload;
+      const { product, quantity, storeId, storeSlug, storeName, storeImage } = action.payload;
 
       // If cart is empty or adding from same store, proceed
       if (!state.storeId || state.storeId === storeId) {
@@ -183,6 +185,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           ...state,
           items: newItems,
           storeId: storeId,
+          storeSlug: storeSlug,
           storeName: storeName,
           storeImage: storeImage || state.storeImage, // Keep existing image if not provided
           summary: calculateSummary(
@@ -206,6 +209,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         ...state,
         items: newItems,
         storeId: newItems.length === 0 ? null : state.storeId,
+        storeSlug: newItems.length === 0 ? null : state.storeSlug,
         storeName: newItems.length === 0 ? null : state.storeName,
         storeImage: newItems.length === 0 ? null : state.storeImage,
         summary: calculateSummary(
@@ -326,6 +330,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         ...state,
         items: updatedItems,
         storeId: updatedItems.length === 0 ? null : state.storeId,
+        storeSlug: updatedItems.length === 0 ? null : state.storeSlug,
         storeName: updatedItems.length === 0 ? null : state.storeName,
         storeImage: updatedItems.length === 0 ? null : state.storeImage,
         summary: calculateSummary(
@@ -374,6 +379,11 @@ const getInitialCart = (): CartState => {
       const parsed = JSON.parse(savedCart);
       // Validate basic structure
       if (parsed && Array.isArray(parsed.items)) {
+        // Migration: Add storeSlug for old carts that don't have it
+        // Falls back to storeId since getStoreByIdentifier will try ID lookup
+        if (!parsed.storeSlug && parsed.storeId) {
+          parsed.storeSlug = parsed.storeId;
+        }
         return parsed;
       }
     } catch (error) {
@@ -518,6 +528,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addToCart = (product: Product, quantity = 1, storeInfo?: StoreInfo) => {
     // Use product's storeId if not provided
     const targetStoreId = storeInfo?.storeId || product.storeId;
+    const targetStoreSlug = storeInfo?.storeSlug || targetStoreId; // Fallback to ID for backward compatibility
     const targetStoreName = storeInfo?.storeName || `Store ${targetStoreId}`;
     const targetStoreImage = storeInfo?.storeImage;
 
@@ -532,6 +543,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         product,
         quantity,
         storeId: targetStoreId,
+        storeSlug: targetStoreSlug,
         storeName: targetStoreName,
         storeImage: targetStoreImage
       }

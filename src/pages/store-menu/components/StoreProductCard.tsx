@@ -10,6 +10,7 @@ import styles from './StoreProductCard.module.css';
 interface StoreProductCardProps {
   product: Product;
   storeId: string;
+  storeSlug: string;
   storeName: string;
   storeImage?: string;
 }
@@ -17,6 +18,7 @@ interface StoreProductCardProps {
 export const StoreProductCard: React.FC<StoreProductCardProps> = ({
   product,
   storeId,
+  storeSlug,
   storeName,
   storeImage,
 }) => {
@@ -25,7 +27,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
 
   // Navigate to product detail page when card/image is clicked
   const handleCardClick = () => {
-    navigate(`/product/${product.id}/${storeId}`);
+    navigate(`/product/${product.id}/${storeSlug}`);
   };
 
   // Prevent card navigation when clicking the add button area
@@ -137,6 +139,7 @@ export const StoreProductCard: React.FC<StoreProductCardProps> = ({
               <AddToCartButton
                 product={product}
                 storeId={storeId}
+                storeSlug={storeSlug}
                 storeName={storeName}
                 storeImage={storeImage}
                 size="sm"

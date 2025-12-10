@@ -7,7 +7,7 @@ import { StoreData } from '../../types';
 
 interface UseProductDetailsQueryOptions {
   productId: string;
-  storeId: string;
+  storeIdentifier: string;  // Can be slug or store ID
 }
 
 interface ProductDetailsData {
@@ -37,25 +37,20 @@ interface ProductDetailsQueryResult {
  */
 export const useProductDetailsQuery = ({
   productId,
-  storeId,
+  storeIdentifier,
 }: UseProductDetailsQueryOptions): ProductDetailsQueryResult => {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: [...queryKeys.products.detail(productId), storeId],
+    queryKey: [...queryKeys.products.detail(productId), storeIdentifier],
     queryFn: async (): Promise<ProductDetailsData> => {
       // Fetch product
       const product = await productApi.getProductById(productId);
 
-      // Fetch store (don't fail if store not found)
-      let store: StoreData | null = null;
-      try {
-        store = await storeApi.getStoreById(storeId);
-      } catch (storeError) {
-        console.warn('Could not fetch store:', storeError);
-      }
+      // Fetch store by identifier (slug or ID for backward compatibility)
+      const store = await storeApi.getStoreByIdentifier(storeIdentifier);
 
       return { product, store };
     },
-    enabled: !!productId && !!storeId,
+    enabled: !!productId && !!storeIdentifier,
     staleTime: 5 * 60 * 1000, // 5 minutes - product details don't change often
     gcTime: 30 * 60 * 1000, // 30 minutes cache
     refetchOnWindowFocus: false,

@@ -1,6 +1,16 @@
 {
   "indexes": [
     {
+      "collectionGroup": "stores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "slug",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "monthlyRevenueSummary",
       "queryScope": "COLLECTION",
       "fields": [

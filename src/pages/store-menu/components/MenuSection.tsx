@@ -111,6 +111,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 key={product.id}
                 product={product}
                 storeId={store.id}
+                storeSlug={store.slug}
                 storeName={store.name}
                 storeImage={store.storeImage || store.imageUrl}
               />

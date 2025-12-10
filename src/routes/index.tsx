@@ -108,9 +108,9 @@ export const AppRoutes = () => {
           <Route path="/seller-agreement" element={<SellerAgreement />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
 
-          {/* Store & Product Routes */}
-          <Route path="/store/:storeId" element={<StoreMenu />} />
-          <Route path="/product/:productId/:storeId" element={<ProductDetailsWrapper />} />
+          {/* Store & Product Routes - uses slug (or legacy ID for backward compatibility) */}
+          <Route path="/store/:storeSlug" element={<StoreMenu />} />
+          <Route path="/product/:productId/:storeSlug" element={<ProductDetailsWrapper />} />
 
           {/* Legacy redirect: shopper-dashboard → store */}
           <Route path="/shopper-dashboard/:storeId" element={<Navigate to="/store/:storeId" replace />} />
@@ -152,16 +152,16 @@ export const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
-          {/* Dashboard with storeId - the canonical URL format */}
+          {/* Dashboard with storeSlug - the canonical URL format */}
           <Route
-            path="/dashboard/:storeId/*"
+            path="/dashboard/:storeSlug/*"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
             }
           />
-          {/* Dashboard without storeId - will redirect to /dashboard/:storeId */}
+          {/* Dashboard without storeSlug - will redirect to /dashboard/:storeSlug */}
           <Route
             path="/dashboard/*"
             element={
