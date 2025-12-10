@@ -65,17 +65,17 @@ export const HomePage = () => {
   }, [fetchStores]);
 
   /**
-   * Handle store card click - navigate to store page
+   * Handle store card click - navigate to store page using slug
    */
   const handleStoreClick = useCallback((store: StoreData) => {
-    navigate(`/store/${store.id}`);
+    navigate(`/store/${store.slug}`);
   }, [navigate]);
 
   /**
-   * Handle product card click - navigate to product details page
+   * Handle product card click - navigate to product details page using store slug
    */
   const handleProductClick = useCallback((product: Product, store: StoreData) => {
-    navigate(`/product/${product.id}/${store.id}`);
+    navigate(`/product/${product.id}/${store.slug}`);
   }, [navigate]);
 
   /**

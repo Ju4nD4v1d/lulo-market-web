@@ -11,6 +11,7 @@ interface ProductCardProps {
   onClick?: (product: Product) => void;
   showAddToCart?: boolean;
   storeId?: string;
+  storeSlug?: string;
   storeName?: string;
   storeImage?: string;
 }
@@ -20,6 +21,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onClick,
   showAddToCart = true,
   storeId,
+  storeSlug,
   storeName,
   storeImage
 }) => {
@@ -178,6 +180,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <AddToCartButton
                 product={product}
                 storeId={storeId}
+                storeSlug={storeSlug}
                 storeName={storeName}
                 storeImage={storeImage}
                 size="sm"

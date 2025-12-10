@@ -8,6 +8,7 @@ import { StoreData } from '../../types';
 import { queryKeys } from '../queries';
 import * as storeApi from '../../services/api/storeApi';
 import * as storageApi from '../../services/api/storageApi';
+import { generateUniqueSlug } from '../../utils/storeHelpers';
 
 interface StoreMutationVariables {
   storeData: StoreData;
@@ -21,6 +22,9 @@ export const useStoreMutations = (ownerId: string) => {
 
   const createStore = useMutation({
     mutationFn: async ({ storeData, storeImage, currentUserId }: StoreMutationVariables) => {
+      // Generate unique slug from store name
+      const slug = await generateUniqueSlug(storeData.name);
+
       // Upload main store image if provided
       let mainImageUrl = '';
       if (storeImage?.file) {
@@ -36,6 +40,7 @@ export const useStoreMutations = (ownerId: string) => {
       // Prepare store data for API
       const createData: storeApi.CreateStoreData = {
         name: storeData.name,
+        slug: slug,
         description: storeData.description,
         category: storeData.category,
         cuisine: storeData.cuisine,

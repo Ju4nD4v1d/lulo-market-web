@@ -27,6 +27,7 @@ export interface StoreLocation {
 
 export interface StoreData {
   id: string;
+  slug: string;  // URL-friendly identifier (e.g., "lujabites") - immutable once set
   name: string;
   description?: string;
   category?: string;

@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
 /**
- * Hook for navigating within the dashboard with storeId-aware URLs.
+ * Hook for navigating within the dashboard with storeSlug-aware URLs.
  * Returns helper functions to navigate to dashboard sections.
  */
 export const useDashboardNavigation = () => {
   const navigate = useNavigate();
-  const { storeId } = useStore();
+  const { storeSlug } = useStore();
 
-  // Build the dashboard base path with storeId
-  const dashboardBase = storeId ? `/dashboard/${storeId}` : '/dashboard';
+  // Build the dashboard base path with storeSlug
+  const dashboardBase = storeSlug ? `/dashboard/${storeSlug}` : '/dashboard';
 
   const goToStore = useCallback(() => {
     navigate(dashboardBase);

@@ -1176,14 +1176,6 @@ export const translations = {
     'admin.orphanTool.deleteSuccess': 'Stripe account deleted successfully',
     'admin.orphanTool.deleteError': 'Failed to delete Stripe account',
 
-    // Order Timeline
-    'order.timeline.received': 'Order Received',
-    'order.timeline.confirmed': 'Order Confirmed',
-    'order.timeline.preparing': 'Preparing Order',
-    'order.timeline.ready': 'Ready for Delivery',
-    'order.timeline.outForDelivery': 'Out for Delivery',
-    'order.timeline.delivered': 'Delivered',
-
     // Order Sorting
     'order.sort.newest': 'Newest First',
     'order.sort.oldest': 'Oldest First',
@@ -3554,14 +3546,6 @@ If the customer disputes a payment:
     'admin.orphanTool.invalidAccountId': 'ID de cuenta inválido. Debe comenzar con "acct_"',
     'admin.orphanTool.deleteSuccess': 'Cuenta de Stripe eliminada exitosamente',
     'admin.orphanTool.deleteError': 'Error al eliminar la cuenta de Stripe',
-
-    // Order Timeline
-    'order.timeline.received': 'Pedido Recibido',
-    'order.timeline.confirmed': 'Pedido Confirmado',
-    'order.timeline.preparing': 'Preparando Pedido',
-    'order.timeline.ready': 'Listo para Entrega',
-    'order.timeline.outForDelivery': 'En Camino',
-    'order.timeline.delivered': 'Entregado',
 
     // Order Sorting
     'order.sort.newest': 'Más Recientes',

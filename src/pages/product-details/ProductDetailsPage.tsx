@@ -18,7 +18,7 @@ import styles from './ProductDetailsPage.module.css';
 
 export const ProductDetailsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { productId, storeId } = useParams<{ productId: string; storeId: string }>();
+  const { productId, storeSlug } = useParams<{ productId: string; storeSlug: string }>();
   const { t, locale, toggleLanguage } = useLanguage();
   const { currentUser, userProfile, logout } = useAuth();
   const { cart } = useCart();
@@ -26,7 +26,7 @@ export const ProductDetailsPage: React.FC = () => {
   // Data fetching with TanStack Query
   const { product, store, isLoading, isError } = useProductDetailsQuery({
     productId: productId!,
-    storeId: storeId!,
+    storeIdentifier: storeSlug!,
   });
 
   // Track ViewContent event when product loads
@@ -162,7 +162,8 @@ export const ProductDetailsPage: React.FC = () => {
                 reviewCount={product.reviewCount}
                 t={t}
                 product={product}
-                storeId={storeId!}
+                storeId={store?.id || ''}
+                storeSlug={store?.slug}
                 storeImage={store?.storeImage || store?.imageUrl}
               />
             </div>

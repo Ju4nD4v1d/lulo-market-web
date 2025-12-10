@@ -26,6 +26,7 @@ import { COLLECTIONS, safeDate } from './types';
 
 export interface CreateStoreData {
   name: string;
+  slug: string;  // URL-friendly identifier - must be unique
   description: string;
   category: string;
   cuisine: string;
@@ -164,6 +165,7 @@ function transformLocation(locationData: unknown): StoreData['location'] {
 export function transformStoreDocument(docId: string, data: Record<string, unknown>): StoreData {
   return {
     id: docId,
+    slug: (data.slug as string) || docId,  // Fallback to ID for backward compatibility
     name: (data.name as string) || '',
     description: (data.description as string) || '',
     category: (data.category as string) || '',
@@ -236,6 +238,10 @@ export function prepareStoreForFirestore(
 
   // Core fields
   if (data.name !== undefined) firestoreData.name = data.name;
+  // Slug is only set on create - immutable after that
+  if ('slug' in data && (data as CreateStoreData).slug) {
+    firestoreData.slug = (data as CreateStoreData).slug;
+  }
   if (data.description !== undefined) firestoreData.description = data.description;
   if (data.category !== undefined) firestoreData.category = data.category;
   if (data.cuisine !== undefined) firestoreData.cuisine = data.cuisine;
@@ -341,6 +347,44 @@ export async function getStoreById(storeId: string): Promise<StoreData> {
   }
 
   return transformStoreDocument(snapshot.id, snapshot.data());
+}
+
+/**
+ * Get a single store by slug (URL-friendly identifier)
+ * Returns null if not found (unlike getStoreById which throws)
+ */
+export async function getStoreBySlug(slug: string): Promise<StoreData | null> {
+  const storesRef = collection(db, COLLECTIONS.STORES);
+  const q = query(storesRef, where('slug', '==', slug));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const storeDoc = snapshot.docs[0];
+  return transformStoreDocument(storeDoc.id, storeDoc.data());
+}
+
+/**
+ * Get a store by identifier - tries slug first, then falls back to document ID
+ * This allows both /store/lujabites and legacy /store/abc123 URLs to work
+ */
+export async function getStoreByIdentifier(identifier: string): Promise<StoreData | null> {
+  // First, try to find by slug (most common case for new URLs)
+  const storeBySlug = await getStoreBySlug(identifier);
+  if (storeBySlug) {
+    return storeBySlug;
+  }
+
+  // Fallback: try to find by document ID (for backward compatibility)
+  try {
+    const storeById = await getStoreById(identifier);
+    return storeById;
+  } catch {
+    // Store not found by ID either
+    return null;
+  }
 }
 
 /**

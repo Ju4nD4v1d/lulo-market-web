@@ -7,6 +7,7 @@ import { StoreData } from '../types/store';
 interface StoreContextType {
   hasStore: boolean;
   storeId: string | null;
+  storeSlug: string | null;
   store: StoreData | null;
   refreshStoreStatus: () => Promise<void>;
   setHasStore: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,6 +27,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { currentUser } = useAuth();
   const [hasStore, setHasStore] = useState(false);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [storeSlug, setStoreSlug] = useState<string | null>(null);
   const [store, setStore] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +35,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!currentUser) {
       setHasStore(false);
       setStoreId(null);
+      setStoreSlug(null);
       setStore(null);
       setLoading(false);
       return;
@@ -43,16 +46,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (result.storeId && result.storeData) {
         setHasStore(true);
         setStoreId(result.storeId);
+        setStoreSlug(result.storeData.slug || result.storeId); // Fallback to ID for backward compatibility
         setStore(result.storeData);
       } else {
         setHasStore(false);
         setStoreId(null);
+        setStoreSlug(null);
         setStore(null);
       }
     } catch (error) {
       console.error('Error checking store status:', error);
       setHasStore(false);
       setStoreId(null);
+      setStoreSlug(null);
       setStore(null);
     }
     setLoading(false);
@@ -63,7 +69,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [currentUser]);
 
   return (
-    <StoreContext.Provider value={{ hasStore, storeId, store, refreshStoreStatus, setHasStore }}>
+    <StoreContext.Provider value={{ hasStore, storeId, storeSlug, store, refreshStoreStatus, setHasStore }}>
       {!loading && children}
     </StoreContext.Provider>
   );

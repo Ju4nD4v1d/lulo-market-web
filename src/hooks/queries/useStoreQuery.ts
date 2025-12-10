@@ -55,3 +55,42 @@ export const useStoreQuery = (storeId: string | null): UseStoreQueryReturn => {
     refetch,
   };
 };
+
+/**
+ * Fetch a single store by identifier (slug or ID) using TanStack Query
+ *
+ * This hook supports both slug-based URLs (e.g., /store/lujabites) and
+ * legacy ID-based URLs (e.g., /store/abc123) for backward compatibility.
+ *
+ * Use this hook when:
+ * - Reading store identifier from URL params
+ * - You need to support both slug and ID lookups
+ *
+ * @param identifier - The slug or ID of the store to fetch
+ * @returns Store data and query state
+ */
+export const useStoreByIdentifierQuery = (identifier: string | null): UseStoreQueryReturn => {
+  const {
+    data: store = null,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.stores.byIdentifier(identifier || ''),
+    queryFn: () => storeApi.getStoreByIdentifier(identifier!),
+    enabled: !!identifier,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  return {
+    store,
+    isLoading,
+    isError,
+    error: error instanceof Error ? error : null,
+    refetch,
+  };
+};

@@ -61,8 +61,10 @@ export const CartPage: React.FC = () => {
   };
 
   const handleViewStore = () => {
-    if (cart.storeId) {
-      navigate(`/store/${cart.storeId}`);
+    // Use storeSlug if available, fallback to storeId for backward compatibility
+    const storeIdentifier = cart.storeSlug || cart.storeId;
+    if (storeIdentifier) {
+      navigate(`/store/${storeIdentifier}`);
     }
   };
 

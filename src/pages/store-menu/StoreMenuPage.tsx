@@ -1,26 +1,25 @@
 import type * as React from 'react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CustomStoreDetail } from './components/CustomStoreDetail';
-import { StoreData } from '../../types/store';
-import { useStoreData } from '../../hooks/useStoreData';
+import { useStoreByIdentifierQuery } from '../../hooks/queries/useStoreQuery';
 import { trackViewContent } from '../../services/analytics';
 
 export const StoreMenuPage: React.FC = () => {
-  const { storeId } = useParams<{ storeId: string }>();
+  // URL param is now called 'storeSlug' but can be either slug or legacy ID
+  const { storeSlug } = useParams<{ storeSlug: string }>();
   const navigate = useNavigate();
-  const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
-  const { stores } = useStoreData();
 
-  // Find the store from the stores list
+  // Fetch store by identifier (slug or ID for backward compatibility)
+  const { store: selectedStore, isLoading } = useStoreByIdentifierQuery(storeSlug || null);
+
+  // URL normalization: redirect from ID URLs to slug URLs for SEO
   useEffect(() => {
-    if (storeId && stores.length > 0) {
-      const store = stores.find(s => s.id === storeId);
-      if (store) {
-        setSelectedStore(store);
-      }
+    if (selectedStore && storeSlug && storeSlug !== selectedStore.slug) {
+      // User accessed via ID or old URL, redirect to canonical slug URL
+      navigate(`/store/${selectedStore.slug}`, { replace: true });
     }
-  }, [storeId, stores]);
+  }, [selectedStore, storeSlug, navigate]);
 
   // Track ViewContent event when store loads
   const hasTrackedView = useRef(false);
@@ -40,7 +39,7 @@ export const StoreMenuPage: React.FC = () => {
   };
 
   // Loading state while fetching store
-  if (!selectedStore && storeId) {
+  if (isLoading) {
     return (
       <div style={{
         minHeight: '100vh',
