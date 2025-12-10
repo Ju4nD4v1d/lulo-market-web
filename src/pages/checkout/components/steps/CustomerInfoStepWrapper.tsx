@@ -19,14 +19,16 @@ export const CustomerInfoStepWrapper: React.FC = () => {
     goToNextStep,
     hasSavedAddress,
     applyProfileAddressAndSkipToReview,
+    isApplyingProfileAddress,
     t
   } = useCheckoutContext();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (validateCustomerInfoStep()) {
       // If user wants to use profile and has saved address, skip to review
+      // (this also calculates the delivery fee before skipping)
       if (formData.useProfileAsDeliveryContact && hasSavedAddress) {
-        applyProfileAddressAndSkipToReview();
+        await applyProfileAddressAndSkipToReview();
       } else {
         goToNextStep();
       }
@@ -44,6 +46,7 @@ export const CustomerInfoStepWrapper: React.FC = () => {
       currentUserEmail={currentUser?.email}
       useProfileAsDeliveryContact={formData.useProfileAsDeliveryContact}
       hasSavedAddress={hasSavedAddress}
+      isLoading={isApplyingProfileAddress}
       onChange={(field, value) => updateField('customerInfo', field, value)}
       onUseProfileToggle={handleUseProfileToggle}
       onContinue={handleContinue}

@@ -49,8 +49,8 @@ interface UseCheckoutDeliveryFeeReturn {
   deliveryFeeError: string | null;
   /** Whether delivery fee is currently being calculated */
   isCalculatingDeliveryFee: boolean;
-  /** Calculate delivery fee based on current address - returns true if successful */
-  calculateDeliveryFeeForAddress: () => Promise<boolean>;
+  /** Calculate delivery fee based on address - pass addressOverride to use specific address instead of form state */
+  calculateDeliveryFeeForAddress: (addressOverride?: DeliveryAddress) => Promise<boolean>;
   /** Reset delivery fee calculation state */
   resetDeliveryFee: () => void;
 }
@@ -86,25 +86,29 @@ export function useCheckoutDeliveryFee({
   const lastCalculatedAddressRef = useRef<string | null>(null);
 
   /**
-   * Calculate delivery fee based on current form address.
+   * Calculate delivery fee based on address.
    * Called when user completes the address step.
+   * @param addressOverride - Optional address to use instead of form state (useful when state hasn't updated yet)
    * Returns true if calculation succeeded, false if it failed.
    */
-  const calculateDeliveryFeeForAddress = useCallback(async (): Promise<boolean> => {
+  const calculateDeliveryFeeForAddress = useCallback(async (addressOverride?: DeliveryAddress): Promise<boolean> => {
+    // Use override address if provided, otherwise use form state
+    const address = addressOverride || deliveryAddress;
+
     // Validate we have the necessary data
-    if (!deliveryAddress.street || !deliveryAddress.city || !deliveryAddress.postalCode) {
+    if (!address.street || !address.city || !address.postalCode) {
       return false;
     }
 
     // If store coordinates missing, still call calculateFee to get proper error message
     if (!storeCoordinates) {
-      const result = await calculateFee(
+      await calculateFee(
         {
-          street: deliveryAddress.street,
-          city: deliveryAddress.city,
-          province: deliveryAddress.province,
-          postalCode: deliveryAddress.postalCode,
-          country: deliveryAddress.country || 'Canada',
+          street: address.street,
+          city: address.city,
+          province: address.province,
+          postalCode: address.postalCode,
+          country: address.country || 'Canada',
         },
         { lat: 0, lng: 0 } // Will trigger "Store location is not available" error
       );
@@ -114,11 +118,11 @@ export function useCheckoutDeliveryFee({
     // Calculate the delivery fee with valid store coordinates
     const result = await calculateFee(
       {
-        street: deliveryAddress.street,
-        city: deliveryAddress.city,
-        province: deliveryAddress.province,
-        postalCode: deliveryAddress.postalCode,
-        country: deliveryAddress.country || 'Canada',
+        street: address.street,
+        city: address.city,
+        province: address.province,
+        postalCode: address.postalCode,
+        country: address.country || 'Canada',
       },
       storeCoordinates
     );

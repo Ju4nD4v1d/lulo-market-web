@@ -4,7 +4,7 @@ import type * as React from 'react';
  */
 
 
-import { User, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, MapPin, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { CustomerInfoData, ValidationErrors } from '../../utils/validationHelpers';
 import styles from './CustomerInfoStep.module.css';
 
@@ -14,6 +14,7 @@ interface CustomerInfoStepProps {
   currentUserEmail?: string;
   useProfileAsDeliveryContact: boolean;
   hasSavedAddress?: boolean;
+  isLoading?: boolean;
   onChange: (field: keyof CustomerInfoData, value: string) => void;
   onUseProfileToggle: (value: boolean) => void;
   onContinue: () => void;
@@ -26,6 +27,7 @@ export const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
   currentUserEmail,
   useProfileAsDeliveryContact,
   hasSavedAddress = false,
+  isLoading = false,
   onChange,
   onUseProfileToggle,
   onContinue,
@@ -151,11 +153,18 @@ export const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
         onClick={onContinue}
         className={styles.continueButton}
         type="button"
+        disabled={isLoading}
       >
-        {willSkipAddressStep
-          ? t('button.continueToReview')
-          : t('button.continueToDeliveryAddress')
-        }
+        {isLoading ? (
+          <>
+            <Loader2 className={styles.spinner} />
+            {t('checkout.calculatingDeliveryFee')}
+          </>
+        ) : willSkipAddressStep ? (
+          t('button.continueToReview')
+        ) : (
+          t('button.continueToDeliveryAddress')
+        )}
       </button>
     </div>
   );
