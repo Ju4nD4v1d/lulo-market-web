@@ -112,7 +112,8 @@ interface CheckoutContextValue {
 
   // Profile address helpers
   hasSavedAddress: boolean;
-  applyProfileAddressAndSkipToReview: () => void;
+  applyProfileAddressAndSkipToReview: () => Promise<void>;
+  isApplyingProfileAddress: boolean;
 
   // Delivery schedule
   availableDeliveryDates: DeliveryDateOption[];
@@ -134,8 +135,8 @@ interface CheckoutContextValue {
   deliveryFeeError: string | null;
   /** Whether delivery fee is currently being calculated */
   isCalculatingDeliveryFee: boolean;
-  /** Calculate delivery fee based on current address - call when address step is complete */
-  calculateDeliveryFeeForAddress: () => Promise<boolean>;
+  /** Calculate delivery fee - pass addressOverride to use specific address instead of form state */
+  calculateDeliveryFeeForAddress: (addressOverride?: DeliveryAddress) => Promise<boolean>;
   /** Reset delivery fee calculation state */
   resetDeliveryFee: () => void;
 }
@@ -228,19 +229,8 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setEntireFormData: checkoutForm.setEntireFormData,
   });
 
-  // Profile address hook
-  const {
-    hasSavedAddress,
-    applyProfileAddressAndSkipToReview,
-  } = useCheckoutProfileAddress({
-    currentUser,
-    userProfile,
-    formData: checkoutForm.formData,
-    setEntireFormData: checkoutForm.setEntireFormData,
-    goToStep: checkoutWizard.goToStep,
-  });
-
   // Delivery fee hook (includes new customer discount calculation)
+  // NOTE: Must be defined BEFORE useCheckoutProfileAddress since it needs calculateDeliveryFeeForAddress
   const {
     deliveryFee,
     deliveryDistance,
@@ -255,6 +245,20 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setCartDeliveryFeeDiscount,
     userTotalOrders,
     isLoggedIn: !!currentUser,
+  });
+
+  // Profile address hook
+  const {
+    hasSavedAddress,
+    applyProfileAddressAndSkipToReview,
+    isApplyingProfileAddress,
+  } = useCheckoutProfileAddress({
+    currentUser,
+    userProfile,
+    formData: checkoutForm.formData,
+    setEntireFormData: checkoutForm.setEntireFormData,
+    goToStep: checkoutWizard.goToStep,
+    calculateDeliveryFeeForAddress,
   });
 
   // Payment state hook
@@ -323,6 +327,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       // Profile address helpers
       hasSavedAddress,
       applyProfileAddressAndSkipToReview,
+      isApplyingProfileAddress,
 
       // Delivery schedule
       availableDeliveryDates,
@@ -369,6 +374,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       t,
       hasSavedAddress,
       applyProfileAddressAndSkipToReview,
+      isApplyingProfileAddress,
       availableDeliveryDates,
       isLoadingSchedule,
       hasNoDeliveryDates,
