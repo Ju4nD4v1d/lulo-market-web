@@ -14,9 +14,16 @@ import { DayOfWeek } from '../../types/schedule';
 /**
  * Minimum hours before a delivery can be scheduled.
  * Used at checkout to enforce a buffer between order placement and delivery.
- * Example: If minHoursFromNow=24, an order at 10am Monday can't be delivered until 10am Tuesday.
+ * Example: If minHoursFromNow=8, an order at 10am can be delivered starting at 6pm same day.
  */
-export const CHECKOUT_LEAD_HOURS = 24;
+export const CHECKOUT_LEAD_HOURS = 8;
+
+/**
+ * Minimum hours before delivery window when customer can cancel an order.
+ * Used to prevent last-minute cancellations that would impact store operations.
+ * Example: If set to 24, customer cannot cancel if delivery is within 24 hours.
+ */
+export const CANCELLATION_CUTOFF_HOURS = 24;
 
 /**
  * Lead time for cart display purposes (informational only).

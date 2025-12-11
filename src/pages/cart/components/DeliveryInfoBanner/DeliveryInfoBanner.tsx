@@ -12,7 +12,7 @@ import { getAvailableDeliveryDatesMultiSlot } from '../../../../utils/effectiveH
 import {
   DELIVERY_LOOKAHEAD_DAYS,
   CART_DISPLAY_LEAD_HOURS,
-  CHECKOUT_LEAD_HOURS,
+  CANCELLATION_CUTOFF_HOURS,
 } from '../../../../utils/schedule/constants';
 import styles from './DeliveryInfoBanner.module.css';
 
@@ -75,7 +75,7 @@ export const DeliveryInfoBanner: React.FC<DeliveryInfoBannerProps> = ({ storeId 
     // Calculate hours until actual delivery window starts
     const hoursUntilDelivery = (deliveryStartTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    return hoursUntilDelivery <= CHECKOUT_LEAD_HOURS;
+    return hoursUntilDelivery <= CANCELLATION_CUTOFF_HOURS;
   }, [nextDelivery]);
 
   // Format time window
