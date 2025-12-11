@@ -2201,6 +2201,21 @@ If the customer disputes a payment:
     'order.status.paymentFailed': 'Payment Failed',
     'order.error.submitFailed': 'Failed to place order. Please try again.',
 
+    // Order Cancellation (Customer)
+    'order.cancel.button': 'Cancel Order',
+    'order.cancel.confirmTitle': 'Cancel this order?',
+    'order.cancel.confirmMessage': 'Are you sure you want to cancel this order? This action cannot be undone.',
+    'order.cancel.refundNote': 'The held funds on your card will be released immediately. It may take 5-10 business days for the release to appear on your statement.',
+    'order.cancel.keepOrder': 'Keep Order',
+    'order.cancel.confirmButton': 'Yes, Cancel Order',
+    'order.cancel.cancelling': 'Cancelling...',
+    'order.cancel.tooCloseToDelivery': 'This order cannot be cancelled because it is within 24 hours of the scheduled delivery time.',
+    'order.cancel.errorGeneric': 'Failed to cancel order. Please try again or contact support.',
+    'order.cancel.checking': 'Checking...',
+    'order.cancel.alreadyCancelled': 'This order has already been cancelled.',
+    'order.cancel.paymentCaptured': 'This order cannot be cancelled because the payment has already been processed.',
+    'order.cancel.notEligible': 'This order is no longer eligible for cancellation.',
+
     // Payment Status (Delayed Capture)
     'order.payment.authorized': 'Payment Authorized',
     'order.payment.captured': 'Payment Captured',
@@ -4561,6 +4576,21 @@ Si el cliente disputa el pago:
     'order.status.cancelled': 'Cancelado',
     'order.status.paymentFailed': 'Pago Fallido',
     'order.error.submitFailed': 'Error al enviar el pedido. Inténtalo nuevamente.',
+
+    // Order Cancellation (Customer)
+    'order.cancel.button': 'Cancelar Pedido',
+    'order.cancel.confirmTitle': '¿Cancelar este pedido?',
+    'order.cancel.confirmMessage': '¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.',
+    'order.cancel.refundNote': 'Los fondos retenidos en tu tarjeta se liberarán inmediatamente. Puede tomar de 5 a 10 días hábiles para que la liberación aparezca en tu estado de cuenta.',
+    'order.cancel.keepOrder': 'Mantener Pedido',
+    'order.cancel.confirmButton': 'Sí, Cancelar Pedido',
+    'order.cancel.cancelling': 'Cancelando...',
+    'order.cancel.tooCloseToDelivery': 'Este pedido no se puede cancelar porque está dentro de las 24 horas previas a la hora de entrega programada.',
+    'order.cancel.errorGeneric': 'Error al cancelar el pedido. Inténtalo de nuevo o contacta a soporte.',
+    'order.cancel.checking': 'Verificando...',
+    'order.cancel.alreadyCancelled': 'Este pedido ya ha sido cancelado.',
+    'order.cancel.paymentCaptured': 'Este pedido no se puede cancelar porque el pago ya ha sido procesado.',
+    'order.cancel.notEligible': 'Este pedido ya no es elegible para cancelación.',
 
     // Payment Status (Delayed Capture)
     'order.payment.authorized': 'Pago Autorizado',

@@ -15,7 +15,9 @@ import {
   OrderProgressTimeline,
   StoreContactCard,
   PaymentStatusBadge,
+  CancelOrderSection,
 } from './components';
+import { useCustomerOrderCancellation } from '../../hooks/mutations/useCustomerOrderCancellation';
 import styles from './OrderTrackingPage.module.css';
 
 export const OrderTrackingPage: React.FC = () => {
@@ -36,6 +38,8 @@ export const OrderTrackingPage: React.FC = () => {
     isReceiptExpired,
     error: receiptError
   } = useReceipt(order, locale as 'en' | 'es', refetch);
+
+  const { cancelOrder, isCancelling } = useCustomerOrderCancellation();
 
   // Use fetched order directly (receipt data now comes from Firestore)
   const displayOrder = order;
@@ -141,6 +145,16 @@ export const OrderTrackingPage: React.FC = () => {
               onGenerateReceipt={generateReceipt}
               onDownloadReceipt={downloadReceipt}
               t={t}
+            />
+            <CancelOrderSection
+              order={displayOrder}
+              onCancel={() => cancelOrder({
+                orderId: displayOrder.id,
+                userId: currentUser?.uid,
+                userEmail: currentUser?.email || ''
+              })}
+              onRefresh={refetch}
+              isLoading={isCancelling}
             />
           </div>
         </div>
