@@ -209,3 +209,29 @@
     transform: translateY(0);
   }
 }
+
+/* Redirecting indicator */
+.redirectingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: rgba(200, 228, 0, 0.1);
+  border-radius: 2rem;
+  animation: fadeIn 0.5s ease;
+}
+
+.redirectingSpinner {
+  width: 1rem;
+  height: 1rem;
+  color: var(--primary-400, #C8E400);
+  animation: spin 1s linear infinite;
+}
+
+.redirectingText {
+  font-size: 0.875rem;
+  color: rgb(75 85 99);
+  font-weight: 500;
+}

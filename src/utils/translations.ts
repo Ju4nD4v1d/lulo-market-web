@@ -2112,8 +2112,9 @@ If the customer disputes a payment:
     'processing.verifyingPayment': 'Verifying payment...',
     'processing.creatingOrder': 'Creating your order...',
     'processing.sendingConfirmation': 'Sending confirmation...',
-    'processing.complete': 'Order confirmed!',
+    'processing.complete': 'Order created!',
     'processing.confirmationEmailSent': 'A confirmation email has been sent to your inbox.',
+    'processing.redirecting': 'Redirecting to your order...',
 
     // Common Actions
     'common.tryAgain': 'Try Again',
@@ -4488,8 +4489,9 @@ Si el cliente disputa el pago:
     'processing.verifyingPayment': 'Verificando pago...',
     'processing.creatingOrder': 'Creando tu pedido...',
     'processing.sendingConfirmation': 'Enviando confirmación...',
-    'processing.complete': '¡Pedido confirmado!',
+    'processing.complete': '¡Pedido creado!',
     'processing.confirmationEmailSent': 'Se ha enviado un correo de confirmación a tu bandeja de entrada.',
+    'processing.redirecting': 'Redirigiendo a tu pedido...',
 
     // Common Actions
     'common.tryAgain': 'Intentar de Nuevo',

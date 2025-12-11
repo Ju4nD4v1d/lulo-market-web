@@ -149,12 +149,12 @@ export const useOrderCreation = ({
     setPendingOrderId(orderIdToUse);
     setIsMonitoringOrder(true);
 
-    // Fallback: if webhook doesn't update within 30 seconds, READ actual status and navigate
-    // Per backend spec: Use progressive polling (30s covers 99.9% of webhook deliveries)
+    // Fallback: if webhook doesn't update within 10 seconds, READ actual status and navigate
+    // Webhooks typically arrive within 1-5 seconds; 10s provides generous buffer
     // IMPORTANT: Frontend NEVER writes payment status - only reads from Firestore
     // The webhook is the source of truth for payment status
-    // If still pending after 30s, user sees real status; backend cleanup handles edge cases
-    const FALLBACK_TIMEOUT_MS = 30000; // 30 seconds
+    // If still pending after 10s, user sees real status; backend cleanup handles edge cases
+    const FALLBACK_TIMEOUT_MS = 10000; // 10 seconds
     fallbackTimeoutRef.current = setTimeout(async () => {
       // Check if component is still mounted and order hasn't been completed
       if (!isMountedRef.current) {
