@@ -13,7 +13,7 @@ import { useState, useMemo } from 'react';
 import { XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { Order, OrderStatus } from '../../../../types/order';
 import { useLanguage } from '../../../../context/LanguageContext';
-import { CHECKOUT_LEAD_HOURS } from '../../../../utils/schedule/constants';
+import { CANCELLATION_CUTOFF_HOURS } from '../../../../utils/schedule/constants';
 import styles from './CancelOrderSection.module.css';
 
 interface CancelOrderSectionProps {
@@ -57,7 +57,7 @@ function canCancelOrder(order: Order): { canCancel: boolean; reason?: string } {
   if (deliveryStartTime) {
     const hoursUntilDelivery = (deliveryStartTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilDelivery <= CHECKOUT_LEAD_HOURS) {
+    if (hoursUntilDelivery <= CANCELLATION_CUTOFF_HOURS) {
       return { canCancel: false, reason: 'too_close_to_delivery' };
     }
   }
