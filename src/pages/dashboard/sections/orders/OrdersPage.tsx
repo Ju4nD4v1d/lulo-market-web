@@ -31,6 +31,7 @@ import { CancelOrderModal } from './components/CancelOrderModal';
 import { Order, OrderStatus } from '../../../../types/order';
 import { getNextStatus, formatPrice, formatDate } from './utils/orderHelpers';
 import { statusColors } from './utils/statusConfig';
+import * as paymentApi from '../../../../services/api/paymentApi';
 import styles from './OrdersPage.module.css';
 
 const getStatusIcon = (status: OrderStatus, iconClass: string) => {
@@ -96,10 +97,10 @@ export const OrdersPage = () => {
     return null;
   }, []);
 
-  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus, order?: Order) => {
     setUpdatingOrderId(orderId);
     try {
-      await updateOrderStatusMutation.mutateAsync({ orderId, newStatus });
+      await updateOrderStatusMutation.mutateAsync({ orderId, newStatus, order });
     } finally {
       setUpdatingOrderId(null);
     }
@@ -113,7 +114,27 @@ export const OrdersPage = () => {
   const confirmCancelOrder = async () => {
     if (!orderToCancel) return;
 
-    await updateOrderStatus(orderToCancel.id, OrderStatus.CANCELLED);
+    // If payment is authorized, void the authorization first to release held funds
+    if (orderToCancel.paymentStatus === 'authorized') {
+      console.log('🔄 Voiding payment authorization before cancelling order...');
+      try {
+        const voidResult = await paymentApi.voidPaymentAuthorization(
+          orderToCancel.id,
+          'Order cancelled by store'
+        );
+        if (voidResult.success) {
+          console.log('✅ Payment authorization voided successfully');
+        } else {
+          console.error('⚠️ Failed to void authorization:', voidResult.error);
+          // Continue with cancellation - backend will handle cleanup
+        }
+      } catch (error) {
+        console.error('⚠️ Error voiding authorization:', error);
+        // Continue with cancellation - backend will handle cleanup
+      }
+    }
+
+    await updateOrderStatus(orderToCancel.id, OrderStatus.CANCELLED, orderToCancel);
     setShowCancelConfirmation(false);
     setOrderToCancel(null);
   };
@@ -294,7 +315,7 @@ export const OrdersPage = () => {
                   {/* Quick Action Button - Mobile only */}
                   {getNextStatus(order.status) && (
                     <button
-                      onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}
+                      onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!, order)}
                       disabled={updatingOrderId === order.id}
                       className={styles.quickActionButton}
                     >
@@ -358,7 +379,7 @@ export const OrdersPage = () => {
                         <div className={styles.actions}>
                           {getNextStatus(order.status) && (
                             <button
-                              onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}
+                              onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!, order)}
                               disabled={updatingOrderId === order.id}
                               className={styles.primaryButton}
                             >

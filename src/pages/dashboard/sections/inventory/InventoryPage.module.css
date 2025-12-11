@@ -36,29 +36,33 @@
   font-size: 0.875rem;
 }
 
-.refreshButton {
+.liveIndicator {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #D1D5DB;
-  border-radius: 0.5rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: #059669;
 }
 
-.refreshButton:hover {
-  background: #F9FAFB;
-  border-color: #9CA3AF;
-}
-
-.refreshIcon {
+.liveIcon {
   width: 1rem;
   height: 1rem;
+  color: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Stats Grid */

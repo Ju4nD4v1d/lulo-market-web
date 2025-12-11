@@ -2134,6 +2134,7 @@ If the customer disputes a payment:
     'common.copied': 'Copied!',
     'common.refresh': 'Refresh',
     'common.retry': 'Retry',
+    'common.liveUpdates': 'Live Updates',
 
     // Admin / Dashboard Access
     'admin.accessDenied': 'Access Denied',
@@ -2200,8 +2201,28 @@ If the customer disputes a payment:
     'order.status.paymentFailed': 'Payment Failed',
     'order.error.submitFailed': 'Failed to place order. Please try again.',
 
+    // Payment Status (Delayed Capture)
+    'order.payment.authorized': 'Payment Authorized',
+    'order.payment.captured': 'Payment Captured',
+    'order.payment.voided': 'Payment Voided',
+    'order.payment.expired': 'Authorization Expired',
+    'order.payment.authorizedMessage': 'Your card has been authorized. You will be charged when your order is delivered.',
+    'order.payment.capturedMessage': 'Payment has been processed successfully.',
+    'order.payment.voidedMessage': 'Payment authorization has been cancelled. No charges will be made.',
+    'order.payment.expiredMessage': 'Payment authorization expired. Please contact support.',
+    'order.payment.heldFunds': 'Funds Held',
+    'order.payment.chargeOnDelivery': 'Charged on delivery',
+    'order.payment.authorizationExpires': 'Authorization expires in {days} days',
+    'order.payment.authorizationExpiresSoon': 'Authorization expires soon',
+    'order.payment.failedMessage': 'Payment could not be processed. Please contact support if you need assistance.',
+    'order.payment.refunded': 'Payment Refunded',
+    'order.payment.refundedMessage': 'Your payment has been refunded to your original payment method.',
+    'order.payment.canceled': 'Payment Canceled',
+    'order.payment.canceledMessage': 'This payment has been canceled. No charges were made.',
+
     // Order Timeline
     'order.timeline.title': 'Order Progress',
+    'order.timeline.received': 'Received',
     'order.timeline.confirmed': 'Confirmed',
     'order.timeline.preparing': 'Preparing',
     'order.timeline.ready': 'Ready',
@@ -4474,6 +4495,7 @@ Si el cliente disputa el pago:
     'common.copied': '¡Copiado!',
     'common.refresh': 'Actualizar',
     'common.retry': 'Reintentar',
+    'common.liveUpdates': 'En Tiempo Real',
 
     // Admin / Dashboard Access
     'admin.accessDenied': 'Acceso Denegado',
@@ -4540,8 +4562,28 @@ Si el cliente disputa el pago:
     'order.status.paymentFailed': 'Pago Fallido',
     'order.error.submitFailed': 'Error al enviar el pedido. Inténtalo nuevamente.',
 
+    // Payment Status (Delayed Capture)
+    'order.payment.authorized': 'Pago Autorizado',
+    'order.payment.captured': 'Pago Capturado',
+    'order.payment.voided': 'Pago Anulado',
+    'order.payment.expired': 'Autorización Expirada',
+    'order.payment.authorizedMessage': 'Tu tarjeta ha sido autorizada. Se te cobrará cuando tu pedido sea entregado.',
+    'order.payment.capturedMessage': 'El pago ha sido procesado exitosamente.',
+    'order.payment.voidedMessage': 'La autorización de pago ha sido cancelada. No se realizará ningún cargo.',
+    'order.payment.expiredMessage': 'La autorización de pago expiró. Por favor contacta a soporte.',
+    'order.payment.heldFunds': 'Fondos Retenidos',
+    'order.payment.chargeOnDelivery': 'Cobro al entregar',
+    'order.payment.authorizationExpires': 'La autorización expira en {days} días',
+    'order.payment.authorizationExpiresSoon': 'La autorización expira pronto',
+    'order.payment.failedMessage': 'No se pudo procesar el pago. Por favor contacta a soporte si necesitas asistencia.',
+    'order.payment.refunded': 'Pago Reembolsado',
+    'order.payment.refundedMessage': 'Tu pago ha sido reembolsado a tu método de pago original.',
+    'order.payment.canceled': 'Pago Cancelado',
+    'order.payment.canceledMessage': 'Este pago ha sido cancelado. No se realizó ningún cargo.',
+
     // Order Timeline
     'order.timeline.title': 'Progreso del Pedido',
+    'order.timeline.received': 'Recibido',
     'order.timeline.confirmed': 'Confirmado',
     'order.timeline.preparing': 'Preparando',
     'order.timeline.ready': 'Listo',

@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import * as storeApi from '../services/api/storeApi';
 import { useAuth } from './AuthContext';
 import { StoreData } from '../types/store';
@@ -24,20 +24,20 @@ export const useStore = (): StoreContextType => {
 };
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const [hasStore, setHasStore] = useState(false);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [storeSlug, setStoreSlug] = useState<string | null>(null);
   const [store, setStore] = useState<StoreData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [storeLoading, setStoreLoading] = useState(true);
 
-  const refreshStoreStatus = async () => {
+  const refreshStoreStatus = useCallback(async () => {
     if (!currentUser) {
       setHasStore(false);
       setStoreId(null);
       setStoreSlug(null);
       setStore(null);
-      setLoading(false);
+      setStoreLoading(false);
       return;
     }
 
@@ -61,16 +61,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStoreSlug(null);
       setStore(null);
     }
-    setLoading(false);
-  };
+    setStoreLoading(false);
+  }, [currentUser]);
 
   useEffect(() => {
+    // Wait for auth to finish loading before checking store status
+    if (authLoading) {
+      return;
+    }
     refreshStoreStatus();
-  }, [currentUser]);
+  }, [currentUser, authLoading, refreshStoreStatus]);
+
+  // Show loading if auth is loading OR store is loading
+  const isLoading = authLoading || storeLoading;
 
   return (
     <StoreContext.Provider value={{ hasStore, storeId, storeSlug, store, refreshStoreStatus, setHasStore }}>
-      {!loading && children}
+      {!isLoading && children}
     </StoreContext.Provider>
   );
 };

@@ -89,9 +89,9 @@ export const useOrderTrackingQuery = ({
   // Check if order has reached terminal state
   const isComplete = data ? TERMINAL_STATUSES.includes(data.status) : false;
 
-  // Wrap refetch to force fresh data
+  // Wrap refetch to force fresh data (bypass cache)
   const forceRefetch = async () => {
-    await refetch();
+    await refetch({ cancelRefetch: true });
   };
 
   return {

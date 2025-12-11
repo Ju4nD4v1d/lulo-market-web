@@ -25,7 +25,8 @@ export const ReceiptSection: React.FC<ReceiptSectionProps> = ({
 }) => {
   const hasValidReceipt = order.receiptUrl && !isReceiptExpired;
   const needsRegeneration = order.receiptUrl && isReceiptExpired;
-  const isPaid = order.paymentStatus === 'paid';
+  // Allow receipt generation for captured or paid payments (delayed capture flow)
+  const isPaid = order.paymentStatus === 'paid' || order.paymentStatus === 'captured';
 
   return (
     <div className={styles.container}>

@@ -1,0 +1,139 @@
+.container {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.message {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.expiration {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.warningIcon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Variant: Authorized - Blue/Info */
+.authorized {
+  background-color: var(--color-blue-50, #eff6ff);
+  border: 1px solid var(--color-blue-200, #bfdbfe);
+}
+
+.authorized .icon,
+.authorized .label {
+  color: var(--color-blue-700, #1d4ed8);
+}
+
+.authorized .message {
+  color: var(--color-blue-600, #2563eb);
+}
+
+.authorized .expiration {
+  color: var(--color-blue-500, #3b82f6);
+}
+
+/* Variant: Captured/Paid - Green/Success */
+.captured {
+  background-color: var(--color-green-50, #f0fdf4);
+  border: 1px solid var(--color-green-200, #bbf7d0);
+}
+
+.captured .icon,
+.captured .label {
+  color: var(--color-green-700, #15803d);
+}
+
+.captured .message {
+  color: var(--color-green-600, #16a34a);
+}
+
+/* Variant: Voided - Gray */
+.voided {
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.voided .icon,
+.voided .label {
+  color: var(--color-gray-700, #374151);
+}
+
+.voided .message {
+  color: var(--color-gray-600, #4b5563);
+}
+
+/* Variant: Expired - Amber/Warning */
+.expired {
+  background-color: var(--color-amber-50, #fffbeb);
+  border: 1px solid var(--color-amber-200, #fde68a);
+}
+
+.expired .icon,
+.expired .label {
+  color: var(--color-amber-700, #b45309);
+}
+
+.expired .message {
+  color: var(--color-amber-600, #d97706);
+}
+
+/* Variant: Failed - Red/Error */
+.failed {
+  background-color: var(--color-red-50, #fef2f2);
+  border: 1px solid var(--color-red-200, #fecaca);
+}
+
+.failed .icon,
+.failed .label {
+  color: var(--color-red-700, #b91c1c);
+}
+
+.failed .message {
+  color: var(--color-red-600, #dc2626);
+}
+
+/* Variant: Pending - Gray */
+.pending {
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.pending .icon,
+.pending .label {
+  color: var(--color-gray-600, #4b5563);
+}
+
+/* Expiring Soon Warning */
+.expiringSoon {
+  color: var(--color-amber-600, #d97706);
+}
+
+.expiringSoon .warningIcon {
+  color: var(--color-amber-500, #f59e0b);
+}

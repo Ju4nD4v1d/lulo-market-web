@@ -12,6 +12,8 @@ import {
   deleteDoc,
   query,
   where,
+  onSnapshot,
+  Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Product } from '../../types/product';
@@ -198,4 +200,61 @@ export async function getAllActiveProducts(): Promise<Product[]> {
   );
 
   return uniqueProducts;
+}
+
+// ============================================================================
+// Real-Time Subscriptions
+// ============================================================================
+
+/**
+ * Subscribe to real-time updates for all products of a store
+ * Used for dashboard inventory and product pages
+ *
+ * @param storeId - The store ID to subscribe to
+ * @param onUpdate - Callback function called when products change
+ * @param onError - Optional error callback
+ * @returns Unsubscribe function to stop listening
+ *
+ * @example
+ * ```typescript
+ * const unsubscribe = subscribeToProductsByStore(
+ *   storeId,
+ *   (products) => setProducts(products),
+ *   (error) => console.error(error)
+ * );
+ *
+ * // When component unmounts
+ * unsubscribe();
+ * ```
+ */
+export function subscribeToProductsByStore(
+  storeId: string,
+  onUpdate: (products: Product[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const productsRef = collection(db, COLLECTIONS.PRODUCTS);
+  const q = query(productsRef, where('storeId', '==', storeId));
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const productsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Product[];
+
+      // Deduplicate products by ID to prevent duplicate key errors
+      const uniqueProducts = Array.from(
+        new Map(productsData.map(product => [product.id, product])).values()
+      );
+
+      onUpdate(uniqueProducts);
+    },
+    (error) => {
+      console.error('Error listening to store products:', error);
+      if (onError) {
+        onError(error);
+      }
+    }
+  );
 }

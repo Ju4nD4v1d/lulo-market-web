@@ -32,7 +32,7 @@ export const CancelOrderModal = ({ order, isUpdating, onConfirm, onCancel, t, lo
           <p className={styles.message}>{t('admin.orders.confirmCancelMessage')}</p>
           <div className={styles.details}>
             <p className={styles.detailRow}><strong>{t('admin.orders.customer')}:</strong> {order.customerInfo.name}</p>
-            <p className={styles.detailRow}><strong>{t('admin.orders.total')}:</strong> {formatPrice(order.summary.total)}</p>
+            <p className={styles.detailRow}><strong>{t('admin.orders.total')}:</strong> {formatPrice(order.summary.finalTotal)}</p>
             <p className={styles.detailRow}><strong>{t('admin.orders.orderTime')}:</strong> {formatDate(order.createdAt, dateLocaleStr)}</p>
           </div>
         </div>

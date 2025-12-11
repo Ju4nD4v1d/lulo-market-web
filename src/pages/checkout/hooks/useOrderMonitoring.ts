@@ -3,8 +3,18 @@
  * Monitors paymentStatus changes and handles completion/failure
  *
  * IMPORTANT: Uses paymentStatus field (not status) as primary indicator per backend spec:
- * - paymentStatus: "pending" | "paid" | "failed" | "canceled" | "processing"
- * - status: "pending" | "confirmed" | "failed" | "canceled" | "processing" | fulfillment states
+ *
+ * Delayed Capture Flow:
+ * - pending: No payment attempt yet
+ * - processing: Payment being processed
+ * - authorized: Funds held on card, awaiting capture on delivery (SUCCESS for checkout)
+ * - captured: Funds captured after delivery
+ * - paid: Alias for captured (backward compatibility)
+ * - voided: Authorization cancelled (order cancelled before delivery)
+ * - expired: Authorization expired (7-day limit exceeded)
+ * - failed: Payment attempt failed
+ *
+ * For checkout flow, "authorized" is treated as success (order confirmed, awaiting delivery).
  */
 
 import { useEffect, useCallback, useRef } from 'react';
@@ -54,7 +64,8 @@ export const useOrderMonitoring = ({
 
   /**
    * Monitor paymentStatus changes (primary indicator per backend spec)
-   * Backend sets: "pending" → "paid" (success) or "failed" (failure)
+   * Delayed Capture Flow: "pending" → "authorized" (success) or "failed" (failure)
+   * Legacy Flow: "pending" → "paid" (success)
    */
   useEffect(() => {
     if (!order) return;
@@ -77,11 +88,23 @@ export const useOrderMonitoring = ({
 
     // Handle paymentStatus transitions (primary indicator)
     switch (paymentStatus) {
-      case 'paid':
-        // Payment successful - trigger confirmation callback
+      case 'authorized':
+        // Delayed capture: Payment authorized (funds held) - order is confirmed
+        // This is SUCCESS for checkout flow - customer will be charged on delivery
         if (onOrderConfirmed && !callbackTriggeredRef.current) {
           callbackTriggeredRef.current = true;
-          console.log('✅ Payment confirmed (paymentStatus: paid)! Calling completion callback');
+          console.log('✅ Payment authorized! Funds held, order confirmed. Calling completion callback');
+          onOrderConfirmed(order);
+        }
+        break;
+
+      case 'captured':
+      case 'paid':
+        // Payment captured/completed - trigger confirmation callback
+        // This handles both delayed capture (captured) and legacy flow (paid)
+        if (onOrderConfirmed && !callbackTriggeredRef.current) {
+          callbackTriggeredRef.current = true;
+          console.log(`✅ Payment ${paymentStatus}! Calling completion callback`);
           onOrderConfirmed(order);
         }
         break;
@@ -92,6 +115,16 @@ export const useOrderMonitoring = ({
         if (onOrderFailed && !callbackTriggeredRef.current) {
           callbackTriggeredRef.current = true;
           console.log(`❌ Payment ${paymentStatus}! Calling failure callback`);
+          onOrderFailed(order);
+        }
+        break;
+
+      case 'voided':
+      case 'expired':
+        // Authorization voided or expired - trigger failure callback
+        if (onOrderFailed && !callbackTriggeredRef.current) {
+          callbackTriggeredRef.current = true;
+          console.log(`❌ Payment authorization ${paymentStatus}! Calling failure callback`);
           onOrderFailed(order);
         }
         break;
@@ -159,19 +192,32 @@ export const useOrderMonitoring = ({
   }, [status]);
 
   /**
-   * Check if payment is successful
+   * Check if payment is successful (authorized, captured, or paid)
    * Uses paymentStatus as primary indicator per backend spec
+   *
+   * For delayed capture:
+   * - "authorized" = funds held, order confirmed (success for checkout)
+   * - "captured" = funds captured after delivery
+   * - "paid" = legacy/alias for captured
    */
   const isPaymentSuccessful = useCallback((): boolean => {
-    return order?.paymentStatus === 'paid';
+    const paymentStatus = order?.paymentStatus;
+    return paymentStatus === 'authorized' ||
+           paymentStatus === 'captured' ||
+           paymentStatus === 'paid';
   }, [order?.paymentStatus]);
 
   /**
-   * Check if order is confirmed (payment successful, legacy compatibility)
+   * Check if order is confirmed (payment authorized/captured)
    */
   const isConfirmed = useCallback((): boolean => {
-    // Primary: check paymentStatus
-    if (order?.paymentStatus === 'paid') return true;
+    // Primary: check paymentStatus for success states
+    const paymentStatus = order?.paymentStatus;
+    if (paymentStatus === 'authorized' ||
+        paymentStatus === 'captured' ||
+        paymentStatus === 'paid') {
+      return true;
+    }
 
     // Fallback: check order.status for fulfillment states
     return status === OrderStatus.CONFIRMED ||
@@ -180,6 +226,22 @@ export const useOrderMonitoring = ({
            status === OrderStatus.OUT_FOR_DELIVERY ||
            status === OrderStatus.DELIVERED;
   }, [order?.paymentStatus, status]);
+
+  /**
+   * Check if payment is authorized but not yet captured
+   * This is the state between checkout and delivery
+   */
+  const isPaymentAuthorized = useCallback((): boolean => {
+    return order?.paymentStatus === 'authorized';
+  }, [order?.paymentStatus]);
+
+  /**
+   * Check if payment has been captured (after delivery)
+   */
+  const isPaymentCaptured = useCallback((): boolean => {
+    const paymentStatus = order?.paymentStatus;
+    return paymentStatus === 'captured' || paymentStatus === 'paid';
+  }, [order?.paymentStatus]);
 
   return {
     order,
@@ -192,6 +254,8 @@ export const useOrderMonitoring = ({
     getDisplayStatus,
     isFinalState,
     isConfirmed,
-    isPaymentSuccessful
+    isPaymentSuccessful,
+    isPaymentAuthorized,
+    isPaymentCaptured,
   };
 };

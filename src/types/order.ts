@@ -17,9 +17,30 @@ export enum OrderStatus {
 
 /**
  * Payment status values - must match backend exactly
- * Backend sets: "pending", "paid", "failed", "canceled", "processing"
+ *
+ * Delayed Capture Flow:
+ * - pending: No payment attempt yet
+ * - processing: Payment being processed
+ * - authorized: Funds held on card, awaiting capture on delivery
+ * - captured: Funds captured after delivery (order complete)
+ * - paid: Alias for captured (backward compatibility)
+ * - voided: Authorization cancelled (order cancelled before delivery)
+ * - expired: Authorization expired (7-day limit exceeded)
+ * - failed: Payment attempt failed
+ * - refunded: Payment was refunded
+ * - canceled: Cancelled (backward compatibility)
  */
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'canceled' | 'processing';
+export type PaymentStatus =
+  | 'pending'
+  | 'processing'
+  | 'authorized'
+  | 'captured'
+  | 'paid'
+  | 'voided'
+  | 'expired'
+  | 'failed'
+  | 'refunded'
+  | 'canceled';
 
 /**
  * @deprecated Use OrderStatus.PENDING instead
@@ -126,11 +147,22 @@ export interface Order {
   deliveredAt?: Date;
   
   // Payment Information
-  paymentStatus: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded';
+  paymentStatus: PaymentStatus;
   paymentMethod?: string;
   paymentId?: string; // Stripe payment intent ID
   stripeTransferId?: string; // Stripe transfer ID to store account
   platformTransactionFee?: number; // Actual Stripe processing fee
+
+  // Delayed Capture Fields (Stripe authorization + capture on delivery)
+  authorizedAt?: Date; // When payment was authorized (funds held)
+  authorizationExpiresAt?: Date; // When authorization expires (7 days from authorizedAt)
+  paymentCapturedAt?: Date; // When payment was captured (after delivery)
+  paymentVoidedAt?: Date; // When authorization was voided (order cancelled)
+  voidReason?: string; // Reason for voiding authorization
+
+  // Idempotency Flags (set by backend)
+  stockIncremented?: boolean; // Stock restored on void
+  confirmationEmailSent?: boolean; // Email sent on capture
   
   // Additional Information
   isDelivery: boolean; // true for delivery, false for pickup
