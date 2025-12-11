@@ -76,6 +76,7 @@ export const OrdersPage = () => {
   );
 
   // Helper function to calculate urgency level - memoized
+  // Uses calendar day comparison instead of hours to correctly identify today/tomorrow
   const getUrgencyLevel = useCallback((order: Order): 'overdue' | 'today' | 'tomorrow' | null => {
     if ([OrderStatus.DELIVERED, OrderStatus.CANCELLED].includes(order.status)) return null;
 
@@ -88,12 +89,16 @@ export const OrdersPage = () => {
 
     if (!deliveryTime || isNaN(deliveryTime.getTime())) return null;
 
-    const diffMs = deliveryTime.getTime() - now.getTime();
-    const diffHours = diffMs / (1000 * 60 * 60);
+    // Compare calendar dates, not hours
+    // This ensures "today" means same calendar day, "tomorrow" means next calendar day
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const deliveryDate = new Date(deliveryTime.getFullYear(), deliveryTime.getMonth(), deliveryTime.getDate());
 
-    if (diffHours < 0) return 'overdue';
-    if (diffHours < 24) return 'today';
-    if (diffHours < 48) return 'tomorrow';
+    const diffDays = Math.floor((deliveryDate.getTime() - nowDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'overdue';
+    if (diffDays === 0) return 'today';
+    if (diffDays === 1) return 'tomorrow';
     return null;
   }, []);
 

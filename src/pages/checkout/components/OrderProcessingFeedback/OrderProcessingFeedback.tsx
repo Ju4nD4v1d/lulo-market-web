@@ -1,20 +1,23 @@
 /**
  * OrderProcessingFeedback - Animated feedback during order processing
  *
- * Shows a multi-step animation during the 7-second webhook wait:
+ * Shows a multi-step animation during webhook processing:
  * 1. Payment verified
  * 2. Creating order
  * 3. Sending confirmation
  * 4. Complete!
+ * 5. Redirecting... (after animation completes)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CheckCircle2, CreditCard, FileText, Mail, Loader2 } from 'lucide-react';
 import styles from './OrderProcessingFeedback.module.css';
 
 interface OrderProcessingFeedbackProps {
   t: (key: string) => string;
   onComplete?: () => void;
+  /** Whether the order has been confirmed by the backend (webhook received) */
+  isOrderConfirmed?: boolean;
 }
 
 interface ProcessingStep {
@@ -33,17 +36,19 @@ const PROCESSING_STEPS: ProcessingStep[] = [
 
 export const OrderProcessingFeedback: React.FC<OrderProcessingFeedbackProps> = ({
   t,
-  onComplete
+  onComplete,
+  isOrderConfirmed = false
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [showRedirecting, setShowRedirecting] = useState(false);
+  const onCompleteCalledRef = useRef(false);
 
   useEffect(() => {
     const step = PROCESSING_STEPS[currentStepIndex];
 
     if (step.key === 'complete') {
       setIsComplete(true);
-      onComplete?.();
       return;
     }
 
@@ -52,7 +57,28 @@ export const OrderProcessingFeedback: React.FC<OrderProcessingFeedbackProps> = (
     }, step.duration);
 
     return () => clearTimeout(timer);
-  }, [currentStepIndex, onComplete]);
+  }, [currentStepIndex]);
+
+  // After animation completes, show "Redirecting..." after a short delay
+  useEffect(() => {
+    if (isComplete) {
+      const timer = setTimeout(() => {
+        setShowRedirecting(true);
+      }, 1500); // Show redirecting message 1.5s after "complete" shows
+      return () => clearTimeout(timer);
+    }
+  }, [isComplete]);
+
+  // Call onComplete when order is confirmed by backend OR after timeout
+  useEffect(() => {
+    if (isComplete && !onCompleteCalledRef.current) {
+      // If order already confirmed by webhook, call immediately
+      if (isOrderConfirmed) {
+        onCompleteCalledRef.current = true;
+        onComplete?.();
+      }
+    }
+  }, [isComplete, isOrderConfirmed, onComplete]);
 
   const currentStep = PROCESSING_STEPS[currentStepIndex];
 
@@ -102,6 +128,14 @@ export const OrderProcessingFeedback: React.FC<OrderProcessingFeedbackProps> = (
         <p className={styles.completionMessage}>
           {t('processing.confirmationEmailSent')}
         </p>
+      )}
+
+      {/* Redirecting indicator - shows after completion animation finishes */}
+      {showRedirecting && (
+        <div className={styles.redirectingContainer}>
+          <Loader2 className={styles.redirectingSpinner} />
+          <span className={styles.redirectingText}>{t('processing.redirecting')}</span>
+        </div>
       )}
     </div>
   );
