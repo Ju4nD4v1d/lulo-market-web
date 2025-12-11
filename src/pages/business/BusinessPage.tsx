@@ -17,18 +17,18 @@ export const BusinessPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { setRedirectAfterLogin } = useAuth();
+  const { setRedirectAfterLogin, redirectAfterLogin } = useAuth();
   const [showPortalLogin, setShowPortalLogin] = useState(false);
 
   // Check for portal=true query parameter to auto-open login modal
   useEffect(() => {
     if (searchParams.get('portal') === 'true') {
-      setRedirectAfterLogin(null);
+      // Don't clear redirectAfterLogin - let the login hook handle it
       setShowPortalLogin(true);
       // Clean up URL by removing the query parameter
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams, setRedirectAfterLogin]);
+  }, [searchParams, setSearchParams]);
 
   // Portal login hook
   const {
@@ -95,8 +95,11 @@ export const BusinessPage = () => {
             {/* Portal Login Button */}
             <button
               onClick={() => {
-                // Clear any existing redirect to ensure business login goes to dashboard
-                setRedirectAfterLogin(null);
+                // Only clear redirect if it's not already a dashboard URL
+                // This preserves the intended destination when user was redirected here
+                if (!redirectAfterLogin?.startsWith('/dashboard')) {
+                  setRedirectAfterLogin(null);
+                }
                 setShowPortalLogin(true);
               }}
               className={styles.portalButton}

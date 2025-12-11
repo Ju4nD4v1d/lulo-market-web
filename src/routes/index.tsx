@@ -139,7 +139,7 @@ export const AppRoutes = () => {
           <Route
             path="/order-history"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <OrderHistory />
               </ProtectedRoute>
             }
@@ -147,7 +147,7 @@ export const AppRoutes = () => {
           <Route
             path="/profile/edit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <EditProfile />
               </ProtectedRoute>
             }
@@ -156,7 +156,7 @@ export const AppRoutes = () => {
           <Route
             path="/dashboard/:storeSlug/*"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -165,7 +165,7 @@ export const AppRoutes = () => {
           <Route
             path="/dashboard/*"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -176,7 +176,7 @@ export const AppRoutes = () => {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -184,7 +184,7 @@ export const AppRoutes = () => {
           <Route
             path="/admin/dispatcher"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute saveRedirect>
                 <DispatcherPage />
               </ProtectedRoute>
             }

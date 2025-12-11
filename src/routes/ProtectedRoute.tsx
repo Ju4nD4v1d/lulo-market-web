@@ -11,7 +11,9 @@ interface ProtectedRouteProps {
  * ProtectedRoute Component
  *
  * Wraps routes that require authentication.
- * If user is not authenticated, redirects to login page.
+ * If user is not authenticated, redirects to appropriate login page.
+ * - Dashboard/admin routes → Business portal login (/business?portal=true)
+ * - Other routes → Regular login page (/login)
  * Optionally saves the current path for redirect after login.
  */
 export const ProtectedRoute = ({ children, saveRedirect = false }: ProtectedRouteProps) => {
@@ -33,6 +35,15 @@ export const ProtectedRoute = ({ children, saveRedirect = false }: ProtectedRout
       const fullPath = location.pathname + location.search;
       setRedirectAfterLogin(fullPath);
     }
+
+    // Dashboard and admin routes should go to business portal login
+    const isDashboardRoute = location.pathname.startsWith('/dashboard');
+    const isAdminRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin-login';
+
+    if (isDashboardRoute || isAdminRoute) {
+      return <Navigate to="/business?portal=true" replace />;
+    }
+
     return <Navigate to="/login" replace />;
   }
 
