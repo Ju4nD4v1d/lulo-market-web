@@ -14,6 +14,7 @@ import {
   ReceiptSection,
   OrderProgressTimeline,
   StoreContactCard,
+  PaymentStatusBadge,
 } from './components';
 import styles from './OrderTrackingPage.module.css';
 
@@ -120,6 +121,9 @@ export const OrderTrackingPage: React.FC = () => {
           {/* Order Details - Left Column */}
           <div className={styles.leftColumn}>
             <OrderStatus order={displayOrder} />
+            {displayOrder.paymentStatus && (
+              <PaymentStatusBadge paymentStatus={displayOrder.paymentStatus} />
+            )}
             <OrderProgressTimeline order={displayOrder} />
             <OrderItems order={displayOrder} t={t} />
             <DeliveryInfo order={displayOrder} t={t} />

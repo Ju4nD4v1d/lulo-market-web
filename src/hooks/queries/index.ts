@@ -2,6 +2,7 @@
 export { queryKeys } from './queryKeys';
 export { useOrdersQuery } from './useOrdersQuery';
 export { useProductsQuery } from './useProductsQuery';
+export { useProductsRealtimeQuery } from './useProductsRealtimeQuery';
 export { useProductDetailsQuery } from './useProductDetailsQuery';
 export { useStoreStatsQuery } from './useStoreStatsQuery';
 export { useStoreByOwnerQuery } from './useStoreByOwnerQuery';

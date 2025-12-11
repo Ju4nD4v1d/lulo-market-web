@@ -6,11 +6,11 @@ import {
   CheckCircle,
   Search,
   Loader2,
-  RefreshCw
+  Radio
 } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useStore } from '../../../../context/StoreContext';
-import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
+import { useProductsRealtimeQuery } from '../../../../hooks/queries/useProductsRealtimeQuery';
 import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
 import { Product } from '../../../../types/product';
 import styles from './InventoryPage.module.css';
@@ -21,7 +21,7 @@ export const InventoryPage = () => {
   const { t } = useLanguage();
   const { storeId, store } = useStore();
   const { goToProducts } = useDashboardNavigation();
-  const { products, isLoading, error, refetch } = useProductsQuery({ storeId });
+  const { products, isLoading, error } = useProductsRealtimeQuery({ storeId });
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<StockFilter>('all');
@@ -108,9 +108,6 @@ export const InventoryPage = () => {
       <div className={styles.errorContainer}>
         <AlertCircle className={styles.errorIcon} />
         <p>{error}</p>
-        <button onClick={() => refetch()} className={styles.retryButton}>
-          {t('common.retry')}
-        </button>
       </div>
     );
   }
@@ -125,10 +122,10 @@ export const InventoryPage = () => {
             {t('inventory.thresholdLabel').replace('{count}', threshold.toString())}
           </p>
         </div>
-        <button onClick={() => refetch()} className={styles.refreshButton}>
-          <RefreshCw className={styles.refreshIcon} />
-          {t('common.refresh')}
-        </button>
+        <div className={styles.liveIndicator}>
+          <Radio className={styles.liveIcon} />
+          <span>{t('common.liveUpdates')}</span>
+        </div>
       </div>
 
       {/* Stats Cards */}

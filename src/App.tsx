@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { StoreProvider } from './context/StoreContext';
 import { queryClient } from './services/queryClient';
 import { CookieConsent } from './components/CookieConsent';
 import { HashRedirect } from './components/HashRedirect';
@@ -79,9 +80,11 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <AuthProvider>
-            <CartProvider>
-              <AppContent />
-            </CartProvider>
+            <StoreProvider>
+              <CartProvider>
+                <AppContent />
+              </CartProvider>
+            </StoreProvider>
           </AuthProvider>
         </LanguageProvider>
       </QueryClientProvider>

@@ -16,7 +16,7 @@ import { useLanguage } from '../../../../context/LanguageContext';
 import { useStore } from '../../../../context/StoreContext';
 import { ProductDetails } from './components/ProductDetails';
 import { ProductModal } from './components/ProductModal';
-import { useProductsQuery } from '../../../../hooks/queries/useProductsQuery';
+import { useProductsRealtimeQuery } from '../../../../hooks/queries/useProductsRealtimeQuery';
 import { useProductMutations } from '../../../../hooks/mutations/useProductMutations';
 import { useProductFilters } from './hooks/useProductFilters';
 import { useDashboardNavigation } from '../../../../hooks/useDashboardNavigation';
@@ -51,8 +51,8 @@ export const ProductsPage = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
 
-  // Use TanStack Query hooks
-  const { products, isLoading, error } = useProductsQuery({ storeId });
+  // Use real-time query for live stock updates
+  const { products, isLoading, error } = useProductsRealtimeQuery({ storeId });
   const { saveProduct, deleteProduct, isLoading: isSaving } = useProductMutations(storeId || '');
   const { searchTerm, setSearchTerm, selectedCategories, toggleCategory, filteredProducts } = useProductFilters(products);
 

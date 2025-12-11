@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -20,6 +21,14 @@ export const ProtectedRoute = ({ children, saveRedirect = false }: ProtectedRout
   const { currentUser, loading, setRedirectAfterLogin } = useAuth();
   const location = useLocation();
 
+  // Save redirect path in useEffect to avoid setState during render
+  useEffect(() => {
+    if (!loading && !currentUser && saveRedirect) {
+      const fullPath = location.pathname + location.search;
+      setRedirectAfterLogin(fullPath);
+    }
+  }, [loading, currentUser, saveRedirect, location.pathname, location.search, setRedirectAfterLogin]);
+
   // Show loading state while auth is being determined
   if (loading) {
     return (
@@ -30,12 +39,6 @@ export const ProtectedRoute = ({ children, saveRedirect = false }: ProtectedRout
   }
 
   if (!currentUser) {
-    // Save redirect path if needed (for checkout, order tracking, etc.)
-    if (saveRedirect) {
-      const fullPath = location.pathname + location.search;
-      setRedirectAfterLogin(fullPath);
-    }
-
     // Dashboard and admin routes should go to business portal login
     const isDashboardRoute = location.pathname.startsWith('/dashboard');
     const isAdminRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin-login';

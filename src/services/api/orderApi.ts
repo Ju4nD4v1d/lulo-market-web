@@ -137,7 +137,8 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
       }
 
       // Fallback based on payment status
-      if (data.paymentStatus === 'paid') {
+      // Include 'authorized' for delayed capture flow (funds held = confirmed)
+      if (data.paymentStatus === 'authorized' || data.paymentStatus === 'captured' || data.paymentStatus === 'paid') {
         return OrderStatus.CONFIRMED;
       } else if (data.paymentStatus === 'processing') {
         return OrderStatus.PENDING;
@@ -158,9 +159,15 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
 
     // Payment info
     paymentStatus: (() => {
-      if (data.paymentStatus && ['pending', 'processing', 'paid', 'failed', 'refunded'].includes(data.paymentStatus)) {
+      // Valid payment statuses including delayed capture statuses
+      const validStatuses = [
+        'pending', 'processing', 'authorized', 'captured', 'paid',
+        'voided', 'expired', 'failed', 'refunded', 'canceled'
+      ];
+      if (data.paymentStatus && validStatuses.includes(data.paymentStatus)) {
         return data.paymentStatus;
       }
+      // Backward compatibility
       if (data.status === 'paid') {
         return 'paid';
       }
@@ -168,6 +175,17 @@ export const transformOrderDocument = (docSnapshot: DocumentSnapshot): Order => 
     })(),
     paymentMethod: data.paymentMethod || '',
     paymentId: data.paymentId || '',
+
+    // Delayed capture fields
+    authorizedAt: data.authorizedAt ? safeDate(data.authorizedAt) : undefined,
+    authorizationExpiresAt: data.authorizationExpiresAt ? safeDate(data.authorizationExpiresAt) : undefined,
+    paymentCapturedAt: data.paymentCapturedAt ? safeDate(data.paymentCapturedAt) : undefined,
+    paymentVoidedAt: data.paymentVoidedAt ? safeDate(data.paymentVoidedAt) : undefined,
+    voidReason: data.voidReason || undefined,
+
+    // Idempotency flags
+    stockIncremented: data.stockIncremented || undefined,
+    confirmationEmailSent: data.confirmationEmailSent || undefined,
 
     // Additional info
     isDelivery: data.isDelivery !== undefined ? data.isDelivery : true,

@@ -57,6 +57,16 @@ const getDayName = (day: string, t: (key: string) => string) => {
   return dayMap[day] || day;
 };
 
+/**
+ * Format 24-hour time (HH:MM) to 12-hour format with AM/PM
+ */
+const formatTime12Hour = (time24: string): string => {
+  const [hours, minutes] = time24.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
 export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
   storeData,
   storeStats,
@@ -315,7 +325,7 @@ export const StoreProfileView: React.FC<StoreProfileViewProps> = ({
                         <span className={styles.hoursClosed}>{t('store.dashboard.closed')}</span>
                       ) : displayHours ? (
                         <span className={styles.hoursOpen}>
-                          {displayHours.open} - {displayHours.close}
+                          {formatTime12Hour(displayHours.open)} - {formatTime12Hour(displayHours.close)}
                         </span>
                       ) : (
                         <span className={styles.hoursClosed}>{t('store.dashboard.closed')}</span>

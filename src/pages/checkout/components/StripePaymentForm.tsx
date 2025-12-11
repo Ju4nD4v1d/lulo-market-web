@@ -92,7 +92,8 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
           onPaymentFailure(error.payment_intent.id, errorMessage);
         }
       } else if (paymentIntent) {
-        if (paymentIntent.status === 'succeeded') {
+        if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'requires_capture') {
+          // 'succeeded' = immediate capture, 'requires_capture' = delayed capture (manual)
           setPaymentComplete(true);
           onPaymentSuccess(paymentIntent.id);
         } else if (paymentIntent.status === 'requires_payment_method') {

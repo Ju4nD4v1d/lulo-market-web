@@ -185,7 +185,11 @@ export const useOrderCreation = ({
 
           // Only track purchase if payment actually succeeded
           // Use paymentStatus as primary indicator per backend spec
-          const isPaymentSuccessful = actualOrder.paymentStatus === 'paid';
+          // Include 'authorized' for delayed capture flow (funds held = success)
+          const isPaymentSuccessful =
+            actualOrder.paymentStatus === 'authorized' ||
+            actualOrder.paymentStatus === 'captured' ||
+            actualOrder.paymentStatus === 'paid';
 
           if (isPaymentSuccessful && !purchaseTrackedRef.current) {
             purchaseTrackedRef.current = true;
