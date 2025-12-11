@@ -130,29 +130,26 @@ export function useCheckoutDeliveryFlow({
     return null;
   }, [isLoading, store, activeDriverCount, hasNoDeliveryDates]);
 
-  // Auto-select first available date when options change
+  // Auto-select the first available delivery date when options become available
+  //
+  // Why we always prefer the first computed option:
+  // - The initial formData.deliveryDate is set by getNextAvailableDeliveryDate() which
+  //   doesn't consider the store's effective schedule (store hours ∩ driver availability)
+  // - deliveryDateOptions is computed from the effective schedule with proper lead time filtering
+  // - So we must override the initial date with the first truly available option
   useEffect(() => {
     if (deliveryDateOptions.length > 0 && !isLoading) {
-      const currentDeliveryDate = formData.deliveryDate;
-      const matchingDate = deliveryDateOptions.find(d => d.value === currentDeliveryDate);
+      const firstDate = deliveryDateOptions[0];
+      const firstSlot = firstDate.slots?.[0];
+      const timeWindow = firstSlot ? { open: firstSlot.open, close: firstSlot.close } : undefined;
 
-      if (!matchingDate) {
-        // Current date is not valid, update to first available with its time window
-        const firstDate = deliveryDateOptions[0];
-        const firstSlot = firstDate.slots?.[0];
-        const timeWindow = firstSlot ? { open: firstSlot.open, close: firstSlot.close } : undefined;
+      // Only update if the current date differs from the first available
+      // or if the time window isn't set yet
+      if (formData.deliveryDate !== firstDate.value || !formData.deliveryTimeWindow) {
         onDeliveryDateChange({
           deliveryDate: firstDate.value,
           deliveryTimeWindow: timeWindow,
         });
-      } else {
-        // Current date is valid, ensure time window is set
-        const firstSlot = matchingDate.slots?.[0];
-        if (firstSlot && !formData.deliveryTimeWindow) {
-          onDeliveryDateChange({
-            deliveryTimeWindow: { open: firstSlot.open, close: firstSlot.close },
-          });
-        }
       }
     }
   }, [deliveryDateOptions, isLoading, formData.deliveryDate, formData.deliveryTimeWindow, onDeliveryDateChange]);

@@ -58,9 +58,23 @@ export const DeliveryInfoBanner: React.FC<DeliveryInfoBannerProps> = ({ storeId 
 
   // Check if delivery is within the lead time window (shows cancellation policy warning)
   const isWithinLeadTime = useMemo(() => {
-    if (!nextDelivery) return false;
+    if (!nextDelivery || !nextDelivery.slots || nextDelivery.slots.length === 0) return false;
+
     const now = new Date();
-    const hoursUntilDelivery = (nextDelivery.date.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    // Get the earliest slot opening time
+    const firstSlot = nextDelivery.slots[0];
+    if (!firstSlot?.open) return false;
+
+    const [hours, minutes] = firstSlot.open.split(':').map(Number);
+
+    // Create the actual delivery start datetime (date + slot opening time)
+    const deliveryStartTime = new Date(nextDelivery.date);
+    deliveryStartTime.setHours(hours, minutes, 0, 0);
+
+    // Calculate hours until actual delivery window starts
+    const hoursUntilDelivery = (deliveryStartTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
     return hoursUntilDelivery <= CHECKOUT_LEAD_HOURS;
   }, [nextDelivery]);
 
