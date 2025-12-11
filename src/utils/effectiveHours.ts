@@ -432,13 +432,34 @@ export function getAvailableDeliveryDatesMultiSlot(
       }
     }
 
-    // Ensure the date respects minHoursFromNow
-    // Skip this check for today since we already filtered available slots above
-    // The issue: checkDate is at midnight, but minDate includes current time,
-    // so "today at midnight < today at 10am" would incorrectly skip today
-    if (!isToday && checkDate < minDate) {
-      // This day is before our minimum date
-      continue;
+    // Filter slots based on minHoursFromNow requirement
+    //
+    // Why we filter by slot START time, not by day:
+    // - minDate = now + minHoursFromNow (e.g., 24 hours from now)
+    // - checkDate is midnight of each day being evaluated
+    // - A naive check like "checkDate < minDate" would incorrectly skip days
+    //   where midnight is before minDate but the slots are after minDate
+    //
+    // Example: If it's Thursday 10 AM and minHoursFromNow=24:
+    // - minDate = Friday 10 AM
+    // - Friday midnight < Friday 10 AM → naive check would skip Friday
+    // - But Friday's 3-5 PM slot starts AFTER Friday 10 AM → should be included!
+    //
+    // So we check each slot's actual start datetime against minDate.
+    if (!isToday) {
+      const minDateTimestamp = minDate.getTime();
+      availableSlots = availableSlots.filter(slot => {
+        // Create a datetime for the slot's start time on this date
+        const [hours, minutes] = slot.open.split(':').map(Number);
+        const slotStartTime = new Date(checkDate);
+        slotStartTime.setHours(hours, minutes, 0, 0);
+        return slotStartTime.getTime() >= minDateTimestamp;
+      });
+
+      // Skip this day if no slots remain after filtering
+      if (availableSlots.length === 0) {
+        continue;
+      }
     }
 
     results.push({

@@ -149,21 +149,6 @@ export const buildEnhancedOrderData = (
   orderStatus: OrderStatus = OrderStatus.PENDING, // Backend expects "pending", not "pending_payment"
   estimatedDistance?: number | null
 ) => {
-  // DEBUG: Log cart summary values
-  console.log('🔍 [orderDataBuilder] Cart summary received:', {
-    subtotal: cart.summary.subtotal,
-    tax: cart.summary.tax,
-    gst: cart.summary.gst,
-    pst: cart.summary.pst,
-    deliveryFee: cart.summary.deliveryFee,
-    platformFee: cart.summary.platformFee,
-    total: cart.summary.total,
-    finalTotal: cart.summary.finalTotal,
-    commissionRate: cart.summary.commissionRate,
-    lulocartAmount: cart.summary.lulocartAmount,
-    storeAmount: cart.summary.storeAmount,
-  });
-
   // Generate receipt number
   const receiptNumber = generateReceiptNumber(orderId);
 
@@ -172,9 +157,9 @@ export const buildEnhancedOrderData = (
 
   // Parse delivery date in LOCAL timezone (not UTC)
   // new Date("2025-12-06") creates midnight UTC which shows as wrong day in local timezone
-  // Instead, parse components and construct date in local time
+  // Instead, parse components and construct date in local time at NOON to avoid timezone boundary issues
   const [year, month, day] = formData.deliveryDate.split('-').map(Number);
-  const deliveryDateLocal = new Date(year, month - 1, day); // months are 0-indexed
+  const deliveryDateLocal = new Date(year, month - 1, day, 12, 0, 0); // months are 0-indexed, noon to avoid timezone issues
 
   const preferredDeliveryTime = formData.preferredDeliveryTime
     ? new Date(`${formData.deliveryDate}T${formData.preferredDeliveryTime}`)
