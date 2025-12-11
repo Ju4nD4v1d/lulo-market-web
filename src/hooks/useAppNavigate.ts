@@ -47,20 +47,23 @@ export const useAppNavigate = () => {
 
   /**
    * Navigate to a store
+   * @param storeSlug - The store's URL slug (e.g., 'lujabites')
    */
   const goToStore = useCallback(
-    (storeId: string) => {
-      navigate(`/store/${storeId}`);
+    (storeSlug: string) => {
+      navigate(`/store/${storeSlug}`);
     },
     [navigate]
   );
 
   /**
    * Navigate to a product
+   * @param productId - The product's ID
+   * @param storeSlug - The store's URL slug (e.g., 'lujabites')
    */
   const goToProduct = useCallback(
-    (productId: string, storeId: string) => {
-      navigate(`/product/${productId}/${storeId}`);
+    (productId: string, storeSlug: string) => {
+      navigate(`/product/${productId}/${storeSlug}`);
     },
     [navigate]
   );

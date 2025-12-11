@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 
 export const usePortalLogin = () => {
-  const { portalLogin, setRedirectAfterLogin } = useAuth();
+  const { portalLogin, setRedirectAfterLogin, redirectAfterLogin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [loginError, setLoginError] = useState('');
@@ -25,8 +25,11 @@ export const usePortalLogin = () => {
       }
 
       // User has permissions - proceed with redirect
-      // For business portal login, always redirect to dashboard regardless of redirectAfterLogin
-      setRedirectAfterLogin('/dashboard');
+      // Preserve any existing redirect path (e.g., /dashboard/lujabites/orders)
+      // Only set default /dashboard if no redirect is pending
+      if (!redirectAfterLogin) {
+        setRedirectAfterLogin('/dashboard');
+      }
       return true;
 
     } catch (error: unknown) {
