@@ -6,3 +6,4 @@ export { ReceiptSection } from './ReceiptSection';
 export { OrderProgressTimeline } from './OrderProgressTimeline';
 export { StoreContactCard } from './StoreContactCard';
 export { PaymentStatusBadge } from './PaymentStatusBadge';
+export { CancelOrderSection } from './CancelOrderSection';

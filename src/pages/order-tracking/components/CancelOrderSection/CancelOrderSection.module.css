@@ -1,0 +1,215 @@
+/**
+ * CancelOrderSection styles
+ */
+
+.container {
+  margin-top: 1rem;
+}
+
+/* Cancel Button (initial state) */
+.cancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: transparent;
+  border: 1px solid var(--color-error, #dc2626);
+  color: var(--color-error, #dc2626);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: var(--color-error, #dc2626);
+  color: white;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Confirmation Card */
+.confirmationCard {
+  background-color: var(--color-surface, #fff);
+  border: 1px solid var(--color-error-light, #fecaca);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.confirmationHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.alertIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-error, #dc2626);
+  flex-shrink: 0;
+}
+
+.confirmationTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.confirmationMessage {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 0.75rem 0;
+  line-height: 1.5;
+}
+
+.refundNote {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin: 0 0 1rem 0;
+  padding: 0.75rem;
+  background-color: var(--color-surface-secondary, #f9fafb);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+/* Error Message */
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--color-error-bg, #fef2f2);
+  color: var(--color-error, #dc2626);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.errorIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+/* Confirmation Buttons */
+.confirmationButtons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.keepOrderButton {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  background-color: var(--color-surface-secondary, #f3f4f6);
+  border: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-primary, #374151);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.keepOrderButton:hover:not(:disabled) {
+  background-color: var(--color-surface-hover, #e5e7eb);
+}
+
+.keepOrderButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmCancelButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: var(--color-error, #dc2626);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmCancelButton:hover:not(:disabled) {
+  background-color: var(--color-error-dark, #b91c1c);
+}
+
+.confirmCancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Unavailable Message */
+.unavailableMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background-color: var(--color-warning-bg, #fffbeb);
+  border: 1px solid var(--color-warning-border, #fde68a);
+  border-radius: 8px;
+}
+
+.warningIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-warning, #d97706);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.unavailableMessage p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-warning-text, #92400e);
+  line-height: 1.4;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .confirmationButtons {
+    flex-direction: column;
+  }
+
+  .keepOrderButton,
+  .confirmCancelButton {
+    flex: none;
+    width: 100%;
+  }
+}
