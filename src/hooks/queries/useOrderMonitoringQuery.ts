@@ -1,6 +1,12 @@
 /**
  * TanStack Query hook for real-time order status monitoring during checkout
  * Uses orderApi for data fetching with polling for real-time updates
+ *
+ * NOTE: This hook intentionally does NOT filter out orphan orders.
+ * During checkout, we need to monitor the order even while it's in
+ * status='pending' + paymentStatus='pending' state. The order transitions
+ * from orphan to non-orphan once payment succeeds (paymentStatus → 'authorized').
+ * This hook is only used during the checkout flow to monitor that transition.
  */
 
 import { useQuery } from '@tanstack/react-query';

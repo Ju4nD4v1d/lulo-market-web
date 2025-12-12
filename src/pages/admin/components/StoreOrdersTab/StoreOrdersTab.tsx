@@ -1,9 +1,14 @@
 /**
  * StoreOrdersTab - View-only orders list for admin dashboard
- * Displays store orders without editing capabilities
+ *
+ * ADMIN VIEW: Displays ALL store orders including orphan/abandoned orders.
+ * This differs from the store owner view which hides orphans.
+ *
+ * Orphan orders (status='pending' + paymentStatus='pending') are shown
+ * with a visual indicator so admins can identify them for cleanup.
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Package,
   Search,
@@ -19,11 +24,13 @@ import {
   CheckCircle2,
   ShoppingCart,
   Truck,
-  XCircle
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { useOrdersQuery } from '../../../../hooks/queries/useOrdersQuery';
 import { Order, OrderStatus } from '../../../../types/order';
+import { filterOrdersForAdmin, isOrphanOrder } from '../../../../utils/orderUtils';
 import styles from './StoreOrdersTab.module.css';
 
 interface StoreOrdersTabProps {
@@ -63,7 +70,17 @@ export const StoreOrdersTab = ({ storeId }: StoreOrdersTabProps) => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { orders, isLoading, error } = useOrdersQuery({ storeId });
+  const { orders: rawOrders, isLoading, error } = useOrdersQuery({ storeId });
+
+  // ADMIN VIEW: Show ALL orders including orphans (for debugging/cleanup)
+  // Use filterOrdersForAdmin which returns all orders without filtering
+  const orders = useMemo(() => filterOrdersForAdmin(rawOrders), [rawOrders]);
+
+  // Count orphan orders for display in header
+  const orphanCount = useMemo(
+    () => orders.filter(isOrphanOrder).length,
+    [orders]
+  );
 
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
@@ -154,9 +171,18 @@ export const StoreOrdersTab = ({ storeId }: StoreOrdersTabProps) => {
             <Package className={styles.titleIcon} />
             {t('admin.storeOrders.title')}
           </h2>
-          <span className={styles.orderCount}>
-            {orders.length} {t('admin.storeOrders.orders')}
-          </span>
+          <div className={styles.orderCounts}>
+            <span className={styles.orderCount}>
+              {orders.length} {t('admin.storeOrders.orders')}
+            </span>
+            {/* Show orphan count if any exist (admin-only visibility) */}
+            {orphanCount > 0 && (
+              <span className={styles.orphanCount}>
+                <AlertTriangle className={styles.orphanIcon} />
+                {orphanCount} {t('admin.storeOrders.orphans')}
+              </span>
+            )}
+          </div>
         </div>
         <div className={styles.searchWrapper}>
           <Search className={styles.searchIcon} />
@@ -183,8 +209,23 @@ export const StoreOrdersTab = ({ storeId }: StoreOrdersTabProps) => {
             </p>
           </div>
         ) : (
-          filteredOrders.map((order: Order) => (
-            <div key={order.id} className={styles.orderCard}>
+          filteredOrders.map((order: Order) => {
+            // Check if this is an orphan order (admin-only visibility)
+            const isOrphan = isOrphanOrder(order);
+
+            return (
+            <div
+              key={order.id}
+              className={`${styles.orderCard} ${isOrphan ? styles.orphanCard : ''}`}
+            >
+              {/* Orphan indicator banner (admin-only) */}
+              {isOrphan && (
+                <div className={styles.orphanBanner}>
+                  <AlertTriangle className={styles.orphanBannerIcon} />
+                  <span>{t('admin.storeOrders.orphanOrder')}</span>
+                </div>
+              )}
+
               {/* Order header */}
               <button
                 className={styles.orderHeader}
@@ -315,7 +356,8 @@ export const StoreOrdersTab = ({ storeId }: StoreOrdersTabProps) => {
                 </div>
               )}
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

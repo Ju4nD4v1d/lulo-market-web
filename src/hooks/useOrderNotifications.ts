@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { subscribeToStoreOrders } from '../services/api/orderApi';
 import { Order } from '../types/order';
 import { useLanguage } from '../context/LanguageContext';
+import { filterOrdersForUser } from '../utils/orderUtils';
 
 const LAST_SEEN_KEY = 'lulocart_orders_last_seen';
 const NOTIFICATION_PERMISSION_KEY = 'lulocart_notification_permission_asked';
@@ -218,18 +219,22 @@ export const useOrderNotifications = ({
     const unsubscribe = subscribeToStoreOrders(
       storeId,
       (newOrders) => {
-        setOrders(newOrders);
+        // Filter out orphan/abandoned orders - store owners should not see them
+        const visibleOrders = filterOrdersForUser(newOrders);
+        setOrders(visibleOrders);
         setIsLoading(false);
 
         // Detect new orders (not on first load)
+        // Only notify for orders that are visible (already filtered above)
         if (!isFirstLoadRef.current) {
-          const newOrderIds = newOrders
+          const newOrderIds = visibleOrders
             .filter((o) => !previousOrderIdsRef.current.has(o.id))
             .map((o) => o.id);
 
-          // Show notification for each new order
+          // Show notification for each new visible order
+          // No need to check isOrderVisible again - visibleOrders is already filtered
           newOrderIds.forEach((orderId) => {
-            const newOrder = newOrders.find((o) => o.id === orderId);
+            const newOrder = visibleOrders.find((o) => o.id === orderId);
             if (newOrder && urlSlug) {
               showBrowserNotification(newOrder, tRef, urlSlug, onNavigate);
             }
@@ -239,8 +244,8 @@ export const useOrderNotifications = ({
           isFirstLoadRef.current = false;
         }
 
-        // Always update the tracked order IDs
-        previousOrderIdsRef.current = new Set(newOrders.map((o) => o.id));
+        // Track visible order IDs only
+        previousOrderIdsRef.current = new Set(visibleOrders.map((o) => o.id));
       },
       (error) => {
         console.error('Order subscription error:', error);

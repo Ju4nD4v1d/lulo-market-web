@@ -1165,6 +1165,8 @@ export const translations = {
     'admin.storeOrders.noOrdersYet': 'This store has no orders yet',
     'admin.storeOrders.qty': 'Qty',
     'admin.storeOrders.paymentStatus': 'Payment',
+    'admin.storeOrders.orphans': 'orphans',
+    'admin.storeOrders.orphanOrder': 'Orphan Order (abandoned checkout)',
     'admin.storeMetrics.title': 'Store Metrics',
     'admin.tools.title': 'Admin Tools',
     'admin.orphanTool.title': 'Delete Orphan Stripe Account',
@@ -1175,6 +1177,22 @@ export const translations = {
     'admin.orphanTool.invalidAccountId': 'Invalid account ID. Must start with "acct_"',
     'admin.orphanTool.deleteSuccess': 'Stripe account deleted successfully',
     'admin.orphanTool.deleteError': 'Failed to delete Stripe account',
+
+    // Order Cleanup Tool
+    'admin.orderCleanup.title': 'Orphan Order Cleanup',
+    'admin.orderCleanup.description': 'Remove abandoned checkout orders that never completed payment. These orders are hidden from users but remain in the database.',
+    'admin.orderCleanup.cleanWithGrace': 'Clean Up (1-hour grace)',
+    'admin.orderCleanup.forceClean': 'Force Clean Now',
+    'admin.orderCleanup.cleaning': 'Cleaning...',
+    'admin.orderCleanup.hint': 'Grace period allows time for slow payment processing. Force clean removes all pending orders immediately.',
+    'admin.orderCleanup.error': 'Cleanup failed. Please try again.',
+    'admin.orderCleanup.metrics.processed': 'Processed',
+    'admin.orderCleanup.metrics.deleted': 'Deleted',
+    'admin.orderCleanup.metrics.fixed': 'Fixed',
+    'admin.orderCleanup.metrics.failed': 'Failed',
+    'admin.orderCleanup.errorDetails': 'Error Details',
+    'admin.orderCleanup.moreErrors': '+{count} more errors',
+    'admin.orderCleanup.noOrphansFound': 'No orphan orders found. All orders are in good standing.',
 
     // Order Sorting
     'order.sort.newest': 'Newest First',
@@ -3573,6 +3591,8 @@ If the customer disputes a payment:
     'admin.storeOrders.noOrdersYet': 'Esta tienda aún no tiene pedidos',
     'admin.storeOrders.qty': 'Cant',
     'admin.storeOrders.paymentStatus': 'Pago',
+    'admin.storeOrders.orphans': 'huérfanos',
+    'admin.storeOrders.orphanOrder': 'Pedido Huérfano (pago abandonado)',
     'admin.storeMetrics.title': 'Métricas de la Tienda',
     'admin.tools.title': 'Herramientas de Admin',
     'admin.orphanTool.title': 'Eliminar Cuenta de Stripe Huérfana',
@@ -3583,6 +3603,22 @@ If the customer disputes a payment:
     'admin.orphanTool.invalidAccountId': 'ID de cuenta inválido. Debe comenzar con "acct_"',
     'admin.orphanTool.deleteSuccess': 'Cuenta de Stripe eliminada exitosamente',
     'admin.orphanTool.deleteError': 'Error al eliminar la cuenta de Stripe',
+
+    // Order Cleanup Tool
+    'admin.orderCleanup.title': 'Limpieza de Pedidos Huérfanos',
+    'admin.orderCleanup.description': 'Eliminar pedidos abandonados que nunca completaron el pago. Estos pedidos están ocultos para los usuarios pero permanecen en la base de datos.',
+    'admin.orderCleanup.cleanWithGrace': 'Limpiar (1 hora de gracia)',
+    'admin.orderCleanup.forceClean': 'Forzar Limpieza',
+    'admin.orderCleanup.cleaning': 'Limpiando...',
+    'admin.orderCleanup.hint': 'El período de gracia permite tiempo para pagos lentos. Forzar limpieza elimina todos los pedidos pendientes inmediatamente.',
+    'admin.orderCleanup.error': 'La limpieza falló. Por favor intenta de nuevo.',
+    'admin.orderCleanup.metrics.processed': 'Procesados',
+    'admin.orderCleanup.metrics.deleted': 'Eliminados',
+    'admin.orderCleanup.metrics.fixed': 'Corregidos',
+    'admin.orderCleanup.metrics.failed': 'Fallidos',
+    'admin.orderCleanup.errorDetails': 'Detalles del Error',
+    'admin.orderCleanup.moreErrors': '+{count} errores más',
+    'admin.orderCleanup.noOrphansFound': 'No se encontraron pedidos huérfanos. Todos los pedidos están en buen estado.',
 
     // Order Sorting
     'order.sort.newest': 'Más Recientes',
