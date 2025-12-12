@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Order, OrderStatus } from '../../types/order';
 import { queryKeys } from './queryKeys';
 import * as orderApi from '../../services/api/orderApi';
+import { isOrphanOrder } from '../../utils/orderUtils';
 
 /** Terminal order statuses that don't need further polling */
 const TERMINAL_STATUSES: OrderStatus[] = [
@@ -61,6 +62,13 @@ export const useOrderTrackingQuery = ({
 
         if (!userIdMatches && !emailMatches) {
           console.warn('Order access denied - neither userId nor email match');
+          return null;
+        }
+
+        // Don't show orphan orders (abandoned checkouts) to customers
+        // These are orders where payment was never completed
+        if (isOrphanOrder(order)) {
+          console.warn('Order is orphaned (abandoned checkout) - not showing to customer');
           return null;
         }
 

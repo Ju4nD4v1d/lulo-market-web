@@ -85,12 +85,38 @@
   color: var(--color-primary);
 }
 
+/* Order counts container */
+.orderCounts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .orderCount {
   font-size: var(--font-size-caption);
   color: var(--color-text-muted);
   background: var(--color-background-secondary);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
+}
+
+/* Orphan order count indicator (admin-only) */
+.orphanCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: #92400E;
+  background: var(--color-warning-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.orphanIcon {
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
 .searchWrapper {
@@ -500,4 +526,36 @@
 .paymentRefunded {
   background: var(--color-text-muted);
   color: white;
+}
+
+/* ============================================================================
+   Orphan Order Styles (Admin-only visibility)
+   ============================================================================
+   These styles highlight abandoned/orphan orders so admins can identify them.
+   Orphan orders have: status='pending' AND paymentStatus='pending'
+   Regular users (customers/store owners) never see these orders.
+   ============================================================================ */
+
+/* Orphan order card - subtle warning border */
+.orphanCard {
+  border-color: var(--color-warning);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+/* Orphan banner at top of card */
+.orphanBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-warning);
+  color: white;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+
+.orphanBannerIcon {
+  width: 0.875rem;
+  height: 0.875rem;
 }

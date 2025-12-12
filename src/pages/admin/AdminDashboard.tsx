@@ -10,6 +10,7 @@ import { AdminLayout } from './components/AdminLayout';
 import { StoreSidebar } from './components/StoreSidebar';
 import { StoreDetailsPanel } from './components/StoreDetailsPanel';
 import { OrphanAccountTool } from './components/OrphanAccountTool';
+import { OrphanOrderCleanupTool } from './components/OrphanOrderCleanupTool';
 import { useAllStores } from './hooks/useAllStores';
 import type { StoreData } from '../../types/store';
 import styles from './AdminDashboard.module.css';
@@ -60,7 +61,10 @@ export const AdminDashboard = () => {
           {activeView === 'tools' ? (
             <div className={styles.toolsView}>
               <h2 className={styles.toolsViewTitle}>{t('admin.tools.title')}</h2>
-              <OrphanAccountTool />
+              <div className={styles.toolsGrid}>
+                <OrphanAccountTool />
+                <OrphanOrderCleanupTool />
+              </div>
             </div>
           ) : selectedStore ? (
             <StoreDetailsPanel

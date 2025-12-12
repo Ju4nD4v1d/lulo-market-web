@@ -31,6 +31,7 @@ import { CancelOrderModal } from './components/CancelOrderModal';
 import { Order, OrderStatus } from '../../../../types/order';
 import { getNextStatus, formatPrice, formatDate } from './utils/orderHelpers';
 import { statusColors } from './utils/statusConfig';
+import { filterOrdersForUser } from '../../../../utils/orderUtils';
 import * as paymentApi from '../../../../services/api/paymentApi';
 import styles from './OrdersPage.module.css';
 
@@ -68,6 +69,13 @@ export const OrdersPage = () => {
   const { updateOrderStatus: updateOrderStatusMutation } = useOrderMutations(storeId || '');
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, filteredOrders } = useOrderFilters(orders);
   const { sortOption, setSortOption, sortOrders } = useOrderSorting();
+
+  // Get total count of visible orders (excludes orphan/abandoned orders)
+  // Note: useOrderFilters already filters orphans, but we need count before that filter
+  const visibleOrdersCount = useMemo(
+    () => filterOrdersForUser(orders).length,
+    [orders]
+  );
 
   // Apply sorting to filtered orders - memoized to avoid recalculation
   const sortedOrders = useMemo(
@@ -222,7 +230,7 @@ export const OrdersPage = () => {
           </div>
           <div className={styles.totalOrders}>
             <p className={styles.totalLabel}>{t('admin.orders.totalOrders')}</p>
-            <p className={styles.totalCount}>{orders.length}</p>
+            <p className={styles.totalCount}>{visibleOrdersCount}</p>
           </div>
         </div>
 

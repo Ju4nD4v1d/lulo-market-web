@@ -103,3 +103,17 @@
   color: var(--color-text-primary);
   margin: 0 0 1.5rem;
 }
+
+.toolsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .toolsGrid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+}
