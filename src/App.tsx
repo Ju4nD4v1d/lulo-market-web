@@ -17,7 +17,7 @@ import { AppRoutes } from './routes';
  * Listens for auth state changes and redirects to saved path.
  */
 const AuthRedirectHandler = () => {
-  const { currentUser, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
+  const { currentUser, userProfile, loading, redirectAfterLogin, setRedirectAfterLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,7 +25,9 @@ const AuthRedirectHandler = () => {
   useEffect(() => {
     if (loading) return;
 
-    if (currentUser && redirectAfterLogin) {
+    // Only redirect when both currentUser AND userProfile exist
+    // This prevents premature redirect during registration before Firestore write completes
+    if (currentUser && userProfile && redirectAfterLogin) {
       const redirectPath = redirectAfterLogin;
       setRedirectAfterLogin(null);
 
@@ -38,14 +40,14 @@ const AuthRedirectHandler = () => {
           window.dispatchEvent(new CustomEvent('openCheckout'));
         }
       }, 100);
-    } else if (currentUser && !redirectAfterLogin && location.pathname === '/login') {
+    } else if (currentUser && userProfile && !redirectAfterLogin && location.pathname === '/login') {
       // User just logged in from login page with no pending redirect
       // Redirect to home page
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 100);
     }
-  }, [currentUser, loading, redirectAfterLogin, setRedirectAfterLogin, navigate, location.pathname]);
+  }, [currentUser, userProfile, loading, redirectAfterLogin, setRedirectAfterLogin, navigate, location.pathname]);
 
   return null;
 };

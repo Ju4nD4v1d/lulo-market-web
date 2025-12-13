@@ -1,6 +1,7 @@
 import type * as React from 'react';
 /**
  * RegisterForm - Registration-specific form fields
+ * Phone verification is handled in a separate modal after form submission
  */
 
 

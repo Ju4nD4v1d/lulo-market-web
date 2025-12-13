@@ -153,6 +153,29 @@ service cloud.firestore {
     }
 
     // ============================================================================
+    // PHONE REGISTRY (For checking phone availability during registration)
+    // Only stores phone number existence, no user data exposed
+    // ============================================================================
+
+    match /phoneRegistry/{phoneId} {
+      // Public read - needed to check phone availability before registration
+      allow read: if true;
+
+      // Only authenticated users can create, AND document must not already exist
+      // This prevents race conditions where two users register the same phone
+      allow create: if isAuthenticated() &&
+                       !exists(/databases/$(database)/documents/phoneRegistry/$(phoneId));
+
+      // No updates allowed
+      allow update: if false;
+
+      // Allow delete only by the user who created it (for rollback on failed registration)
+      // or by admins for cleanup
+      allow delete: if isAuthenticated() &&
+                       (resource.data.createdBy == request.auth.uid || isAdmin());
+    }
+
+    // ============================================================================
     // WAITLIST
     // ============================================================================
 

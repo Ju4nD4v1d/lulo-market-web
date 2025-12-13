@@ -1,0 +1,107 @@
+/* VerificationCodeInput - Mobile-first styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  text-align: center;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Mobile-first: default is smaller size, scale up for larger screens */
+.digitInput {
+  display: inline-block;
+  width: 2.75rem;
+  height: 3.25rem;
+  min-width: 2.75rem;
+  min-height: 3.25rem;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 3.25rem;
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-gray-300);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+/* Remove number input spinners */
+.digitInput::-webkit-outer-spin-button,
+.digitInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Tablet and up: larger inputs */
+@media (min-width: 768px) {
+  .inputGroup {
+    gap: 0.75rem;
+  }
+
+  .digitInput {
+    width: 3rem;
+    height: 3.5rem;
+    font-size: 1.75rem;
+  }
+}
+
+.digitInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-20);
+}
+
+.digitInput:disabled {
+  background-color: var(--color-gray-100);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.inputError {
+  border-color: var(--color-error);
+}
+
+.inputError:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.errorText {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  text-align: center;
+  margin: 0;
+}
+
+/* Animation for input when receiving focus */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.digitInput:focus {
+  animation: pulse 0.2s ease;
+}
