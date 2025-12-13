@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import {
   User,
   onAuthStateChanged,
@@ -8,10 +8,12 @@ import {
   signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { serverTimestamp } from 'firebase/firestore';
+import { serverTimestamp, runTransaction, doc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import { updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import * as userApi from '../services/api/userApi';
+import { isPhoneNumberInUse } from '../services/api/userApi';
 import * as storeApi from '../services/api/storeApi';
 import { UserProfile, UserType } from '../types/user';
 
@@ -22,7 +24,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   portalLogin: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, displayName?: string, address?: { street: string; city: string; province: string; postalCode: string }) => Promise<void>;
+  register: (email: string, password: string, displayName?: string, address?: { street: string; city: string; province: string; postalCode: string }, phoneNumber?: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (profileData: Partial<UserProfile>, authData?: { email?: string; currentPassword?: string; newPassword?: string }) => Promise<void>;
@@ -49,11 +51,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
 
+  // Flag to prevent race condition during registration
+  // When true, onAuthStateChanged will skip profile fetching AND not set loading=false
+  // The register() function handles setting profile and loading state
+  const isRegisteringRef = useRef(false);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
 
       if (user) {
+        // During registration, skip everything - register() will handle profile and loading
+        if (isRegisteringRef.current) {
+          // Don't set loading=false here - register() will do it after Firestore write
+          return;
+        }
+
+        // Skip profile fetch for phone-only users (during phone verification flow)
+        // These are temporary users created by Firebase Phone Auth that will be deleted
+        // after verification. They have no email and no Firestore profile.
+        if (!user.email) {
+          // Don't set loading=false - the verification flow manages its own state
+          return;
+        }
+
         try {
           const userData = await userApi.getUserProfile(user.uid);
           if (userData) {
@@ -169,9 +190,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email: string,
     password: string,
     displayName?: string,
-    address?: { street: string; city: string; province: string; postalCode: string }
+    address?: { street: string; city: string; province: string; postalCode: string },
+    phoneNumber?: string
   ) => {
+    // Set flag to prevent onAuthStateChanged from trying to fetch profile
+    // before we've written it to Firestore
+    isRegisteringRef.current = true;
+
     try {
+      // CRITICAL: Final phone availability check right before account creation
+      // This closes the TOCTOU race condition window
+      if (phoneNumber) {
+        const phoneExists = await isPhoneNumberInUse(phoneNumber);
+        if (phoneExists) {
+          isRegisteringRef.current = false;
+          throw new Error('auth/phone-already-in-use');
+        }
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -193,27 +229,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: user.email || '',
         displayName: displayName || 'User',
         userType: 'shopper', // Default to shopper
+        phoneNumber: phoneNumber || undefined, // Store verified phone number
         createdAt: new Date(),
         lastLoginAt: new Date(),
         preferences,
       };
 
-      await userApi.setUserProfile(user.uid, {
-        ...userProfileData,
-        createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
-      });
+      // Use Firestore transaction to atomically create phone registry and user profile
+      // This prevents race conditions where two users register the same phone
+      if (phoneNumber) {
+        const phoneId = phoneNumber.replace(/^\+/, '');
+        const phoneRef = doc(db, 'phoneRegistry', phoneId);
+        const userRef = doc(db, 'users', user.uid);
+
+        await runTransaction(db, async (transaction) => {
+          // Check if phone number is already registered (within transaction)
+          const phoneDoc = await transaction.get(phoneRef);
+          if (phoneDoc.exists()) {
+            throw new Error('auth/phone-already-in-use');
+          }
+
+          // Atomically create both documents
+          transaction.set(phoneRef, {
+            registeredAt: serverTimestamp(),
+            createdBy: user.uid
+          });
+
+          transaction.set(userRef, {
+            ...userProfileData,
+            createdAt: serverTimestamp(),
+            lastLoginAt: serverTimestamp()
+          });
+        });
+      } else {
+        // No phone number - just create user profile
+        await userApi.setUserProfile(user.uid, {
+          ...userProfileData,
+          createdAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp(),
+        });
+      }
+
+      // Set local state directly (profile is now safely in Firestore)
+      setUserProfile(userProfileData);
+      setUserType('shopper');
+
+      // Reset flag before setting loading=false
+      // This allows future onAuthStateChanged calls to work normally
+      isRegisteringRef.current = false;
+
+      // NOW set loading=false - this triggers the redirect
+      // Profile is guaranteed to exist at this point
+      setLoading(false);
+
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
       console.error('Registration error:', err);
 
+      // Reset the flag on error
+      isRegisteringRef.current = false;
+
       // Map Firebase error codes to user-friendly messages
-      const errorCode = err?.code;
+      const errorCode = err?.code || err?.message;
       let errorMessage = err?.message || 'Registration failed';
 
       switch (errorCode) {
         case 'auth/email-already-in-use':
           errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+          break;
+        case 'auth/phone-already-in-use':
+          errorMessage = 'This phone number is already registered. Please use a different number or sign in.';
           break;
         case 'auth/invalid-email':
           errorMessage = 'Invalid email address format.';

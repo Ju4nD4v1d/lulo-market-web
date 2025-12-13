@@ -1,6 +1,13 @@
 import type * as React from 'react';
 /**
  * LoginPage - Dual-mode login/register page
+ *
+ * Registration Flow:
+ * 1. User fills form (name, email, password)
+ * 2. User clicks Continue → Opens phone verification modal
+ * 3. User enters phone in modal → SMS sent
+ * 4. User enters 6-digit code → Code verified
+ * 5. Account created with verified phone stored
  */
 
 
@@ -8,7 +15,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { COMPANY_NAME } from '../../config/company';
 import { AuthLayout, FormMessage } from '../../components/shared/auth';
 import { useLoginForm } from './hooks/useLoginForm';
-import { LoginForm, RegisterForm } from './components';
+import { LoginForm, RegisterForm, PhoneVerificationModal } from './components';
 
 export const LoginPage: React.FC = () => {
   const { t, locale } = useLanguage();
@@ -22,6 +29,8 @@ export const LoginPage: React.FC = () => {
     setConfirmPassword,
     fullName,
     setFullName,
+    phoneNumber,
+    setPhoneNumber,
     address,
     setAddress,
     showPassword,
@@ -31,10 +40,25 @@ export const LoginPage: React.FC = () => {
     error,
     success,
     isLoading,
+    // Registration flow state
+    registrationStep,
+    verificationStatus,
+    resendCooldown,
+    sessionExpired,
+    maxResendsReached,
+    verificationAttempts,
+    // Actions
     handleSubmit,
+    handleSendCode,
+    handleVerifyCode,
+    handleResendCode,
+    handleBackToForm,
     switchTab,
     clearMessages
   } = useLoginForm({ t, locale });
+
+  // Show modal when in verification or creating step
+  const showVerificationModal = !isLogin && (registrationStep === 'verification' || registrationStep === 'creating');
 
   return (
     <AuthLayout
@@ -136,8 +160,8 @@ export const LoginPage: React.FC = () => {
             ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
           {isLoading
-            ? (isLogin ? t('auth.loading') : t('auth.creatingAccount'))
-            : (isLogin ? t('auth.loginButton') : t('auth.createAccount'))
+            ? t('auth.loading')
+            : (isLogin ? t('auth.loginButton') : t('auth.continue'))
           }
         </button>
 
@@ -149,6 +173,28 @@ export const LoginPage: React.FC = () => {
           }
         </p>
       </form>
+
+      {/* Phone Verification Modal */}
+      <PhoneVerificationModal
+        isOpen={showVerificationModal}
+        phoneNumber={phoneNumber}
+        onPhoneChange={setPhoneNumber}
+        onSendCode={handleSendCode}
+        onVerifyCode={handleVerifyCode}
+        onResendCode={handleResendCode}
+        onClose={handleBackToForm}
+        verificationStatus={verificationStatus}
+        resendCooldown={resendCooldown}
+        isLoading={isLoading}
+        error={error}
+        t={t}
+        sessionExpired={sessionExpired}
+        maxResendsReached={maxResendsReached}
+        verificationAttempts={verificationAttempts}
+      />
+
+      {/* Invisible reCAPTCHA container for Firebase Phone Auth */}
+      <div id="recaptcha-container" />
     </AuthLayout>
   );
 };

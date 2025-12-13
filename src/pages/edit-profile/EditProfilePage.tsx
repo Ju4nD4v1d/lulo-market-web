@@ -1,6 +1,8 @@
 import type * as React from 'react';
 /**
  * EditProfilePage - User profile editing page
+ *
+ * Phone number is displayed as read-only (set during registration).
  */
 
 
@@ -64,10 +66,6 @@ export const EditProfilePage: React.FC = () => {
     onError: setFieldError,
     clearError
   });
-
-  // Initialize form data from user profile
-  // This is handled in useEditProfileForm hook, no need to duplicate here
-  // Removed to avoid dependency issues and infinite loops
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     await handleSubmit(e, profileImage);

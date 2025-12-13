@@ -1,6 +1,8 @@
 import type * as React from 'react';
 /**
  * BasicInfoSection - Display name, email, phone fields
+ *
+ * Phone number is read-only (set during registration)
  */
 
 
@@ -75,7 +77,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         )}
       </div>
 
-      {/* Phone Number */}
+      {/* Phone Number - Read-only (set during registration) */}
       <div>
         <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
           {t('profile.phoneNumber')}
@@ -85,18 +87,12 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           <input
             id="phoneNumber"
             type="tel"
-            value={phoneNumber}
-            onChange={(e) => onChange('phoneNumber', e.target.value)}
-            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base ${
-              errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder={t('profile.phoneNumberPlaceholder')}
-            autoComplete="tel"
+            value={phoneNumber || ''}
+            readOnly
+            className="w-full pl-10 pr-3 py-3 border rounded-lg bg-gray-50 text-gray-500 text-base border-gray-300 cursor-default"
+            placeholder={phoneNumber ? '' : '-'}
           />
         </div>
-        {errors.phoneNumber && (
-          <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
-        )}
       </div>
     </div>
   );

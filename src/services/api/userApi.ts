@@ -66,6 +66,20 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   } as UserProfile;
 }
 
+/**
+ * Check if a phone number is already registered
+ * Uses phoneRegistry collection (publicly readable, no user data exposed)
+ * @param phoneNumber - Phone number in E.164 format (e.g., +16045551234)
+ * @returns true if the phone number is already in use
+ */
+export async function isPhoneNumberInUse(phoneNumber: string): Promise<boolean> {
+  // Sanitize phone for use as document ID (remove + sign)
+  const phoneId = phoneNumber.replace(/^\+/, '');
+  const phoneRef = doc(db, 'phoneRegistry', phoneId);
+  const snapshot = await getDoc(phoneRef);
+  return snapshot.exists();
+}
+
 // ============================================================================
 // Write Operations
 // ============================================================================

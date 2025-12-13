@@ -149,13 +149,11 @@ export const useEditProfileForm = ({ t }: UseEditProfileFormOptions) => {
       }
 
       // Prepare update data
+      // Note: phoneNumber is NOT included here - it's handled separately via
+      // phone verification modal to ensure proper phoneRegistry updates
       const updateData: Partial<UserProfile> = {};
 
       updateData.displayName = formData.displayName.trim();
-
-      if (formData.phoneNumber.trim()) {
-        updateData.phoneNumber = formData.phoneNumber.trim();
-      }
 
       if (avatarUrl !== undefined) {
         updateData.avatar = avatarUrl;

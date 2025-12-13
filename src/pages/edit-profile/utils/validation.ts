@@ -17,7 +17,6 @@ export const validateProfileForm = (
   formData: {
     displayName: string;
     email: string;
-    phoneNumber: string;
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
@@ -44,10 +43,7 @@ export const validateProfileForm = (
     errors.email = t('profile.error.emailInvalid');
   }
 
-  // Phone number validation (optional but format check)
-  if (formData.phoneNumber && !/^\+?[\d\s\-()]+$/.test(formData.phoneNumber)) {
-    errors.phoneNumber = t('profile.error.phoneInvalid');
-  }
+  // Note: Phone number is read-only (set during registration) and not validated here
 
   // Address validation - only validate if any address field is filled
   const hasAnyAddressField = formData.street?.trim() || formData.city?.trim() ||
