@@ -90,8 +90,9 @@
   padding: 1.5rem;
   max-width: 1280px;
   margin: 0 auto;
-  /* Fixed min-height to prevent layout shift between slides */
-  min-height: 320px;
+  /* Fixed height to prevent layout shift between slides */
+  height: auto;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
 }
@@ -99,28 +100,32 @@
 @media (min-width: 640px) {
   .heroCard {
     padding: 2rem;
-    min-height: 340px;
+    height: auto;
+    min-height: 460px;
   }
 }
 
 @media (min-width: 1024px) {
   .heroCard {
     padding: 2.5rem 3rem;
-    min-height: 280px;
+    height: 320px;
   }
 }
 
 .heroContent {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 @media (min-width: 1024px) {
   .heroContent {
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     gap: 3rem;
   }
 }
@@ -294,7 +299,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  flex-shrink: 0;
+  padding-top: 1rem;
 }
 
 .carouselButton {
