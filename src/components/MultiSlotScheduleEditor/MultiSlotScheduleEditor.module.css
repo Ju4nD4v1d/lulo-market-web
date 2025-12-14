@@ -6,10 +6,11 @@
  */
 
 /* =============================================
-   CONTAINER
+   CONTAINER - Dark Glass Design
    ============================================= */
 .container {
-  background: var(--color-gray-50, #f9fafb);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 0.75rem;
 }
@@ -21,11 +22,11 @@
 }
 
 /* =============================================
-   DAY ROW
+   DAY ROW - Dark Glass Design
    ============================================= */
 .dayRow {
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dayRow:last-child {
@@ -42,7 +43,7 @@
 .dayName {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-gray-800, #1f2937);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .toggleWrapper {
@@ -55,13 +56,13 @@
 .checkbox {
   width: 1.125rem;
   height: 1.125rem;
-  accent-color: var(--color-primary, #84cc16);
+  accent-color: #C8E400;
   cursor: pointer;
 }
 
 .toggleLabel {
   font-size: 0.8125rem;
-  color: var(--color-gray-600, #4b5563);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* =============================================
@@ -84,21 +85,21 @@
 }
 
 /* =============================================
-   SLOT CARD
+   SLOT CARD - Dark Glass Design
    ============================================= */
 .slotCard {
   display: flex;
   align-items: stretch;
   gap: 0.625rem;
   padding: 0.625rem;
-  background: white;
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
 }
 
 .slotCardError {
-  border-color: #fca5a5;
-  background: #fef2f2;
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.1);
 }
 
 /* Slot number badge */
@@ -108,11 +109,12 @@
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  background: var(--color-gray-100, #f3f4f6);
+  background: rgba(200, 228, 0, 0.2);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-gray-500, #6b7280);
+  color: #C8E400;
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 0.25rem;
@@ -157,7 +159,7 @@
 .timeLabel {
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--color-gray-500, #6b7280);
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -182,7 +184,7 @@
   z-index: 2;
 }
 
-/* Visible time display */
+/* Visible time display - Dark Glass Design */
 .timeValueDisplay {
   display: flex;
   align-items: center;
@@ -190,39 +192,39 @@
   width: 100%;
   height: 2.5rem;
   padding: 0 0.75rem;
-  background: var(--color-gray-50, #f9fafb);
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.375rem;
   transition: all 0.15s ease;
 }
 
 .timePickerWrapper:hover .timeValueDisplay {
-  background: var(--color-gray-100, #f3f4f6);
-  border-color: var(--color-gray-300, #d1d5db);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .timePickerWrapper:focus-within .timeValueDisplay {
-  background: white;
-  border-color: var(--color-primary, #84cc16);
-  box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.15);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .clockIcon {
   width: 1rem;
   height: 1rem;
-  color: var(--color-gray-400, #9ca3af);
+  color: rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
 }
 
 .timeValue {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-800, #1f2937);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
 }
 
 /* =============================================
-   TIME SEPARATOR
+   TIME SEPARATOR - Dark Glass Design
    ============================================= */
 .timeSeparatorBlock {
   display: none;
@@ -240,12 +242,12 @@
 }
 
 .timeSeparatorText {
-  color: var(--color-gray-400, #9ca3af);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 1rem;
 }
 
 /* =============================================
-   DELETE BUTTON
+   DELETE BUTTON - Dark Glass Design
    ============================================= */
 .deleteBtn {
   display: flex;
@@ -254,10 +256,10 @@
   width: 2rem;
   height: 2rem;
   padding: 0;
-  background: var(--color-gray-50, #f9fafb);
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.375rem;
-  color: var(--color-gray-400, #9ca3af);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -266,9 +268,9 @@
 }
 
 .deleteBtn:hover {
-  background: #fee2e2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #F87171;
 }
 
 .deleteBtnIcon {
@@ -285,7 +287,7 @@
 }
 
 /* =============================================
-   ADD SLOT BUTTON
+   ADD SLOT BUTTON - Dark Glass Design
    ============================================= */
 .addSlotButton {
   display: flex;
@@ -296,17 +298,18 @@
   padding: 0.625rem 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-primary, #84cc16);
+  color: #C8E400;
   background: transparent;
-  border: 1px dashed var(--color-primary, #84cc16);
+  border: 1px dashed rgba(200, 228, 0, 0.5);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .addSlotButton:hover {
-  background: #f7fee7;
+  background: rgba(200, 228, 0, 0.1);
   border-style: solid;
+  border-color: #C8E400;
 }
 
 .addSlotIcon {
@@ -315,7 +318,7 @@
 }
 
 /* =============================================
-   CLOSED STATE
+   CLOSED STATE - Dark Glass Design
    ============================================= */
 .closedLabel {
   margin-top: 0.25rem;
@@ -324,15 +327,15 @@
 .closedText {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #dc2626;
+  color: #F87171;
 }
 
 /* =============================================
-   ERROR MESSAGES
+   ERROR MESSAGES - Dark Glass Design
    ============================================= */
 .errorMessage {
   font-size: 0.75rem;
-  color: #dc2626;
+  color: #F87171;
   margin-top: 0.25rem;
 }
 
@@ -342,8 +345,8 @@
   gap: 0.375rem;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
-  color: #dc2626;
-  background: #fef2f2;
+  color: #F87171;
+  background: rgba(248, 113, 113, 0.15);
   border-radius: 0.25rem;
 }
 
@@ -406,7 +409,7 @@
     content: attr(data-label);
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--color-gray-500, #6b7280);
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     min-width: 3rem;
   }
@@ -430,33 +433,33 @@
 }
 
 /* =============================================
-   LEGACY STYLES (kept for backward compatibility)
+   LEGACY STYLES - Dark Glass Design
    ============================================= */
 .slotRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
 }
 
 .slotRowError {
-  border-color: #fca5a5;
-  background: #fef2f2;
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .slotLabel {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.5);
   min-width: 1rem;
   text-align: center;
 }
 
 .timeSeparator {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.4);
   font-size: 0.875rem;
 }
 
@@ -464,14 +467,14 @@
   flex: 1;
   padding: 0.375rem 0.5rem;
   font-size: 0.875rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.375rem;
-  background: white;
-  color: #374151;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .timeInputError {
-  border-color: #f87171;
+  border-color: rgba(248, 113, 113, 0.5);
 }
 
 .deleteButton {
@@ -484,13 +487,13 @@
   background: transparent;
   border: none;
   border-radius: 0.375rem;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
 }
 
 .deleteButton:hover {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(248, 113, 113, 0.2);
+  color: #F87171;
 }
 
 .deleteIcon {

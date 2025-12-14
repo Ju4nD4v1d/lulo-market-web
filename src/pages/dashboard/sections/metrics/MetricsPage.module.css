@@ -1,13 +1,17 @@
-/* Mobile-first page layout */
+/**
+ * MetricsPage - Dark Glass Design
+ * Mobile-first responsive styles
+ */
+
+/* Page removed light background - uses dashboard's VibrantBackground */
 .page {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #F9FAFB, white, #F3F4F6);
 }
 
 .headerSection {
-  background: white;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .container {
@@ -70,7 +74,7 @@
   padding: 0.5rem;
   background: linear-gradient(to bottom right, #C8E400, #A3C700);
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(200, 228, 0, 0.3);
   flex-shrink: 0;
 }
 
@@ -78,14 +82,13 @@
   .iconWrapper {
     padding: 0.75rem;
     border-radius: 16px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 }
 
 .icon {
   width: 1.5rem;
   height: 1.5rem;
-  color: white;
+  color: #111827;
 }
 
 @media (min-width: 768px) {
@@ -98,10 +101,7 @@
 .title {
   font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(to right, #111827, #374151);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .subtitle {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
   display: none;
@@ -152,12 +152,13 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: #F3F4F6;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
   flex: 1;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 @media (min-width: 640px) {
@@ -168,7 +169,8 @@
 }
 
 .refreshButton:hover {
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .refreshButton:disabled {
@@ -180,6 +182,7 @@
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .buttonIcon.spinning {
@@ -199,6 +202,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   display: none;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 @media (min-width: 640px) {
@@ -240,6 +244,10 @@
 
 .revenueTrendCard {
   position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
 }
 
 .revenueTrendHeader {
@@ -260,7 +268,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3F4F6;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   padding: 0.25rem;
   margin-top: 1rem;
@@ -282,7 +291,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   transition: all 0.2s;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -298,19 +307,18 @@
 }
 
 .toggleButton:hover {
-  color: #111827;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .toggleButtonActive {
   background: #C8E400;
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  color: #111827;
+  box-shadow: 0 4px 6px -1px rgba(200, 228, 0, 0.3);
   transform: scale(1.02);
 }
 
 @media (min-width: 768px) {
   .toggleButtonActive {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     transform: scale(1.05);
   }
 }

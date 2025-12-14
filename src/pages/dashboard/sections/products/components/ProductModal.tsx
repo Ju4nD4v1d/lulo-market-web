@@ -314,6 +314,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               <input
                 type="text"
                 id="name"
+                data-auth-input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className={styles.input}
@@ -325,6 +326,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               <label htmlFor="category" className={styles.label}>{t('products.category')}</label>
               <select
                 id="category"
+                data-auth-input
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className={styles.select}
@@ -345,6 +347,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             <label htmlFor="description" className={styles.label}>{t('products.descriptionLabel')}</label>
             <textarea
               id="description"
+              data-auth-input
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -360,6 +363,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <div key={index} className={styles.ingredientRow}>
                   <input
                     type="text"
+                    data-auth-input
                     value={ingredient}
                     onChange={(e) => updateIngredient(index, e.target.value)}
                     placeholder={t('products.ingredientPlaceholder')}
@@ -418,6 +422,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <input
                   type="number"
                   id="price"
+                  data-auth-input
                   min="0"
                   step="0.01"
                   value={formData.price}
@@ -437,6 +442,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               <input
                 type="number"
                 id="stock"
+                data-auth-input
                 min="0"
                 value={formData.stock}
                 onChange={(e) => {
@@ -458,6 +464,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <input
                   type="number"
                   id="pstPercentage"
+                  data-auth-input
                   min="0"
                   max="100"
                   step="0.01"
@@ -479,6 +486,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <input
                   type="number"
                   id="gstPercentage"
+                  data-auth-input
                   min="0"
                   max="100"
                   step="0.01"

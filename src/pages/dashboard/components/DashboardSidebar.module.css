@@ -1,13 +1,18 @@
+/**
+ * DashboardSidebar - Dark Glass Design
+ */
+
 /* Mobile-first: Always collapsed on mobile */
 .sidebar {
-  background: white;
-  border-right: 1px solid #e5e7eb;
-  /* Changed from fixed to relative - sidebar now pushes content */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   height: 100vh;
   width: 5rem;
   transition: width 0.3s ease-in-out;
-  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -27,7 +32,7 @@
   height: 4rem;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0 1rem;
   transition: padding 0.3s;
   justify-content: center;
@@ -44,7 +49,8 @@
 .logoPlaceholder {
   width: 2.5rem;
   height: 2.5rem;
-  background: rgba(200, 228, 0, 0.1);
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -66,7 +72,7 @@
 .brandName {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: #FFFFFF;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -83,8 +89,8 @@
 
 .nav {
   padding: 1rem;
-  flex: 1; /* Allow nav to take up available space */
-  overflow-y: auto; /* Enable scrolling if menu items overflow */
+  flex: 1;
+  overflow-y: auto;
 }
 
 .menuList {
@@ -103,7 +109,7 @@
   border-radius: 0.5rem;
   transition: all 0.2s;
   text-decoration: none;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   justify-content: center;
 }
 
@@ -121,17 +127,18 @@
 }
 
 .menuItem:hover {
-  background: #f9fafb;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .menuItemActive {
-  background: rgba(200, 228, 0, 0.1);
-  color: #A3C700;
+  background: rgba(200, 228, 0, 0.15);
+  color: #C8E400;
+  border: 1px solid rgba(200, 228, 0, 0.3);
 }
 
 .menuItemDisabled {
-  color: #d1d5db;
+  color: rgba(255, 255, 255, 0.3);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -179,14 +186,14 @@
   left: 0;
   right: 0;
   padding: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .userInfo {
   display: flex;
   align-items: center;
   padding: 0.75rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   transition: all 0.2s;
   justify-content: center;
 }
@@ -230,6 +237,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: none;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Show email on larger screens when expanded */
@@ -244,7 +252,7 @@
   align-items: center;
   width: 100%;
   padding: 0.75rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   background: none;
   border: none;
   border-radius: 0.5rem;
@@ -267,8 +275,8 @@
 }
 
 .logoutButton:hover {
-  background: #f9fafb;
-  color: #111827;
+  background: rgba(248, 113, 113, 0.15);
+  color: #F87171;
 }
 
 .logoutIcon {
@@ -295,21 +303,22 @@
   position: absolute;
   right: -0.75rem;
   top: 4rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   padding: 0.25rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all 0.2s;
-  z-index: 10; /* Ensure button is above content */
+  z-index: 10;
 }
 
-/* Toggle button is always displayed when rendered (controlled by parent) */
-
 .toggleButton:hover {
-  background: #f9fafb;
-  color: #374151;
+  background: rgba(0, 0, 0, 0.7);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .toggleIcon {
@@ -332,7 +341,7 @@
   min-width: 1.125rem;
   height: 1.125rem;
   padding: 0 0.25rem;
-  background: var(--color-error, #EF4444);
+  background: #F87171;
   color: white;
   font-size: 0.6875rem;
   font-weight: 600;
@@ -341,7 +350,7 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(248, 113, 113, 0.4);
   animation: badgePulse 2s ease-in-out infinite;
   will-change: transform;
 }

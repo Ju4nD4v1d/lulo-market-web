@@ -1,6 +1,9 @@
+/**
+ * ContactSection - Dark Glass Design
+ */
+
 .section {
   padding: 4rem 0 5rem;
-  background: #f9fafb;
 }
 
 .container {
@@ -23,7 +26,7 @@
 .title {
   font-size: 1.5rem;
   font-weight: 300;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 1rem 0;
 }
 
@@ -34,7 +37,7 @@
 }
 
 .description {
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   max-width: 42rem;
   margin: 0 auto;
 }
@@ -56,11 +59,19 @@
 }
 
 .formCard {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 1rem;
-  padding: 2rem;
-  border: 1px solid rgba(229, 231, 235, 0.6);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .formCard {
+    padding: 2rem;
+  }
 }
 
 .sidebarColumn {
@@ -70,11 +81,13 @@
 }
 
 .scheduleCard {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 1rem;
   padding: 1.5rem;
-  border: 1px solid rgba(229, 231, 235, 0.6);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .scheduleContent {
@@ -84,52 +97,55 @@
 .calendarIcon {
   width: 4rem;
   height: 4rem;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #C8E400;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .icon {
   width: 2rem;
   height: 2rem;
-  color: white;
+  color: #111827;
 }
 
 .scheduleTitle {
   font-size: 1.125rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.5rem 0;
 }
 
 .scheduleDescription {
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
   margin: 0 0 1.5rem 0;
 }
 
 .scheduleButton {
   width: 100%;
-  background: linear-gradient(to right, #ea580c, #c2410c);
-  color: white;
+  background: #C8E400;
+  color: #111827;
   padding: 0.75rem;
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .scheduleButton:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: #e7ff01;
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px -3px rgba(200, 228, 0, 0.5);
 }
 
 .buttonIcon {
@@ -138,17 +154,19 @@
 }
 
 .quickCard {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 1rem;
   padding: 1.5rem;
-  border: 1px solid rgba(229, 231, 235, 0.6);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .quickTitle {
   font-size: 1.125rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 1rem 0;
 }
 
@@ -163,7 +181,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.5rem;
 }
 
@@ -180,15 +199,18 @@
 }
 
 .quickIconOrange {
-  background: #fff7ed;
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
 }
 
 .quickIconGreen {
-  background: #f0fdf4;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .quickIconPurple {
-  background: #faf5ff;
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 .quickIcon {
@@ -197,33 +219,33 @@
 }
 
 .quickIconOrange .quickIcon {
-  color: #ea580c;
+  color: #C8E400;
 }
 
 .quickIconGreen .quickIcon {
-  color: #059669;
+  color: #4ADE80;
 }
 
 .quickIconPurple .quickIcon {
-  color: #7c3aed;
+  color: #A78BFA;
 }
 
 .quickLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
 }
 
 .quickDesc {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .responseCard {
-  background: linear-gradient(135deg, #fff7ed, #fed7aa);
+  background: rgba(200, 228, 0, 0.1);
+  border: 1px solid rgba(200, 228, 0, 0.2);
   border-radius: 1rem;
   padding: 1.5rem;
-  border: 1px solid rgba(253, 186, 116, 0.6);
 }
 
 .responseContent {
@@ -233,7 +255,7 @@
 .clockIcon {
   width: 3rem;
   height: 3rem;
-  background: #f97316;
+  background: #C8E400;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -244,17 +266,18 @@
 .clockIcon .icon {
   width: 1.5rem;
   height: 1.5rem;
+  color: #111827;
 }
 
 .responseTitle {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.25rem 0;
 }
 
 .responseDescription {
   font-size: 0.75rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }

@@ -1,4 +1,6 @@
-/* PricingConfirmation Component Styles */
+/**
+ * PricingConfirmation - Dark Glass Design
+ */
 
 .container {
   display: flex;
@@ -11,13 +13,14 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #78350f;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #FBBF24;
   font-size: 0.875rem;
   font-weight: 700;
   border-radius: 9999px;
   align-self: center;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
 }
 
 .badgeIcon {
@@ -32,16 +35,18 @@
 }
 
 .pricingCard {
-  background: white;
-  border: 2px solid #e5e7eb;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
   transition: all 300ms ease;
 }
 
 .pricingCard:hover {
-  border-color: #C8E400;
-  box-shadow: 0 4px 16px rgba(200, 228, 0, 0.2);
+  border-color: rgba(200, 228, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(200, 228, 0, 0.15);
   transform: translateY(-2px);
 }
 
@@ -51,7 +56,7 @@
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cardIcon {
@@ -63,7 +68,7 @@
 .cardTitle {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -88,13 +93,13 @@
 
 .priceRegular {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: line-through;
 }
 
 .priceDuration {
   font-size: 0.8125rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
 }
 
@@ -103,8 +108,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #4ADE80;
   font-size: 0.8125rem;
   font-weight: 700;
   border-radius: 0.5rem;
@@ -117,8 +123,8 @@
 }
 
 .benefitsSection {
-  background: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
-  border: 2px solid #86efac;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   border-radius: 1rem;
   padding: 1.5rem;
 }
@@ -129,14 +135,14 @@
   gap: 0.5rem;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #166534;
+  color: #4ADE80;
   margin-bottom: 1rem;
 }
 
 .benefitsIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #10b981;
+  color: #4ADE80;
 }
 
 .benefitsList {
@@ -153,14 +159,14 @@
   align-items: flex-start;
   gap: 0.75rem;
   font-size: 0.9375rem;
-  color: #166534;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
 }
 
 .benefitCheck {
   width: 1.25rem;
   height: 1.25rem;
-  color: #10b981;
+  color: #4ADE80;
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -170,22 +176,22 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: linear-gradient(to right, #fef3c7, #fef9e7);
-  border: 2px solid #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 0.75rem;
 }
 
 .warningIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #f59e0b;
+  color: #FBBF24;
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
 
 .warningText {
   font-size: 0.875rem;
-  color: #78350f;
+  color: #FBBF24;
   line-height: 1.6;
   margin: 0;
   font-weight: 500;
@@ -193,8 +199,8 @@
 
 .confirmBox {
   padding: 1rem;
-  background: linear-gradient(to right, #f0fdf4, #dcfce7);
-  border: 2px solid #86efac;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   border-radius: 0.75rem;
 }
 
@@ -208,23 +214,29 @@
 .checkbox {
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid #d1d5db;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.375rem;
   cursor: pointer;
   flex-shrink: 0;
   margin-top: 0.125rem;
-  accent-color: #10b981;
+  accent-color: #4ADE80;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .checkbox:focus {
-  outline: 2px solid #10b981;
+  outline: 2px solid #4ADE80;
   outline-offset: 2px;
+}
+
+.checkbox:checked {
+  background: #4ADE80;
+  border-color: #4ADE80;
 }
 
 .checkboxText {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #166534;
+  color: #4ADE80;
   line-height: 1.5;
 }
 

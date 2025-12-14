@@ -1,6 +1,7 @@
 import type * as React from 'react';
 import { useState, useEffect } from 'react';
 
+import { VibrantBackground } from '../../../components/VibrantBackground';
 import { DashboardSidebar } from './DashboardSidebar';
 import styles from './DashboardLayout.module.css';
 
@@ -31,18 +32,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, curr
   }, []);
 
   return (
-    <div className={styles.container}>
-      <DashboardSidebar
-        currentPage={currentPage}
-        isCollapsed={isCollapsed}
-        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
-        ordersBadgeCount={ordersBadgeCount}
-      />
-      <main className={`${styles.main} ${isCollapsed ? styles.mainCollapsed : styles.mainExpanded}`}>
-        <div className={styles.content}>
-          {children}
-        </div>
-      </main>
-    </div>
+    <VibrantBackground>
+      <div className={styles.container}>
+        <DashboardSidebar
+          currentPage={currentPage}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+          ordersBadgeCount={ordersBadgeCount}
+        />
+        <main className={`${styles.main} ${isCollapsed ? styles.mainCollapsed : styles.mainExpanded}`}>
+          <div className={styles.content}>
+            {children}
+          </div>
+        </main>
+      </div>
+    </VibrantBackground>
   );
 };

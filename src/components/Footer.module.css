@@ -1,17 +1,21 @@
+/* Footer - Transparent like store/product sections
+ * White text on vibrant background
+ */
 .footer {
-  background-color: rgba(15, 23, 42, 0.9);
-  color: #f1f5f9;
-  backdrop-filter: blur(12px);
+  background: transparent;
+  color: #FFFFFF;
+  position: relative;
+  margin-top: 0;
 }
 
 .footerGrain {
-  background-color: rgba(15, 23, 42, 0.9);
+  background: transparent;
 }
 
 /* Business CTA Section - Mobile First */
 .businessCtaSection {
   padding: 2rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
 }
 
 @media (min-width: 640px) {
@@ -161,8 +165,7 @@
 }
 
 .brandAccent {
-  height: 0.25rem;
-  background-color: var(--color-primary-400);
+  display: none;
 }
 
 /* Footer Container - Mobile First */
@@ -170,7 +173,7 @@
   max-width: 80rem;
   margin: 0 auto;
   padding: 2rem 1rem;
-  color: #cbd5e1;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 @media (min-width: 640px) {
@@ -420,7 +423,7 @@
 
 .bottomSection {
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -434,7 +437,7 @@
 }
 
 .copyright {
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 1rem;
   font-size: 0.875rem;
 }
@@ -451,7 +454,7 @@
 }
 
 .legalLink {
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.7);
   transition: color 0.2s;
   font-size: 0.875rem;
   text-decoration: none;

@@ -9,35 +9,35 @@ export const ThirdPartySection: React.FC = () => {
 
   return (
     <LegalSection icon={Globe} title={t('legal.privacy.thirdParty.title')}>
-      <p className="text-gray-700 leading-relaxed mb-4">
+      <p className="text-white/80 leading-relaxed mb-4">
         {t('legal.privacy.thirdParty.intro')}
       </p>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.payment.title')}</h4>
-          <p className="text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.thirdParty.payment.title')}</h4>
+          <p className="text-white/70 text-sm">
             {t('legal.privacy.thirdParty.payment.desc')}
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.analytics.title')}</h4>
-          <p className="text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.thirdParty.analytics.title')}</h4>
+          <p className="text-white/70 text-sm">
             {t('legal.privacy.thirdParty.analytics.desc')}
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.storage.title')}</h4>
-          <p className="text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.thirdParty.storage.title')}</h4>
+          <p className="text-white/70 text-sm">
             {t('legal.privacy.thirdParty.storage.desc')}
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.thirdParty.communication.title')}</h4>
-          <p className="text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.thirdParty.communication.title')}</h4>
+          <p className="text-white/70 text-sm">
             {t('legal.privacy.thirdParty.communication.desc')}
           </p>
         </div>

@@ -29,19 +29,20 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
 }) => {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor={id} className="block text-sm font-medium text-white/90 mb-1">
         {label}
       </label>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Lock className="h-5 w-5 text-gray-400" />
+          <Lock className="h-5 w-5 text-white/50" />
         </div>
         <input
           id={id}
           type={showPassword ? "text" : "password"}
+          data-auth-input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full pl-10 pr-10 border border-gray-300 rounded-lg"
+          className="w-full pl-10 pr-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20"
           placeholder={placeholder}
         />
         <button
@@ -50,14 +51,14 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
           className="absolute inset-y-0 right-0 pr-3 flex items-center"
         >
           {showPassword ? (
-            <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            <EyeOff className="h-5 w-5 text-white/50 hover:text-white/80" />
           ) : (
-            <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            <Eye className="h-5 w-5 text-white/50 hover:text-white/80" />
           )}
         </button>
       </div>
       {helperText && (
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-white/60">
           {helperText}
         </p>
       )}

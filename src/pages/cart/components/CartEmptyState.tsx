@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../context/AuthContext';
 import { CartHeader } from './CartHeader';
+import { VibrantBackground } from '../../../components/VibrantBackground/VibrantBackground';
 import styles from './CartEmptyState.module.css';
 import buttonStyles from '../../../styles/button.module.css';
 
@@ -20,46 +21,48 @@ export const CartEmptyState: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <CartHeader itemCount={0} />
+    <VibrantBackground>
+      <div className={styles.container}>
+        <CartHeader itemCount={0} />
 
-      <main className={styles.content}>
-        {/* Illustration */}
-        <div className={styles.illustrationWrapper}>
-          <img
-            src="/illustrations/undraw_empty.svg"
-            alt="Empty cart"
-            className={styles.illustration}
-          />
-        </div>
+        <main className={styles.content}>
+          {/* Illustration */}
+          <div className={styles.illustrationWrapper}>
+            <img
+              src="/illustrations/undraw_empty.svg"
+              alt="Empty cart"
+              className={styles.illustration}
+            />
+          </div>
 
-        {/* Text */}
-        <h1 className={styles.title}>
-          {t('cart.empty.luloCartEmpty')}
-        </h1>
-        <p className={styles.subtitle}>
-          {t('cart.empty.discoverProducts')}
-        </p>
+          {/* Text */}
+          <h1 className={styles.title}>
+            {t('cart.empty.luloCartEmpty')}
+          </h1>
+          <p className={styles.subtitle}>
+            {t('cart.empty.discoverProducts')}
+          </p>
 
-        {/* Actions */}
-        <div className={styles.actions}>
-          <button
-            onClick={handleContinueShopping}
-            className={`${buttonStyles.button} ${buttonStyles.primary}`}
-          >
-            {t('cart.empty.continueShopping')}
-          </button>
-
-          {!currentUser && (
+          {/* Actions */}
+          <div className={styles.actions}>
             <button
-              onClick={handleLogin}
-              className={`${buttonStyles.button} ${buttonStyles.ghost} ${styles.ghostButton}`}
+              onClick={handleContinueShopping}
+              className={`${buttonStyles.button} ${buttonStyles.primary}`}
             >
-              {t('cart.empty.loginRegister')}
+              {t('cart.empty.continueShopping')}
             </button>
-          )}
-        </div>
-      </main>
-    </div>
+
+            {!currentUser && (
+              <button
+                onClick={handleLogin}
+                className={`${buttonStyles.button} ${buttonStyles.ghost} ${styles.ghostButton}`}
+              >
+                {t('cart.empty.loginRegister')}
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    </VibrantBackground>
   );
 };

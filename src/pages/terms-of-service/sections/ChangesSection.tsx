@@ -8,7 +8,7 @@ export const ChangesSection: React.FC = () => {
 
   return (
     <LegalSection number={6} title={t('legal.terms.changes.title')}>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-white/80 leading-relaxed">
         {t('legal.terms.changes.content')}
       </p>
     </LegalSection>

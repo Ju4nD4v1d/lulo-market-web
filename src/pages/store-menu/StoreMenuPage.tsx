@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CustomStoreDetail } from './components/CustomStoreDetail';
 import { useStoreByIdentifierQuery } from '../../hooks/queries/useStoreQuery';
 import { trackViewContent } from '../../services/analytics';
+import { VibrantBackground } from '../../components/VibrantBackground/VibrantBackground';
 
 export const StoreMenuPage: React.FC = () => {
   // URL param is now called 'storeSlug' but can be either slug or legacy ID
@@ -41,62 +42,38 @@ export const StoreMenuPage: React.FC = () => {
   // Loading state while fetching store
   if (isLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f9fafb'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '3rem',
-            height: '3rem',
-            border: '2px solid #e5e7eb',
-            borderTopColor: '#C8E400',
-            borderRadius: '9999px',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem'
-          }}></div>
-          <p style={{ color: '#6b7280' }}>Loading store...</p>
+      <VibrantBackground>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-2 border-white/20 border-t-[#C8E400] rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white/70">Loading store...</p>
+          </div>
         </div>
-      </div>
+      </VibrantBackground>
     );
   }
 
   // Store not found
   if (!selectedStore) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f9fafb'
-      }}>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
-            Store Not Found
-          </h2>
-          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            The store you're looking for doesn't exist or couldn't be loaded.
-          </p>
-          <button
-            onClick={handleBack}
-            style={{
-              background: '#C8E400',
-              color: '#111827',
-              padding: '0.5rem 1.5rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Go Back
-          </button>
+      <VibrantBackground>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl max-w-md mx-4">
+            <h2 className="text-2xl font-semibold text-white mb-2">
+              Store Not Found
+            </h2>
+            <p className="text-white/70 mb-6">
+              The store you're looking for doesn't exist or couldn't be loaded.
+            </p>
+            <button
+              onClick={handleBack}
+              className="bg-[#C8E400] hover:bg-[#e7ff01] text-gray-900 px-6 py-2 rounded-lg font-semibold transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
         </div>
-      </div>
+      </VibrantBackground>
     );
   }
 

@@ -9,8 +9,8 @@ import styles from './LegalSection.module.css';
 
 interface LegalSectionProps {
   icon?: LucideIcon;
-  iconColor?: 'primary';
-  iconBgColor?: 'primary';
+  iconColor?: 'primary' | string;
+  iconBgColor?: 'primary' | string;
   number?: string | number;
   title: string;
   children: React.ReactNode;
@@ -24,9 +24,9 @@ export const LegalSection: React.FC<LegalSectionProps> = ({
   title,
   children
 }) => {
-  const iconColorClass = iconColor === 'primary' ? styles.iconPrimary : styles.iconPrimary;
-  const iconBgColorClass = iconBgColor === 'primary' ? styles.iconWrapperPrimary : styles.iconWrapperPrimary;
-  const numberColorClass = iconColor === 'primary' ? styles.numberPrimary : styles.numberPrimary;
+  const iconColorClass = iconColor === 'primary' ? styles.iconPrimary : iconColor;
+  const iconBgColorClass = iconBgColor === 'primary' ? styles.iconWrapperPrimary : iconBgColor;
+  const numberColorClass = iconColor === 'primary' ? styles.numberPrimary : iconColor;
 
   return (
     <section className={styles.section}>

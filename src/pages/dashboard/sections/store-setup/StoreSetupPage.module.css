@@ -1,6 +1,9 @@
+/**
+ * StoreSetupPage - Dark Glass Design
+ */
+
 .page {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #F9FAFB, white, #F3F4F6);
 }
 
 .container {
@@ -17,45 +20,46 @@
 .iconWrapper {
   width: 4rem;
   height: 4rem;
-  background: linear-gradient(to right, #C8E400, #A3C700);
+  background: #C8E400;
   border-radius: 16px;
   margin: 0 auto 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(200, 228, 0, 0.4);
 }
 
 .icon {
   width: 2rem;
   height: 2rem;
-  color: white;
+  color: #111827;
 }
 
 .title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.5rem;
 }
 
 .subtitle {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   max-width: 32rem;
   margin: 0 auto;
 }
 
 .formCard {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid #E5E7EB;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .loadingContainer {
   min-height: 100vh;
-  background: #F9FAFB;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,7 +69,7 @@
 .loadingSpinner {
   width: 3rem;
   height: 3rem;
-  border: 2px solid #E5E7EB;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: #C8E400;
   border-radius: 9999px;
   animation: spin 1s linear infinite;
@@ -82,5 +86,5 @@
 
 .loadingText {
   margin-top: 1rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
 }

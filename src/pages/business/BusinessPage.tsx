@@ -11,6 +11,7 @@ import {
   BenefitsSection,
   ContactSection
 } from './components';
+import { VibrantBackground } from '../../components/VibrantBackground/VibrantBackground';
 import styles from './BusinessPage.module.css';
 
 export const BusinessPage = () => {
@@ -75,9 +76,10 @@ export const BusinessPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
+    <VibrantBackground>
+      <div className={styles.page}>
+        {/* Header */}
+        <header className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.headerContent}>
             <div className={styles.headerLeft}>
@@ -141,7 +143,8 @@ export const BusinessPage = () => {
           t={t}
         />
       </main>
-    </div>
+      </div>
+    </VibrantBackground>
   );
 };
 

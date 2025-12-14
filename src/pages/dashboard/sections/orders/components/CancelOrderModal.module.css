@@ -1,10 +1,13 @@
-/* CancelOrderModal.module.css - Mobile First */
+/**
+ * CancelOrderModal - Dark Glass Design
+ * Mobile-first responsive styles
+ */
 
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
   z-index: 50;
   display: flex;
   align-items: center;
@@ -13,9 +16,10 @@
 }
 
 .modal {
-  background-color: white;
+  background: rgba(20, 20, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   max-width: 28rem;
   width: 100%;
   padding: 1.5rem;
@@ -31,7 +35,8 @@
 .iconWrapper {
   width: 2.5rem;
   height: 2.5rem;
-  background-color: #fee2e2;
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -41,7 +46,7 @@
 .icon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #dc2626;
+  color: #F87171;
 }
 
 .titleWrapper {
@@ -51,13 +56,13 @@
 
 .title {
   font-weight: 600;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   font-size: 1rem;
 }
 
 .orderId {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .content {
@@ -65,20 +70,21 @@
 }
 
 .message {
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 0.75rem;
   font-size: 0.9375rem;
 }
 
 .details {
-  background-color: #f9fafb;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.75rem;
   border-radius: 0.5rem;
 }
 
 .detailRow {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 0.25rem;
 }
 
@@ -88,6 +94,7 @@
 
 .detailRow strong {
   font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .actions {
@@ -97,10 +104,10 @@
 
 .keepButton {
   flex: 1;
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  color: #374151;
+  padding: 0.625rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
@@ -108,18 +115,18 @@
 }
 
 .keepButton:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .cancelButton {
   flex: 1;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   background-color: #ef4444;
   color: white;
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;

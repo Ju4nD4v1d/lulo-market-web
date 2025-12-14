@@ -1,16 +1,19 @@
-/* Mobile-first Product Ingredients */
+/* Mobile-first Product Ingredients - Dark Glass Design */
 
 .container {
   padding: 1rem;
-  background: white;
-  border-bottom: 1px solid #f3f4f6;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (min-width: 640px) {
   .container {
     padding: 1.25rem;
     border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     margin-bottom: 1rem;
   }
 }
@@ -19,7 +22,7 @@
   font-family: var(--font-heading);
   font-size: var(--font-size-h6);
   font-weight: var(--font-weight-semibold);
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -29,7 +32,7 @@
 .titleIcon {
   width: 1.125rem;
   height: 1.125rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .ingredientsList {
@@ -44,9 +47,9 @@
 .ingredientItem {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -70,15 +73,15 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: rgba(245, 158, 11, 0.08);
+  background: rgba(245, 158, 11, 0.1);
   border-radius: 0.5rem;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .warningIcon {
   width: 1rem;
   height: 1rem;
-  color: #d97706;
+  color: #fbbf24;
   flex-shrink: 0;
 }
 
@@ -86,11 +89,11 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
   font-weight: var(--font-weight-semibold);
-  color: #92400e;
+  color: #fbbf24;
 }
 
 .containsValue {
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
-  color: #92400e;
+  color: rgba(251, 191, 36, 0.8);
 }

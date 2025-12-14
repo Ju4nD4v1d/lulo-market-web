@@ -1,12 +1,8 @@
 /**
  * Home Page Main Styles
  * Container and layout for the home page
+ * Background is handled by VibrantBackground component
  */
-
-.container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc, white, #f3f4f6);
-}
 
 .main {
   width: 100%;

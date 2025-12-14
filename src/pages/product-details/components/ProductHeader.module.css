@@ -1,12 +1,31 @@
-/* Mobile-first Product Header */
+/* Mobile-first Product Header - Dark Glass Design */
 
 .header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
   position: sticky;
   top: 0;
   z-index: 40;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background: transparent;
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle light glow effect at bottom edge */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%
+  );
 }
 
 .container {
@@ -30,8 +49,8 @@
 /* Back Button */
 .backButton {
   padding: 0.5rem;
-  color: #6b7280;
-  background: none;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -40,8 +59,8 @@
 }
 
 .backButton:hover {
-  color: #111827;
-  background: #f3f4f6;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .backButton:focus-visible {
@@ -79,10 +98,10 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem;
-  background: none;
+  background: transparent;
   border: none;
   border-radius: 0.5rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -95,8 +114,8 @@
 }
 
 .actionButton:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .actionButton:focus-visible {
@@ -125,17 +144,17 @@
 .cartButton {
   position: relative;
   padding: 0.5rem;
-  background: none;
+  background: transparent;
   border: none;
   border-radius: 0.5rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .cartButton:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.1);
+  color: #C8E400;
 }
 
 .cartButton:focus-visible {

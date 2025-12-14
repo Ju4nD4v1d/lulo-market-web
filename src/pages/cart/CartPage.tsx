@@ -10,6 +10,7 @@ import { CartEmptyState } from './components/CartEmptyState';
 import { CartItemList } from './components/CartItemList';
 import { CartSummary } from './components/CartSummary';
 import { DeliveryInfoBanner } from './components/DeliveryInfoBanner';
+import { VibrantBackground } from '../../components/VibrantBackground/VibrantBackground';
 import styles from './CartPage.module.css';
 
 // Note: Platform fee is fetched from Firestore config (default $0.99)
@@ -74,73 +75,75 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <CartHeader itemCount={calculations.itemCount} />
+    <VibrantBackground>
+      <div className={styles.container}>
+        <CartHeader itemCount={calculations.itemCount} />
 
-      <main className={styles.main}>
-        <div className={styles.content}>
-          {/* Store Info */}
-          {cart.storeName && (
-            <div className={styles.storeInfo}>
-              <div className={styles.storeDetails}>
-                <div className={styles.storeIconWrapper}>
-                  {cart.storeImage ? (
-                    <img
-                      src={cart.storeImage}
-                      alt={cart.storeName}
-                      className={styles.storeImage}
-                    />
-                  ) : (
-                    <Store className={styles.storeIcon} />
-                  )}
+        <main className={styles.main}>
+          <div className={styles.content}>
+            {/* Store Info */}
+            {cart.storeName && (
+              <div className={styles.storeInfo}>
+                <div className={styles.storeDetails}>
+                  <div className={styles.storeIconWrapper}>
+                    {cart.storeImage ? (
+                      <img
+                        src={cart.storeImage}
+                        alt={cart.storeName}
+                        className={styles.storeImage}
+                      />
+                    ) : (
+                      <Store className={styles.storeIcon} />
+                    )}
+                  </div>
+                  <div>
+                    <p className={styles.storeLabel}>{t('cart.orderingFrom')}</p>
+                    <h2 className={styles.storeName}>{cart.storeName}</h2>
+                  </div>
                 </div>
-                <div>
-                  <p className={styles.storeLabel}>{t('cart.orderingFrom')}</p>
-                  <h2 className={styles.storeName}>{cart.storeName}</h2>
-                </div>
+                <button onClick={handleViewStore} className={styles.viewStoreButton}>
+                  {t('cart.viewStore')}
+                </button>
               </div>
-              <button onClick={handleViewStore} className={styles.viewStoreButton}>
-                {t('cart.viewStore')}
-              </button>
-            </div>
-          )}
+            )}
 
-          {/* Two Column Layout on Desktop */}
-          <div className={styles.layout}>
-            {/* Items Column */}
-            <div className={styles.itemsColumn}>
-              <h2 className={styles.sectionTitle}>
-                {t('cart.yourItems')} ({calculations.itemCount})
-              </h2>
+            {/* Two Column Layout on Desktop */}
+            <div className={styles.layout}>
+              {/* Items Column */}
+              <div className={styles.itemsColumn}>
+                <h2 className={styles.sectionTitle}>
+                  {t('cart.yourItems')} ({calculations.itemCount})
+                </h2>
 
-              {/* Delivery Info Banner */}
-              {cart.storeId && <DeliveryInfoBanner storeId={cart.storeId} />}
+                {/* Delivery Info Banner */}
+                {cart.storeId && <DeliveryInfoBanner storeId={cart.storeId} />}
 
-              <CartItemList
-                items={cart.items}
-                onQuantityChange={handleQuantityChange}
-                onRemove={handleRemove}
-              />
-            </div>
+                <CartItemList
+                  items={cart.items}
+                  onQuantityChange={handleQuantityChange}
+                  onRemove={handleRemove}
+                />
+              </div>
 
-            {/* Summary Column */}
-            <div className={styles.summaryColumn}>
-              <CartSummary
-                subtotal={calculations.subtotal}
-                deliveryFee={calculations.deliveryFee}
-                platformFee={calculations.platformFee}
-                gst={calculations.gst}
-                pst={calculations.pst}
-                total={calculations.total}
-                itemCount={calculations.itemCount}
-                onCheckout={handleCheckout}
-                isLoggedIn={!!currentUser}
-                deliveryFeeDiscount={cart.summary.deliveryFeeDiscount}
-              />
+              {/* Summary Column */}
+              <div className={styles.summaryColumn}>
+                <CartSummary
+                  subtotal={calculations.subtotal}
+                  deliveryFee={calculations.deliveryFee}
+                  platformFee={calculations.platformFee}
+                  gst={calculations.gst}
+                  pst={calculations.pst}
+                  total={calculations.total}
+                  itemCount={calculations.itemCount}
+                  onCheckout={handleCheckout}
+                  isLoggedIn={!!currentUser}
+                  deliveryFeeDiscount={cart.summary.deliveryFeeDiscount}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </VibrantBackground>
   );
 };

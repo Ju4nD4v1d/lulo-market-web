@@ -63,6 +63,7 @@ export const AddressFields: React.FC<AddressFieldsProps> = ({
         </label>
         <input
           type="text"
+          data-auth-input
           value={street}
           onChange={(e) => onStreetChange(e.target.value)}
           className={styles.input}
@@ -79,6 +80,7 @@ export const AddressFields: React.FC<AddressFieldsProps> = ({
           </label>
           <input
             type="text"
+            data-auth-input
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
             className={styles.input}
@@ -92,6 +94,7 @@ export const AddressFields: React.FC<AddressFieldsProps> = ({
             {t('store.address.province')}
           </label>
           <select
+            data-auth-input
             value={province}
             onChange={(e) => onProvinceChange(e.target.value)}
             className={styles.select}
@@ -123,6 +126,7 @@ export const AddressFields: React.FC<AddressFieldsProps> = ({
         <div className={styles.postalCodeContainer}>
           <input
             type="text"
+            data-auth-input
             value={postalCode}
             onChange={(e) => handlePostalCodeChange(e.target.value)}
             onBlur={handlePostalCodeBlur}
@@ -149,6 +153,7 @@ export const AddressFields: React.FC<AddressFieldsProps> = ({
         </label>
         <input
           type="text"
+          data-auth-input
           value="Canada"
           disabled
           className={styles.inputDisabled}

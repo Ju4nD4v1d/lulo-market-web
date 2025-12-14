@@ -1,7 +1,10 @@
+/**
+ * DashboardLayout - Dark Glass Design
+ */
+
 /* Mobile-first layout */
 .container {
   min-height: 100vh;
-  background: #f9fafb;
   display: flex;
 }
 

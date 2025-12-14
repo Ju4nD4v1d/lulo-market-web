@@ -240,6 +240,7 @@ export const OrdersPage = () => {
             <Search className={styles.searchIcon} />
             <input
               type="text"
+              data-auth-input
               placeholder={t('admin.orders.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -250,6 +251,7 @@ export const OrdersPage = () => {
           <div className={styles.filterWrapper}>
             <Filter className={styles.filterIcon} />
             <select
+              data-auth-input
               value={statusFilter.length > 0 ? statusFilter[0] : ''}
               onChange={(e) => setStatusFilter(e.target.value ? [e.target.value as OrderStatus] : [])}
               className={styles.filterSelect}
@@ -266,6 +268,7 @@ export const OrdersPage = () => {
           <div className={styles.sortWrapper}>
             <ArrowUpDown className={styles.sortIcon} />
             <select
+              data-auth-input
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as SortOption)}
               className={styles.sortSelect}

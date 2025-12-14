@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
 @import './styles/colors.css';
 @import './styles/typography.css';
+@import './styles/spacing.css';
+@import './styles/brand.css';
 
 @tailwind base;
 @tailwind components;
@@ -8,7 +10,11 @@
 
 @layer base {
   /* Global fonts and base colors - Mobile First */
-  html { @apply text-[14px]; }
+  html {
+    @apply text-[14px];
+    margin: 0;
+    padding: 0;
+  }
 
   @media (min-width: 640px) {
     html { @apply text-[15px]; }
@@ -18,20 +24,24 @@
     html { @apply text-[16px]; }
   }
 
-  body { @apply font-sans text-text bg-background; }
+  body {
+    @apply font-sans text-text bg-background;
+    margin: 0;
+    padding: 0;
+  }
   h1, h2, h3, h4, h5, h6 { @apply font-heading text-text; }
   /* Use typography.css classes instead for headings */
-  /* Base input styles */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
-  input[type="time"],
-  input[type="date"],
-  textarea,
-  select {
+  /* Base input styles - excludes glass-search and auth inputs which have custom styling */
+  input[type="text"]:not([data-glass-search]):not([data-auth-input]),
+  input[type="email"]:not([data-auth-input]),
+  input[type="password"]:not([data-auth-input]),
+  input[type="number"]:not([data-auth-input]),
+  input[type="tel"]:not([data-auth-input]),
+  input[type="url"]:not([data-auth-input]),
+  input[type="time"]:not([data-auth-input]),
+  input[type="date"]:not([data-auth-input]),
+  textarea:not([data-auth-input]),
+  select:not([data-auth-input]) {
     @apply block w-full px-4 py-3
       border border-gray-300
       bg-white/50 backdrop-blur-sm

@@ -27,69 +27,81 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-        <User className="w-5 h-5" />
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+        <User className="w-5 h-5 text-white/70" />
         {t('profile.basicInfo')}
       </h3>
 
       {/* Display Name */}
       <div>
-        <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="displayName" className="block text-sm font-medium text-white/90 mb-1">
           {t('profile.displayName')}
         </label>
-        <input
-          id="displayName"
-          type="text"
-          value={displayName}
-          onChange={(e) => onChange('displayName', e.target.value)}
-          className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base ${
-            errors.displayName ? 'border-red-500' : 'border-gray-300'
-          }`}
-          placeholder={t('profile.displayNamePlaceholder')}
-          autoComplete="name"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-white/50" />
+          </div>
+          <input
+            id="displayName"
+            type="text"
+            data-auth-input
+            value={displayName}
+            onChange={(e) => onChange('displayName', e.target.value)}
+            className={`w-full pl-10 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20 ${
+              errors.displayName ? 'border-red-500' : 'border-white/20'
+            }`}
+            placeholder={t('profile.displayNamePlaceholder')}
+            autoComplete="name"
+          />
+        </div>
         {errors.displayName && (
-          <p className="mt-1 text-sm text-red-600">{errors.displayName}</p>
+          <p className="mt-1 text-sm text-red-400">{errors.displayName}</p>
         )}
       </div>
 
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-1">
           {t('profile.email')}
         </label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Mail className="h-5 w-5 text-white/50" />
+          </div>
           <input
             id="email"
             type="email"
+            data-auth-input
             value={email}
             onChange={(e) => onChange('email', e.target.value)}
-            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
+            className={`w-full pl-10 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20 ${
+              errors.email ? 'border-red-500' : 'border-white/20'
             }`}
             placeholder={t('profile.emailPlaceholder')}
             autoComplete="email"
           />
         </div>
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+          <p className="mt-1 text-sm text-red-400">{errors.email}</p>
         )}
       </div>
 
       {/* Phone Number - Read-only (set during registration) */}
       <div>
-        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="phoneNumber" className="block text-sm font-medium text-white/90 mb-1">
           {t('profile.phoneNumber')}
         </label>
         <div className="relative">
-          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Phone className="h-5 w-5 text-white/50" />
+          </div>
           <input
             id="phoneNumber"
             type="tel"
+            data-auth-input
             value={phoneNumber || ''}
             readOnly
-            className="w-full pl-10 pr-3 py-3 border rounded-lg bg-gray-50 text-gray-500 text-base border-gray-300 cursor-default"
+            className="w-full pl-10 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-default"
             placeholder={phoneNumber ? '' : '-'}
           />
         </div>

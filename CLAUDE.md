@@ -6,14 +6,15 @@ Guide for Claude Code when working with the LuloCart codebase.
 
 **Before writing ANY code:**
 
-1. **Mobile-First Design** - Start with mobile styles (320px-375px), use `@media (min-width: XXXpx)` for larger screens
-2. **Bilingual Text** - All user-facing text must use `t('key')` with translations in both `en` and `es` sections
-3. **CSS Modules** - Use scoped `.module.css` files for new components (legacy Tailwind exists but avoid adding more)
+1. **Dark Glass Design System** - Use the dark glassmorphism pattern (see UI Toolkit section)
+2. **Mobile-First Design** - Start with mobile styles (320px-375px), use `@media (min-width: XXXpx)` for larger screens
+3. **Bilingual Text** - All user-facing text must use `t('key')` with translations in both `en` and `es` sections
+4. **Tailwind CSS** - Use Tailwind utility classes for styling (legacy CSS Modules exist but new code uses Tailwind)
 
 ## Technology Stack
 
 - **Frontend:** React 18 + TypeScript + Vite
-- **Styling:** CSS Modules + Design Tokens (`src/styles/`)
+- **Styling:** Tailwind CSS + Design Tokens (`src/styles/`)
 - **Backend:** Firebase (Auth, Firestore, Storage)
 - **State:** TanStack Query + React Context
 - **Payments:** Stripe
@@ -45,12 +46,72 @@ src/
 └── utils/              # Utilities (translations.ts)
 ```
 
-## Design Tokens
+## UI Toolkit & Branding
 
-All colors and typography are centralized:
+### Dark Glass Design System
 
-- **Colors:** `src/styles/colors.css` - Use `var(--color-primary)`, `var(--color-text-primary)`, etc.
-- **Typography:** `src/styles/typography.css` - Use CSS variables or `.text-h1`, `.text-body`, etc.
+All new UI components use a dark glassmorphism aesthetic:
+
+**Page Background:**
+- Use `<VibrantBackground />` component on all pages
+- Background image: `/images/background.jpg` with dark overlay
+- Base color: `#050c08`
+
+**Glass Cards:**
+```tsx
+<div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+  {/* Card content */}
+</div>
+```
+
+**Text Colors:**
+- Headings: `text-white`
+- Body text: `text-white/80`
+- Muted/placeholders: `text-white/50`
+
+**Input Fields:**
+```tsx
+<input
+  className="bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50"
+  data-auth-input // Exclude from global input overrides
+/>
+
+<input
+  className="bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50"
+  data-glass-search // For search inputs
+/>
+```
+
+### Brand Colors
+
+Defined in `src/styles/colors.css`:
+
+- **Accent:** `#C8E400` (`--brand-accent`) - Buttons, icons, bullets
+- **CTA Hover:** `#e7ff01` (`--brand-cta`) - Hover states
+- **Background:** `#050c08` - Dark base
+- **Text on Dark:** `--brand-text-on-dark` - White text
+- **Text Muted:** `--brand-text-on-dark-muted` - White/50
+
+Use CSS variables or Tailwind classes:
+```tsx
+// Tailwind
+<button className="bg-[#C8E400] hover:bg-[#e7ff01]">Click me</button>
+
+// CSS variable
+<div style={{ color: 'var(--brand-accent)' }}>Text</div>
+```
+
+### Shared Components
+
+- **VibrantBackground:** Dark gradient background for all pages
+- **LegalSection:** Pre-styled container for legal pages
+- **LoadingFallback:** Dark background with brand-colored spinner (`border-[#C8E400]`)
+
+### Design Tokens
+
+All design tokens in `src/styles/`:
+- **colors.css:** Brand colors, semantic colors
+- **typography.css:** Font families (Poppins), sizes, weights
 
 ## State Management
 

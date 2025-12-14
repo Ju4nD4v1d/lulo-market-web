@@ -1,7 +1,11 @@
+/* PaymentStatusBadge - Dark Glass Design */
+
 .container {
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .header {
@@ -41,99 +45,99 @@
 
 /* Variant: Authorized - Blue/Info */
 .authorized {
-  background-color: var(--color-blue-50, #eff6ff);
-  border: 1px solid var(--color-blue-200, #bfdbfe);
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .authorized .icon,
 .authorized .label {
-  color: var(--color-blue-700, #1d4ed8);
+  color: #60A5FA;
 }
 
 .authorized .message {
-  color: var(--color-blue-600, #2563eb);
+  color: rgba(96, 165, 250, 0.8);
 }
 
 .authorized .expiration {
-  color: var(--color-blue-500, #3b82f6);
+  color: rgba(96, 165, 250, 0.7);
 }
 
 /* Variant: Captured/Paid - Green/Success */
 .captured {
-  background-color: var(--color-green-50, #f0fdf4);
-  border: 1px solid var(--color-green-200, #bbf7d0);
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .captured .icon,
 .captured .label {
-  color: var(--color-green-700, #15803d);
+  color: #4ADE80;
 }
 
 .captured .message {
-  color: var(--color-green-600, #16a34a);
+  color: rgba(74, 222, 128, 0.8);
 }
 
 /* Variant: Voided - Gray */
 .voided {
-  background-color: var(--color-gray-50, #f9fafb);
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .voided .icon,
 .voided .label {
-  color: var(--color-gray-700, #374151);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .voided .message {
-  color: var(--color-gray-600, #4b5563);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Variant: Expired - Amber/Warning */
 .expired {
-  background-color: var(--color-amber-50, #fffbeb);
-  border: 1px solid var(--color-amber-200, #fde68a);
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .expired .icon,
 .expired .label {
-  color: var(--color-amber-700, #b45309);
+  color: #FBBF24;
 }
 
 .expired .message {
-  color: var(--color-amber-600, #d97706);
+  color: rgba(251, 191, 36, 0.8);
 }
 
 /* Variant: Failed - Red/Error */
 .failed {
-  background-color: var(--color-red-50, #fef2f2);
-  border: 1px solid var(--color-red-200, #fecaca);
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
 }
 
 .failed .icon,
 .failed .label {
-  color: var(--color-red-700, #b91c1c);
+  color: #F87171;
 }
 
 .failed .message {
-  color: var(--color-red-600, #dc2626);
+  color: rgba(248, 113, 113, 0.8);
 }
 
 /* Variant: Pending - Gray */
 .pending {
-  background-color: var(--color-gray-50, #f9fafb);
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .pending .icon,
 .pending .label {
-  color: var(--color-gray-600, #4b5563);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Expiring Soon Warning */
 .expiringSoon {
-  color: var(--color-amber-600, #d97706);
+  color: #FBBF24;
 }
 
 .expiringSoon .warningIcon {
-  color: var(--color-amber-500, #f59e0b);
+  color: #FBBF24;
 }

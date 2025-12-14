@@ -1,28 +1,51 @@
+/**
+ * SearchBar - Dark Glass Design
+ */
+
 .container {
   position: relative;
+  width: 100%;
 }
 
 .icon {
   position: absolute;
-  left: 0.75rem;
+  left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
-  width: 1rem;
-  height: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+  width: 1.125rem;
+  height: 1.125rem;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .input {
   width: 100%;
-  padding: 0.5rem 0.5rem 0.5rem 2.5rem;
-  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  color: #FFFFFF !important;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+}
+
+.input:hover {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 .input:focus {
   outline: none;
-  border-color: transparent;
-  ring: 2px;
-  ring-color: #C8E400;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(200, 228, 0, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.15);
 }

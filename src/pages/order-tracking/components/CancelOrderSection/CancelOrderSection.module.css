@@ -1,5 +1,5 @@
 /**
- * CancelOrderSection styles
+ * CancelOrderSection - Dark Glass Design
  */
 
 .container {
@@ -15,8 +15,8 @@
   width: 100%;
   padding: 0.75rem 1rem;
   background-color: transparent;
-  border: 1px solid var(--color-error, #dc2626);
-  color: var(--color-error, #dc2626);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #F87171;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -25,8 +25,8 @@
 }
 
 .cancelButton:hover:not(:disabled) {
-  background-color: var(--color-error, #dc2626);
-  color: white;
+  background-color: rgba(248, 113, 113, 0.15);
+  border-color: #F87171;
 }
 
 .cancelButton:disabled {
@@ -41,11 +41,13 @@
 
 /* Confirmation Card */
 .confirmationCard {
-  background-color: var(--color-surface, #fff);
-  border: 1px solid var(--color-error-light, #fecaca);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(248, 113, 113, 0.3);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .confirmationHeader {
@@ -58,30 +60,31 @@
 .alertIcon {
   width: 1.5rem;
   height: 1.5rem;
-  color: var(--color-error, #dc2626);
+  color: #F87171;
   flex-shrink: 0;
 }
 
 .confirmationTitle {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
   margin: 0;
 }
 
 .confirmationMessage {
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0 0 0.75rem 0;
   line-height: 1.5;
 }
 
 .refundNote {
   font-size: 0.8125rem;
-  color: var(--color-text-tertiary, #9ca3af);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0 0 1rem 0;
   padding: 0.75rem;
-  background-color: var(--color-surface-secondary, #f9fafb);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   line-height: 1.4;
 }
@@ -92,8 +95,9 @@
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0.75rem;
-  background-color: var(--color-error-bg, #fef2f2);
-  color: var(--color-error, #dc2626);
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #F87171;
   border-radius: 6px;
   margin-bottom: 1rem;
   font-size: 0.875rem;
@@ -115,18 +119,19 @@
 .keepOrderButton {
   flex: 1;
   padding: 0.625rem 1rem;
-  background-color: var(--color-surface-secondary, #f3f4f6);
-  border: 1px solid var(--color-border, #e5e7eb);
-  color: var(--color-text-primary, #374151);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .keepOrderButton:hover:not(:disabled) {
-  background-color: var(--color-surface-hover, #e5e7eb);
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
 }
 
 .keepOrderButton:disabled {
@@ -141,18 +146,18 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background-color: var(--color-error, #dc2626);
+  background: #F87171;
   border: none;
   color: white;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .confirmCancelButton:hover:not(:disabled) {
-  background-color: var(--color-error-dark, #b91c1c);
+  background: #EF4444;
 }
 
 .confirmCancelButton:disabled {
@@ -181,15 +186,15 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  background-color: var(--color-warning-bg, #fffbeb);
-  border: 1px solid var(--color-warning-border, #fde68a);
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 8px;
 }
 
 .warningIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--color-warning, #d97706);
+  color: #FBBF24;
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -197,7 +202,7 @@
 .unavailableMessage p {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--color-warning-text, #92400e);
+  color: rgba(251, 191, 36, 0.9);
   line-height: 1.4;
 }
 

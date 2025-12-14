@@ -99,4 +99,40 @@
   --color-overlay: rgba(0, 0, 0, 0.5);
   --color-shadow: rgba(0, 0, 0, 0.1);
   --color-shadow-heavy: rgba(0, 0, 0, 0.15);
+
+  /* ==========================================================================
+     Rating / Star Colors
+     ========================================================================== */
+  --color-rating: #fbbf24;
+  --color-rating-light: #fef3c7;
+  --color-rating-dark: #f59e0b;
+
+  /* ==========================================================================
+     Alternative Success Green (Schedule editor, confirmation states)
+     ========================================================================== */
+  --color-success-alt: #84cc16;
+  --color-success-alt-light: #f7fee7;
+  --color-success-alt-dark: #65a30d;
+
+  /* ==========================================================================
+     White with Opacity (Glassmorphism, overlays)
+     ========================================================================== */
+  --color-white-80: rgba(255, 255, 255, 0.8);
+  --color-white-90: rgba(255, 255, 255, 0.9);
+  --color-white-95: rgba(255, 255, 255, 0.95);
+  --color-white-98: rgba(255, 255, 255, 0.98);
+
+  /* ==========================================================================
+     Overlay Variants
+     ========================================================================== */
+  --color-overlay-light: rgba(0, 0, 0, 0.3);
+  --color-overlay-medium: rgba(0, 0, 0, 0.5);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.7);
+
+  /* ==========================================================================
+     Disabled State Colors
+     ========================================================================== */
+  --color-disabled-bg: #F3F4F6;
+  --color-disabled-text: #9CA3AF;
+  --color-disabled-border: #E5E7EB;
 }
