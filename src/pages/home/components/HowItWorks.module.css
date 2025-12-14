@@ -53,10 +53,19 @@
   z-index: 1;
 }
 
-/* Title Section - Mobile First */
+/* Title Section - Mobile First with glass backdrop for readability */
 .titleSection {
   text-align: center;
   margin-bottom: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  padding: 1.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (min-width: 640px) {
@@ -71,7 +80,7 @@
   }
 }
 
-/* Heading - White text for dark background */
+/* Heading - White text */
 .heading {
   font-family: var(--font-heading, 'Montserrat', sans-serif);
   font-size: 1.5rem;
@@ -80,7 +89,6 @@
   margin-bottom: 0.5rem;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @media (min-width: 640px) {
@@ -103,16 +111,15 @@
   }
 }
 
-/* Description - Light text with dark outline for readability on busy backgrounds */
+/* Description - White text */
 .description {
   font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.9375rem;
-  color: #FFFFFF;
+  color: rgba(255, 255, 255, 0.9);
   max-width: 100%;
   margin: 0 auto;
   line-height: 1.5;
   padding: 0 0.5rem;
-  text-shadow: var(--brand-text-outline-medium);
 }
 
 @media (min-width: 640px) {
