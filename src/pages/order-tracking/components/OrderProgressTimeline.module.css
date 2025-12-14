@@ -1,9 +1,12 @@
-/* OrderProgressTimeline - Mobile-first styles */
+/* OrderProgressTimeline - Dark Glass Design */
 
 .container {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 1rem;
 }
 
@@ -20,7 +23,7 @@
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
   margin: 0 0 1rem 0;
 }
 
@@ -34,7 +37,7 @@
 .titleIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--color-primary, #10B981);
+  color: #C8E400;
 }
 
 /* Mobile Timeline (Vertical) - Default */
@@ -71,72 +74,72 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3F4F6;
-  border: 2px solid #E5E7EB;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
 
 .circleCompleted {
-  background: var(--color-primary, #10B981);
-  border-color: var(--color-primary, #10B981);
+  background: #C8E400;
+  border-color: #C8E400;
 }
 
 .circleCurrent {
-  background: white;
-  border-color: var(--color-primary, #10B981);
+  background: rgba(0, 0, 0, 0.4);
+  border-color: #C8E400;
   border-width: 3px;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 4px rgba(200, 228, 0, 0.2);
 }
 
 .circleWaiting {
-  background: #FEF3C7;
-  border-color: #F59E0B;
+  background: rgba(251, 191, 36, 0.15);
+  border-color: #FBBF24;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
   }
 }
 
 .checkIcon {
   width: 1rem;
   height: 1rem;
-  color: white;
+  color: #111827;
 }
 
 .stepIcon {
   width: 1rem;
   height: 1rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .circleCompleted .stepIcon,
 .circleCurrent .stepIcon {
-  color: var(--color-primary, #10B981);
+  color: #C8E400;
 }
 
 .circleCompleted .checkIcon {
-  color: white;
+  color: #111827;
 }
 
 .circleWaiting .stepIcon {
-  color: #F59E0B;
+  color: #FBBF24;
 }
 
 .connectorMobile {
   width: 2px;
   height: 2rem;
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.2);
   margin: 0.25rem 0;
 }
 
 .connectorCompleted {
-  background: var(--color-primary, #10B981);
+  background: #C8E400;
 }
 
 .stepContentMobile {
@@ -149,25 +152,25 @@
 
 .stepLabel {
   font-size: 0.875rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
 }
 
 .labelCurrent {
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
   font-weight: 600;
 }
 
 .completed .stepLabel {
-  color: var(--color-text-primary, #111827);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .currentBadge {
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.5rem;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--color-primary, #10B981);
+  background: rgba(200, 228, 0, 0.15);
+  color: #C8E400;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 9999px;
@@ -178,8 +181,8 @@
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.5rem;
-  background: #FEF3C7;
-  color: #B45309;
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 9999px;
@@ -217,12 +220,12 @@
 .connectorDesktop {
   flex: 1;
   height: 2px;
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.2);
   transition: background 0.3s ease;
 }
 
 .connectorDesktop.connectorCompleted {
-  background: var(--color-primary, #10B981);
+  background: #C8E400;
 }
 
 .stepContentDesktop {
@@ -236,7 +239,7 @@
 
 .stepLabelDesktop {
   font-size: 0.75rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
   max-width: 5rem;
 }
@@ -249,11 +252,11 @@
 }
 
 .completed .stepLabelDesktop {
-  color: var(--color-text-primary, #111827);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .current .stepLabelDesktop {
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -261,8 +264,8 @@
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.375rem;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--color-primary, #10B981);
+  background: rgba(200, 228, 0, 0.15);
+  color: #C8E400;
   font-size: 0.625rem;
   font-weight: 600;
   border-radius: 9999px;
@@ -282,7 +285,8 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem 1rem;
-  background: #FEF2F2;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
   border-radius: 0.5rem;
   text-align: center;
 }
@@ -290,12 +294,12 @@
 .failedIcon {
   width: 2.5rem;
   height: 2.5rem;
-  color: #DC2626;
+  color: #F87171;
   margin-bottom: 0.75rem;
 }
 
 .failedText {
-  color: #991B1B;
+  color: #F87171;
   font-size: 0.875rem;
   font-weight: 500;
   margin: 0;

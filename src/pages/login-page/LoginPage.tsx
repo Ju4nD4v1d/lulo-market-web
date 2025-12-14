@@ -62,30 +62,24 @@ export const LoginPage: React.FC = () => {
 
   return (
     <AuthLayout
-      heroTitle={isLogin ? `${t('auth.welcomeHero')} ${COMPANY_NAME}` : t('auth.joinTitle')}
-      heroSubtitle={
-        isLogin
-          ? t('auth.welcomeSubtitle')
-          : t('auth.joinSubtitle')
-      }
       backLink="/"
       backText={t('auth.backToHome')}
     >
       {/* Tab Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 font-heading text-center">
+        <h1 className="text-3xl font-bold text-white mb-6 font-heading text-center">
           {t('auth.welcomeTitle')}
         </h1>
 
-        {/* Tab Navigation */}
-        <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+        {/* Tab Navigation - Glass style for dark background */}
+        <div className="flex bg-white/10 backdrop-blur-sm rounded-xl p-1 mb-6 border border-white/10">
           <button
             onClick={() => switchTab(true)}
             className={`
               flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200
               ${isLogin
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white/20 text-white shadow-sm backdrop-blur-sm'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
               }
             `}
           >
@@ -96,8 +90,8 @@ export const LoginPage: React.FC = () => {
             className={`
               flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200
               ${!isLogin
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white/20 text-white shadow-sm backdrop-blur-sm'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
               }
             `}
           >
@@ -105,7 +99,7 @@ export const LoginPage: React.FC = () => {
           </button>
         </div>
 
-        <p className="text-gray-600 text-center">
+        <p className="text-white/80 text-center">
           {isLogin
             ? t('auth.subtitle')
             : t('auth.registerSubtitle')
@@ -149,14 +143,15 @@ export const LoginPage: React.FC = () => {
           />
         )}
 
-        {/* Submit Button */}
+        {/* Submit Button - Brand yellow CTA */}
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full bg-primary-400 text-gray-900 py-3 px-4 rounded-lg
-            hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2
-            focus:ring-primary-400 font-medium transition-all duration-200
+          className={`w-full bg-[#e7ff01] text-gray-900 py-3 px-4 rounded-xl
+            hover:bg-[#d4ec00] focus:outline-none focus:ring-2 focus:ring-offset-2
+            focus:ring-[#e7ff01] font-semibold transition-all duration-200
             transform hover:scale-[1.02] active:scale-[0.98]
+            shadow-lg hover:shadow-xl
             ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
           {isLoading
@@ -166,7 +161,7 @@ export const LoginPage: React.FC = () => {
         </button>
 
         {/* Trust Message */}
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-white/70 mt-4">
           {isLogin
             ? t('auth.trustMessage')
             : t('auth.agreeToTerms')

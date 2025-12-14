@@ -12,6 +12,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { useProductsQuery } from '../../../hooks/queries/useProductsQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { StoreHeader } from './StoreHeader';
+import { VibrantBackground } from '../../../components/VibrantBackground/VibrantBackground';
 
 // Mock products for testing cart functionality
 const mockProducts: Product[] = [
@@ -274,9 +275,10 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Enhanced StoreHeader with all functionality */}
-      <StoreHeader
+    <VibrantBackground>
+      <div className="min-h-screen">
+        {/* Enhanced StoreHeader with all functionality */}
+        <StoreHeader
         store={{
           name: store.name,
           rating: store.averageRating || 0,
@@ -302,12 +304,10 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
         t={t}
       />
 
-      <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
-        {/* Store Hero Section */}
-        <div className="mb-8">
-          <StoreHeroSection store={store} />
-        </div>
+      {/* Store Hero Section - Full width, extends behind header */}
+      <StoreHeroSection store={store} />
 
+      <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-8">
         {/* Delivery Schedule Section */}
         <div className="mb-8">
           <DeliverySchedule store={store} />
@@ -514,7 +514,7 @@ export const CustomStoreDetail: React.FC<CustomStoreDetailProps> = ({ store, onB
           );
         })()}
       </div>
-
-      </div>
+    </div>
+    </VibrantBackground>
   );
 };

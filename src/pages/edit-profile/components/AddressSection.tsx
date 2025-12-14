@@ -1,5 +1,6 @@
 /**
  * AddressSection - Default delivery address fields for profile
+ * Uses same styling pattern as login-page RegisterForm
  */
 
 import { MapPin, AlertCircle } from 'lucide-react';
@@ -72,6 +73,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           <input
             id="street"
             type="text"
+            data-auth-input
             value={street}
             onChange={(e) => onChange('street', e.target.value)}
             className={`${styles.input} ${errors.street ? styles.inputError : ''}`}
@@ -95,6 +97,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
             <input
               id="city"
               type="text"
+              data-auth-input
               value={city}
               onChange={(e) => onChange('city', e.target.value)}
               className={`${styles.input} ${errors.city ? styles.inputError : ''}`}
@@ -115,6 +118,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
             </label>
             <select
               id="province"
+              data-auth-input
               value={province}
               onChange={(e) => onChange('province', e.target.value)}
               className={`${styles.input} ${styles.select} ${errors.province ? styles.inputError : ''}`}
@@ -144,6 +148,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           <input
             id="postalCode"
             type="text"
+            data-auth-input
             value={postalCode}
             onChange={(e) => handlePostalCodeChange(e.target.value)}
             className={`${styles.input} ${errors.postalCode ? styles.inputError : ''}`}

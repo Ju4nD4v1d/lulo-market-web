@@ -1,9 +1,12 @@
-/* StoreContactCard - Mobile-first styles */
+/* StoreContactCard - Dark Glass Design */
 
 .container {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 1rem;
 }
 
@@ -20,7 +23,7 @@
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
   margin: 0 0 1rem 0;
 }
 
@@ -33,7 +36,7 @@
 .titleIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--color-primary, #10B981);
+  color: #C8E400;
 }
 
 /* Content */
@@ -47,7 +50,7 @@
 .storeName {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: #FFFFFF;
 }
 
 @media (min-width: 768px) {
@@ -66,14 +69,14 @@
 .infoIcon {
   width: 1rem;
   height: 1rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
 
 .infoText {
   font-size: 0.875rem;
-  color: #4B5563;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.4;
 }
 
@@ -86,19 +89,20 @@
   width: 100%;
   padding: 0.75rem 1rem;
   margin-top: 0.5rem;
-  background: var(--color-primary, #10B981);
-  color: white;
+  background: #C8E400;
+  color: #111827;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 0.5rem;
   text-decoration: none;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .callButton:hover {
-  background: var(--color-primary-hover, #059669);
+  background: #e7ff01;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 6px 20px -3px rgba(200, 228, 0, 0.5);
 }
 
 .callButton:active {
@@ -120,7 +124,7 @@
 /* No Phone Message */
 .noPhone {
   font-size: 0.875rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
   font-style: italic;
 }
@@ -136,8 +140,8 @@
 .loadingSpinner {
   width: 1.5rem;
   height: 1.5rem;
-  border: 2px solid #E5E7EB;
-  border-top-color: var(--color-primary, #10B981);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #C8E400;
   border-radius: 9999px;
   animation: spin 0.8s linear infinite;
 }

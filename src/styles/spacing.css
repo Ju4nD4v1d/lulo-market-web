@@ -1,0 +1,228 @@
+/**
+ * Spacing, Layout & Effects Design Tokens
+ *
+ * This file centralizes spacing, border-radius, shadows, z-index, and transitions.
+ * All values follow an 8px base grid system for consistency.
+ *
+ * Usage:
+ * - padding: var(--spacing-4);
+ * - border-radius: var(--radius-md);
+ * - box-shadow: var(--shadow-md);
+ * - z-index: var(--z-modal);
+ * - transition: all var(--duration-fast) var(--ease-out);
+ */
+
+:root {
+  /* ============================================
+   * SPACING SCALE (8px base grid)
+   * Use these for padding, margin, and gap
+   * ============================================ */
+  --spacing-0: 0;
+  --spacing-px: 1px;
+  --spacing-0-5: 0.125rem;   /* 2px */
+  --spacing-1: 0.25rem;      /* 4px */
+  --spacing-1-5: 0.375rem;   /* 6px */
+  --spacing-2: 0.5rem;       /* 8px */
+  --spacing-2-5: 0.625rem;   /* 10px */
+  --spacing-3: 0.75rem;      /* 12px */
+  --spacing-3-5: 0.875rem;   /* 14px */
+  --spacing-4: 1rem;         /* 16px - Base spacing */
+  --spacing-5: 1.25rem;      /* 20px */
+  --spacing-6: 1.5rem;       /* 24px */
+  --spacing-7: 1.75rem;      /* 28px */
+  --spacing-8: 2rem;         /* 32px */
+  --spacing-9: 2.25rem;      /* 36px */
+  --spacing-10: 2.5rem;      /* 40px */
+  --spacing-11: 2.75rem;     /* 44px */
+  --spacing-12: 3rem;        /* 48px */
+  --spacing-14: 3.5rem;      /* 56px */
+  --spacing-16: 4rem;        /* 64px */
+  --spacing-20: 5rem;        /* 80px */
+  --spacing-24: 6rem;        /* 96px */
+  --spacing-28: 7rem;        /* 112px */
+  --spacing-32: 8rem;        /* 128px */
+
+  /* ============================================
+   * SEMANTIC SPACING TOKENS
+   * Use these for consistent component spacing
+   * ============================================ */
+
+  /* Card padding */
+  --spacing-card-sm: var(--spacing-3);      /* 12px - Compact cards */
+  --spacing-card: var(--spacing-4);         /* 16px - Standard cards */
+  --spacing-card-lg: var(--spacing-6);      /* 24px - Large cards */
+
+  /* Button padding (vertical, horizontal) */
+  --spacing-button-y-sm: var(--spacing-2);     /* 8px */
+  --spacing-button-x-sm: var(--spacing-4);     /* 16px */
+  --spacing-button-y: var(--spacing-3);        /* 12px */
+  --spacing-button-x: var(--spacing-6);        /* 24px */
+  --spacing-button-y-lg: var(--spacing-4);     /* 16px */
+  --spacing-button-x-lg: var(--spacing-8);     /* 32px */
+
+  /* Input padding */
+  --spacing-input-y: var(--spacing-3);      /* 12px */
+  --spacing-input-x: var(--spacing-4);      /* 16px */
+
+  /* Section spacing (for page sections) */
+  --spacing-section-sm: var(--spacing-8);   /* 32px */
+  --spacing-section: var(--spacing-12);     /* 48px */
+  --spacing-section-lg: var(--spacing-16);  /* 64px */
+  --spacing-section-xl: var(--spacing-24);  /* 96px */
+
+  /* Container padding (responsive) */
+  --spacing-container-x: var(--spacing-4);  /* 16px on mobile */
+
+  /* Gap tokens for flex/grid */
+  --gap-xs: var(--spacing-1);    /* 4px */
+  --gap-sm: var(--spacing-2);    /* 8px */
+  --gap-md: var(--spacing-3);    /* 12px */
+  --gap-lg: var(--spacing-4);    /* 16px */
+  --gap-xl: var(--spacing-6);    /* 24px */
+  --gap-2xl: var(--spacing-8);   /* 32px */
+
+  /* ============================================
+   * BORDER RADIUS SCALE
+   * ============================================ */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;          /* 4px - Subtle rounding */
+  --radius-base: 0.375rem;       /* 6px - Small elements */
+  --radius-md: 0.5rem;           /* 8px - Standard (buttons, inputs) */
+  --radius-lg: 0.75rem;          /* 12px - Cards, larger elements */
+  --radius-xl: 1rem;             /* 16px - Large cards, modals */
+  --radius-2xl: 1.5rem;          /* 24px - Hero sections */
+  --radius-3xl: 2rem;            /* 32px - Large decorative */
+  --radius-full: 9999px;         /* Pill shape / circles */
+
+  /* Semantic radius tokens */
+  --radius-button: var(--radius-md);        /* 8px */
+  --radius-button-sm: var(--radius-base);   /* 6px */
+  --radius-input: var(--radius-md);         /* 8px */
+  --radius-card: var(--radius-lg);          /* 12px */
+  --radius-modal: var(--radius-xl);         /* 16px */
+  --radius-badge: var(--radius-full);       /* Pill */
+  --radius-avatar: var(--radius-full);      /* Circle */
+  --radius-image: var(--radius-lg);         /* 12px */
+
+  /* ============================================
+   * BOX SHADOW ELEVATION SYSTEM
+   * Based on Material Design elevation concept
+   * ============================================ */
+  --shadow-none: none;
+
+  /* Elevation shadows (use for cards, dropdowns, modals) */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+               0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+               0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+               0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+               0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Inner shadow (for pressed/inset states) */
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+  /* Focus ring shadows */
+  --shadow-focus-primary: 0 0 0 3px var(--color-primary-20);
+  --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  --shadow-focus-ring: 0 0 0 2px var(--color-primary-40);
+
+  /* Brand-colored shadows */
+  --shadow-primary-sm: 0 2px 8px var(--color-primary-20);
+  --shadow-primary: 0 4px 14px -3px var(--color-primary-40);
+  --shadow-primary-lg: 0 8px 20px var(--color-primary-30);
+
+  /* Semantic shadows */
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-tooltip: var(--shadow-md);
+  --shadow-button: var(--shadow-xs);
+  --shadow-button-hover: var(--shadow-sm);
+  --shadow-input-focus: var(--shadow-focus-primary);
+
+  /* ============================================
+   * Z-INDEX LAYER SYSTEM
+   * Use semantic tokens to avoid z-index wars
+   * ============================================ */
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-toast: 80;
+  --z-max: 9999;
+
+  /* ============================================
+   * TRANSITION / ANIMATION TOKENS
+   * ============================================ */
+
+  /* Duration scale */
+  --duration-instant: 0ms;
+  --duration-fastest: 50ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 500ms;
+
+  /* Easing functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Common transition presets */
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+
+  /* Semantic transitions */
+  --transition-colors: color var(--duration-fast) var(--ease-out),
+                       background-color var(--duration-fast) var(--ease-out),
+                       border-color var(--duration-fast) var(--ease-out);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-shadow: box-shadow var(--duration-fast) var(--ease-out);
+  --transition-all: all var(--duration-normal) var(--ease-out);
+
+  /* ============================================
+   * MAX WIDTH CONSTRAINTS
+   * ============================================ */
+  --max-width-xs: 20rem;      /* 320px */
+  --max-width-sm: 24rem;      /* 384px */
+  --max-width-md: 28rem;      /* 448px */
+  --max-width-lg: 32rem;      /* 512px */
+  --max-width-xl: 36rem;      /* 576px */
+  --max-width-2xl: 42rem;     /* 672px */
+  --max-width-3xl: 48rem;     /* 768px */
+  --max-width-4xl: 56rem;     /* 896px */
+  --max-width-5xl: 64rem;     /* 1024px */
+  --max-width-6xl: 72rem;     /* 1152px */
+  --max-width-7xl: 80rem;     /* 1280px */
+  --max-width-prose: 65ch;    /* Optimal reading width */
+  --max-width-container: 1280px;
+}
+
+/* Responsive container padding */
+@media (min-width: 640px) {
+  :root {
+    --spacing-container-x: var(--spacing-6);  /* 24px on sm+ */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --spacing-container-x: var(--spacing-8);  /* 32px on lg+ */
+  }
+}

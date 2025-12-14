@@ -14,6 +14,7 @@ import {
   ProductNutrition,
   ProductIngredients,
 } from './components';
+import { VibrantBackground } from '../../components/VibrantBackground/VibrantBackground';
 import styles from './ProductDetailsPage.module.css';
 
 export const ProductDetailsPage: React.FC = () => {
@@ -73,60 +74,65 @@ export const ProductDetailsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className={styles.page}>
-        <ProductHeader
-          onBack={handleBack}
-          onLanguageToggle={toggleLanguage}
-          languageLabel={languageLabel}
-          cartItemCount={cartItemCount}
-          onCartClick={handleCartClick}
-          currentUser={currentUser}
-          userProfile={userProfile}
-          onUserMenuClick={() => setShowUserMenu(!showUserMenu)}
-          showUserMenu={showUserMenu}
-          onLogout={handleLogout}
-          onSignInClick={handleSignInClick}
-          t={t}
-        />
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner} />
-          <p className={styles.loadingText}>{t('productDetails.loading')}</p>
+      <VibrantBackground>
+        <div className={styles.page}>
+          <ProductHeader
+            onBack={handleBack}
+            onLanguageToggle={toggleLanguage}
+            languageLabel={languageLabel}
+            cartItemCount={cartItemCount}
+            onCartClick={handleCartClick}
+            currentUser={currentUser}
+            userProfile={userProfile}
+            onUserMenuClick={() => setShowUserMenu(!showUserMenu)}
+            showUserMenu={showUserMenu}
+            onLogout={handleLogout}
+            onSignInClick={handleSignInClick}
+            t={t}
+          />
+          <div className={styles.loadingContainer}>
+            <div className={styles.spinner} />
+            <p className={styles.loadingText}>{t('productDetails.loading')}</p>
+          </div>
         </div>
-              </div>
+      </VibrantBackground>
     );
   }
 
   if (isError || !product) {
     return (
-      <div className={styles.page}>
-        <ProductHeader
-          onBack={handleBack}
-          onLanguageToggle={toggleLanguage}
-          languageLabel={languageLabel}
-          cartItemCount={cartItemCount}
-          onCartClick={handleCartClick}
-          currentUser={currentUser}
-          userProfile={userProfile}
-          onUserMenuClick={() => setShowUserMenu(!showUserMenu)}
-          showUserMenu={showUserMenu}
-          onLogout={handleLogout}
-          onSignInClick={handleSignInClick}
-          t={t}
-        />
-        <div className={styles.errorContainer}>
-          <span className={styles.errorIcon}>📦</span>
-          <h2 className={styles.errorTitle}>{t('productDetails.notFound')}</h2>
-          <button onClick={handleBack} className={styles.backButton}>
-            {t('productDetails.back')}
-          </button>
+      <VibrantBackground>
+        <div className={styles.page}>
+          <ProductHeader
+            onBack={handleBack}
+            onLanguageToggle={toggleLanguage}
+            languageLabel={languageLabel}
+            cartItemCount={cartItemCount}
+            onCartClick={handleCartClick}
+            currentUser={currentUser}
+            userProfile={userProfile}
+            onUserMenuClick={() => setShowUserMenu(!showUserMenu)}
+            showUserMenu={showUserMenu}
+            onLogout={handleLogout}
+            onSignInClick={handleSignInClick}
+            t={t}
+          />
+          <div className={styles.errorContainer}>
+            <span className={styles.errorIcon}>📦</span>
+            <h2 className={styles.errorTitle}>{t('productDetails.notFound')}</h2>
+            <button onClick={handleBack} className={styles.backButton}>
+              {t('productDetails.back')}
+            </button>
+          </div>
         </div>
-              </div>
+      </VibrantBackground>
     );
   }
 
   return (
-    <div className={styles.page}>
-      <ProductHeader
+    <VibrantBackground>
+      <div className={styles.page}>
+        <ProductHeader
         onBack={handleBack}
         onLanguageToggle={toggleLanguage}
         languageLabel={languageLabel}
@@ -200,7 +206,7 @@ export const ProductDetailsPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-          </div>
+      </div>
+    </VibrantBackground>
   );
 };

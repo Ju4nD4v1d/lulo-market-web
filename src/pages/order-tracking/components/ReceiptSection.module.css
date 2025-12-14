@@ -1,14 +1,19 @@
+/* ReceiptSection - Dark Glass Design */
+
 .container {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 1.5rem;
 }
 
 .title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
+  color: #FFFFFF;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -18,17 +23,18 @@
 .icon {
   width: 1.25rem;
   height: 1.25rem;
+  color: #C8E400;
 }
 
 .downloadButton {
   width: 100%;
-  background: #059669;
-  color: white;
+  background: #4ADE80;
+  color: #111827;
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,7 +43,7 @@
 }
 
 .downloadButton:hover {
-  background: #047857;
+  background: #22C55E;
 }
 
 .generateButton {
@@ -54,10 +60,11 @@
   justify-content: center;
   gap: 0.5rem;
   font-weight: 500;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .generateButton:hover {
-  background: #b3cc00;
+  background: #e7ff01;
 }
 
 .generateButton:disabled {
@@ -72,9 +79,9 @@
 
 .expiredWarning {
   font-size: 0.875rem;
-  color: #d97706;
-  background: #fffbeb;
-  border: 1px solid #fef3c7;
+  color: #FBBF24;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.75rem;
@@ -82,9 +89,9 @@
 
 .errorMessage {
   font-size: 0.875rem;
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: #F87171;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.75rem;
@@ -92,9 +99,9 @@
 
 .notPaidMessage {
   font-size: 0.875rem;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.75rem;

@@ -1,14 +1,26 @@
+/**
+ * LegalSection Styles
+ * For use inside dark glass cards
+ */
+
 .section {
   /* Section spacing handled by parent */
 }
 
 .header {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--color-text-primary);
+  font-family: var(--font-heading, 'Montserrat', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--brand-text-on-dark);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
+}
+
+@media (min-width: 640px) {
+  .header {
+    font-size: 1.5rem;
+  }
 }
 
 .iconWrapper {
@@ -22,7 +34,8 @@
 }
 
 .iconWrapperPrimary {
-  background-color: var(--color-primary-10);
+  background-color: var(--brand-accent-subtle);
+  border: 1px solid var(--brand-accent-border);
 }
 
 .icon {
@@ -31,7 +44,7 @@
 }
 
 .iconPrimary {
-  color: var(--color-primary-600);
+  color: var(--brand-accent);
 }
 
 .number {
@@ -39,11 +52,11 @@
 }
 
 .numberPrimary {
-  color: var(--color-primary-600);
+  color: var(--brand-accent);
 }
 
 .content {
-  color: var(--color-gray-600);
+  color: var(--brand-text-on-dark-muted);
   max-width: none;
   line-height: 1.75;
 }
@@ -64,14 +77,15 @@
 
 .content strong {
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--brand-text-on-dark);
 }
 
 .content a {
-  color: var(--color-primary-600);
+  color: var(--brand-accent);
   text-decoration: underline;
+  transition: color var(--brand-transition-fast);
 }
 
 .content a:hover {
-  color: var(--color-primary-700);
+  color: var(--brand-cta);
 }

@@ -1,13 +1,16 @@
-/* Mobile-first KPI Card Styles */
+/**
+ * KPICard - Dark Glass Design
+ * Mobile-first responsive styles
+ */
 
 /* Card Container */
 .card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
   transition: all 0.3s;
   min-height: 5.5rem;
 }
@@ -16,13 +19,13 @@
   .card {
     border-radius: 1.5rem;
     padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     min-height: 6.5rem;
   }
 }
 
 .card:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(200, 228, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Loading State */
@@ -69,7 +72,7 @@
 
 .loadingText {
   font-size: 0.75rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Card Layout */
@@ -94,7 +97,7 @@
 }
 
 .cardLabel {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.75rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -110,7 +113,7 @@
 .cardValue {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0.25rem;
   margin-top: auto;
   transition: color 0.3s;
@@ -133,7 +136,6 @@
   color: #C8E400;
 }
 
-
 /* Icon Wrapper */
 .iconContainer {
   position: relative;
@@ -144,7 +146,7 @@
   padding: 0.75rem;
   background: linear-gradient(to bottom right, #C8E400, #A3C700);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(200, 228, 0, 0.3);
   transition: box-shadow 0.3s;
 }
 
@@ -156,13 +158,13 @@
 }
 
 .card:hover .iconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 12px -2px rgba(200, 228, 0, 0.4);
 }
 
 .cardIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: white;
+  color: #111827;
 }
 
 @media (min-width: 768px) {
@@ -171,7 +173,6 @@
     height: 1.5rem;
   }
 }
-
 
 /* Error State */
 .errorCard .cardContent {
@@ -182,14 +183,14 @@
 .errorIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #DC2626;
+  color: #F87171;
 }
 
 .errorText {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #DC2626;
+  color: #F87171;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -202,7 +203,8 @@
 
 .errorIconWrapper {
   padding: 0.75rem;
-  background: linear-gradient(to bottom right, #FEE2E2, #FEF2F2);
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 1rem;
 }
 
@@ -216,7 +218,7 @@
 .errorCardIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #EF4444;
+  color: #F87171;
 }
 
 @media (min-width: 768px) {
@@ -228,34 +230,36 @@
 
 /* Warning State (for low stock items) */
 .warningCard {
-  border: 1px solid #F59E0B;
-  background: linear-gradient(to bottom right, #FFFBEB, #FEF3C7);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 .warningCard:hover {
-  border-color: #D97706;
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.15);
 }
 
 .warningValue {
-  color: #B45309;
+  color: #FBBF24;
 }
 
 .warningCard:hover .cardValue {
-  color: #92400E;
+  color: #FCD34D;
 }
 
 .warningIconWrapper {
   background: linear-gradient(to bottom right, #F59E0B, #D97706);
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
 }
 
 .warningCard:hover .warningIconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 8px 12px -2px rgba(245, 158, 11, 0.4);
 }
 
 /* Subtext */
 .cardSubtext {
   font-size: 0.625rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
   margin-top: 0.25rem;
 }
@@ -267,5 +271,5 @@
 }
 
 .warningCard .cardSubtext {
-  color: #B45309;
+  color: #FBBF24;
 }

@@ -1,35 +1,11 @@
+/**
+ * BusinessHero - Dark Glass Design
+ */
+
 .section {
   padding: 4rem 0 5rem;
   position: relative;
   overflow: hidden;
-}
-
-.backgroundGradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(251, 146, 60, 0.03) 0%, white 50%, rgba(59, 130, 246, 0.03) 100%);
-}
-
-.backgroundCircle1 {
-  position: absolute;
-  top: -10rem;
-  right: -10rem;
-  width: 20rem;
-  height: 20rem;
-  background: rgba(251, 146, 60, 0.1);
-  border-radius: 50%;
-  filter: blur(60px);
-}
-
-.backgroundCircle2 {
-  position: absolute;
-  bottom: -10rem;
-  left: -10rem;
-  width: 20rem;
-  height: 20rem;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 50%;
-  filter: blur(60px);
 }
 
 .container {
@@ -72,8 +48,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   border-radius: 9999px;
   margin-bottom: 1.5rem;
 }
@@ -81,19 +57,19 @@
 .badgeIcon {
   width: 1rem;
   height: 1rem;
-  color: #ea580c;
+  color: #C8E400;
 }
 
 .badgeText {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ea580c;
+  color: #C8E400;
 }
 
 .title {
   font-size: 1.875rem;
   font-weight: 300;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 1.5rem 0;
   line-height: 1.2;
 }
@@ -112,7 +88,7 @@
 
 .description {
   font-size: 1.125rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
   max-width: 42rem;
   margin: 0 auto 2rem auto;
   font-weight: 300;
@@ -151,7 +127,7 @@
   align-items: center;
   gap: 0.75rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .featureDot1,
@@ -165,19 +141,19 @@
 }
 
 .featureDot1 {
-  background: #f97316;
+  background: #C8E400;
 }
 
 .featureDot2 {
-  background: #3b82f6;
+  background: #60A5FA;
 }
 
 .featureDot3 {
-  background: #10b981;
+  background: #4ADE80;
 }
 
 .featureDot4 {
-  background: #8b5cf6;
+  background: #A78BFA;
 }
 
 .visual {
@@ -185,18 +161,21 @@
 }
 
 .appInterface {
-  background: linear-gradient(135deg, #fed7aa 0%, #bfdbfe 100%);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
 }
 
 .appCard {
-  background: white;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .appHeader {
@@ -209,7 +188,7 @@
 .appIcon {
   width: 2rem;
   height: 2rem;
-  background: #f97316;
+  background: #C8E400;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -219,18 +198,18 @@
 .storeIcon {
   width: 1rem;
   height: 1rem;
-  color: white;
+  color: #111827;
 }
 
 .storeName {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
 }
 
 .storeType {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .stats {
@@ -247,25 +226,25 @@
 
 .statLabel {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .statValueGreen {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #059669;
+  color: #4ADE80;
 }
 
 .statValueBlue {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #2563eb;
+  color: #60A5FA;
 }
 
 .statValuePurple {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #7c3aed;
+  color: #A78BFA;
 }
 
 .metricsGrid {
@@ -275,10 +254,10 @@
 }
 
 .metricCard {
-  background: white;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   padding: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .metricHeader {
@@ -291,24 +270,24 @@
 .metricIconOrange {
   width: 1rem;
   height: 1rem;
-  color: #ea580c;
+  color: #C8E400;
 }
 
 .metricIconBlue {
   width: 1rem;
   height: 1rem;
-  color: #2563eb;
+  color: #60A5FA;
 }
 
 .metricTitle {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .metricDesc {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .floatingCheck {
@@ -317,18 +296,18 @@
   right: -1rem;
   width: 4rem;
   height: 4rem;
-  background: #f97316;
+  background: #C8E400;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(200, 228, 0, 0.4);
 }
 
 .checkIcon {
   width: 2rem;
   height: 2rem;
-  color: white;
+  color: #111827;
 }
 
 .floatingStar {
@@ -337,16 +316,23 @@
   left: -1rem;
   width: 3rem;
   height: 3rem;
-  background: #3b82f6;
+  background: #60A5FA;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(96, 165, 250, 0.4);
 }
 
 .starIcon {
   width: 1.5rem;
   height: 1.5rem;
   color: white;
+}
+
+/* Remove old background elements */
+.backgroundGradient,
+.backgroundCircle1,
+.backgroundCircle2 {
+  display: none;
 }

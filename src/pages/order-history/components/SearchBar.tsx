@@ -17,6 +17,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ value, onChange }) => {
       <Search className={styles.icon} />
       <input
         type="text"
+        data-glass-search
         placeholder={t('orderHistory.searchPlaceholder')}
         value={value}
         onChange={(e) => onChange(e.target.value)}

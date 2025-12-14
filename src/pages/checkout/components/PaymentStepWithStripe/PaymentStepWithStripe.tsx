@@ -59,15 +59,51 @@ export const PaymentStepWithStripe: React.FC<PaymentStepWithStripeProps> = ({ on
         clientSecret: paymentClientSecret!,
         locale: locale === 'es' ? 'es-419' : 'en',
         appearance: {
-          theme: 'stripe',
+          theme: 'night',
           variables: {
             colorPrimary: theme.colors.primary400,
-            colorBackground: theme.colors.neutralBg,
-            colorText: theme.colors.neutralText,
-            colorDanger: theme.colors.danger,
+            colorBackground: 'rgba(0, 0, 0, 0.4)',
+            colorText: '#ffffff',
+            colorTextSecondary: 'rgba(255, 255, 255, 0.7)',
+            colorDanger: '#f87171',
             fontFamily: 'ui-sans-serif, system-ui, sans-serif',
             spacingUnit: '4px',
             borderRadius: '8px',
+            colorInputBackground: 'rgba(255, 255, 255, 0.1)',
+            colorInputText: '#ffffff',
+            colorInputPlaceholder: 'rgba(255, 255, 255, 0.4)',
+          },
+          rules: {
+            '.Input': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#ffffff',
+            },
+            '.Input:focus': {
+              border: '1px solid #C8E400',
+              boxShadow: '0 0 0 3px rgba(200, 228, 0, 0.2)',
+            },
+            '.Label': {
+              color: 'rgba(255, 255, 255, 0.7)',
+            },
+            '.Tab': {
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'rgba(255, 255, 255, 0.7)',
+            },
+            '.Tab:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.12)',
+              color: '#ffffff',
+            },
+            '.Tab--selected': {
+              backgroundColor: 'rgba(200, 228, 0, 0.15)',
+              border: '1px solid rgba(200, 228, 0, 0.4)',
+              color: '#C8E400',
+            },
+            '.Block': {
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            },
           },
         },
       }}

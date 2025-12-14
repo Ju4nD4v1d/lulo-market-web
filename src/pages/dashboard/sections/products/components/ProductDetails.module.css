@@ -1,17 +1,19 @@
-/* ProductDetails Ingredients Section */
+/**
+ * ProductDetails - Dark Glass Design
+ */
 
+/* Ingredients Card */
 .ingredientsCard {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid #E5E7EB;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
 }
 
 .cardTitle {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -36,9 +38,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #F3F4F6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.9375rem;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .ingredientItem:last-child {
@@ -53,13 +55,14 @@
   flex-shrink: 0;
 }
 
+/* Allergens Warning */
 .allergensWarning {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 0.75rem;
   margin-top: 0.5rem;
 }
@@ -67,7 +70,7 @@
 .warningIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #D97706;
+  color: #FBBF24;
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -89,10 +92,10 @@
 .allergensLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #92400E;
+  color: #FBBF24;
 }
 
 .allergensList {
   font-size: 0.875rem;
-  color: #B45309;
+  color: #FCD34D;
 }

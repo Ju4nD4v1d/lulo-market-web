@@ -1,4 +1,7 @@
-/* AgreementModal Styles */
+/**
+ * AgreementModal - Dark Glass Design
+ * Mobile-first responsive styles
+ */
 
 .overlay {
   position: fixed;
@@ -6,7 +9,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,14 +19,15 @@
 }
 
 .modal {
-  background: white;
+  background: rgba(20, 20, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   width: 100%;
   max-width: 700px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 /* Header */
@@ -31,14 +36,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
 .title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
 }
 
@@ -54,17 +59,18 @@
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: none;
-  background: #F3F4F6;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: #E5E7EB;
-  color: #374151;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Content */
@@ -84,15 +90,16 @@
   justify-content: center;
   gap: 1rem;
   padding: 3rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .errorState {
-  color: #DC2626;
+  color: #F87171;
 }
 
 .spinner {
   animation: spin 1s linear infinite;
+  color: #C8E400;
 }
 
 @keyframes spin {
@@ -105,7 +112,7 @@
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.7;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
 }
 
@@ -118,9 +125,9 @@
 /* Scroll hint */
 .scrollHint {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(to right, #FEF3C7, #FEF9C3);
-  border-top: 1px solid #FCD34D;
-  color: #92400E;
+  background: rgba(245, 158, 11, 0.15);
+  border-top: 1px solid rgba(245, 158, 11, 0.3);
+  color: #FBBF24;
   font-size: 0.8125rem;
   text-align: center;
   flex-shrink: 0;
@@ -129,8 +136,8 @@
 /* Footer */
 .footer {
   padding: 1.25rem 1.5rem;
-  border-top: 1px solid #E5E7EB;
-  background: #F9FAFB;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 0 0 1rem 1rem;
   flex-shrink: 0;
 }
@@ -140,10 +147,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 0.5rem;
-  color: #DC2626;
+  color: #F87171;
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -176,7 +183,7 @@
 
 .checkboxText {
   font-size: 0.875rem;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
 }
 
@@ -188,19 +195,19 @@
 
 .cancelButton {
   padding: 0.75rem 1.25rem;
-  border: 1px solid #D1D5DB;
-  background: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #F3F4F6;
-  border-color: #9CA3AF;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .cancelButton:disabled {
@@ -218,13 +225,13 @@
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #111827;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .acceptButton:hover:not(:disabled) {
-  background: #b3cc00;
+  background: #e7ff01;
 }
 
 .acceptButton:disabled {

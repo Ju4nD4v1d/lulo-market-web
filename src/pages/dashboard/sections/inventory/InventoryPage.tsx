@@ -183,6 +183,7 @@ export const InventoryPage = () => {
           <Search className={styles.searchIcon} />
           <input
             type="text"
+            data-auth-input
             placeholder={t('products.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

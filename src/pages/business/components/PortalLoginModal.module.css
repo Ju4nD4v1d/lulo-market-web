@@ -1,8 +1,13 @@
+/**
+ * PortalLoginModal - Dark Glass Design
+ */
+
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 50;
   display: flex;
   align-items: center;
@@ -11,10 +16,12 @@
 }
 
 .modal {
-  background: white;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 1rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   padding: 2rem;
   width: 100%;
   max-width: 28rem;
@@ -30,12 +37,12 @@
 .title {
   font-size: 1.25rem;
   font-weight: 500;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
 }
 
 .closeButton {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.5);
   background: none;
   border: none;
   font-size: 2rem;
@@ -46,7 +53,7 @@
 }
 
 .closeButton:hover {
-  color: #4b5563;
+  color: #FFFFFF;
 }
 
 .form {
@@ -64,25 +71,31 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 0.5rem;
 }
 
 .input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 0.5rem;
   font-size: 1rem;
-  color: #111827;
-  transition: all 0.2s;
+  color: #FFFFFF !important;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .input:focus {
   outline: none;
-  border-color: #C8E400;
-  ring: 2px;
-  ring-color: rgba(200, 228, 0, 0.2);
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(200, 228, 0, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.15);
 }
 
 .passwordWrapper {
@@ -94,7 +107,7 @@
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.5);
   background: none;
   border: none;
   cursor: pointer;
@@ -103,7 +116,7 @@
 }
 
 .togglePassword:hover {
-  color: #4b5563;
+  color: #FFFFFF;
 }
 
 .eyeIcon {
@@ -113,10 +126,10 @@
 
 .error {
   padding: 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
   border-radius: 0.5rem;
-  color: #991b1b;
+  color: #F87171;
   font-size: 0.875rem;
 }
 
@@ -127,17 +140,20 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(to right, #1f2937, #374151);
-  color: white;
+  background: #C8E400;
+  color: #111827;
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .submitButton:hover:not(:disabled) {
-  background: linear-gradient(to right, #111827, #1f2937);
+  background: #e7ff01;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -3px rgba(200, 228, 0, 0.5);
 }
 
 .submitButton:disabled {
@@ -148,7 +164,7 @@
 .spinner {
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid white;
+  border: 2px solid #111827;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;

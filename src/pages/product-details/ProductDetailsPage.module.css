@@ -1,8 +1,8 @@
-/* Mobile-first Product Details Page */
+/* Mobile-first Product Details Page - Dark Glass Design */
 
 .page {
   min-height: 100vh;
-  background: #f9fafb;
+  /* Background handled by VibrantBackground component */
 }
 
 .main {
@@ -98,8 +98,8 @@
 .spinner {
   width: 2.5rem;
   height: 2.5rem;
-  border: 3px solid #e5e7eb;
-  border-top-color: var(--color-primary);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #C8E400;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -113,7 +113,7 @@
 .loadingText {
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
 
@@ -130,14 +130,14 @@
 
 .errorIcon {
   font-size: 4rem;
-  opacity: 0.4;
+  opacity: 0.6;
 }
 
 .errorTitle {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #374151;
+  color: white;
   margin: 0;
 }
 
@@ -149,7 +149,7 @@
 
 .backButton {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
+  background: #C8E400;
   color: #1f2937;
   border: none;
   border-radius: 0.5rem;
@@ -161,11 +161,11 @@
 }
 
 .backButton:hover {
-  background: linear-gradient(to right, var(--color-primary-hover), var(--color-primary-dark));
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: #e7ff01;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .backButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-primary-40);
+  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.3);
 }

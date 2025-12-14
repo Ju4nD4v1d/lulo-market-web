@@ -145,8 +145,8 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
 
       {/* Billing Address */}
       <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Shield className="w-4 h-4" />
+        <label className="block text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-[#C8E400]" />
           {t('payment.billingAddress')}
         </label>
         <AddressElement
@@ -168,14 +168,14 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       </div>
 
       {/* Security Notice */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-2 mt-4">
-        <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+      <div className="bg-[rgba(34,197,94,0.15)] border border-[rgba(34,197,94,0.3)] rounded-lg p-3 flex items-start gap-2 mt-4">
+        <Shield className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
         <div>
-          <h4 className="font-medium text-green-800 text-sm flex items-center gap-1">
+          <h4 className="font-medium text-[#4ADE80] text-sm flex items-center gap-1">
             <Lock className="w-3 h-3" />
             {t('payment.secure')}
           </h4>
-          <p className="text-green-700 text-xs mt-1">
+          <p className="text-[rgba(74,222,128,0.8)] text-xs mt-1">
             {t('payment.encryptedProtected')}
           </p>
         </div>
@@ -185,10 +185,10 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       <button
         type="submit"
         disabled={!stripe || !elements || isProcessing}
-        className={`w-full mt-4 font-bold ${
+        className={`w-full mt-4 font-bold py-3 px-6 rounded-lg transition-all duration-200 ${
           isProcessing || !stripe || !elements
-            ? 'bg-gray-400 text-white cursor-not-allowed py-3 px-6 rounded-lg'
-            : 'btn-primary'
+            ? 'bg-white/20 text-white/50 cursor-not-allowed'
+            : 'bg-[#C8E400] text-gray-900 hover:bg-[#e7ff01] hover:-translate-y-0.5 shadow-[0_4px_14px_-3px_rgba(200,228,0,0.4)] hover:shadow-[0_6px_20px_-3px_rgba(200,228,0,0.5)]'
         }`}
       >
         <span className="flex items-center justify-center gap-2">
@@ -198,7 +198,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       </button>
 
       {/* Terms Notice */}
-      <p className="text-xs text-gray-500 text-center mt-2">
+      <p className="text-xs text-white/50 text-center mt-2">
         {t('payment.termsNotice')}
       </p>
     </form>

@@ -8,10 +8,10 @@ export const PlatformUsageSection: React.FC = () => {
 
   return (
     <LegalSection number={3} title={t('legal.terms.platformUsage.title')}>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-white/80 leading-relaxed">
         {t('legal.terms.platformUsage.content1')}
       </p>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-white/80 leading-relaxed">
         {t('legal.terms.platformUsage.content2')}
       </p>
     </LegalSection>

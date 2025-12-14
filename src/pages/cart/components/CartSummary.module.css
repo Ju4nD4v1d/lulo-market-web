@@ -1,8 +1,10 @@
-/* Mobile-first Cart Summary */
+/* Mobile-first Cart Summary - Dark Glass Design */
 
 .container {
-  background: white;
-  border: 1px solid #E5E7EB;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 1.25rem;
 }
@@ -23,7 +25,7 @@
 .title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #111827;
+  color: white;
   margin: 0 0 1.25rem 0;
 }
 
@@ -52,26 +54,26 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .lineIcon {
   width: 1rem;
   height: 1rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
 }
 
 .lineValue {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Divider */
 .divider {
   height: 1px;
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.1);
   margin: 1.25rem 0;
 }
 
@@ -86,13 +88,13 @@
 .totalLabel {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: white;
 }
 
 .totalValue {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: white;
 }
 
 @media (min-width: 640px) {
@@ -105,7 +107,7 @@
 .checkoutButton {
   width: 100%;
   padding: 1rem 1.5rem;
-  background: var(--color-primary);
+  background: #C8E400;
   color: #111827;
   font-size: 1rem;
   font-weight: 600;
@@ -113,13 +115,13 @@
   border-radius: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px -3px var(--color-primary-40);
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .checkoutButton:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: #e7ff01;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px -3px var(--color-primary-50);
+  box-shadow: 0 6px 20px -3px rgba(200, 228, 0, 0.5);
 }
 
 .checkoutButton:active:not(:disabled) {
@@ -141,11 +143,11 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding: 0.625rem 0.75rem;
-  background: #FEF3C7;
-  border: 1px solid #FCD34D;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
   border-radius: 0.5rem;
   font-size: 0.8125rem;
-  color: #92400E;
+  color: #FCD34D;
   line-height: 1.4;
   text-align: center;
 }
@@ -154,14 +156,14 @@
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
-  color: #D97706;
+  color: #FBBF24;
 }
 
 /* Trust Badge */
 .trustBadge {
   margin: 1rem 0 0 0;
   font-size: 0.75rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   text-align: center;
 }
 
@@ -189,7 +191,7 @@
 
 .originalPrice {
   font-size: 0.75rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   text-decoration: line-through;
   font-weight: 400;
 }
@@ -197,7 +199,7 @@
 .finalPrice {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #16A34A;
+  color: #4ADE80;
 }
 
 .discountBanner {
@@ -206,11 +208,11 @@
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
   margin-top: 0.5rem;
-  background: #F0FDF4;
-  border: 1px solid #86EFAC;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
   border-radius: 0.5rem;
   font-size: 0.8125rem;
-  color: #166534;
+  color: #4ADE80;
 }
 
 .discountBannerIcon {

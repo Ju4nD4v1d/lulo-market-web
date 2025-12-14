@@ -2,20 +2,64 @@
  * StoreHeroSection - Mobile-First Styles
  *
  * Layout:
+ * - Full-width section with background.jpg
+ * - Glass card container with store info
  * - Mobile: Stacked (image on top, content below)
  * - Desktop (1024px+): Side-by-side (image left, content right)
  */
 
 /* ==========================================================================
-   Container
+   Section (Background Image)
+   ========================================================================== */
+
+.section {
+  background-image: url('/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  /* Full width - extend to edges */
+  width: 100%;
+  /* Extend behind the header */
+  margin-top: -64px;
+  padding-top: calc(64px + 1.5rem);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .section {
+    margin-top: -72px;
+    padding-top: calc(72px + 2rem);
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    margin-top: -80px;
+    padding-top: calc(80px + 3rem);
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* ==========================================================================
+   Container (Glass Card)
    ========================================================================== */
 
 .container {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
+  max-width: 1280px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -2px var(--color-shadow);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 768px) {
@@ -40,7 +84,7 @@
 .imageWrapper {
   position: relative;
   aspect-ratio: 16 / 10;
-  background: var(--color-gray-100);
+  background: rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -77,13 +121,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--color-gray-100), var(--color-gray-200));
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .fallbackIcon {
   width: 3rem;
   height: 3rem;
-  color: var(--color-gray-400);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 @media (min-width: 768px) {
@@ -97,7 +141,7 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ==========================================================================
@@ -154,7 +198,7 @@
   font-family: var(--font-heading);
   font-size: var(--font-size-h3);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: #FFFFFF;
   line-height: 1.2;
   margin: 0;
 }
@@ -192,19 +236,19 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
-  background: linear-gradient(135deg, var(--color-accent-lightest), var(--color-accent-lighter));
-  border: 1px solid var(--color-accent-light);
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.2), rgba(200, 228, 0, 0.1));
+  border: 1px solid rgba(200, 228, 0, 0.4);
   border-radius: 9999px;
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-accent-dark);
+  color: #C8E400;
 }
 
 .founderIcon {
   width: 0.875rem;
   height: 0.875rem;
-  color: var(--color-accent);
+  color: #C8E400;
 }
 
 /* ==========================================================================
@@ -223,28 +267,29 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
-  background: var(--color-warning-light);
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid rgba(250, 204, 21, 0.3);
   border-radius: 0.5rem;
 }
 
 .starIcon {
   width: 1rem;
   height: 1rem;
-  color: var(--color-warning);
-  fill: var(--color-warning);
+  color: #FACC15;
+  fill: #FACC15;
 }
 
 .ratingValue {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: #FFFFFF;
 }
 
 .reviewCount {
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 
@@ -256,7 +301,7 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
   margin: 0;
   display: -webkit-box;
@@ -300,9 +345,11 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--color-background-secondary);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .metaIconWrapper {
@@ -311,7 +358,7 @@
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  background: var(--color-background);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 0.375rem;
   flex-shrink: 0;
 }
@@ -319,7 +366,7 @@
 .metaIcon {
   width: 0.875rem;
   height: 0.875rem;
-  color: var(--color-primary-dark);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .metaContent {
@@ -331,7 +378,7 @@
   font-family: var(--font-body);
   font-size: 0.625rem;
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 0;
@@ -341,7 +388,7 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.3;
 }
 
@@ -381,18 +428,20 @@
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  background: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .socialLink:hover {
-  background: var(--color-background);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
 }
 
 .socialIcon {

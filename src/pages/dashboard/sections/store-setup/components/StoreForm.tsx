@@ -31,6 +31,7 @@ import {
   ServiceAgreementStage,
 } from './stages';
 import type { AgreementState } from './LegalAgreements';
+import styles from './StoreForm.module.css';
 
 // Stage ID for agreements (skipped when already accepted)
 const AGREEMENTS_STAGE_ID = 4;
@@ -180,14 +181,14 @@ export const StoreForm: React.FC<StoreFormProps> = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 via-white to-orange-50/30 p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className={styles.container}>
+      <div className={styles.content}>
 
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            <span className="text-red-700">{error}</span>
+          <div className={styles.errorBanner}>
+            <AlertCircle className={styles.errorIcon} />
+            <span className={styles.errorText}>{error}</span>
           </div>
         )}
 
@@ -200,7 +201,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Stage 1: Basic Information */}
         {currentStageId === 1 && (
-          <div className="animate-[slideInRight_0.5s_ease-out]">
+          <div className={styles.stageAnimation}>
             <StageContainer stage={getStageById(1)!}>
               <BasicInfoStage
                 name={storeData.name}
@@ -221,7 +222,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Stage 2: Address */}
         {currentStageId === 2 && (
-          <div className="animate-[slideInRight_0.5s_ease-out]">
+          <div className={styles.stageAnimation}>
             <StageContainer stage={getStageById(2)!}>
               <AddressStage
                 street={storeData.location?.address || ''}
@@ -275,7 +276,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Stage 3: Contact Information */}
         {currentStageId === 3 && (
-          <div className="animate-[slideInRight_0.5s_ease-out]">
+          <div className={styles.stageAnimation}>
             <StageContainer stage={getStageById(3)!}>
               <ContactInfoStage
                 phone={storeData.phone || ''}
@@ -299,7 +300,7 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Stage 4: Service Agreement (shown only when not yet accepted) */}
         {currentStageId === 4 && (
-          <div className="animate-[slideInRight_0.5s_ease-out]">
+          <div className={styles.stageAnimation}>
             <StageContainer stage={getStageById(4)!}>
               <ServiceAgreementStage
                 agreements={agreements}
@@ -311,16 +312,16 @@ export const StoreForm: React.FC<StoreFormProps> = ({
         )}
 
         {/* Navigation Buttons */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <div className={styles.navigationCard}>
+          <div className={styles.navigationContent}>
+            <div className={styles.navigationLeft}>
               {currentStageIndex > 1 && (
                 <button
                   type="button"
                   onClick={prevStage}
-                  className="btn-ghost inline-flex items-center gap-2"
+                  className={styles.btnGhost}
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className={styles.btnIcon} />
                   {t('store.previous')}
                 </button>
               )}
@@ -329,35 +330,35 @@ export const StoreForm: React.FC<StoreFormProps> = ({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="btn-ghost inline-flex items-center gap-2"
+                  className={styles.btnGhost}
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className={styles.btnIcon} />
                   {t('store.cancel')}
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className={styles.navigationRight}>
               {currentStageIndex < totalActiveStages ? (
                 <button
                   type="button"
                   onClick={nextStage}
-                  className="btn-primary inline-flex items-center gap-2 font-medium"
+                  className={styles.btnPrimary}
                 >
                   {t('store.nextStage')}
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className={styles.btnIcon} />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => onSave(agreements)}
                   disabled={saving}
-                  className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className={styles.btnPrimary}
                 >
                   {saving ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className={styles.spinner} />
                   ) : (
-                    <Save className="w-5 h-5" />
+                    <Save className={styles.saveIcon} />
                   )}
                   {saving ? t('store.saving') : t('store.save')}
                 </button>
@@ -368,9 +369,9 @@ export const StoreForm: React.FC<StoreFormProps> = ({
 
         {/* Validation Error Display - Bottom of screen for better visibility */}
         {validationError && (
-          <div className="bg-orange-50 border-2 border-orange-400 rounded-xl p-4 flex items-center gap-3 shadow-lg sticky bottom-4">
-            <AlertCircle className="w-6 h-6 text-orange-500 flex-shrink-0" />
-            <span className="text-orange-800 font-medium">{validationError}</span>
+          <div className={styles.validationBanner}>
+            <AlertCircle className={styles.validationIcon} />
+            <span className={styles.validationText}>{validationError}</span>
           </div>
         )}
       </div>

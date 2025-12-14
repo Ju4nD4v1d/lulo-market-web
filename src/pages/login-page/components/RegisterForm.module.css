@@ -1,8 +1,8 @@
-/* RegisterForm - Mobile-first styles */
+/* RegisterForm - Dark Glass Styles */
 
 .addressSection {
   margin-top: 0.5rem;
-  border: 1px solid rgb(229 231 235);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.75rem;
   overflow: hidden;
 }
@@ -13,14 +13,14 @@
   justify-content: space-between;
   width: 100%;
   padding: 0.875rem 1rem;
-  background-color: rgb(249 250 251);
+  background-color: rgba(255, 255, 255, 0.05);
   border: none;
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
 .addressToggle:hover {
-  background-color: rgb(243 244 246);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .addressToggleContent {
@@ -32,7 +32,7 @@
 .addressIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: rgb(107 114 128);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .addressToggleText {
@@ -44,18 +44,18 @@
 .addressToggleTitle {
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgb(17 24 39);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .addressToggleSubtitle {
   font-size: 0.75rem;
-  color: rgb(107 114 128);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .chevronIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: rgb(156 163 175);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .addressFields {
@@ -63,8 +63,8 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  background-color: white;
-  border-top: 1px solid rgb(229 231 235);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .field {
@@ -106,18 +106,18 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgb(55 65 81);
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 0.375rem;
 }
 
 .input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid rgb(209 213 219);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
   font-size: 1rem;
-  color: rgb(17 24 39);
-  background-color: white;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;
   appearance: none;
@@ -125,21 +125,26 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--primary-500, #C8E400);
-  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .input::placeholder {
-  color: rgb(156 163 175);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .select {
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='rgba(255,255,255,0.6)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.75rem center;
   background-repeat: no-repeat;
   background-size: 1.25rem;
   padding-right: 2.5rem;
+}
+
+.select option {
+  background-color: #1a1a2e;
+  color: white;
 }
 
 .countryNote {
@@ -147,10 +152,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background-color: rgb(243 244 246);
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  color: rgb(75 85 99);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .countryFlag {

@@ -9,6 +9,7 @@ import type * as React from 'react';
 import { useState } from 'react';
 import { Star, Zap, Heart, Camera, Upload, X } from 'lucide-react';
 import { useLanguage } from '../../../../../../context/LanguageContext';
+import styles from './BasicInfoStage.module.css';
 
 interface BasicInfoStageProps {
   name: string;
@@ -100,170 +101,164 @@ export const BasicInfoStage: React.FC<BasicInfoStageProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="group">
-          <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <Star className="w-4 h-4 text-primary-400" />
+    <div className={styles.container}>
+      <div className={styles.grid}>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            <Star className={styles.labelIcon} />
             {t('store.name')}
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => onNameChange(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 group-hover:shadow-md"
-              placeholder={t('store.namePlaceholder')}
-            />
-          </div>
+          <input
+            type="text"
+            data-auth-input
+            value={name}
+            onChange={(e) => onNameChange(e.target.value)}
+            className={styles.input}
+            placeholder={t('store.namePlaceholder')}
+          />
         </div>
 
-        <div className="group">
-          <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary-400" />
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            <Zap className={styles.labelIcon} />
             {t('store.category')}
           </label>
-          <div className="relative">
-            <select
-              value={category}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
-            >
-              <option value="">{t('store.selectCategory')}</option>
-              <option value="restaurant">{t('store.category.restaurant')}</option>
-              <option value="grocery">{t('store.category.grocery')}</option>
-              <option value="bakery">{t('store.category.bakery')}</option>
-              <option value="other">{t('store.category.other')}</option>
-            </select>
-          </div>
+          <select
+            data-auth-input
+            value={category}
+            onChange={(e) => onCategoryChange(e.target.value)}
+            className={styles.select}
+          >
+            <option value="">{t('store.selectCategory')}</option>
+            <option value="restaurant">{t('store.category.restaurant')}</option>
+            <option value="grocery">{t('store.category.grocery')}</option>
+            <option value="bakery">{t('store.category.bakery')}</option>
+            <option value="other">{t('store.category.other')}</option>
+          </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="group">
-          <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <Heart className="w-4 h-4 text-primary-400" />
+      <div className={styles.grid}>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            <Heart className={styles.labelIcon} />
             {t('store.cuisine')}
           </label>
-          <div className="relative">
-            <select
-              value={cuisine}
-              onChange={(e) => onCuisineChange(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 group-hover:border-gray-300 bg-white"
-            >
-              <option value="">{t('store.cuisinePlaceholder')}</option>
-              <option value="mexican">{t('store.cuisine.mexican')}</option>
-              <option value="colombian">{t('store.cuisine.colombian')}</option>
-              <option value="venezuelan">{t('store.cuisine.venezuelan')}</option>
-              <option value="peruvian">{t('store.cuisine.peruvian')}</option>
-              <option value="ecuadorian">{t('store.cuisine.ecuadorian')}</option>
-              <option value="argentinian">{t('store.cuisine.argentinian')}</option>
-              <option value="chilean">{t('store.cuisine.chilean')}</option>
-              <option value="brazilian">{t('store.cuisine.brazilian')}</option>
-              <option value="dominican">{t('store.cuisine.dominican')}</option>
-              <option value="guatemalan">{t('store.cuisine.guatemalan')}</option>
-              <option value="honduran">{t('store.cuisine.honduran')}</option>
-              <option value="salvadoran">{t('store.cuisine.salvadoran')}</option>
-              <option value="nicaraguan">{t('store.cuisine.nicaraguan')}</option>
-              <option value="costarican">{t('store.cuisine.costarican')}</option>
-              <option value="panamanian">{t('store.cuisine.panamanian')}</option>
-              <option value="cuban">{t('store.cuisine.cuban')}</option>
-              <option value="puerto_rican">{t('store.cuisine.puerto_rican')}</option>
-              <option value="fusion">{t('store.cuisine.fusion')}</option>
-              <option value="other">{t('store.cuisine.other')}</option>
-            </select>
-          </div>
+          <select
+            data-auth-input
+            value={cuisine}
+            onChange={(e) => onCuisineChange(e.target.value)}
+            className={styles.select}
+          >
+            <option value="">{t('store.cuisinePlaceholder')}</option>
+            <option value="mexican">{t('store.cuisine.mexican')}</option>
+            <option value="colombian">{t('store.cuisine.colombian')}</option>
+            <option value="venezuelan">{t('store.cuisine.venezuelan')}</option>
+            <option value="peruvian">{t('store.cuisine.peruvian')}</option>
+            <option value="ecuadorian">{t('store.cuisine.ecuadorian')}</option>
+            <option value="argentinian">{t('store.cuisine.argentinian')}</option>
+            <option value="chilean">{t('store.cuisine.chilean')}</option>
+            <option value="brazilian">{t('store.cuisine.brazilian')}</option>
+            <option value="dominican">{t('store.cuisine.dominican')}</option>
+            <option value="guatemalan">{t('store.cuisine.guatemalan')}</option>
+            <option value="honduran">{t('store.cuisine.honduran')}</option>
+            <option value="salvadoran">{t('store.cuisine.salvadoran')}</option>
+            <option value="nicaraguan">{t('store.cuisine.nicaraguan')}</option>
+            <option value="costarican">{t('store.cuisine.costarican')}</option>
+            <option value="panamanian">{t('store.cuisine.panamanian')}</option>
+            <option value="cuban">{t('store.cuisine.cuban')}</option>
+            <option value="puerto_rican">{t('store.cuisine.puerto_rican')}</option>
+            <option value="fusion">{t('store.cuisine.fusion')}</option>
+            <option value="other">{t('store.cuisine.other')}</option>
+          </select>
         </div>
       </div>
 
-      <div className="group">
-        <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <Heart className="w-4 h-4 text-primary-400" />
+      <div className={styles.fieldGroup}>
+        <label className={styles.label}>
+          <Heart className={styles.labelIcon} />
           {t('store.description')}
         </label>
-        <div className="relative">
+        <div className={styles.textareaWrapper}>
           <textarea
+            data-auth-input
             value={description}
             onChange={(e) => onDescriptionChange(e.target.value)}
             rows={4}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-400/20 focus:border-primary-400 transition-all duration-300 text-gray-900 placeholder-gray-500 group-hover:border-gray-300 resize-none"
+            className={styles.textarea}
             placeholder={t('store.descriptionPlaceholder')}
           />
-          <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+          <div className={styles.charCount}>
             {description.length}/200
           </div>
         </div>
       </div>
 
       {/* Store Image Upload */}
-      <div className="group">
-        <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <Camera className="w-4 h-4 text-primary-400" />
+      <div className={styles.fieldGroup}>
+        <label className={styles.label}>
+          <Camera className={styles.labelIcon} />
           {t('store.image')}
         </label>
         <div
-          className={`border-3 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
-            dragActive
-              ? 'border-primary-400 bg-gradient-to-br from-primary-400/10 to-primary-500/5 shadow-lg'
-              : 'border-gray-300 hover:border-primary-400/50 hover:bg-gray-50/50'
-          }`}
+          className={`${styles.uploadArea} ${dragActive ? styles.uploadAreaActive : ''}`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
         >
           {storeImage.preview || storeImage.url ? (
-            <div className="relative inline-block">
-              <div className="relative group cursor-pointer">
+            <div className={styles.imagePreviewWrapper}>
+              <div className={styles.imagePreviewContainer}>
                 <img
                   src={storeImage.preview || storeImage.url}
                   alt="Store"
-                  className="w-40 h-40 object-cover rounded-2xl shadow-lg border-4 border-white"
+                  className={styles.imagePreview}
                 />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Camera className="w-8 h-8 mx-auto mb-2" />
-                    <p className="text-sm font-medium">Change Image</p>
+                <div className={styles.imageOverlay}>
+                  <div className={styles.overlayContent}>
+                    <Camera className={styles.overlayIcon} />
+                    <p className={styles.overlayText}>Change Image</p>
                   </div>
                 </div>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/jpg"
                   onChange={handleFileInput}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className={styles.hiddenInput}
                   title="Change store image"
                 />
               </div>
               <button
                 type="button"
                 onClick={onImageRemove}
-                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-lg transition-colors"
+                className={styles.removeButton}
                 title="Remove image"
               >
-                <X className="w-4 h-4" />
+                <X className={styles.removeIcon} />
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-400/20 to-primary-500/20 rounded-2xl">
-                <Upload className="w-8 h-8 text-primary-400" />
+            <div className={styles.uploadContent}>
+              <div className={styles.uploadIconWrapper}>
+                <Upload className={styles.uploadIcon} />
               </div>
               <div>
-                <p className="text-lg font-medium text-gray-900 mb-2">{t('store.uploadImage')}</p>
-                <p className="text-sm text-gray-500 mb-4">PNG, JPG up to 2MB</p>
+                <p className={styles.uploadTitle}>{t('store.uploadImage')}</p>
+                <p className={styles.uploadHint}>PNG, JPG up to 2MB</p>
               </div>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/jpg"
                 onChange={handleFileInput}
-                className="hidden"
+                className={styles.hiddenInput}
                 id="store-image"
               />
               <label
                 htmlFor="store-image"
-                className="btn-primary inline-flex items-center gap-2 cursor-pointer font-medium"
+                className={styles.selectButton}
               >
-                <Camera className="w-4 h-4" />
+                <Camera className={styles.selectButtonIcon} />
                 {t('store.selectImage')}
               </label>
             </div>

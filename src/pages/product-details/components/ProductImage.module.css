@@ -1,4 +1,4 @@
-/* Mobile-first Product Image Gallery */
+/* Mobile-first Product Image Gallery - Dark Glass Design */
 
 .container {
   width: 100%;
@@ -10,6 +10,13 @@
 @media (min-width: 640px) {
   .container {
     gap: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
   }
 }
 
@@ -19,6 +26,7 @@
     position: sticky;
     top: 5rem;
     gap: 1rem;
+    padding: 0;
   }
 }
 
@@ -30,7 +38,7 @@
   position: relative;
   width: 100%;
   height: 14rem;
-  background: var(--color-gray-100, #f3f4f6);
+  background: rgba(0, 0, 0, 0.3);
   overflow: hidden;
   touch-action: pan-y pinch-zoom;
 }
@@ -39,6 +47,8 @@
   .mainImageContainer {
     height: 18rem;
     border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -95,7 +105,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #fafafa 0%, #f3f4f6 50%, #e5e7eb 100%);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .placeholderIcon {
@@ -116,7 +126,7 @@
 .thumbnailStrip {
   display: flex;
   gap: 0.5rem;
-  padding: 0 0.25rem;
+  padding: 0 1rem;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
@@ -155,26 +165,26 @@
   width: 3rem;
   height: 3rem;
   padding: 0;
-  border: 2px solid var(--color-border, #e5e7eb);
+  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.375rem;
   overflow: hidden;
   cursor: pointer;
-  background: var(--color-gray-100, #f3f4f6);
+  background: rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
 }
 
 .thumbnail:hover {
-  border-color: var(--color-gray-400, #9ca3af);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .thumbnail:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-primary, #FFD700);
+  box-shadow: 0 0 0 2px rgba(200, 228, 0, 0.4);
 }
 
 .thumbnailActive {
-  border-color: var(--color-primary, #FFD700);
-  box-shadow: 0 0 0 1px var(--color-primary, #FFD700);
+  border-color: #C8E400;
+  box-shadow: 0 0 0 1px #C8E400;
 }
 
 @media (min-width: 640px) {

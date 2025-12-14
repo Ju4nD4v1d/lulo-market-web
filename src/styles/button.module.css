@@ -98,7 +98,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px;
-  color: var(--color-gray-100);
+  color: inherit;
   background: transparent;
   border: none;
   border-radius: 8px;

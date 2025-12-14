@@ -1,0 +1,261 @@
+/**
+ * LuloCart Brand Identity System
+ *
+ * A vibrant, modern, community-driven visual identity.
+ * Built to work with the colorful abstract background while maintaining
+ * readability and trust for e-commerce.
+ *
+ * Key Principles:
+ * - #C8E400 (lulo green) is the signature accent - use sparingly for outlines/highlights
+ * - #e7ff01 (brand yellow) for primary CTAs
+ * - White/glass cards floating over vibrant background
+ * - Dark overlays for text contrast
+ *
+ * Usage:
+ * - background: var(--brand-bg-overlay);
+ * - box-shadow: var(--brand-card-shadow);
+ */
+
+:root {
+  /* ==========================================================================
+     BRAND ACCENT COLORS
+     The lulo green (#C8E400) is very bright - use as accent only
+     ========================================================================== */
+  --brand-accent: #C8E400;
+  --brand-accent-subtle: rgba(200, 228, 0, 0.15);
+  --brand-accent-glow: rgba(200, 228, 0, 0.3);
+  --brand-accent-border: rgba(200, 228, 0, 0.5);
+
+  /* Primary CTA Yellow - slightly softer than pure lulo */
+  --brand-cta: #e7ff01;
+  --brand-cta-hover: #d4ec00;
+  --brand-cta-text: #111111;
+
+  /* ==========================================================================
+     BACKGROUND SYSTEM
+     For the vibrant abstract background with overlays
+     ========================================================================== */
+
+  /* Dark green overlay for background - 92% darker */
+  --brand-bg-overlay: rgba(5, 12, 8, 0.92);
+  --brand-bg-overlay-light: rgba(8, 18, 10, 0.88);
+  --brand-bg-overlay-heavy: rgba(3, 8, 5, 0.95);
+
+  /* Grain texture opacity - very heavy for rich texture */
+  --brand-grain-opacity: 0.65;
+
+  /* ==========================================================================
+     CARD & SURFACE SYSTEM
+     White/glass surfaces that float over the background
+     ========================================================================== */
+
+  /* Solid white cards */
+  --brand-card-bg: #FFFFFF;
+  --brand-card-bg-hover: #FAFAFA;
+
+  /* Glass/frosted cards */
+  --brand-glass-bg: rgba(255, 255, 255, 0.92);
+  --brand-glass-bg-hover: rgba(255, 255, 255, 0.96);
+  --brand-glass-border: rgba(255, 255, 255, 0.3);
+  --brand-glass-blur: 16px;
+
+  /* Card shadows - soft and layered */
+  --brand-card-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --brand-card-shadow-hover:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --brand-card-shadow-elevated:
+    0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  /* Card radius */
+  --brand-card-radius: 16px;
+  --brand-card-radius-sm: 12px;
+  --brand-card-radius-lg: 20px;
+
+  /* ==========================================================================
+     HEADER SYSTEM
+     Clean, trustworthy header that feels stable
+     ========================================================================== */
+  --brand-header-bg: rgba(255, 255, 255, 0.98);
+  --brand-header-bg-scrolled: rgba(255, 255, 255, 0.95);
+  --brand-header-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --brand-header-blur: 12px;
+
+  /* ==========================================================================
+     TEXT COLORS FOR DARK/LIGHT CONTEXTS
+     ========================================================================== */
+
+  /* On dark/vibrant backgrounds */
+  --brand-text-on-dark: #FFFFFF;
+  --brand-text-on-dark-muted: rgba(255, 255, 255, 0.85);
+  --brand-text-on-dark-subtle: rgba(255, 255, 255, 0.7);
+
+  /* On white/light cards */
+  --brand-text-on-light: #111827;
+  --brand-text-on-light-secondary: #4B5563;
+  --brand-text-on-light-muted: #6B7280;
+  --brand-text-on-light-subtle: #9CA3AF;
+
+  /* ==========================================================================
+     BUTTON SYSTEM
+     High-contrast CTAs that pop against any background
+     ========================================================================== */
+
+  /* Primary Button (brand yellow) */
+  --brand-btn-primary-bg: var(--brand-cta);
+  --brand-btn-primary-bg-hover: var(--brand-cta-hover);
+  --brand-btn-primary-text: var(--brand-cta-text);
+  --brand-btn-primary-shadow: 0 4px 14px -3px rgba(231, 255, 1, 0.4);
+  --brand-btn-primary-shadow-hover: 0 8px 20px -3px rgba(231, 255, 1, 0.5);
+
+  /* Secondary Button (white) */
+  --brand-btn-secondary-bg: #FFFFFF;
+  --brand-btn-secondary-bg-hover: #F9FAFB;
+  --brand-btn-secondary-text: #111827;
+  --brand-btn-secondary-border: rgba(0, 0, 0, 0.1);
+
+  /* Ghost Button (transparent with accent border) */
+  --brand-btn-ghost-bg: transparent;
+  --brand-btn-ghost-bg-hover: rgba(200, 228, 0, 0.1);
+  --brand-btn-ghost-text: var(--brand-text-on-dark);
+  --brand-btn-ghost-border: var(--brand-accent-border);
+
+  /* Button radius */
+  --brand-btn-radius: 12px;
+  --brand-btn-radius-sm: 10px;
+  --brand-btn-radius-full: 9999px;
+
+  /* ==========================================================================
+     FOOTER SYSTEM
+     Dark, grounded footer derived from background palette
+     ========================================================================== */
+  --brand-footer-bg: #1a1a2e;
+  --brand-footer-bg-gradient: linear-gradient(180deg, #1a1a2e 0%, #16162a 100%);
+  --brand-footer-text: #FFFFFF;
+  --brand-footer-text-muted: rgba(255, 255, 255, 0.7);
+  --brand-footer-border: rgba(255, 255, 255, 0.1);
+
+  /* ==========================================================================
+     SPACING SYSTEM
+     Consistent spacing scale for margins, padding, gaps
+     ========================================================================== */
+  --spacing-xs: 0.25rem;     /* 4px */
+  --spacing-sm: 0.5rem;      /* 8px */
+  --spacing-md: 1rem;        /* 16px */
+  --spacing-lg: 1.5rem;      /* 24px */
+  --spacing-xl: 2rem;        /* 32px */
+  --spacing-2xl: 3rem;       /* 48px */
+  --spacing-3xl: 4rem;       /* 64px */
+
+  /* Section spacing */
+  --brand-section-padding-y: 3rem;
+  --brand-section-padding-y-lg: 4rem;
+  --brand-section-gap: 2rem;
+
+  /* ==========================================================================
+     SHADOW SYSTEM
+     Consistent shadow scale for depth
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  /* Accent shadows */
+  --brand-accent-shadow-sm: 0 2px 8px rgba(200, 228, 0, 0.3);
+  --brand-accent-shadow-md: 0 4px 12px rgba(200, 228, 0, 0.4);
+
+  /* ==========================================================================
+     BORDER RADIUS SYSTEM
+     Extended radius scale
+     ========================================================================== */
+  --radius-xs: 0.25rem;      /* 4px */
+  --radius-sm: 0.375rem;     /* 6px */
+  --radius-md: 0.5rem;       /* 8px */
+  --radius-lg: 0.75rem;      /* 12px */
+  --radius-xl: 1rem;         /* 16px */
+  --radius-2xl: 1.5rem;      /* 24px */
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     Z-INDEX SYSTEM
+     Layering hierarchy
+     ========================================================================== */
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 50;
+  --z-modal-backdrop: 90;
+  --z-modal: 100;
+  --z-popover: 200;
+  --z-tooltip: 300;
+
+  /* ==========================================================================
+     BLUR VALUES
+     Consistent blur amounts for glass effects
+     ========================================================================== */
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+  --blur-2xl: 20px;
+
+  /* ==========================================================================
+     ANIMATION & TRANSITIONS
+     ========================================================================== */
+  --brand-transition-fast: 150ms ease-out;
+  --brand-transition-base: 200ms ease-out;
+  --brand-transition-slow: 300ms ease-out;
+  --brand-transition-bounce: 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ==========================================================================
+     HERO SECTION
+     Toned down since background is already colorful
+     ========================================================================== */
+  --brand-hero-overlay: rgba(0, 0, 0, 0.15);
+  --brand-hero-text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* ==========================================================================
+     TEXT OUTLINE SYSTEM
+     For text that needs to be readable over varied/busy backgrounds
+     ========================================================================== */
+  --brand-text-outline-color: rgba(0, 0, 0, 0.6);
+  --brand-text-outline-light:
+    -1px -1px 0 var(--brand-text-outline-color),
+    1px -1px 0 var(--brand-text-outline-color),
+    -1px 1px 0 var(--brand-text-outline-color),
+    1px 1px 0 var(--brand-text-outline-color);
+  --brand-text-outline-medium:
+    -1px -1px 0 var(--brand-text-outline-color),
+    1px -1px 0 var(--brand-text-outline-color),
+    -1px 1px 0 var(--brand-text-outline-color),
+    1px 1px 0 var(--brand-text-outline-color),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Text outline utility class - for text on busy/varied backgrounds */
+.text-outlined {
+  text-shadow: var(--brand-text-outline-light);
+}
+
+.text-outlined-medium {
+  text-shadow: var(--brand-text-outline-medium);
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  :root {
+    --brand-section-padding-y: 4rem;
+    --brand-section-padding-y-lg: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --brand-section-padding-y: 5rem;
+    --brand-section-padding-y-lg: 6rem;
+  }
+}

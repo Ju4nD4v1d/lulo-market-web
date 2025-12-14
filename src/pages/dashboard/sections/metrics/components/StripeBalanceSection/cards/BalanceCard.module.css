@@ -1,13 +1,16 @@
-/* Mobile-first Stripe Balance Card Styles */
+/**
+ * BalanceCard - Dark Glass Design (Stripe themed)
+ * Mobile-first responsive styles
+ */
 
 /* Card Container - Stripe themed */
 .card {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
   transition: all 0.3s;
 }
 
@@ -15,12 +18,12 @@
   .card {
     border-radius: 1.5rem;
     padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 }
 
 .card:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(99, 91, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Loading State */
@@ -67,7 +70,7 @@
 
 .loadingText {
   font-size: 0.75rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Card Layout */
@@ -90,7 +93,7 @@
 }
 
 .cardLabel {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.75rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -105,7 +108,7 @@
 .cardValue {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0.25rem;
   transition: color 0.3s;
 }
@@ -124,12 +127,12 @@
 }
 
 .card:hover .cardValue {
-  color: #635BFF;
+  color: #A5B4FC;
 }
 
 .cardDescription {
   font-size: 0.625rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
 }
 
@@ -149,7 +152,7 @@
   padding: 0.75rem;
   background: linear-gradient(to bottom right, #635BFF, #4F46E5);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(99, 91, 255, 0.3), 0 2px 4px -1px rgba(99, 91, 255, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(99, 91, 255, 0.3);
   transition: box-shadow 0.3s;
 }
 
@@ -161,7 +164,7 @@
 }
 
 .card:hover .iconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(99, 91, 255, 0.3), 0 4px 6px -2px rgba(99, 91, 255, 0.2);
+  box-shadow: 0 8px 12px -2px rgba(99, 91, 255, 0.4);
 }
 
 .cardIcon {
@@ -180,29 +183,37 @@
 /* Pending variant - amber theme */
 .pendingCard .iconWrapper {
   background: linear-gradient(to bottom right, #F59E0B, #D97706);
-  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3), 0 2px 4px -1px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+}
+
+.pendingCard:hover {
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 .pendingCard:hover .cardValue {
-  color: #D97706;
+  color: #FCD34D;
 }
 
 .pendingCard:hover .iconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 8px 12px -2px rgba(245, 158, 11, 0.4);
 }
 
 /* In-transit variant - blue theme */
 .transitCard .iconWrapper {
   background: linear-gradient(to bottom right, #3B82F6, #2563EB);
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.transitCard:hover {
+  border-color: rgba(59, 130, 246, 0.4);
 }
 
 .transitCard:hover .cardValue {
-  color: #2563EB;
+  color: #93C5FD;
 }
 
 .transitCard:hover .iconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.4);
 }
 
 /* Error State */
@@ -214,14 +225,14 @@
 .errorIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #DC2626;
+  color: #F87171;
 }
 
 .errorText {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #DC2626;
+  color: #F87171;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -234,7 +245,8 @@
 
 .errorIconWrapper {
   padding: 0.75rem;
-  background: linear-gradient(to bottom right, #FEE2E2, #FEF2F2);
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 1rem;
 }
 
@@ -248,7 +260,7 @@
 .errorCardIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #EF4444;
+  color: #F87171;
 }
 
 @media (min-width: 768px) {
@@ -260,25 +272,26 @@
 
 /* Primary card variant - Total Balance (featured, green theme) */
 .primaryCard {
-  background: linear-gradient(to bottom right, #F0FDF4, #DCFCE7);
-  border: 1px solid #86EFAC;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .primaryCard:hover {
-  border-color: #22C55E;
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .primaryCard .iconWrapper {
   background: linear-gradient(to bottom right, #22C55E, #16A34A);
-  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3), 0 2px 4px -1px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
 }
 
 .primaryCard:hover .cardValue {
-  color: #16A34A;
+  color: #4ade80;
 }
 
 .primaryCard:hover .iconWrapper {
-  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3), 0 4px 6px -2px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 8px 12px -2px rgba(34, 197, 94, 0.4);
 }
 
 .primaryCard .cardValue {
@@ -301,9 +314,9 @@
 .cardHint {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.6875rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1.4;
 }
 
@@ -317,7 +330,7 @@
 
 .primaryCard .cardHint {
   border-top-color: rgba(34, 197, 94, 0.2);
-  color: #166534;
+  color: #4ade80;
 }
 
 /* Dashboard Button */

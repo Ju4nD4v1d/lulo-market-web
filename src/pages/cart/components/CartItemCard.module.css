@@ -1,18 +1,20 @@
-/* Mobile-first Cart Item Card */
+/* Mobile-first Cart Item Card - Dark Glass Design */
 
 .card {
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  background: white;
-  border: 1px solid #E5E7EB;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.875rem;
   transition: all 0.25s ease;
 }
 
 .card:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .removing {
@@ -35,7 +37,8 @@
   height: 4.5rem;
   border-radius: 0.75rem;
   overflow: hidden;
-  background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 640px) {
@@ -62,7 +65,7 @@
 .placeholderIcon {
   width: 1.75rem;
   height: 1.75rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* Info Section */
@@ -84,7 +87,7 @@
 .name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
   line-height: 1.3;
   display: -webkit-box;
@@ -109,14 +112,14 @@
   background: transparent;
   border: none;
   border-radius: 0.5rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .removeButton:hover {
   color: #EF4444;
-  background: #FEF2F2;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .removeButton:disabled {
@@ -140,7 +143,7 @@
 .price {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: #C8E400;
 }
 
 @media (min-width: 640px) {
@@ -151,14 +154,14 @@
 
 .originalPrice {
   font-size: 0.8125rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: line-through;
 }
 
 /* Description */
 .description {
   font-size: 0.8125rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
   display: -webkit-box;
@@ -186,8 +189,8 @@
 .quantityControls {
   display: flex;
   align-items: center;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
   overflow: hidden;
 }
@@ -200,21 +203,22 @@
   height: 2.25rem;
   background: transparent;
   border: none;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .quantityButton:hover:not(:disabled) {
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
 }
 
 .quantityButton:active:not(:disabled) {
-  background: #D1D5DB;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .quantityButton:disabled {
-  color: #D1D5DB;
+  color: rgba(255, 255, 255, 0.3);
   cursor: not-allowed;
 }
 
@@ -229,10 +233,10 @@
   text-align: center;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #111827;
-  background: white;
-  border-left: 1px solid #E5E7EB;
-  border-right: 1px solid #E5E7EB;
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Total */
@@ -244,7 +248,7 @@
 
 .totalLabel {
   font-size: 0.6875rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
@@ -252,7 +256,7 @@
 .totalValue {
   font-size: 1rem;
   font-weight: 700;
-  color: #111827;
+  color: #FFFFFF;
 }
 
 @media (min-width: 640px) {
@@ -265,14 +269,14 @@
 .instructions {
   margin-top: 0.75rem;
   padding: 0.625rem 0.75rem;
-  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
-  border: 1px solid #BFDBFE;
+  background: rgba(200, 228, 0, 0.1);
+  border: 1px solid rgba(200, 228, 0, 0.25);
   border-radius: 0.5rem;
 }
 
 .instructionsText {
   font-size: 0.8125rem;
-  color: #1E40AF;
+  color: rgba(200, 228, 0, 0.9);
   font-style: italic;
   margin: 0;
   line-height: 1.4;

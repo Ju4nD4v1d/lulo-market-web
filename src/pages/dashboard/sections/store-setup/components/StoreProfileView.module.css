@@ -1,11 +1,16 @@
+/**
+ * StoreProfileView - Dark Glass Design
+ */
+
 .container {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #F9FAFB, white, #F3F4F6);
 }
 
 .header {
-  background: white;
-  border-bottom: 1px solid #E5E7EB;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .headerContent {
@@ -46,8 +51,8 @@
   height: 6rem;
   object-fit: cover;
   border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 4px solid white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: 4px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 1024px) {
@@ -60,13 +65,13 @@
 .storeImagePlaceholder {
   width: 6rem;
   height: 6rem;
-  background: linear-gradient(to bottom right, var(--color-primary-20), var(--color-primary-20));
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 @media (min-width: 1024px) {
@@ -79,7 +84,7 @@
 .storePlaceholderIcon {
   width: 2rem;
   height: 2rem;
-  color: var(--color-primary);
+  color: #C8E400;
 }
 
 @media (min-width: 1024px) {
@@ -95,18 +100,18 @@
   right: -0.5rem;
   width: 2rem;
   height: 2rem;
-  background: var(--color-primary);
+  background: #C8E400;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px rgba(200, 228, 0, 0.4);
 }
 
 .verifiedIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: white;
+  color: #111827;
 }
 
 .titleRow {
@@ -120,7 +125,7 @@
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -132,12 +137,12 @@
 
 .activeBadge {
   padding: 0.25rem 0.75rem;
-  background: #D1FAE5;
-  color: #065F46;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ADE80;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  border: 1px solid #A7F3D0;
+  border: 1px solid rgba(74, 222, 128, 0.3);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -149,7 +154,7 @@
 }
 
 .description {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 0.75rem;
   max-width: 32rem;
 }
@@ -159,7 +164,7 @@
   align-items: center;
   gap: 1rem;
   font-size: 0.875rem;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.5);
   flex-wrap: wrap;
 }
 
@@ -179,19 +184,20 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
-  color: white;
+  background: #C8E400;
+  color: #111827;
   border-radius: 12px;
   border: none;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(200, 228, 0, 0.4);
 }
 
 .editButton:hover {
+  background: #e7ff01;
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(200, 228, 0, 0.5);
 }
 
 .editIcon {
@@ -208,7 +214,7 @@
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -219,11 +225,12 @@
 }
 
 .statCard {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  border: 1px solid #E5E7EB;
-  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
 }
 
 .statCardContent {
@@ -233,7 +240,7 @@
 }
 
 .statLabel {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
   font-weight: 500;
   margin: 0 0 0.5rem;
@@ -242,7 +249,7 @@
 .statSkeleton {
   width: 4rem;
   height: 2rem;
-  background: #E5E7EB;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -259,28 +266,28 @@
 .statValueGreen {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #059669;
+  color: #4ADE80;
   margin: 0;
 }
 
 .statValueBlue {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2563EB;
+  color: #60A5FA;
   margin: 0;
 }
 
 .statValuePurple {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #7C3AED;
+  color: #A78BFA;
   margin: 0;
 }
 
 .statValueYellow {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #CA8A04;
+  color: #FBBF24;
   margin: 0;
 }
 
@@ -297,19 +304,23 @@
 }
 
 .statIconGreen {
-  background: #D1FAE5;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .statIconBlue {
-  background: #DBEAFE;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .statIconPurple {
-  background: #EDE9FE;
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 .statIconYellow {
-  background: #FEF3C7;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .statIcon {
@@ -318,25 +329,25 @@
 }
 
 .statIconGreen .statIcon {
-  color: #059669;
+  color: #4ADE80;
 }
 
 .statIconBlue .statIcon {
-  color: #2563EB;
+  color: #60A5FA;
 }
 
 .statIconPurple .statIcon {
-  color: #7C3AED;
+  color: #A78BFA;
 }
 
 .statIconYellow .statIcon {
-  color: #CA8A04;
+  color: #FBBF24;
 }
 
 .mainGrid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 1024px) {
@@ -364,35 +375,36 @@
 }
 
 .card {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  border: 1px solid #E5E7EB;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .cardHeader {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
 .cardHeaderPrimary {
-  background: linear-gradient(to right, var(--color-primary-10), var(--color-primary-10));
+  background: rgba(200, 228, 0, 0.1);
 }
 
 .cardHeaderBlue {
-  background: linear-gradient(to right, #EFF6FF, #DBEAFE);
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .cardHeaderPurple {
-  background: linear-gradient(to right, #FAF5FF, #F3E8FF);
+  background: rgba(167, 139, 250, 0.1);
 }
 
 .cardHeaderGreen {
-  background: linear-gradient(to right, #F0FDF4, #DCFCE7);
+  background: rgba(74, 222, 128, 0.1);
 }
 
 .cardHeaderIconPrimary,
@@ -408,32 +420,31 @@
 }
 
 .cardHeaderIconPrimary {
-  background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover));
+  background: #C8E400;
 }
 
 .cardHeaderIconBlue {
-  background: linear-gradient(to right, #3B82F6, #6366F1);
+  background: #60A5FA;
 }
 
 .cardHeaderIconPurple {
-  background: linear-gradient(to right, #A855F7, #EC4899);
+  background: #A78BFA;
 }
 
 .cardHeaderIconGreen {
-  background: linear-gradient(to right, #10B981, #059669);
+  background: #4ADE80;
 }
 
 .cardHeaderIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: white;
+  color: #111827;
 }
 
 .cardTitle {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-h4);
-  font-weight: var(--font-weight-semibold);
-  color: #111827;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -459,19 +470,19 @@
 .infoLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 0.5rem;
   display: block;
 }
 
 .infoValue {
-  color: #111827;
+  color: #FFFFFF;
   font-weight: 500;
   margin: 0;
 }
 
 .infoDescription {
-  color: #111827;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.625;
   margin: 0;
 }
@@ -485,7 +496,7 @@
 .contactIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
   margin-top: 0.25rem;
 }
@@ -493,17 +504,17 @@
 .contactLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0 0 0.25rem;
 }
 
 .contactValue {
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
 }
 
 .contactLink {
-  color: var(--color-primary);
+  color: #C8E400;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -512,7 +523,7 @@
 }
 
 .contactLink:hover {
-  color: var(--color-primary-hover);
+  color: #e7ff01;
 }
 
 .contactLinkIcon {
@@ -542,13 +553,14 @@
   object-fit: cover;
   border-radius: 16px;
   margin: 0 auto 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .aboutImagePlaceholder {
   width: 5rem;
   height: 5rem;
-  background: #F3F4F6;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   margin: 0 auto 1rem;
   display: flex;
@@ -559,17 +571,17 @@
 .aboutImageIcon {
   width: 2rem;
   height: 2rem;
-  color: #9CA3AF;
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .aboutTitle {
   font-weight: 600;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.5rem;
 }
 
 .aboutDescription {
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0;
@@ -580,28 +592,32 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hoursRow:last-child {
+  border-bottom: none;
 }
 
 .hoursDay {
   font-weight: 500;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .hoursClosed {
-  color: #DC2626;
+  color: #F87171;
   font-weight: 500;
 }
 
 .hoursOpen {
-  color: #059669;
+  color: #4ADE80;
   font-weight: 500;
 }
 
 .quickActionsTitle {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-h4);
-  font-weight: var(--font-weight-semibold);
-  color: #111827;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #FFFFFF;
   margin: 0;
   padding: 1.5rem 1.5rem 0;
 }
@@ -615,27 +631,40 @@
 
 .quickActionButton {
   width: 100%;
-  color: white;
+  color: #111827;
   padding: 0.75rem;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .quickActionButton:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .quickActionBlue {
-  background: linear-gradient(to right, #3B82F6, #2563EB);
+  background: #60A5FA;
+}
+
+.quickActionBlue:hover {
+  background: #3B82F6;
 }
 
 .quickActionPurple {
-  background: linear-gradient(to right, #A855F7, #9333EA);
+  background: #A78BFA;
+}
+
+.quickActionPurple:hover {
+  background: #8B5CF6;
 }
 
 .quickActionGreen {
-  background: linear-gradient(to right, #10B981, #059669);
+  background: #4ADE80;
+}
+
+.quickActionGreen:hover {
+  background: #22C55E;
 }

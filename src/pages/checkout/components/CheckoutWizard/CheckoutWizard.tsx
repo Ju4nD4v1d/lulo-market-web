@@ -7,6 +7,7 @@ import type * as React from 'react';
 
 import { ArrowLeft } from 'lucide-react';
 import { CheckoutStep } from '../../hooks/useCheckoutWizard';
+import { VibrantBackground } from '../../../../components/VibrantBackground/VibrantBackground';
 import styles from './CheckoutWizard.module.css';
 
 interface CheckoutWizardProps {
@@ -30,42 +31,44 @@ export const CheckoutWizard: React.FC<CheckoutWizardProps> = ({
   const currentStepIndex = STEPS.indexOf(currentStep);
 
   return (
-    <div className={styles.container}>
-      {/* Header with step indicators */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.headerInner}>
-            <button
-              onClick={onBack}
-              className={styles.backButton}
-              type="button"
-              disabled={isProcessing}
-              style={isProcessing ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
-            >
-              <ArrowLeft className={styles.backIcon} />
-            </button>
+    <VibrantBackground>
+      <div className={styles.container}>
+        {/* Header with step indicators */}
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
+            <div className={styles.headerInner}>
+              <button
+                onClick={onBack}
+                className={styles.backButton}
+                type="button"
+                disabled={isProcessing}
+                style={isProcessing ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+              >
+                <ArrowLeft className={styles.backIcon} />
+              </button>
 
-            <div className={styles.titleContainer}>
-              <h1 className={styles.title}>{t('order.checkout')}</h1>
-              <div className={styles.stepIndicators}>
-                {STEPS.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.stepDot} ${
-                      index <= currentStepIndex ? styles.stepDotActive : ''
-                    }`}
-                  />
-                ))}
+              <div className={styles.titleContainer}>
+                <h1 className={styles.title}>{t('order.checkout')}</h1>
+                <div className={styles.stepIndicators}>
+                  {STEPS.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.stepDot} ${
+                        index <= currentStepIndex ? styles.stepDotActive : ''
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main content */}
-      <div className={styles.content}>
-        {children}
+        {/* Main content */}
+        <div className={styles.content}>
+          {children}
+        </div>
       </div>
-    </div>
+    </VibrantBackground>
   );
 };
