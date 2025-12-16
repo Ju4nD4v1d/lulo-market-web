@@ -1,4 +1,4 @@
-/* OrderProcessingFeedback - Processing animation styles */
+/* OrderProcessingFeedback - Dark Glass Design */
 
 .container {
   display: flex;
@@ -23,12 +23,14 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  background-color: rgba(200, 228, 0, 0.1);
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   transition: all 0.5s ease;
 }
 
 .iconContainer.complete {
-  background-color: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
   animation: pulse 0.5s ease;
 }
 
@@ -47,7 +49,7 @@
 .spinnerIcon {
   width: 2.5rem;
   height: 2.5rem;
-  color: var(--primary-400, #C8E400);
+  color: #C8E400;
   animation: spin 1s linear infinite;
 }
 
@@ -63,7 +65,7 @@
 .successIcon {
   width: 2.5rem;
   height: 2.5rem;
-  color: rgb(34 197 94);
+  color: #4ADE80;
   animation: checkmark 0.3s ease;
 }
 
@@ -85,7 +87,7 @@
 .title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: rgb(17 24 39);
+  color: #FFFFFF;
   margin: 0 0 2rem 0;
   min-height: 1.5rem;
 }
@@ -121,7 +123,8 @@
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  background-color: rgb(249 250 251);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -134,12 +137,13 @@
 }
 
 .stepComplete {
-  background-color: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .stepCurrent {
-  background-color: rgba(200, 228, 0, 0.2);
-  border: 1px solid rgba(200, 228, 0, 0.5);
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.4);
 }
 
 .stepIconWrapper {
@@ -154,24 +158,24 @@
 .stepIconComplete {
   width: 1.25rem;
   height: 1.25rem;
-  color: rgb(34 197 94);
+  color: #4ADE80;
 }
 
 .stepIconCurrent {
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--primary-400, #C8E400);
+  color: #C8E400;
 }
 
 .stepIconPending {
   width: 1.25rem;
   height: 1.25rem;
-  color: rgb(156 163 175);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .stepLabel {
   font-size: 0.75rem;
-  color: rgb(75 85 99);
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
 }
 
@@ -183,11 +187,11 @@
 }
 
 .stepComplete .stepLabel {
-  color: rgb(21 128 61);
+  color: #4ADE80;
 }
 
 .stepCurrent .stepLabel {
-  color: rgb(17 24 39);
+  color: #FFFFFF;
   font-weight: 500;
 }
 
@@ -195,7 +199,7 @@
 .completionMessage {
   margin-top: 1.5rem;
   font-size: 0.875rem;
-  color: rgb(75 85 99);
+  color: rgba(255, 255, 255, 0.7);
   animation: fadeIn 0.5s ease;
 }
 
@@ -218,7 +222,8 @@
   gap: 0.5rem;
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: rgba(200, 228, 0, 0.1);
+  background: rgba(200, 228, 0, 0.15);
+  border: 1px solid rgba(200, 228, 0, 0.3);
   border-radius: 2rem;
   animation: fadeIn 0.5s ease;
 }
@@ -226,12 +231,12 @@
 .redirectingSpinner {
   width: 1rem;
   height: 1rem;
-  color: var(--primary-400, #C8E400);
+  color: #C8E400;
   animation: spin 1s linear infinite;
 }
 
 .redirectingText {
   font-size: 0.875rem;
-  color: rgb(75 85 99);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
 }

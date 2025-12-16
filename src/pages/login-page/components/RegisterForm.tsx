@@ -91,44 +91,46 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   return (
     <>
       <div>
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="fullName" className="block text-sm font-medium text-white/90 mb-1">
           {t('auth.fullName')}
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <User className="h-5 w-5 text-gray-400" />
+            <User className="h-5 w-5 text-white/50" />
           </div>
           <input
             id="fullName"
             type="text"
+            data-auth-input
             value={fullName}
             onChange={(e) => {
               setFullName(e.target.value);
               clearMessages();
             }}
-            className="w-full pl-10 border border-gray-300 rounded-lg"
+            className="w-full pl-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20"
             placeholder={t('auth.fullNamePlaceholder')}
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-1">
           {t('auth.email')}
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Mail className="h-5 w-5 text-gray-400" />
+            <Mail className="h-5 w-5 text-white/50" />
           </div>
           <input
             id="email"
             type="email"
+            data-auth-input
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
               clearMessages();
             }}
-            className="w-full pl-10 border border-gray-300 rounded-lg"
+            className="w-full pl-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20"
             placeholder={t('auth.emailPlaceholder')}
           />
         </div>
@@ -192,6 +194,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               <input
                 id="street"
                 type="text"
+                data-auth-input
                 value={address.street}
                 onChange={(e) => handleAddressChange('street', e.target.value)}
                 className={styles.input}
@@ -209,6 +212,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 <input
                   id="city"
                   type="text"
+                  data-auth-input
                   value={address.city}
                   onChange={(e) => handleAddressChange('city', e.target.value)}
                   className={styles.input}
@@ -223,6 +227,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 </label>
                 <select
                   id="province"
+                  data-auth-input
                   value={address.province}
                   onChange={(e) => handleAddressChange('province', e.target.value)}
                   className={`${styles.input} ${styles.select}`}
@@ -246,6 +251,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               <input
                 id="postalCode"
                 type="text"
+                data-auth-input
                 value={address.postalCode}
                 onChange={(e) => handlePostalCodeChange(e.target.value)}
                 className={styles.input}

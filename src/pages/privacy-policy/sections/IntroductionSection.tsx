@@ -9,10 +9,10 @@ export const IntroductionSection: React.FC = () => {
 
   return (
     <LegalSection icon={Eye} title={t('legal.privacy.introduction.title')}>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-white/80 leading-relaxed">
         {t('legal.privacy.introduction.content1')}
       </p>
-      <p className="text-gray-700 leading-relaxed">
+      <p className="text-white/80 leading-relaxed">
         {t('legal.privacy.introduction.content2')}
       </p>
     </LegalSection>

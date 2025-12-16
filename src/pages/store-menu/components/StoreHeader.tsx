@@ -71,6 +71,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({
               <Search className={styles.searchIcon} />
               <input
                 type="text"
+                data-auth-input
                 placeholder={t('storeDetail.searchDishes')}
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}

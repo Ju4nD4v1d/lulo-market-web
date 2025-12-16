@@ -1,5 +1,5 @@
 /**
- * DeliverySchedule Styles
+ * DeliverySchedule Styles - Dark Glass Design
  *
  * Mobile: Vertical list, compact
  * Desktop: Horizontal layout, spacious
@@ -10,10 +10,13 @@
    ========================================================================== */
 
 .container {
-  background: white;
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ==========================================================================
@@ -26,30 +29,30 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--color-gray-50, #f9fafb);
-  border-bottom: 1px solid var(--color-gray-100, #f3f4f6);
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .headerIcon {
   width: 1.125rem;
   height: 1.125rem;
-  color: #16a34a;
+  color: #C8E400;
 }
 
 .title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-gray-800, #1f2937);
+  color: #FFFFFF;
 }
 
 .nextDelivery {
   margin-left: auto;
   font-size: 0.75rem;
-  color: var(--color-gray-500, #6b7280);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .nextDelivery strong {
-  color: #16a34a;
+  color: #C8E400;
   font-weight: 600;
 }
 
@@ -68,7 +71,8 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--color-gray-100, #f3f4f6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease;
 }
 
 .dayItem:last-child {
@@ -76,7 +80,7 @@
 }
 
 .dayItemToday {
-  background: #f0fdf4;
+  background: rgba(200, 228, 0, 0.1);
 }
 
 /* Day name */
@@ -86,12 +90,12 @@
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-700, #374151);
+  color: rgba(255, 255, 255, 0.9);
   flex-shrink: 0;
 }
 
 .dayItemToday .dayName {
-  color: #15803d;
+  color: #C8E400;
   font-weight: 600;
 }
 
@@ -104,14 +108,15 @@
 }
 
 .todayBadge {
-  padding: 0.125rem 0.375rem;
-  background: #16a34a;
-  color: white;
-  border-radius: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.3), rgba(200, 228, 0, 0.2));
+  border: 1px solid rgba(200, 228, 0, 0.5);
+  color: #C8E400;
+  border-radius: 9999px;
   font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
 }
 
 /* Time slots */
@@ -127,21 +132,21 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.8125rem;
-  color: var(--color-gray-600, #4b5563);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .dayItemToday .timeSlot {
-  color: #15803d;
+  color: rgba(200, 228, 0, 0.9);
 }
 
 .clockIcon {
   width: 0.75rem;
   height: 0.75rem;
-  color: var(--color-gray-400, #9ca3af);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .dayItemToday .clockIcon {
-  color: #22c55e;
+  color: #C8E400;
 }
 
 /* ==========================================================================
@@ -157,7 +162,7 @@
 .loadingIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #16a34a;
+  color: #C8E400;
   animation: spin 1s linear infinite;
 }
 
@@ -170,7 +175,7 @@
   padding: 1.5rem 1rem;
   text-align: center;
   font-size: 0.875rem;
-  color: var(--color-gray-500, #6b7280);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ==========================================================================
@@ -207,7 +212,7 @@
     gap: 0.5rem;
     padding: 1rem;
     border-bottom: none;
-    border-right: 1px solid var(--color-gray-100, #f3f4f6);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     text-align: center;
   }
 

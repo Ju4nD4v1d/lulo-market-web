@@ -1,9 +1,13 @@
-/* PaymentSettings - Mobile-first styles */
+/**
+ * PaymentSettings - Dark Glass Design
+ */
 
 .container {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -14,8 +18,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .title {
@@ -25,14 +29,14 @@
   font-family: var(--font-heading);
   font-size: var(--font-size-h4);
   font-weight: var(--font-weight-semibold);
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
 }
 
 .titleIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .refreshButton {
@@ -42,16 +46,16 @@
   width: 2rem;
   height: 2rem;
   padding: 0;
-  background: white;
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .refreshButton:hover:not(:disabled) {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .refreshButton:disabled {
@@ -62,7 +66,7 @@
 .refreshIcon {
   width: 1rem;
   height: 1rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .spinning {
@@ -103,27 +107,33 @@
 }
 
 .iconDefault {
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .iconLoading {
-  background: #e0e7ff;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 .iconSuccess {
-  background: #d1fae5;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .iconWarning {
-  background: #fef3c7;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .iconInfo {
-  background: #dbeafe;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .iconError {
-  background: #fee2e2;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
 }
 
 .statusIcon {
@@ -132,7 +142,7 @@
 }
 
 .iconDefault .statusIcon {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .iconLoading .statusIcon {
@@ -141,19 +151,19 @@
 }
 
 .iconSuccess .statusIcon {
-  color: #059669;
+  color: #4ADE80;
 }
 
 .iconWarning .statusIcon {
-  color: #d97706;
+  color: #FBBF24;
 }
 
 .iconInfo .statusIcon {
-  color: #2563eb;
+  color: #60A5FA;
 }
 
 .iconError .statusIcon {
-  color: #dc2626;
+  color: #F87171;
 }
 
 .statusInfo {
@@ -172,7 +182,7 @@
 .statusTitle {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #111827;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -186,28 +196,32 @@
 }
 
 .badgeSuccess {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #4ADE80;
 }
 
 .badgeWarning {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #FBBF24;
 }
 
 .badgeInfo {
-  background: #dbeafe;
-  color: #1e40af;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  color: #60A5FA;
 }
 
 .badgeError {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #F87171;
 }
 
 .statusDescription {
   font-size: 0.8125rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.5;
   margin: 0;
 }
@@ -224,7 +238,7 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.8125rem;
-  color: #059669;
+  color: #4ADE80;
 }
 
 .capabilityIcon {
@@ -234,7 +248,7 @@
 
 .error {
   font-size: 0.8125rem;
-  color: #dc2626;
+  color: #F87171;
   margin: 0.5rem 0 0 0;
 }
 
@@ -267,27 +281,33 @@
 }
 
 .actionButtonPrimary {
-  background: #84cc16;
-  color: white;
+  background: #C8E400;
+  color: #111827;
+  box-shadow: 0 4px 14px rgba(200, 228, 0, 0.3);
 }
 
 .actionButtonPrimary:hover:not(:disabled) {
-  background: #65a30d;
+  background: #e7ff01;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(200, 228, 0, 0.4);
 }
 
 .actionButtonSecondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .actionButtonSecondary:hover:not(:disabled) {
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .actionButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 
 .buttonIcon {
@@ -305,8 +325,8 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: linear-gradient(to right, #FEF3C7, #FEF9C3);
-  border-bottom: 1px solid #FCD34D;
+  background: rgba(251, 191, 36, 0.1);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 @media (min-width: 640px) {
@@ -326,7 +346,7 @@
 .agreementWarningIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: #D97706;
+  color: #FBBF24;
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -338,13 +358,13 @@
 .agreementWarningTitle {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #92400E;
+  color: #FBBF24;
   margin: 0 0 0.25rem 0;
 }
 
 .agreementWarningDescription {
   font-size: 0.8125rem;
-  color: #A16207;
+  color: rgba(251, 191, 36, 0.8);
   margin: 0;
   line-height: 1.4;
 }
@@ -354,12 +374,12 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #FCD34D;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 0.5rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #92400E;
+  color: #FBBF24;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -367,8 +387,8 @@
 }
 
 .agreementWarningLink:hover {
-  background: #FFFBEB;
-  border-color: #F59E0B;
+  background: rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.5);
 }
 
 .agreementWarningLinkIcon {

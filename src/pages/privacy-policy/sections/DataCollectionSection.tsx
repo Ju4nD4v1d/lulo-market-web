@@ -9,14 +9,14 @@ export const DataCollectionSection: React.FC = () => {
 
   return (
     <LegalSection icon={Database} title={t('legal.privacy.dataCollection.title')}>
-      <p className="text-gray-700 leading-relaxed mb-4">
+      <p className="text-white/80 leading-relaxed mb-4">
         {t('legal.privacy.dataCollection.intro')}
       </p>
 
       <div className="space-y-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.personal.title')}</h4>
-          <ul className="space-y-1 text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.dataCollection.personal.title')}</h4>
+          <ul className="space-y-1 text-white/70 text-sm">
             <li>• {t('legal.privacy.dataCollection.personal.item1')}</li>
             <li>• {t('legal.privacy.dataCollection.personal.item2')}</li>
             <li>• {t('legal.privacy.dataCollection.personal.item3')}</li>
@@ -24,9 +24,9 @@ export const DataCollectionSection: React.FC = () => {
           </ul>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.usage.title')}</h4>
-          <ul className="space-y-1 text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.dataCollection.usage.title')}</h4>
+          <ul className="space-y-1 text-white/70 text-sm">
             <li>• {t('legal.privacy.dataCollection.usage.item1')}</li>
             <li>• {t('legal.privacy.dataCollection.usage.item2')}</li>
             <li>• {t('legal.privacy.dataCollection.usage.item3')}</li>
@@ -34,9 +34,9 @@ export const DataCollectionSection: React.FC = () => {
           </ul>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 mb-2">{t('legal.privacy.dataCollection.location.title')}</h4>
-          <ul className="space-y-1 text-gray-700 text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <h4 className="font-semibold text-white mb-2">{t('legal.privacy.dataCollection.location.title')}</h4>
+          <ul className="space-y-1 text-white/70 text-sm">
             <li>• {t('legal.privacy.dataCollection.location.item1')}</li>
             <li>• {t('legal.privacy.dataCollection.location.item2')}</li>
             <li>• {t('legal.privacy.dataCollection.location.item3')}</li>

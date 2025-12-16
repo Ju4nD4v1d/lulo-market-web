@@ -3,21 +3,21 @@
  * Individual store card with image, badges, info, and CTA
  */
 
-/* Card container */
+/* Card container - Dark Glass */
 .card {
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 14px;
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   cursor: pointer;
   transform: translateZ(0);
   transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .card::before {
@@ -27,9 +27,10 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #C8E400 50%, transparent 100%);
   opacity: 0;
   transition: opacity 400ms ease;
+  z-index: 1;
 }
 
 .card::after {
@@ -38,7 +39,7 @@
   inset: -2px;
   border-radius: 14px;
   padding: 2px;
-  background: linear-gradient(135deg, var(--color-primary-30), var(--color-primary-30));
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.3), rgba(200, 228, 0, 0.3));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -47,14 +48,13 @@
 }
 
 .card:hover {
-  background: white;
+  background: rgba(0, 0, 0, 0.4);
   transform: translateY(-8px) scale(1.015);
   box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.14),
-    0 0 0 1px var(--color-primary-20),
-    0 0 80px var(--color-primary-10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border-color: var(--color-primary-30);
+    0 24px 48px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(200, 228, 0, 0.2),
+    0 0 80px rgba(200, 228, 0, 0.1);
+  border-color: rgba(200, 228, 0, 0.3);
 }
 
 .card:hover::before {
@@ -73,8 +73,8 @@
 .card:focus {
   outline: none;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.12),
-    0 0 0 3px var(--color-primary-40);
+    0 20px 40px rgba(0, 0, 0, 0.25),
+    0 0 0 3px rgba(200, 228, 0, 0.4);
 }
 
 /* Image container */
@@ -103,11 +103,11 @@
   filter: brightness(1);
 }
 
-/* Image placeholder */
+/* Image placeholder - Dark Glass */
 .placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #fafafa 0%, #f3f4f6 50%, #e5e7eb 100%);
+  background: linear-gradient(135deg, rgba(30, 30, 35, 1) 0%, rgba(20, 20, 25, 1) 50%, rgba(15, 15, 20, 1) 100%);
   background-size: 200% 200%;
   animation: gradientShift 8s ease infinite;
   display: flex;
@@ -124,7 +124,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, var(--color-primary-10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(200, 228, 0, 0.1) 0%, transparent 70%);
   animation: rotate 20s linear infinite;
 }
 
@@ -147,14 +147,15 @@
 .placeholderIcon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   margin: 0 auto 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -164,7 +165,7 @@
 }
 
 .placeholderText {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.5px;
@@ -176,8 +177,8 @@
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.1) 40%,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.2) 40%,
     transparent 60%
   );
   transition: opacity 400ms ease;
@@ -186,20 +187,22 @@
 .card:hover .overlay {
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.15) 40%,
-    var(--color-primary-10) 60%
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.25) 40%,
+    rgba(200, 228, 0, 0.1) 60%
   );
 }
 
-/* Info section */
+/* Info section - Transparent Glass */
 .info {
   padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   position: relative;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 100%);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 @media (min-width: 1024px) {
@@ -213,7 +216,7 @@
 .storeName {
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,8 +229,8 @@
 }
 
 .card:hover .storeName {
-  color: var(--color-primary);
-  text-shadow: 0 0 20px var(--color-primary-30);
+  color: #C8E400;
+  text-shadow: 0 0 20px rgba(200, 228, 0, 0.3);
 }
 
 @media (min-width: 1024px) {
@@ -242,7 +245,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.3;
   font-weight: 500;
   padding: 0;
@@ -259,11 +262,12 @@
   height: 14px;
   flex-shrink: 0;
   transition: all 300ms ease;
+  color: #C8E400;
 }
 
 .card:hover .locationIcon {
   transform: scale(1.2);
-  filter: drop-shadow(0 0 4px var(--color-primary-50));
+  filter: drop-shadow(0 0 4px rgba(200, 228, 0, 0.5));
 }
 
 /* Delivery options */
@@ -285,19 +289,19 @@
 
 /* CTA Button */
 .ctaButton {
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  color: #6b7280;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
   text-align: center;
   padding: 8px 14px;
   border-radius: 10px;
   font-weight: 600;
   font-size: 12px;
   transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.2px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .ctaButton::before {
@@ -307,7 +311,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 600ms ease;
 }
 
@@ -317,7 +321,7 @@
   inset: 0;
   border-radius: 10px;
   padding: 2px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: linear-gradient(135deg, #C8E400, #e7ff01);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -326,17 +330,17 @@
 }
 
 .card:hover .ctaButton {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  color: #1f2937;
+  background: linear-gradient(135deg, #C8E400 0%, #e7ff01 100%);
+  color: #111827;
   font-weight: 700;
   padding: 10px 16px;
   box-shadow:
-    0 8px 24px var(--color-primary-50),
-    0 0 40px var(--color-primary-20),
+    0 8px 24px rgba(200, 228, 0, 0.3),
+    0 0 40px rgba(200, 228, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-2px) scale(1.03);
   letter-spacing: 0.5px;
-  border: 1px solid var(--color-primary-30);
+  border: 1px solid rgba(200, 228, 0, 0.4);
 }
 
 .card:hover .ctaButton::before {
@@ -375,7 +379,7 @@
 .ratingText {
   font-size: 11px;
   font-weight: 600;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 @media (min-width: 1024px) {
@@ -384,10 +388,10 @@
   }
 }
 
-/* Matched Products (Search Results) */
+/* Matched Products (Search Results) - Dark Glass */
 .matchedProducts {
-  background: linear-gradient(135deg, var(--color-primary-10), var(--color-primary-10));
-  border: 1px solid var(--color-primary-20);
+  background: rgba(200, 228, 0, 0.1);
+  border: 1px solid rgba(200, 228, 0, 0.2);
   border-radius: 0.5rem;
   padding: 0.5rem;
   margin: 0.25rem 0;
@@ -410,7 +414,7 @@
 .matchedProductsTitle {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.025em;
   margin-bottom: 0.375rem;
@@ -446,9 +450,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.375rem 0.5rem;
-  background: white;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 0.375rem;
-  border: 1px solid var(--color-primary-10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s;
 }
 
@@ -466,15 +470,15 @@
 }
 
 .matchedProduct:hover {
-  background: var(--color-primary-10);
-  border-color: var(--color-primary-30);
+  background: rgba(200, 228, 0, 0.15);
+  border-color: rgba(200, 228, 0, 0.3);
   transform: translateX(2px);
 }
 
 .productName {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.9);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -497,7 +501,7 @@
 .productPrice {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: #C8E400;
   white-space: nowrap;
   flex-shrink: 0;
 }

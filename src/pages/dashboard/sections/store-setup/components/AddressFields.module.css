@@ -1,4 +1,6 @@
-/* AddressFields Component Styles */
+/**
+ * AddressFields - Dark Glass Design
+ */
 
 .container {
   display: flex;
@@ -18,7 +20,7 @@
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .labelIcon {
@@ -31,68 +33,73 @@
 .input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
   font-size: 1rem;
-  color: #1f2937;
-  background-color: white;
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: #C8E400;
-  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .input:hover:not(:focus) {
-  border-color: #d1d5db;
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .input::placeholder {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .inputError {
-  border-color: #ef4444;
+  border-color: #F87171;
 }
 
 .inputError:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: #F87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
 }
 
 .inputDisabled {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-size: 1rem;
-  color: #6b7280;
-  background-color: #f9fafb;
+  color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.05);
   cursor: not-allowed;
 }
 
 .select {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
   font-size: 1rem;
-  color: #1f2937;
-  background-color: white;
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .select:focus {
   outline: none;
-  border-color: #C8E400;
-  box-shadow: 0 0 0 3px rgba(200, 228, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .select:hover:not(:focus) {
-  border-color: #d1d5db;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.select option {
+  background-color: #1f2937;
+  color: #FFFFFF;
 }
 
 .row {
@@ -109,13 +116,13 @@
   display: block;
   margin-top: 0.375rem;
   font-size: 0.75rem;
-  color: #ef4444;
+  color: #F87171;
   font-weight: 500;
 }
 
 .helpText {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 0.25rem;
 }
 

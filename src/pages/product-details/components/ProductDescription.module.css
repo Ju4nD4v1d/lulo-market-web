@@ -1,16 +1,19 @@
-/* Mobile-first Product Description */
+/* Mobile-first Product Description - Dark Glass Design */
 
 .container {
   padding: 1rem;
-  background: white;
-  border-bottom: 1px solid #f3f4f6;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (min-width: 640px) {
   .container {
     padding: 1.25rem;
     border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     margin-bottom: 1rem;
   }
 }
@@ -19,14 +22,14 @@
   font-family: var(--font-heading);
   font-size: var(--font-size-h6);
   font-weight: var(--font-weight-semibold);
-  color: #111827;
+  color: #FFFFFF;
   margin: 0 0 0.75rem 0;
 }
 
 .text {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
   margin: 0;
 }

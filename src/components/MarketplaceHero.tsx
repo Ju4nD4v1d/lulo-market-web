@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, type FC } from 'react';
-import { Search, ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, Users, Truck, Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { SearchBar } from './SearchBar';
+import styles from './MarketplaceHero.module.css';
 
 interface MarketplaceHeroProps {
   searchQuery: string;
@@ -20,34 +22,31 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
     {
       title: t('hero.slides.taste.title'),
       subtitle: t('hero.slides.taste.subtitle'),
-      background: 'bg-gradient-to-br from-amber-50/60 via-orange-50/40 to-red-50/30',
-      icon: <Heart className="w-5 h-5 text-orange-600" />,
-      accent: 'from-orange-500 to-red-500',
+      icon: <Heart className={styles.badgeIcon} style={{ width: 18, height: 18 }} />,
+      iconColor: '#ea580c',
       stats: [
-        { icon: <Star className="w-4 h-4" />, text: t('hero.stats.authentic'), color: 'text-orange-600' },
-        { icon: <Users className="w-4 h-4" />, text: t('hero.stats.families'), color: 'text-red-600' }
+        { icon: <Star className={styles.statIcon} />, text: t('hero.stats.authentic'), color: '#ea580c' },
+        { icon: <Users className={styles.statIcon} />, text: t('hero.stats.families'), color: '#dc2626' }
       ]
     },
     {
       title: t('hero.slides.community.title'),
       subtitle: t('hero.slides.community.subtitle'),
-      background: 'bg-gradient-to-br from-blue-50/60 via-indigo-50/40 to-purple-50/30',
-      icon: <Users className="w-5 h-5 text-blue-600" />,
-      accent: 'from-blue-500 to-indigo-600',
+      icon: <Users className={styles.badgeIcon} style={{ width: 18, height: 18 }} />,
+      iconColor: '#2563eb',
       stats: [
-        { icon: <MapPin className="w-4 h-4" />, text: t('hero.stats.local'), color: 'text-blue-600' },
-        { icon: <Heart className="w-4 h-4" />, text: t('hero.stats.community'), color: 'text-indigo-600' }
+        { icon: <MapPin className={styles.statIcon} />, text: t('hero.stats.local'), color: '#2563eb' },
+        { icon: <Heart className={styles.statIcon} />, text: t('hero.stats.community'), color: '#4f46e5' }
       ]
     },
     {
       title: t('hero.slides.delivery.title'),
       subtitle: t('hero.slides.delivery.subtitle'),
-      background: 'bg-gradient-to-br from-emerald-50/60 via-teal-50/40 to-cyan-50/30',
-      icon: <Truck className="w-5 h-5 text-emerald-600" />,
-      accent: 'from-emerald-500 to-teal-600',
+      icon: <Truck className={styles.badgeIcon} style={{ width: 18, height: 18 }} />,
+      iconColor: '#059669',
       stats: [
-        { icon: <Clock className="w-4 h-4" />, text: t('hero.stats.fast'), color: 'text-emerald-600' },
-        { icon: <Sparkles className="w-4 h-4" />, text: t('hero.stats.fresh'), color: 'text-teal-600' }
+        { icon: <Clock className={styles.statIcon} />, text: t('hero.stats.fast'), color: '#059669' },
+        { icon: <Sparkles className={styles.statIcon} />, text: t('hero.stats.fresh'), color: '#0d9488' }
       ]
     }
   ], [t]);
@@ -76,120 +75,94 @@ export const MarketplaceHero: FC<MarketplaceHeroProps> = ({
   const currentSlideData = heroSlides[currentSlide];
 
   return (
-    <section className={`hero-background relative overflow-hidden transition-all duration-700 ${currentSlideData.background} py-3 sm:py-4 lg:py-6`}>
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
+    <div className={styles.heroWrapper}>
+      <section className={styles.hero}>
+        {/* Glass card container */}
+        <div className={styles.heroCard}>
+          <div className={styles.heroContent}>
+            {/* Text section */}
+            <div className={styles.textSection}>
+              {/* Badge */}
+              <div className={styles.badge}>
+                <span style={{ color: currentSlideData.iconColor }}>{currentSlideData.icon}</span>
+                <span className={styles.badgeText}>{t('hero.badge')}</span>
+              </div>
 
-      <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-        {/* Compact Hero Banner */}
-        <div className="flex flex-col lg:flex-row items-center gap-3 sm:gap-4 lg:gap-8 mb-3 sm:mb-4 lg:mb-5">
-          {/* Carousel Content */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-              {currentSlideData.icon}
-              <span className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wider">
-                {t('hero.badge')}
-              </span>
+              {/* Title */}
+              <h1 className={styles.title}>{currentSlideData.title}</h1>
+
+              {/* Subtitle */}
+              <p className={styles.subtitle}>{currentSlideData.subtitle}</p>
+
+              {/* Stats */}
+              <div className={styles.stats}>
+                {currentSlideData.stats.map((stat, index) => (
+                  <div key={index} className={styles.stat}>
+                    <span style={{ color: stat.color }}>{stat.icon}</span>
+                    <span className={styles.statText}>{stat.text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-2 lg:mb-3 leading-tight transition-all duration-500">
-              {currentSlideData.title}
-            </h1>
-
-            <p className="body-font text-base sm:text-lg lg:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-2 sm:mb-3 lg:mb-4 transition-all duration-500">
-              {currentSlideData.subtitle}
-            </p>
-
-            {/* Stats/Features */}
-            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 justify-center lg:justify-start mb-2 sm:mb-3 lg:mb-4">
-              {currentSlideData.stats.map((stat, index) => (
-                <div key={index} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-500">
-                  <span className={stat.color}>{stat.icon}</span>
-                  <span className="text-gray-700">{stat.text}</span>
+            {/* Search section */}
+            <div className={styles.searchSection}>
+              {/* Search stats */}
+              <div className={styles.searchStats}>
+                <div className={styles.searchStat}>
+                  <Users className={styles.searchStatIcon} style={{ color: '#3b82f6' }} />
+                  <span className={styles.searchStatText}>{t('hero.search.stores')}</span>
                 </div>
+                <div className={styles.searchStat}>
+                  <Star className={styles.searchStatIcon} style={{ color: '#f97316' }} />
+                  <span className={styles.searchStatText}>{t('hero.search.products')}</span>
+                </div>
+              </div>
+
+              {/* Search bar */}
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+              />
+            </div>
+          </div>
+
+          {/* Carousel controls */}
+          <div className={styles.carouselControls}>
+            <button
+              onClick={prevSlide}
+              className={styles.carouselButton}
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className={styles.carouselButtonIcon} />
+            </button>
+
+            <div className={styles.carouselDots}>
+              {heroSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setCurrentSlide(index);
+                    setIsAutoPlaying(false);
+                  }}
+                  className={`${styles.carouselDot} ${
+                    index === currentSlide ? styles.carouselDotActive : styles.carouselDotInactive
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
               ))}
             </div>
 
-          </div>
-
-          {/* Enhanced Search Section */}
-          <div className="w-full lg:w-[480px]">
-            {/* Search Stats */}
-            <div className="flex items-center justify-center lg:justify-end gap-3 sm:gap-4 lg:gap-6 mb-3 sm:mb-4 lg:mb-5 text-xs sm:text-sm">
-              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/80 backdrop-blur-sm px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full shadow-sm">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-                <span className="font-medium text-gray-700">{t('hero.search.stores')}</span>
-              </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/80 backdrop-blur-sm px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full shadow-sm">
-                <Star className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
-                <span className="font-medium text-gray-700">{t('hero.search.products')}</span>
-              </div>
-            </div>
-
-            {/* Enhanced Search Bar */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
-              <div className="relative">
-                <div className="absolute left-4 sm:left-5 lg:left-6 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-primary-600 transition-colors">
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <input
-                  type="text"
-                  placeholder={t('home.search.placeholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 sm:h-12 lg:h-14 pl-11 sm:pl-13 lg:pl-14 pr-4 sm:pr-5 lg:pr-6 bg-white !rounded-full text-sm sm:text-base lg:text-lg
-                           shadow-lg hover:shadow-xl focus:shadow-2xl transition-all duration-300
-                           border-2 border-transparent focus:border-primary-400/30 focus:outline-none
-                           placeholder:text-gray-400 placeholder:text-sm"
-                />
-              </div>
-            </div>
+            <button
+              onClick={nextSlide}
+              className={styles.carouselButton}
+              aria-label="Next slide"
+            >
+              <ChevronRight className={styles.carouselButtonIcon} />
+            </button>
           </div>
         </div>
-
-        {/* Carousel Controls */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 lg:gap-4">
-          <button
-            onClick={prevSlide}
-            className="carousel-arrow focus-ring p-1.5 sm:p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-
-          {/* Slide Indicators */}
-          <div className="flex gap-1.5 sm:gap-2">
-            {heroSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setCurrentSlide(index);
-                  setIsAutoPlaying(false);
-                }}
-                className={`carousel-dot ${
-                  index === currentSlide
-                    ? `carousel-dot-active bg-gradient-to-r ${currentSlideData.accent}`
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={nextSlide}
-            className="carousel-arrow focus-ring p-1.5 sm:p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/60 text-gray-600 hover:bg-white hover:shadow-md"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };

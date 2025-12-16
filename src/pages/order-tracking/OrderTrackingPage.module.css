@@ -1,6 +1,8 @@
+/* Order Tracking Page - Dark Glass Design */
+
 .page {
   min-height: 100vh;
-  background: #f9fafb;
+  /* Background handled by VibrantBackground component */
 }
 
 .container {
@@ -18,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
   background: none;
   border: none;
   cursor: pointer;
@@ -29,7 +31,7 @@
 }
 
 .backLink:hover {
-  color: #111827;
+  color: #FFFFFF;
 }
 
 .backIcon {
@@ -40,12 +42,12 @@
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: #FFFFFF;
   margin-bottom: 0.25rem;
 }
 
 .subtitle {
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Grid Layout */
@@ -76,7 +78,6 @@
 /* Loading State */
 .loadingContainer {
   min-height: 100vh;
-  background: #f9fafb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,8 +90,8 @@
 .spinner {
   width: 3rem;
   height: 3rem;
-  border: 2px solid #e5e7eb;
-  border-top-color: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #C8E400;
   border-radius: 9999px;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -103,13 +104,12 @@
 }
 
 .loadingText {
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Error State */
 .errorContainer {
   min-height: 100vh;
-  background: #f9fafb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,24 +125,24 @@
 .errorIcon {
   width: 4rem;
   height: 4rem;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.4);
   margin: 0 auto 1rem;
 }
 
 .errorTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #FFFFFF;
   margin-bottom: 0.5rem;
 }
 
 .errorMessage {
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 1.5rem;
 }
 
 .backButton {
-  background: var(--color-primary);
+  background: #C8E400;
   color: #111827;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
@@ -150,10 +150,11 @@
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 600;
+  box-shadow: 0 4px 14px -3px rgba(200, 228, 0, 0.4);
 }
 
 .backButton:hover {
-  background: var(--color-primary-hover);
+  background: #e7ff01;
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px -3px rgba(200, 228, 0, 0.5);
 }

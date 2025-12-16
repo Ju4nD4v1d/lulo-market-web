@@ -1,10 +1,10 @@
 import type * as React from 'react';
 /**
  * PasswordSection - Password change fields
+ * Uses the shared PasswordField component from login-page
  */
 
-
-import { Eye, EyeOff } from 'lucide-react';
+import { PasswordField } from '../../login-page/components/PasswordField';
 
 interface PasswordSectionProps {
   currentPassword: string;
@@ -31,90 +31,52 @@ export const PasswordSection: React.FC<PasswordSectionProps> = ({
   onToggleShow,
   t
 }) => {
-  const renderPasswordField = (
-    id: string,
-    label: string,
-    value: string,
-    field: string,
-    showPassword: boolean,
-    toggleField: 'current' | 'new' | 'confirm',
-    placeholder: string,
-    autoComplete: string
-  ) => (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          id={id}
-          type={showPassword ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(field, e.target.value)}
-          className={`w-full pr-10 px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base ${
-            errors[field] ? 'border-red-500' : 'border-gray-300'
-          }`}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-        />
-        <button
-          type="button"
-          onClick={() => onToggleShow(toggleField)}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2"
-        >
-          {showPassword ? (
-            <EyeOff className="w-4 h-4 text-gray-400" />
-          ) : (
-            <Eye className="w-4 h-4 text-gray-400" />
-          )}
-        </button>
-      </div>
-      {errors[field] && (
-        <p className="mt-1 text-sm text-red-600">{errors[field]}</p>
-      )}
-    </div>
-  );
-
   return (
-    <div className="border-t border-gray-200 pt-6 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">
+    <div className="border-t border-white/10 pt-6 space-y-4">
+      <h3 className="text-lg font-semibold text-white">
         {t('profile.changePassword')}
       </h3>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-white/60">
         {t('profile.changePasswordDescription')}
       </p>
 
-      {renderPasswordField(
-        'currentPassword',
-        t('profile.currentPassword'),
-        currentPassword,
-        'currentPassword',
-        showCurrentPassword,
-        'current',
-        t('profile.currentPasswordPlaceholder'),
-        'current-password'
+      <PasswordField
+        id="currentPassword"
+        label={t('profile.currentPassword')}
+        value={currentPassword}
+        onChange={(value) => onChange('currentPassword', value)}
+        placeholder={t('profile.currentPasswordPlaceholder')}
+        showPassword={showCurrentPassword}
+        onToggleShow={() => onToggleShow('current')}
+      />
+      {errors.currentPassword && (
+        <p className="mt-1 text-sm text-red-400">{errors.currentPassword}</p>
       )}
 
-      {renderPasswordField(
-        'newPassword',
-        t('profile.newPassword'),
-        newPassword,
-        'newPassword',
-        showNewPassword,
-        'new',
-        t('profile.newPasswordPlaceholder'),
-        'new-password'
+      <PasswordField
+        id="newPassword"
+        label={t('profile.newPassword')}
+        value={newPassword}
+        onChange={(value) => onChange('newPassword', value)}
+        placeholder={t('profile.newPasswordPlaceholder')}
+        showPassword={showNewPassword}
+        onToggleShow={() => onToggleShow('new')}
+      />
+      {errors.newPassword && (
+        <p className="mt-1 text-sm text-red-400">{errors.newPassword}</p>
       )}
 
-      {renderPasswordField(
-        'confirmPassword',
-        t('profile.confirmPassword'),
-        confirmPassword,
-        'confirmPassword',
-        showConfirmPassword,
-        'confirm',
-        t('profile.confirmPasswordPlaceholder'),
-        'new-password'
+      <PasswordField
+        id="confirmPassword"
+        label={t('profile.confirmPassword')}
+        value={confirmPassword}
+        onChange={(value) => onChange('confirmPassword', value)}
+        placeholder={t('profile.confirmPasswordPlaceholder')}
+        showPassword={showConfirmPassword}
+        onToggleShow={() => onToggleShow('confirm')}
+      />
+      {errors.confirmPassword && (
+        <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>
       )}
     </div>
   );

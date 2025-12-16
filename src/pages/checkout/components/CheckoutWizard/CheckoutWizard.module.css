@@ -1,17 +1,20 @@
+/* Checkout Wizard - Dark Glass Design */
+
 .container {
   height: 100vh;
   overflow-y: auto;
-  background-color: rgb(249 250 251);
+  /* Background handled by VibrantBackground component */
 }
 
 .header {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .headerContent {
@@ -49,13 +52,14 @@
   padding: 0.5rem;
   border-radius: 0.5rem;
   transition: all 0.3s;
-  background-color: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
 }
 
 .backButton:hover {
-  background-color: rgb(243 244 246);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: scale(1.05);
 }
 
@@ -69,12 +73,12 @@
 .backIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: rgb(75 85 99);
+  color: rgba(255, 255, 255, 0.8);
   transition: color 0.3s;
 }
 
 .backButton:hover .backIcon {
-  color: var(--primary-400, #C8E400);
+  color: #C8E400;
 }
 
 @media (min-width: 768px) {
@@ -91,7 +95,7 @@
 .title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: rgb(17 24 39);
+  color: #FFFFFF;
   letter-spacing: -0.025em;
 }
 
@@ -112,12 +116,12 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
-  background-color: rgb(209 213 219);
+  background-color: rgba(255, 255, 255, 0.3);
   transition: background-color 0.3s;
 }
 
 .stepDotActive {
-  background-color: var(--primary-400, #C8E400);
+  background-color: #C8E400;
 }
 
 .content {

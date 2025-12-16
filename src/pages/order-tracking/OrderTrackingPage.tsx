@@ -18,6 +18,7 @@ import {
   CancelOrderSection,
 } from './components';
 import { useCustomerOrderCancellation } from '../../hooks/mutations/useCustomerOrderCancellation';
+import { VibrantBackground } from '../../components/VibrantBackground/VibrantBackground';
 import styles from './OrderTrackingPage.module.css';
 
 export const OrderTrackingPage: React.FC = () => {
@@ -82,83 +83,89 @@ export const OrderTrackingPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingContent}>
-          <div className={styles.spinner}></div>
-          <p className={styles.loadingText}>{t('order.loading')}</p>
+      <VibrantBackground>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.spinner}></div>
+            <p className={styles.loadingText}>{t('order.loading')}</p>
+          </div>
         </div>
-      </div>
+      </VibrantBackground>
     );
   }
 
   if (error || !displayOrder) {
     return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorContent}>
-          <Package className={styles.errorIcon} />
-          <h2 className={styles.errorTitle}>{t('order.notFound')}</h2>
-          <p className={styles.errorMessage}>
-            {error || t('order.notFoundMessage')}
-          </p>
-          <button onClick={() => navigate('/')} className={styles.backButton}>
-            {t('order.goBack')}
-          </button>
+      <VibrantBackground>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <Package className={styles.errorIcon} />
+            <h2 className={styles.errorTitle}>{t('order.notFound')}</h2>
+            <p className={styles.errorMessage}>
+              {error || t('order.notFoundMessage')}
+            </p>
+            <button onClick={() => navigate('/')} className={styles.backButton}>
+              {t('order.goBack')}
+            </button>
+          </div>
         </div>
-      </div>
+      </VibrantBackground>
     );
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <button onClick={() => navigate('/')} className={styles.backLink}>
-            <ArrowLeft className={styles.backIcon} />
-            {t('order.back')}
-          </button>
-          <h1 className={styles.title}>{t('order.id')}{displayOrder.id.slice(-8)}</h1>
-          <p className={styles.subtitle}>{t('order.placedOn')} {formatOrderDate(displayOrder.createdAt)}</p>
-        </div>
-
-        <div className={styles.grid}>
-          {/* Order Details - Left Column */}
-          <div className={styles.leftColumn}>
-            <OrderStatus order={displayOrder} />
-            {displayOrder.paymentStatus && (
-              <PaymentStatusBadge paymentStatus={displayOrder.paymentStatus} />
-            )}
-            <OrderProgressTimeline order={displayOrder} />
-            <OrderItems order={displayOrder} t={t} />
-            <DeliveryInfo order={displayOrder} t={t} />
-            <StoreContactCard order={displayOrder} />
+    <VibrantBackground>
+      <div className={styles.page}>
+        <div className={styles.container}>
+          {/* Header */}
+          <div className={styles.header}>
+            <button onClick={() => navigate('/')} className={styles.backLink}>
+              <ArrowLeft className={styles.backIcon} />
+              {t('order.back')}
+            </button>
+            <h1 className={styles.title}>{t('order.id')}{displayOrder.id.slice(-8)}</h1>
+            <p className={styles.subtitle}>{t('order.placedOn')} {formatOrderDate(displayOrder.createdAt)}</p>
           </div>
 
-          {/* Order Summary - Right Column */}
-          <div className={styles.rightColumn}>
-            <OrderSummary order={displayOrder} />
-            <ReceiptSection
-              order={displayOrder}
-              receiptLoading={receiptLoading}
-              isReceiptExpired={isReceiptExpired}
-              error={receiptError}
-              onGenerateReceipt={generateReceipt}
-              onDownloadReceipt={downloadReceipt}
-              t={t}
-            />
-            <CancelOrderSection
-              order={displayOrder}
-              onCancel={() => cancelOrder({
-                orderId: displayOrder.id,
-                userId: currentUser?.uid,
-                userEmail: currentUser?.email || ''
-              })}
-              onRefresh={refetch}
-              isLoading={isCancelling}
-            />
+          <div className={styles.grid}>
+            {/* Order Details - Left Column */}
+            <div className={styles.leftColumn}>
+              <OrderStatus order={displayOrder} />
+              {displayOrder.paymentStatus && (
+                <PaymentStatusBadge paymentStatus={displayOrder.paymentStatus} />
+              )}
+              <OrderProgressTimeline order={displayOrder} />
+              <OrderItems order={displayOrder} t={t} />
+              <DeliveryInfo order={displayOrder} t={t} />
+              <StoreContactCard order={displayOrder} />
+            </div>
+
+            {/* Order Summary - Right Column */}
+            <div className={styles.rightColumn}>
+              <OrderSummary order={displayOrder} />
+              <ReceiptSection
+                order={displayOrder}
+                receiptLoading={receiptLoading}
+                isReceiptExpired={isReceiptExpired}
+                error={receiptError}
+                onGenerateReceipt={generateReceipt}
+                onDownloadReceipt={downloadReceipt}
+                t={t}
+              />
+              <CancelOrderSection
+                order={displayOrder}
+                onCancel={() => cancelOrder({
+                  orderId: displayOrder.id,
+                  userId: currentUser?.uid,
+                  userEmail: currentUser?.email || ''
+                })}
+                onRefresh={refetch}
+                isLoading={isCancelling}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </VibrantBackground>
   );
 };

@@ -1,5 +1,5 @@
 /**
- * MenuSection - Mobile-First Styles
+ * MenuSection - Dark Glass Design
  *
  * Layout:
  * - Mobile: Horizontal scroll category pills, 1-2 column grid
@@ -12,11 +12,13 @@
    ========================================================================== */
 
 .container {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 1px 3px var(--color-shadow);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 @media (min-width: 768px) {
@@ -57,14 +59,14 @@
 .headerIcon {
   width: 1rem;
   height: 1rem;
-  color: var(--color-primary-dark);
+  color: #C8E400;
 }
 
 .title {
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -115,7 +117,7 @@
 }
 
 /* ==========================================================================
-   Category Pills (match DeliverySchedule exactly)
+   Category Pills - Glass Style
    ========================================================================== */
 
 .categoryPill {
@@ -159,24 +161,31 @@
   }
 }
 
-/* Default state */
+/* Default state - Glass */
 .categoryPillDefault {
-  background: var(--color-background-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .categoryPillDefault:hover {
-  background: var(--color-gray-100);
-  border-color: var(--color-gray-300);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
 }
 
-/* Active state */
+/* Active state - Brand accent */
 .categoryPillActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-primary-darkest);
-  box-shadow: 0 2px 8px var(--color-primary-shadow);
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.25), rgba(200, 228, 0, 0.15));
+  border-color: rgba(200, 228, 0, 0.5);
+  color: #C8E400;
+  box-shadow: 0 2px 12px rgba(200, 228, 0, 0.2);
+}
+
+.categoryPillActive .categoryPillIcon {
+  color: #C8E400;
 }
 
 /* ==========================================================================
@@ -238,19 +247,21 @@
 }
 
 /* ==========================================================================
-   Loading Skeleton
+   Loading Skeleton - Glass Style
    ========================================================================== */
 
 .skeletonCard {
-  background: var(--color-background);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 0.75rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .skeletonImage {
   aspect-ratio: 1 / 1;
-  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -261,7 +272,7 @@
 
 .skeletonLine {
   height: 0.75rem;
-  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 0.25rem;
@@ -288,7 +299,7 @@
 }
 
 /* ==========================================================================
-   Empty State
+   Empty State - Glass Style
    ========================================================================== */
 
 .emptyState {
@@ -305,7 +316,7 @@
 .emptyStateIcon {
   width: 3rem;
   height: 3rem;
-  color: var(--color-gray-400);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0 auto 1rem;
 }
 
@@ -320,7 +331,7 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0 0 0.5rem;
 }
 
@@ -333,7 +344,7 @@
 .emptyStateText {
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0 0 1rem;
 }
 
@@ -342,9 +353,9 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem 1rem;
-  background: var(--color-primary);
-  color: var(--color-text-primary);
-  border: none;
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.2), rgba(200, 228, 0, 0.1));
+  border: 1px solid rgba(200, 228, 0, 0.4);
+  color: #C8E400;
   border-radius: 9999px;
   font-family: var(--font-body);
   font-size: var(--font-size-body-small);
@@ -354,7 +365,8 @@
 }
 
 .clearFiltersButton:hover {
-  background: var(--color-primary-dark);
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.3), rgba(200, 228, 0, 0.2));
+  border-color: rgba(200, 228, 0, 0.6);
 }
 
 .clearFiltersIcon {

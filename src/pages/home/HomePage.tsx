@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StoreData } from '../../types';
 import { Product } from '../../types';
+import { VibrantBackground } from '../../components/VibrantBackground';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
-import { ChristmasBanner } from '../../components/ChristmasBanner';
 import { HomeHeader } from './components/HomeHeader';
 import { HowItWorks } from './components/HowItWorks';
 import { HorizontalStoreRow } from './components/HorizontalStoreRow';
@@ -132,7 +132,7 @@ export const HomePage = () => {
   const isLoading = loading;
 
   return (
-    <div className={styles.container}>
+    <VibrantBackground overlay="normal" showGrain={true}>
       {/* Header */}
       <HomeHeader
         isOffline={isOffline}
@@ -153,9 +153,6 @@ export const HomePage = () => {
         }}
         t={t}
       />
-
-      {/* Christmas Banner */}
-      <ChristmasBanner />
 
       {/* Hero Section */}
       <MarketplaceHero
@@ -193,6 +190,6 @@ export const HomePage = () => {
 
       {/* Footer */}
       <Footer />
-    </div>
+    </VibrantBackground>
   );
 };

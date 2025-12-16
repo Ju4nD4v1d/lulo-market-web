@@ -52,13 +52,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'draft':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'outOfStock':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-500/20 text-red-400 border-red-500/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-white/10 text-white/80 border-white/20';
     }
   };
 
@@ -103,23 +103,23 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="bg-white/5 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={onBack}
-              className="btn-ghost flex items-center"
+              className="flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 mr-2" />
+              <ArrowLeft className="w-5 h-5" />
               {t('products.back')}
             </button>
             <button
               onClick={onEdit}
-              className="btn-primary inline-flex items-center gap-2 font-semibold"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E400] hover:bg-[#e7ff01] text-gray-900 font-semibold rounded-lg transition-all"
             >
-              <Edit className="w-5 h-5 mr-2" />
+              <Edit className="w-5 h-5" />
               {t('products.edit')}
             </button>
           </div>
@@ -133,14 +133,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
           <div className="space-y-4">
             {product.images && product.images.length > 0 ? (
               <div className="space-y-4">
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/5 border border-white/10">
                   <img
                     src={product.images[selectedImageIndex]}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
                   {product.images.length > 1 && (
-                    <div className="absolute bottom-4 right-4 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
+                    <div className="absolute bottom-4 right-4 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
                       {selectedImageIndex + 1} / {product.images.length}
                     </div>
                   )}
@@ -153,7 +153,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                         onClick={() => setSelectedImageIndex(index)}
                         className={`
                           relative aspect-square rounded-lg overflow-hidden border-2 transition-all
-                          ${selectedImageIndex === index ? 'border-primary-400 ring-2 ring-primary-400/20' : 'border-gray-200 hover:border-gray-300'}
+                          ${selectedImageIndex === index ? 'border-[#C8E400] ring-2 ring-[#C8E400]/20' : 'border-white/20 hover:border-white/40'}
                         `}
                       >
                         <img
@@ -167,10 +167,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 )}
               </div>
             ) : (
-              <div className="aspect-square bg-gray-100 rounded-2xl flex items-center justify-center">
+              <div className="aspect-square bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <span className="text-gray-500 text-lg">{t('products.noImage')}</span>
+                  <Package className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                  <span className="text-white/50 text-lg">{t('products.noImage')}</span>
                 </div>
               </div>
             )}
@@ -179,55 +179,55 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
           {/* Product Info */}
           <div className="space-y-6">
             {/* Product Header */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                  <h1 className="text-3xl font-bold text-white mb-3">{product.name}</h1>
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(product.status)}`}>
                       {getStatusText(product.status)}
                     </span>
-                    <div className="flex items-center gap-1 px-3 py-1 bg-primary-400/10 rounded-full">
+                    <div className="flex items-center gap-1 px-3 py-1 bg-[#C8E400]/15 rounded-full">
                       {getCategoryIcon(product.category)}
-                      <span className="text-sm font-medium text-primary-700">
+                      <span className="text-sm font-medium text-[#C8E400]">
                         {getCategoryText(product.category)}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {product.description && (
-                <div className="pt-4 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('products.description')}</h3>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{product.description}</p>
+                <div className="pt-4 border-t border-white/10">
+                  <h3 className="text-lg font-semibold text-white mb-3">{t('products.description')}</h3>
+                  <p className="text-white/70 leading-relaxed whitespace-pre-wrap">{product.description}</p>
                 </div>
               )}
             </div>
 
             {/* Pricing & Stock */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-primary-400" />
+            <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[#C8E400]" />
                 {t('products.pricingStock')}
               </h3>
 
               <div className="space-y-4">
                 {/* Base Price */}
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">{t('products.basePrice')}</span>
-                  <span className="text-2xl font-bold text-primary-400">
+                  <span className="text-white/70">{t('products.basePrice')}</span>
+                  <span className="text-2xl font-bold text-[#C8E400]">
                     ${product.price.toFixed(2)}
                   </span>
                 </div>
 
                 {/* Tax Breakdown - Only show if there are taxes */}
                 {((product.pstPercentage ?? 0) > 0 || (product.gstPercentage ?? 0) > 0) && (
-                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                  <div className="space-y-2 pt-2 border-t border-white/10">
                     {(product.pstPercentage ?? 0) > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">{t('products.pst')} ({product.pstPercentage}%)</span>
-                        <span className="text-gray-700">
+                        <span className="text-white/50">{t('products.pst')} ({product.pstPercentage}%)</span>
+                        <span className="text-white/70">
                           +${((product.price * (product.pstPercentage ?? 0)) / 100).toFixed(2)}
                         </span>
                       </div>
@@ -235,16 +235,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
                     {(product.gstPercentage ?? 0) > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">{t('products.gst')} ({product.gstPercentage}%)</span>
-                        <span className="text-gray-700">
+                        <span className="text-white/50">{t('products.gst')} ({product.gstPercentage}%)</span>
+                        <span className="text-white/70">
                           +${((product.price * (product.gstPercentage ?? 0)) / 100).toFixed(2)}
                         </span>
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                      <span className="text-gray-800 font-medium">{t('products.totalWithTax')}</span>
-                      <span className="text-xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                      <span className="text-white/90 font-medium">{t('products.totalWithTax')}</span>
+                      <span className="text-xl font-bold text-white">
                         ${totalPrice.toFixed(2)}
                       </span>
                     </div>
@@ -252,23 +252,23 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 )}
 
                 {/* Stock */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
                   <div className="flex items-center gap-2">
-                    <Boxes className="w-5 h-5 text-primary-400" />
-                    <span className="text-gray-600">{t('products.stock')}</span>
+                    <Boxes className="w-5 h-5 text-[#C8E400]" />
+                    <span className="text-white/70">{t('products.stock')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold text-gray-900">
+                    <span className="text-lg font-semibold text-white">
                       {product.stock} {t('products.units')}
                     </span>
                     {isLowStock && product.stock > 0 && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs">
+                      <div className="flex items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
                         <AlertCircle className="w-3 h-3" />
                         {t('products.lowStock')}
                       </div>
                     )}
                     {product.stock === 0 && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
+                      <div className="flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs">
                         <AlertCircle className="w-3 h-3" />
                         {t('products.outOfStock')}
                       </div>

@@ -11,10 +11,10 @@ interface StoreHeroSectionProps {
  * StoreHeroSection - Displays store image and key information
  *
  * Layout:
+ * - Full-width section with background.jpg
+ * - Glass card container with store info
  * - Mobile: Stacked (image on top, content below)
  * - Desktop (1024px+): Side-by-side (image left, content right)
- *
- * Now uses effective hours (intersection of store hours + driver availability)
  */
 export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
   const { t } = useLanguage();
@@ -22,7 +22,8 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
   const imageUrl = store.storeImage || store.imageUrl;
 
   return (
-    <div className={styles.container}>
+    <section className={styles.section}>
+      <div className={styles.container}>
       {/* Image Section */}
       <div className={styles.imageWrapper}>
         {imageUrl ? (
@@ -134,5 +135,6 @@ export const StoreHeroSection = ({ store }: StoreHeroSectionProps) => {
         )}
       </div>
     </div>
+    </section>
   );
 };

@@ -1,8 +1,14 @@
+/**
+ * StoreProductCard - Dark Glass Design
+ */
+
 .card {
-  background: var(--color-background);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px var(--color-shadow);
-  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -13,8 +19,9 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--color-shadow);
-  border-color: var(--color-primary);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border-color: rgba(200, 228, 0, 0.4);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .card:active {
@@ -30,7 +37,7 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   flex-shrink: 0;
-  background: var(--color-gray-100);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .image {
@@ -47,12 +54,12 @@
 .noImage {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 50%, var(--color-gray-200) 100%);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--color-gray-400);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .noImageIcon {
@@ -81,22 +88,24 @@
 
 .statusBadge {
   left: 0.75rem;
-  background: var(--color-error);
-  color: var(--color-background);
+  background: rgba(239, 68, 68, 0.9);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
 }
 
 .draftBadge {
   left: 0.75rem;
-  background: var(--color-gray-500);
-  color: var(--color-background);
+  background: rgba(107, 114, 128, 0.9);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
 }
 
 .popularBadge {
   right: 0.75rem;
-  background: var(--color-primary);
-  color: var(--color-text-primary);
+  background: linear-gradient(135deg, rgba(200, 228, 0, 0.9), rgba(180, 205, 0, 0.9));
+  color: #1a1a2e;
   font-weight: 700;
-  box-shadow: 0 2px 4px var(--color-shadow);
+  box-shadow: 0 2px 8px rgba(200, 228, 0, 0.3);
 }
 
 .lowStockBadge {
@@ -110,9 +119,10 @@
   border-radius: 0.25rem;
   font-size: 0.625rem;
   font-weight: 600;
-  background: var(--color-warning);
-  color: var(--color-warning-dark);
-  box-shadow: 0 2px 4px var(--color-shadow);
+  background: rgba(250, 204, 21, 0.9);
+  backdrop-filter: blur(4px);
+  color: #78350f;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 640px) {
@@ -143,7 +153,7 @@
 .name {
   font-family: var(--font-body);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
+  color: #FFFFFF;
   font-size: var(--font-size-body-small);
   margin: 0 0 0.25rem 0;
   display: -webkit-box;
@@ -161,7 +171,7 @@
 
 .description {
   font-family: var(--font-body);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.6);
   font-size: var(--font-size-caption);
   margin: 0 0 0.5rem 0;
   display: -webkit-box;
@@ -178,7 +188,7 @@
   gap: 0.375rem;
   font-family: var(--font-body);
   font-size: var(--font-size-caption);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
   margin-bottom: 0.5rem;
 }
 
@@ -198,8 +208,8 @@
 .starIcon {
   width: 0.75rem;
   height: 0.75rem;
-  fill: var(--color-warning);
-  color: var(--color-warning);
+  fill: #FACC15;
+  color: #FACC15;
 }
 
 .icon {
@@ -209,10 +219,11 @@
 
 .rating {
   font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .reviewCount {
-  color: var(--color-gray-400);
+  color: rgba(255, 255, 255, 0.4);
   font-size: var(--font-size-caption);
 }
 
@@ -250,8 +261,9 @@
 .allergenTag {
   font-family: var(--font-body);
   font-size: var(--font-size-caption);
-  background: var(--color-warning-light);
-  color: var(--color-warning-dark);
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  color: #FACC15;
   padding: 0.125rem 0.375rem;
   border-radius: 9999px;
   flex-shrink: 0;
@@ -261,7 +273,7 @@
 .allergenMore {
   font-family: var(--font-body);
   font-size: var(--font-size-caption);
-  color: var(--color-gray-400);
+  color: rgba(255, 255, 255, 0.4);
   padding: 0.125rem 0.375rem;
   flex-shrink: 0;
   font-weight: var(--font-weight-medium);
@@ -274,7 +286,7 @@
   margin-top: auto;
   gap: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .priceSection {
@@ -288,7 +300,7 @@
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary-dark);
+  color: #C8E400;
   line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -304,7 +316,7 @@
 .stock {
   font-family: var(--font-body);
   font-size: var(--font-size-caption);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
   font-weight: var(--font-weight-medium);
   line-height: 1.25;
   overflow: hidden;
@@ -330,11 +342,12 @@
 
 .unavailable {
   font-family: var(--font-body);
-  color: var(--color-error);
+  color: #f87171;
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   flex-shrink: 0;
-  background: var(--color-error-light);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;
 }
@@ -365,5 +378,5 @@
 }
 
 .dotActive {
-  background: var(--color-primary);
+  background: #C8E400;
 }

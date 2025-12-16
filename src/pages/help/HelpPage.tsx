@@ -8,6 +8,7 @@
  * - Troubleshooting guides
  * - Contact support
  * - Fully responsive and multilingual
+ * - Vibrant background with dark glass styling
  */
 
 import type * as React from 'react';
@@ -26,6 +27,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { VibrantBackground } from '../../components/VibrantBackground';
 import styles from './HelpPage.module.css';
 
 type Category = 'all' | 'orders' | 'stores' | 'payments' | 'refunds' | 'account';
@@ -137,25 +139,23 @@ export const HelpPage: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <button
-            className={styles.backButton}
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft size={18} />
-            {t('common.back')}
-          </button>
-          <h1 className={styles.title}>
-            {t('help.title')}
-          </h1>
-          <p className={styles.subtitle}>
-            {t('help.subtitle')}
-          </p>
+    <VibrantBackground overlay="heavy" showGrain={true}>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
+            <a href="/" className={styles.backButton}>
+              <ArrowLeft size={18} />
+              {t('common.back')}
+            </a>
+            <h1 className={styles.title}>
+              {t('help.title')}
+            </h1>
+            <p className={styles.subtitle}>
+              {t('help.subtitle')}
+            </p>
+          </div>
         </div>
-      </div>
 
       {/* Content */}
       <div className={styles.content}>
@@ -164,6 +164,7 @@ export const HelpPage: React.FC = () => {
           <Search className={styles.searchIcon} size={20} />
           <input
             type="text"
+            data-glass-search
             className={styles.searchInput}
             placeholder={t('help.searchPlaceholder')}
             value={searchQuery}
@@ -327,5 +328,6 @@ export const HelpPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </VibrantBackground>
   );
 };

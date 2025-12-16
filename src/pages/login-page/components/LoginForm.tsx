@@ -32,22 +32,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-1">
           {t('auth.email')}
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Mail className="h-5 w-5 text-gray-400" />
+            <Mail className="h-5 w-5 text-white/50" />
           </div>
           <input
             id="email"
             type="email"
+            data-auth-input
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
               clearMessages();
             }}
-            className="w-full pl-10 border border-gray-300 rounded-lg"
+            className="w-full pl-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-white/40 focus:ring-1 focus:ring-white/20"
             placeholder={t('auth.emailPlaceholder')}
           />
         </div>
@@ -71,13 +72,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <input
             id="remember-me"
             type="checkbox"
-            className="h-4 w-4 border-gray-300 rounded text-primary-400 focus:ring-primary-400"
+            className="h-4 w-4 border-white/30 rounded text-primary-400 focus:ring-primary-400 bg-white/10"
           />
-          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+          <label htmlFor="remember-me" className="ml-2 block text-sm text-white/80">
             {t('auth.rememberMe')}
           </label>
         </div>
-        <Link to="/forgot-password" className="text-sm font-medium text-gray-700 hover:text-gray-900 underline">
+        <Link to="/forgot-password" className="text-sm font-medium text-white/80 hover:text-white underline">
           {t('auth.forgotPassword')}
         </Link>
       </div>
