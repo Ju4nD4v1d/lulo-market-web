@@ -248,7 +248,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
         <div className={styles.footer}>
           <span className={styles.footerText}>
             Service areas updated December 2024
-          </div>
+          </span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg transition-colors font-medium"
