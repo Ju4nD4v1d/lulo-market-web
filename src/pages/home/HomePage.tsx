@@ -7,7 +7,6 @@ import { Footer } from '../../components/Footer';
 import { ChristmasBanner } from '../../components/ChristmasBanner';
 import { HomeHeader } from './components/HomeHeader';
 import { HowItWorks } from './components/HowItWorks';
-import { OurStory } from './components/OurStory';
 import { HorizontalStoreRow } from './components/HorizontalStoreRow';
 import { HorizontalProductRow } from './components/HorizontalProductRow';
 import { EmptyStateSection } from './components/EmptyStateSection';
@@ -190,9 +189,6 @@ export const HomePage = () => {
 
         {/* How It Works Section */}
         <HowItWorks t={t} />
-
-        {/* Our Story Section */}
-        <OurStory t={t} />
       </main>
 
       {/* Footer */}

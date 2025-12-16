@@ -120,8 +120,8 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="bg-primary-100 p-2 rounded-lg">
-              <Truck className="w-6 h-6 text-primary-600" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--brand-accent-subtle)' }}>
+              <Truck className="w-6 h-6" style={{ color: 'var(--brand-accent)' }} />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
@@ -195,13 +195,16 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
           {serviceAreas.map((area) => (
             <div
               key={area.name}
-              className="bg-primary-50 rounded-lg p-4 text-center border border-primary-200 hover:bg-primary-100 transition-colors"
+              className="rounded-lg p-4 text-center border transition-colors"
+              style={{
+                backgroundColor: 'var(--brand-accent-subtle)',
+                borderColor: 'var(--brand-accent-border)'
+              }}
             >
               <div className="flex items-center justify-center mb-2">
-                <MapPin className="w-5 h-5 text-primary-600" />
+                <MapPin className="w-5 h-5" style={{ color: 'var(--brand-accent)' }} />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{area.name}</h3>
-              <p className="text-xs text-gray-600">{area.population}</p>
+              <h3 className="font-semibold text-gray-900">{area.name}</h3>
               <div className="mt-2 inline-flex items-center px-2 py-1 bg-green-100 rounded-full">
                 <span className="text-xs font-medium text-green-800">
                   ✓ Active
@@ -214,21 +217,21 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
         {/* Information Text */}
         <div className="bg-gray-50 rounded-lg p-6 text-center">
           <div className="flex items-center justify-center mb-3">
-            <Truck className="w-6 h-6 text-primary-600 mr-2" />
+            <Truck className="w-6 h-6 mr-2" style={{ color: 'var(--brand-accent)' }} />
             <h3 className="text-lg font-semibold text-gray-900">
               Current Service Coverage
             </h3>
           </div>
           <p className="text-gray-700 leading-relaxed mb-4">
-            We currently deliver to <span className="font-semibold text-primary-600">Vancouver, Burnaby, Langley, Surrey, and Coquitlam</span>. 
+            We currently deliver to <span className="font-semibold" style={{ color: 'var(--brand-accent-hover)' }}>Vancouver, Burnaby, Langley, Surrey, and Coquitlam</span>.
             Our delivery network covers over <span className="font-semibold">1.8 million residents</span> across Greater Vancouver.
           </p>
-          <div className="bg-primary-100 rounded-lg p-4 border border-primary-200">
-            <p className="text-primary-800 font-medium mb-2">
+          <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--brand-accent-subtle)', borderColor: 'var(--brand-accent-border)' }}>
+            <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
               🚀 Expanding Soon!
             </p>
-            <p className="text-primary-700 text-sm">
-              We're working to include Richmond, North Vancouver, West Vancouver, and New Westminster. 
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              We're working to include Richmond, North Vancouver, West Vancouver, and New Westminster.
               Stay tuned for updates!
             </p>
           </div>
@@ -241,7 +244,11 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+            className="px-4 py-2 rounded-lg transition-colors font-medium"
+            style={{
+              backgroundColor: 'var(--brand-accent)',
+              color: 'var(--brand-cta-text)'
+            }}
           >
             Got it!
           </button>

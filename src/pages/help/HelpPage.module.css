@@ -7,7 +7,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-accent-hover) 100%);
   padding: 3rem 1.5rem;
   text-align: center;
   position: relative;
@@ -101,8 +101,8 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-10);
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 3px var(--brand-accent-subtle);
 }
 
 .searchIcon {
@@ -153,16 +153,16 @@
 }
 
 .tab:hover {
-  border-color: var(--color-primary);
+  border-color: var(--brand-accent);
   background: #fefce8;
   color: #374151;
 }
 
 .tab.active {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-  border-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-accent-hover));
+  border-color: var(--brand-accent);
   color: #1f2937;
-  box-shadow: 0 4px 12px var(--color-primary-30);
+  box-shadow: 0 4px 12px var(--brand-accent-border);
 }
 
 .section {
@@ -188,7 +188,7 @@
 .sectionIcon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-accent-hover));
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -210,8 +210,8 @@
 }
 
 .faqItem:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 2px 8px var(--color-primary-10);
+  border-color: var(--brand-accent);
+  box-shadow: 0 2px 8px var(--brand-accent-subtle);
 }
 
 .faqQuestion {
@@ -277,7 +277,7 @@
 }
 
 .troubleshootingItem {
-  border-left: 4px solid var(--color-primary);
+  border-left: 4px solid var(--brand-accent);
   padding-left: 1.5rem;
 }
 
@@ -292,7 +292,7 @@
 }
 
 .troubleshootingBadge {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-accent-hover));
   color: #1f2937;
   padding: 0.25rem 0.75rem;
   border-radius: 6px;
@@ -346,8 +346,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-  color: #1f2937;
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-accent-hover));
+  color: var(--brand-cta-text);
   padding: 0.75rem 1.5rem;
   border-radius: 10px;
   border: none;
@@ -355,12 +355,12 @@
   font-size: 0.9375rem;
   cursor: pointer;
   transition: all 300ms ease;
-  box-shadow: 0 4px 12px var(--color-primary-30);
+  box-shadow: var(--brand-btn-primary-shadow);
 }
 
 .contactButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-40);
+  box-shadow: 0 6px 20px var(--brand-accent-glow);
 }
 
 /* Responsive */
