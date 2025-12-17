@@ -10,6 +10,13 @@ Guide for Claude Code when working with the LuloCart codebase.
 2. **Bilingual Text** - All user-facing text must use `t('key')` with translations in both `en` and `es` sections
 3. **CSS Modules** - Use scoped `.module.css` files for new components (legacy Tailwind exists but avoid adding more)
 
+## Git Rules
+
+**NEVER run `git commit` or `git push` commands.** The user will handle all commits and pushes manually. Claude may only:
+- Run `git status`, `git diff`, `git log`, `git branch` (read-only commands)
+- Run `git checkout`, `git fetch`, `git pull`, `git merge`, `git reset` when explicitly requested
+- Stage files with `git add` only when explicitly requested
+
 ## Technology Stack
 
 - **Frontend:** React 18 + TypeScript + Vite
