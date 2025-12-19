@@ -310,7 +310,15 @@ export const OrdersPage = () => {
 
                 <div className={styles.orderMeta}>
                   <div className={styles.priceInfo}>
-                    <p className={styles.price}>{formatPrice(order.summary.finalTotal ?? order.summary.total)}</p>
+                    <p className={styles.price}>{formatPrice(
+                      // Recalculate correct total if discount exists (fixes orders saved with wrong total)
+                      order.summary?.deliveryFeeDiscount?.isEligible
+                        ? (order.summary?.subtotal || 0) +
+                          (order.summary?.tax || 0) +
+                          (order.summary.deliveryFeeDiscount.discountedFee || 0) +
+                          (order.summary?.platformFee || 0)
+                        : (order.summary.finalTotal ?? order.summary.total)
+                    )}</p>
                     <p className={styles.itemCount}>{order.summary.itemCount} {t('common.items')}</p>
                   </div>
 
@@ -504,7 +512,15 @@ export const OrdersPage = () => {
                       </div>
                       <div className={styles.summaryTotal}>
                         <span>{t('cart.total')}</span>
-                        <span className={styles.totalAmount}>{formatPrice(order.summary?.finalTotal || order.summary?.total || 0)}</span>
+                        <span className={styles.totalAmount}>{formatPrice(
+                          // Recalculate correct total if discount exists (fixes orders saved with wrong total)
+                          order.summary?.deliveryFeeDiscount?.isEligible
+                            ? (order.summary?.subtotal || 0) +
+                              (order.summary?.tax || 0) +
+                              (order.summary.deliveryFeeDiscount.discountedFee || 0) +
+                              (order.summary?.platformFee || 0)
+                            : (order.summary?.finalTotal || order.summary?.total || 0)
+                        )}</span>
                       </div>
                     </div>
 

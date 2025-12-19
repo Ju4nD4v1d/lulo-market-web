@@ -17,15 +17,20 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
   const platformFee = order.summary.platformFee ??
     (order.summary.finalTotal ? order.summary.finalTotal - order.summary.total : 0);
 
-  // Use finalTotal if available, otherwise calculate it
-  const finalTotal = order.summary.finalTotal ?? (order.summary.total + platformFee);
-
   // Check for delivery fee discount - be explicit to handle Firestore data
   const deliveryFeeDiscount = order.summary.deliveryFeeDiscount;
   const hasDiscount = deliveryFeeDiscount &&
     deliveryFeeDiscount.isEligible === true &&
     typeof deliveryFeeDiscount.discountAmount === 'number' &&
     deliveryFeeDiscount.discountAmount > 0;
+
+  // Calculate correct total - recalculate if discount exists (fixes orders saved with wrong total)
+  const finalTotal = hasDiscount
+    ? (order.summary.subtotal || 0) +
+      (order.summary.tax || 0) +
+      (deliveryFeeDiscount.discountedFee || 0) +
+      platformFee
+    : (order.summary.finalTotal ?? (order.summary.total + platformFee));
 
   // Compute discount badge text (always show generic text when discountPercentage is missing)
   const discountBadgeText = hasDiscount
