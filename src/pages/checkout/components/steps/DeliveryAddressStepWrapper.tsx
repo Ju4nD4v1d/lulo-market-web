@@ -22,6 +22,9 @@ export const DeliveryAddressStepWrapper: React.FC = () => {
     isCalculatingDeliveryFee,
     deliveryFeeError,
     calculateDeliveryFeeForAddress,
+    isDistanceTooFar,
+    maxDeliveryDistance,
+    deliveryDistance,
   } = useCheckoutContext();
 
   const handleContinue = async () => {
@@ -51,6 +54,9 @@ export const DeliveryAddressStepWrapper: React.FC = () => {
       t={t}
       isCalculating={isCalculatingDeliveryFee}
       calculationError={deliveryFeeError}
+      isDistanceTooFar={isDistanceTooFar}
+      maxDeliveryDistance={maxDeliveryDistance}
+      deliveryDistance={deliveryDistance}
     />
   );
 };

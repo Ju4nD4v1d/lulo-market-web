@@ -5,6 +5,7 @@ import { Product } from '../types/product';
 import { DEFAULT_PLATFORM_FEE_CONFIG } from '../services/platformFee/constants';
 import { getPlatformFeeConfig } from '../services/api/platformFeeConfigApi';
 import { getProductById } from '../services/api/productApi';
+import { DeliveryFeeDiscount } from '../types/deliveryFeeDiscount';
 
 interface StoreInfo {
   storeId: string;
@@ -13,14 +14,8 @@ interface StoreInfo {
   storeImage?: string;
 }
 
-/** Delivery fee discount data for new customers */
-export interface DeliveryFeeDiscountData {
-  originalFee: number;
-  discountedFee: number;
-  discountAmount: number;
-  isEligible: boolean;
-  ordersRemaining: number;
-}
+// Re-export for backward compatibility
+export type { DeliveryFeeDiscount as DeliveryFeeDiscountData } from '../types/deliveryFeeDiscount';
 
 interface CartContextType {
   cart: CartState;
@@ -41,7 +36,7 @@ interface CartContextType {
   /** The commission rate override (null = using default from Firestore config) */
   commissionRateOverride: number | null;
   /** Set the delivery fee discount for new customers (first 3 orders) */
-  setDeliveryFeeDiscount: (discount: DeliveryFeeDiscountData | null) => void;
+  setDeliveryFeeDiscount: (discount: DeliveryFeeDiscount | null) => void;
 }
 
 type CartAction =
@@ -54,7 +49,7 @@ type CartAction =
   | { type: 'SET_PLATFORM_FEE'; payload: number }
   | { type: 'SET_COMMISSION_RATE'; payload: number }
   | { type: 'REFRESH_PRODUCTS'; payload: { updatedItems: CartItem[]; removedProductIds: string[] } }
-  | { type: 'SET_DELIVERY_FEE_DISCOUNT'; payload: DeliveryFeeDiscountData | null };
+  | { type: 'SET_DELIVERY_FEE_DISCOUNT'; payload: DeliveryFeeDiscount | null };
 
 /**
  * Calculate cart summary with optional fee overrides and payment split.
@@ -90,7 +85,13 @@ const calculateSummary = (
 
   // Use override if provided, otherwise 0 (fee calculated at checkout)
   const deliveryFee = items.length > 0 ? (deliveryFeeOverride ?? 0) : 0;
-  const total = subtotal + tax + deliveryFee; // Base total before platform fee
+
+  // Apply delivery fee discount if eligible
+  const effectiveDeliveryFee = existingDeliveryFeeDiscount?.isEligible
+    ? existingDeliveryFeeDiscount.discountedFee
+    : deliveryFee;
+
+  const total = subtotal + tax + effectiveDeliveryFee; // Base total before platform fee
   // Use platform fee override if provided, otherwise use default from Firestore config
   const platformFee = items.length > 0 ? (platformFeeOverride ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount) : 0;
   const finalTotal = total + platformFee; // What customer actually pays
@@ -101,15 +102,16 @@ const calculateSummary = (
   const commissionAmount = subtotal * commissionRate;
   // Store gets: (subtotal × (1 - rate)) + 100% of tax
   const storeAmount = (subtotal * (1 - commissionRate)) + tax;
-  // Lulocart keeps: commission + 100% of delivery fee + platform fee
-  const lulocartAmount = commissionAmount + deliveryFee + platformFee;
+  // Lulocart keeps: commission + 100% of delivery fee (discounted if applicable) + platform fee
+  const lulocartAmount = commissionAmount + effectiveDeliveryFee + platformFee;
 
   return {
     subtotal: Number(subtotal.toFixed(2)),
     tax: Number(tax.toFixed(2)),
     gst: Number(gst.toFixed(2)),
     pst: Number(pst.toFixed(2)),
-    deliveryFee: Number(deliveryFee.toFixed(2)),
+    // Store effective delivery fee (discounted if applicable) - original fee is in deliveryFeeDiscount.originalFee
+    deliveryFee: Number(effectiveDeliveryFee.toFixed(2)),
     total: Number(total.toFixed(2)),
     platformFee: Number(platformFee.toFixed(2)),
     finalTotal: Number(finalTotal.toFixed(2)),
@@ -587,7 +589,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Set the delivery fee discount for new customers (first 3 orders).
    * This updates the cart summary with discount information for display.
    */
-  const setDeliveryFeeDiscount = useCallback((discount: DeliveryFeeDiscountData | null) => {
+  const setDeliveryFeeDiscount = useCallback((discount: DeliveryFeeDiscount | null) => {
     dispatch({ type: 'SET_DELIVERY_FEE_DISCOUNT', payload: discount });
   }, []);
 

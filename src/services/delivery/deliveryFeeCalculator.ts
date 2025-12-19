@@ -3,8 +3,8 @@
  * Core calculation logic for dynamic delivery fees based on distance tiers
  */
 
-import type { DeliveryFeeConfig, FeeCalculationResult, TierBreakdown } from './types';
-import { UNLIMITED_DISTANCE } from './constants';
+import type { DeliveryFeeConfig, FeeCalculationResult, TierBreakdown, DeliveryDistanceCheckResult } from './types';
+import { UNLIMITED_DISTANCE, MAX_DELIVERY_DISTANCE_KM } from './constants';
 
 /**
  * Calculate delivery fee based on distance and configuration
@@ -90,4 +90,31 @@ export function haversineDistance(
 
 function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);
+}
+
+/**
+ * Check if delivery is supported based on distance.
+ * Returns whether delivery is available and the reason if not.
+ *
+ * @param distance - Distance in kilometers
+ * @param maxDistance - Maximum allowed distance (defaults to MAX_DELIVERY_DISTANCE_KM)
+ * @returns DeliveryDistanceCheckResult with support status and reason
+ *
+ * TODO: Update to fetch maxDistance from Admin dashboard (deliveryFeeConfig)
+ * instead of using the hardcoded constant.
+ */
+export function checkDeliveryDistance(
+  distance: number,
+  maxDistance: number = MAX_DELIVERY_DISTANCE_KM
+): DeliveryDistanceCheckResult {
+  const isSupported = distance <= maxDistance;
+
+  return {
+    isSupported,
+    distance,
+    maxDistance,
+    reason: isSupported
+      ? null
+      : `Delivery is not available for distances over ${maxDistance} km. Your location is ${distance.toFixed(1)} km away.`,
+  };
 }

@@ -1,16 +1,8 @@
 import type * as React from 'react';
 import { ShoppingBag, Truck, Receipt, Shield, LogIn, Gift } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { DeliveryFeeDiscount } from '../../../types/deliveryFeeDiscount';
 import styles from './CartSummary.module.css';
-
-/** Delivery fee discount data for new customers */
-interface DeliveryFeeDiscountData {
-  originalFee: number;
-  discountedFee: number;
-  discountAmount: number;
-  isEligible: boolean;
-  ordersRemaining: number;
-}
 
 interface CartSummaryProps {
   subtotal: number;
@@ -25,7 +17,7 @@ interface CartSummaryProps {
   isProcessing?: boolean;
   isLoggedIn?: boolean;
   /** Delivery fee discount info for new customers */
-  deliveryFeeDiscount?: DeliveryFeeDiscountData | null;
+  deliveryFeeDiscount?: DeliveryFeeDiscount | null;
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
@@ -42,6 +34,11 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   deliveryFeeDiscount,
 }) => {
   const { t } = useLanguage();
+
+  // Compute discount badge text
+  const discountBadgeText = deliveryFeeDiscount?.isEligible
+    ? `${Math.round(deliveryFeeDiscount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
+    : '';
 
   return (
     <div className={styles.container}>
@@ -62,9 +59,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             <Truck className={styles.lineIcon} />
             {t('cart.summary.delivery')}
             {deliveryFeeDiscount?.isEligible && (
-              <span className={styles.discountBadge}>
-                {t('cart.summary.newCustomerDiscount')}
-              </span>
+              <span className={styles.discountBadge}>{discountBadgeText}</span>
             )}
           </span>
           <span className={styles.lineValue}>

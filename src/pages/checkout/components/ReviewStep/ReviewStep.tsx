@@ -31,6 +31,11 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   isLoading = false,
   t
 }) => {
+  // Compute discount badge text
+  const discountBadgeText = cartSummary.deliveryFeeDiscount?.isEligible
+    ? `${Math.round(cartSummary.deliveryFeeDiscount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
+    : '';
+
   return (
     <div className={sharedStyles.stepContainer}>
       <div className={sharedStyles.stepHeader}>
@@ -117,9 +122,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             <span className={styles.summaryLabel}>
               {t('cart.deliveryFee')}
               {cartSummary.deliveryFeeDiscount?.isEligible && (
-                <span className={styles.discountBadge}>
-                  {t('cart.summary.newCustomerDiscount')}
-                </span>
+                <span className={styles.discountBadge}>{discountBadgeText}</span>
               )}
             </span>
             <span>

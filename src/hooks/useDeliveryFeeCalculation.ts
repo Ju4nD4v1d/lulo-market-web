@@ -39,6 +39,12 @@ export interface DeliveryFeeCalculationResult {
   customerCoordinates: Coordinates | null;
   /** Full calculation breakdown (for debugging/logging) */
   feeBreakdown: FeeCalculationResult | null;
+  /** Maximum delivery distance from config (null if not yet fetched) */
+  maxDeliveryDistance: number | null;
+  /** Discount percentage for new customers (null if not yet fetched) */
+  discountPercentage: number | null;
+  /** Number of orders eligible for new customer discount (null if not yet fetched) */
+  discountEligibleOrders: number | null;
 }
 
 export interface UseDeliveryFeeCalculationReturn extends DeliveryFeeCalculationResult {
@@ -65,6 +71,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
   const [error, setError] = useState<string | null>(null);
   const [customerCoordinates, setCustomerCoordinates] = useState<Coordinates | null>(null);
   const [feeBreakdown, setFeeBreakdown] = useState<FeeCalculationResult | null>(null);
+  const [maxDeliveryDistance, setMaxDeliveryDistance] = useState<number | null>(null);
+  const [discountPercentage, setDiscountPercentage] = useState<number | null>(null);
+  const [discountEligibleOrders, setDiscountEligibleOrders] = useState<number | null>(null);
 
   const reset = useCallback(() => {
     setFee(null);
@@ -73,6 +82,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
     setError(null);
     setCustomerCoordinates(null);
     setFeeBreakdown(null);
+    setMaxDeliveryDistance(null);
+    setDiscountPercentage(null);
+    setDiscountEligibleOrders(null);
   }, []);
 
   const calculate = useCallback(
@@ -97,6 +109,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
             error: errorMsg,
             customerCoordinates: null,
             feeBreakdown: null,
+            maxDeliveryDistance: null,
+            discountPercentage: null,
+            discountEligibleOrders: null,
           };
         }
 
@@ -122,6 +137,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
             error: errorMsg,
             customerCoordinates: null,
             feeBreakdown: null,
+            maxDeliveryDistance: null,
+            discountPercentage: null,
+            discountEligibleOrders: null,
           };
         }
 
@@ -134,6 +152,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
 
         // Step 4: Fetch fee configuration from Firestore
         const config = await getDeliveryFeeConfig();
+        setMaxDeliveryDistance(config.maxDeliveryDistance);
+        setDiscountPercentage(config.discountPercentage);
+        setDiscountEligibleOrders(config.discountEligibleOrders);
 
         // Step 5: Calculate fee
         const result = calculateDeliveryFee(calculatedDistance, config);
@@ -148,6 +169,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
           error: null,
           customerCoordinates: custCoords,
           feeBreakdown: result,
+          maxDeliveryDistance: config.maxDeliveryDistance,
+          discountPercentage: config.discountPercentage,
+          discountEligibleOrders: config.discountEligibleOrders,
         };
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to calculate delivery fee';
@@ -161,6 +185,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
           error: errorMsg,
           customerCoordinates: null,
           feeBreakdown: null,
+          maxDeliveryDistance: null,
+          discountPercentage: null,
+          discountEligibleOrders: null,
         };
       }
     },
@@ -174,6 +201,9 @@ export function useDeliveryFeeCalculation(): UseDeliveryFeeCalculationReturn {
     error,
     customerCoordinates,
     feeBreakdown,
+    maxDeliveryDistance,
+    discountPercentage,
+    discountEligibleOrders,
     calculate,
     reset,
   };

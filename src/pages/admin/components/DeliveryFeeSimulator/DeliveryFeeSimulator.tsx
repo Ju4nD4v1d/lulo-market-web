@@ -23,6 +23,8 @@ export function DeliveryFeeSimulator() {
     setBaseFee,
     setMinFee,
     setMaxFee,
+    setDiscountPercentage,
+    setDiscountEligibleOrders,
     updateTier,
     addTier,
     removeTier,
@@ -118,6 +120,47 @@ export function DeliveryFeeSimulator() {
                       onChange={(e) => handleNumberChange(setMaxFee, e)}
                       className={styles.configInput}
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* New Customer Discount */}
+              <div className={styles.configGrid}>
+                <div className={styles.configField}>
+                  <label htmlFor="discountPercentage" className={styles.configLabel}>
+                    {t('deliveryFeeSimulator.discountPercentage')}
+                  </label>
+                  <div className={styles.currencyInputWrapper}>
+                    <input
+                      id="discountPercentage"
+                      type="number"
+                      value={Math.round((config.discountPercentage ?? 0.20) * 100)}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={(e) => setDiscountPercentage((parseFloat(e.target.value) || 0) / 100)}
+                      className={styles.configInput}
+                    />
+                    <span className={styles.currencySuffix}>%</span>
+                  </div>
+                </div>
+
+                <div className={styles.configField}>
+                  <label htmlFor="discountEligibleOrders" className={styles.configLabel}>
+                    {t('deliveryFeeSimulator.discountEligibleOrders')}
+                  </label>
+                  <div className={styles.currencyInputWrapper}>
+                    <input
+                      id="discountEligibleOrders"
+                      type="number"
+                      value={config.discountEligibleOrders ?? 3}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={(e) => setDiscountEligibleOrders(parseInt(e.target.value) || 0)}
+                      className={styles.configInput}
+                    />
+                    <span className={styles.currencySuffix}>{t('deliveryFeeSimulator.orders')}</span>
                   </div>
                 </div>
               </div>
