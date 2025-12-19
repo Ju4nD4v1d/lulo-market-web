@@ -347,13 +347,19 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
     case 'SET_DELIVERY_FEE_DISCOUNT': {
       // Set the delivery fee discount for new customers
+      // IMPORTANT: Recalculate summary to update total/finalTotal with discounted delivery fee
       const discount = action.payload;
+      // Use originalFee from discount (if available) to recalculate, otherwise use current deliveryFee
+      const originalDeliveryFee = discount?.originalFee ?? state.summary.deliveryFee;
       return {
         ...state,
-        summary: {
-          ...state.summary,
-          deliveryFeeDiscount: discount ?? undefined,
-        }
+        summary: calculateSummary(
+          state.items,
+          originalDeliveryFee,
+          state.configuredPlatformFee ?? DEFAULT_PLATFORM_FEE_CONFIG.fixedAmount,
+          state.configuredCommissionRate ?? DEFAULT_PLATFORM_FEE_CONFIG.commissionRate,
+          discount ?? undefined
+        )
       };
     }
 

@@ -31,9 +31,17 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   isLoading = false,
   t
 }) => {
+  // Guard against NaN from stale localStorage data
+  const discount = cartSummary.deliveryFeeDiscount;
+  const hasValidDiscount = discount?.isEligible &&
+    typeof discount.discountPercentage === 'number' && !isNaN(discount.discountPercentage) &&
+    typeof discount.originalFee === 'number' && !isNaN(discount.originalFee) &&
+    typeof discount.discountedFee === 'number' && !isNaN(discount.discountedFee) &&
+    typeof discount.ordersRemaining === 'number' && !isNaN(discount.ordersRemaining);
+
   // Compute discount badge text
-  const discountBadgeText = cartSummary.deliveryFeeDiscount?.isEligible
-    ? `${Math.round(cartSummary.deliveryFeeDiscount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
+  const discountBadgeText = hasValidDiscount
+    ? `${Math.round(discount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
     : '';
 
   return (
@@ -121,18 +129,18 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>
               {t('cart.deliveryFee')}
-              {cartSummary.deliveryFeeDiscount?.isEligible && (
+              {discountBadgeText && (
                 <span className={styles.discountBadge}>{discountBadgeText}</span>
               )}
             </span>
             <span>
-              {cartSummary.deliveryFeeDiscount?.isEligible ? (
+              {hasValidDiscount ? (
                 <span className={styles.discountedPrice}>
                   <span className={styles.originalPrice}>
-                    ${cartSummary.deliveryFeeDiscount.originalFee.toFixed(2)}
+                    ${discount.originalFee.toFixed(2)}
                   </span>
                   <span className={styles.finalPrice}>
-                    ${cartSummary.deliveryFeeDiscount.discountedFee.toFixed(2)}
+                    ${discount.discountedFee.toFixed(2)}
                   </span>
                 </span>
               ) : (
@@ -141,13 +149,13 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             </span>
           </div>
           {/* New Customer Discount Banner */}
-          {cartSummary.deliveryFeeDiscount?.isEligible && (
+          {hasValidDiscount && (
             <div className={styles.discountBanner}>
               <Gift className={styles.discountBannerIcon} />
               <span>
-                {cartSummary.deliveryFeeDiscount.ordersRemaining === 1
+                {discount.ordersRemaining === 1
                   ? t('cart.summary.ordersRemainingSingular')
-                  : t('cart.summary.ordersRemaining').replace('{count}', String(cartSummary.deliveryFeeDiscount.ordersRemaining))}
+                  : t('cart.summary.ordersRemaining').replace('{count}', String(discount.ordersRemaining))}
               </span>
             </div>
           )}
