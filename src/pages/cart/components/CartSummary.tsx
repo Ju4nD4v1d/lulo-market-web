@@ -35,8 +35,15 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  // Guard against NaN from stale localStorage data
+  const hasValidDiscount = deliveryFeeDiscount?.isEligible &&
+    typeof deliveryFeeDiscount.discountPercentage === 'number' && !isNaN(deliveryFeeDiscount.discountPercentage) &&
+    typeof deliveryFeeDiscount.originalFee === 'number' && !isNaN(deliveryFeeDiscount.originalFee) &&
+    typeof deliveryFeeDiscount.discountedFee === 'number' && !isNaN(deliveryFeeDiscount.discountedFee) &&
+    typeof deliveryFeeDiscount.ordersRemaining === 'number' && !isNaN(deliveryFeeDiscount.ordersRemaining);
+
   // Compute discount badge text
-  const discountBadgeText = deliveryFeeDiscount?.isEligible
+  const discountBadgeText = hasValidDiscount
     ? `${Math.round(deliveryFeeDiscount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
     : '';
 
@@ -58,13 +65,13 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           <span className={styles.lineLabel}>
             <Truck className={styles.lineIcon} />
             {t('cart.summary.delivery')}
-            {deliveryFeeDiscount?.isEligible && (
+            {discountBadgeText && (
               <span className={styles.discountBadge}>{discountBadgeText}</span>
             )}
           </span>
           <span className={styles.lineValue}>
             {deliveryFee !== null ? (
-              deliveryFeeDiscount?.isEligible ? (
+              hasValidDiscount ? (
                 <span className={styles.discountedPrice}>
                   <span className={styles.originalPrice}>
                     CAD ${deliveryFeeDiscount.originalFee.toFixed(2)}
@@ -83,7 +90,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         </div>
 
         {/* New Customer Discount Banner */}
-        {deliveryFeeDiscount?.isEligible && deliveryFee !== null && (
+        {hasValidDiscount && deliveryFee !== null && (
           <div className={styles.discountBanner}>
             <Gift className={styles.discountBannerIcon} />
             <span>
