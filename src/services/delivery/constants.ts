@@ -24,6 +24,9 @@ export const DEFAULT_CONFIG: DeliveryFeeConfig = {
   minFee: 2.00,
   maxFee: 20.00,
   tiers: DEFAULT_TIERS,
+  maxDeliveryDistance: 60, // Maximum delivery distance in km
+  discountPercentage: 0.20, // 20% discount for new customers
+  discountEligibleOrders: 3, // First 3 orders get the discount
 };
 
 // Firestore collection and document for delivery fee config
@@ -35,3 +38,10 @@ export const STORAGE_KEY = 'lulocart_delivery_fee_config';
 
 // Threshold for "unlimited" distance tier
 export const UNLIMITED_DISTANCE = 9999;
+
+/**
+ * Default maximum delivery distance in kilometers.
+ * Used as fallback when Firestore config doesn't have maxDeliveryDistance.
+ * The actual value is now configurable via Admin dashboard (deliveryFeeConfig).
+ */
+export const MAX_DELIVERY_DISTANCE_KM = 60;

@@ -27,6 +27,13 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
     typeof deliveryFeeDiscount.discountAmount === 'number' &&
     deliveryFeeDiscount.discountAmount > 0;
 
+  // Compute discount badge text (always show generic text when discountPercentage is missing)
+  const discountBadgeText = hasDiscount
+    ? deliveryFeeDiscount.discountPercentage
+      ? `${Math.round(deliveryFeeDiscount.discountPercentage * 100)}% ${t('cart.summary.discountLabel')}`
+      : t('cart.summary.discountLabel')
+    : '';
+
   // Get GST/PST values - ensure they're numbers
   const gstValue = typeof order.summary.gst === 'number' ? order.summary.gst : 0;
   const pstValue = typeof order.summary.pst === 'number' ? order.summary.pst : 0;
@@ -58,9 +65,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ order }) => {
           <span className={styles.label}>
             {t('order.deliveryFee')}
             {hasDiscount && (
-              <span className={styles.discountBadge}>
-                {t('cart.summary.newCustomerDiscount')}
-              </span>
+              <span className={styles.discountBadge}>{discountBadgeText}</span>
             )}
           </span>
           <span className={styles.value}>

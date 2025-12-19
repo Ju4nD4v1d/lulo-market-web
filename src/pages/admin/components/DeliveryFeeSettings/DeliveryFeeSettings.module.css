@@ -254,6 +254,14 @@
   box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(59, 130, 246, 0.1));
 }
 
+.currencySuffix {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
 /* ==========================================================================
    Tier Editor
    ========================================================================== */

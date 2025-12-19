@@ -53,6 +53,9 @@ export async function getDeliveryFeeConfig(): Promise<DeliveryFeeConfig> {
         minFee: data.minFee ?? DEFAULT_CONFIG.minFee,
         maxFee: data.maxFee ?? DEFAULT_CONFIG.maxFee,
         tiers: data.tiers ?? DEFAULT_CONFIG.tiers,
+        maxDeliveryDistance: data.maxDeliveryDistance ?? DEFAULT_CONFIG.maxDeliveryDistance,
+        discountPercentage: data.discountPercentage ?? DEFAULT_CONFIG.discountPercentage,
+        discountEligibleOrders: data.discountEligibleOrders ?? DEFAULT_CONFIG.discountEligibleOrders,
       };
     }
 
@@ -84,6 +87,9 @@ export function subscribeToDeliveryFeeConfig(
           minFee: data.minFee ?? DEFAULT_CONFIG.minFee,
           maxFee: data.maxFee ?? DEFAULT_CONFIG.maxFee,
           tiers: data.tiers ?? DEFAULT_CONFIG.tiers,
+          maxDeliveryDistance: data.maxDeliveryDistance ?? DEFAULT_CONFIG.maxDeliveryDistance,
+          discountPercentage: data.discountPercentage ?? DEFAULT_CONFIG.discountPercentage,
+          discountEligibleOrders: data.discountEligibleOrders ?? DEFAULT_CONFIG.discountEligibleOrders,
         });
       } else {
         // Document doesn't exist, use defaults
@@ -125,6 +131,9 @@ export async function saveDeliveryFeeConfig(
       minFee: config.minFee,
       maxFee: config.maxFee,
       tiers: config.tiers,
+      maxDeliveryDistance: config.maxDeliveryDistance,
+      discountPercentage: config.discountPercentage,
+      discountEligibleOrders: config.discountEligibleOrders,
       updatedBy: userId,
     };
 

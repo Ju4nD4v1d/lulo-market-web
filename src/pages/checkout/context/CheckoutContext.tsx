@@ -139,6 +139,10 @@ interface CheckoutContextValue {
   calculateDeliveryFeeForAddress: (addressOverride?: DeliveryAddress) => Promise<boolean>;
   /** Reset delivery fee calculation state */
   resetDeliveryFee: () => void;
+  /** Whether delivery is not supported due to distance exceeding max limit */
+  isDistanceTooFar: boolean;
+  /** Maximum delivery distance in km */
+  maxDeliveryDistance: number;
 }
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -238,6 +242,8 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     isCalculatingDeliveryFee,
     calculateDeliveryFeeForAddress,
     resetDeliveryFee,
+    isDistanceTooFar,
+    maxDeliveryDistance,
   } = useCheckoutDeliveryFee({
     deliveryAddress: checkoutForm.formData.deliveryAddress,
     storeCoordinates,
@@ -347,6 +353,8 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       isCalculatingDeliveryFee,
       calculateDeliveryFeeForAddress,
       resetDeliveryFee,
+      isDistanceTooFar,
+      maxDeliveryDistance,
     }),
     [
       cart,
@@ -388,6 +396,8 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       isCalculatingDeliveryFee,
       calculateDeliveryFeeForAddress,
       resetDeliveryFee,
+      isDistanceTooFar,
+      maxDeliveryDistance,
     ]
   );
 

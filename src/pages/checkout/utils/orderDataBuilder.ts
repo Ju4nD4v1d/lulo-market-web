@@ -227,6 +227,7 @@ export const buildEnhancedOrderData = (
           discountAmount: cart.summary.deliveryFeeDiscount.discountAmount,
           isEligible: true,
           ordersRemaining: cart.summary.deliveryFeeDiscount.ordersRemaining,
+          discountPercentage: cart.summary.deliveryFeeDiscount.discountPercentage,
         },
       }),
       newCustomerDiscountApplied: cart.summary.deliveryFeeDiscount?.isEligible ?? false,

@@ -30,6 +30,9 @@ export function DeliveryFeeSettings() {
     setBaseFee,
     setMinFee,
     setMaxFee,
+    setMaxDeliveryDistance,
+    setDiscountPercentage,
+    setDiscountEligibleOrders,
     updateTier,
     addTier,
     removeTier,
@@ -159,6 +162,21 @@ export function DeliveryFeeSettings() {
               />
             </div>
           </div>
+
+          <div className={styles.configField}>
+            <label className={styles.configLabel}>{t('deliveryFeeSettings.maxDeliveryDistance')}</label>
+            <div className={styles.currencyInputWrapper}>
+              <input
+                type="number"
+                value={config.maxDeliveryDistance ?? 60}
+                min={1}
+                step={1}
+                onChange={(e) => setMaxDeliveryDistance(parseFloat(e.target.value) || 60)}
+                className={styles.currencyInput}
+              />
+              <span className={styles.currencySuffix}>km</span>
+            </div>
+          </div>
         </div>
 
         {/* Distance Tiers Editor */}
@@ -239,6 +257,44 @@ export function DeliveryFeeSettings() {
             <Plus className={styles.addTierIcon} />
             {t('deliveryFeeSettings.addTier')}
           </button>
+        </div>
+
+        {/* New Customer Discount Section */}
+        <div className={styles.tierEditor}>
+          <h3 className={styles.tierTitle}>{t('deliveryFeeSettings.newCustomerDiscount')}</h3>
+          <div className={styles.configGrid}>
+            <div className={styles.configField}>
+              <label className={styles.configLabel}>{t('deliveryFeeSettings.discountPercentage')}</label>
+              <div className={styles.currencyInputWrapper}>
+                <input
+                  type="number"
+                  value={Math.round((config.discountPercentage ?? 0.20) * 100)}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onChange={(e) => setDiscountPercentage((parseFloat(e.target.value) || 0) / 100)}
+                  className={styles.currencyInput}
+                />
+                <span className={styles.currencySuffix}>%</span>
+              </div>
+            </div>
+
+            <div className={styles.configField}>
+              <label className={styles.configLabel}>{t('deliveryFeeSettings.discountEligibleOrders')}</label>
+              <div className={styles.currencyInputWrapper}>
+                <input
+                  type="number"
+                  value={config.discountEligibleOrders ?? 3}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onChange={(e) => setDiscountEligibleOrders(parseInt(e.target.value) || 0)}
+                  className={styles.currencyInput}
+                />
+                <span className={styles.currencySuffix}>{t('deliveryFeeSettings.orders')}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}

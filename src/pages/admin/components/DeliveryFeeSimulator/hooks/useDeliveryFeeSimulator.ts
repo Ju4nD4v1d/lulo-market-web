@@ -23,6 +23,8 @@ interface UseDeliveryFeeSimulatorReturn {
   setBaseFee: (value: number) => void;
   setMinFee: (value: number) => void;
   setMaxFee: (value: number) => void;
+  setDiscountPercentage: (value: number) => void;
+  setDiscountEligibleOrders: (value: number) => void;
   /** Tier operations for local testing (not persisted) */
   updateTier: (index: number, field: keyof DistanceTier, value: number) => void;
   addTier: () => void;
@@ -88,6 +90,14 @@ export function useDeliveryFeeSimulator(): UseDeliveryFeeSimulatorReturn {
     setConfig((prev) => ({ ...prev, maxFee: Math.max(0, maxFee) }));
   }, []);
 
+  const setDiscountPercentage = useCallback((discountPercentage: number) => {
+    setConfig((prev) => ({ ...prev, discountPercentage: Math.max(0, Math.min(1, discountPercentage)) }));
+  }, []);
+
+  const setDiscountEligibleOrders = useCallback((discountEligibleOrders: number) => {
+    setConfig((prev) => ({ ...prev, discountEligibleOrders: Math.max(0, discountEligibleOrders) }));
+  }, []);
+
   // Tier operations (for testing, not persisted)
   const updateTier = useCallback((index: number, field: keyof DistanceTier, value: number) => {
     setConfig((prev) => {
@@ -131,6 +141,8 @@ export function useDeliveryFeeSimulator(): UseDeliveryFeeSimulatorReturn {
     setBaseFee,
     setMinFee,
     setMaxFee,
+    setDiscountPercentage,
+    setDiscountEligibleOrders,
     updateTier,
     addTier,
     removeTier,

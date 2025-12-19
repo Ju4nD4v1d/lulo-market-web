@@ -1,3 +1,5 @@
+import { DeliveryFeeDiscount } from './deliveryFeeDiscount';
+
 /**
  * Order status values - must match backend exactly
  * Backend sets: "pending", "confirmed", "failed", "canceled", "processing"
@@ -107,14 +109,8 @@ export interface OrderSummary {
   discountAmount?: number; // Amount discounted from promotional codes
   tipAmount?: number; // Customer tip amount
   serviceFee?: number; // Additional service fees
-  // New customer delivery fee discount
-  deliveryFeeDiscount?: {
-    originalFee: number;
-    discountedFee: number;
-    discountAmount: number;
-    isEligible: boolean;
-    ordersRemaining: number;
-  };
+  // New customer delivery fee discount (optional for backward compatibility with old orders)
+  deliveryFeeDiscount?: DeliveryFeeDiscount;
   newCustomerDiscountApplied?: boolean; // Flag indicating new customer discount was applied
 }
 

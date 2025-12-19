@@ -128,7 +128,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
                 {t('footer.deliveryAreas')}
               </h2>
               <p className="text-gray-600">
-                Greater Vancouver Service Coverage
+                {t('deliveryAreas.subtitle')}
               </p>
             </div>
           </div>
@@ -175,10 +175,10 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
                           <MapPin className="w-4 h-4 text-primary-600 mr-1" />
                           <span className="font-semibold text-gray-900">{area.name}</span>
                         </div>
-                        <p className="text-sm text-gray-600">Population: {area.population}</p>
+                        <p className="text-sm text-gray-600">{t('deliveryAreas.population')}: {area.population}</p>
                         <div className="mt-2 px-2 py-1 bg-primary-100 rounded-full">
                           <span className="text-xs font-medium text-primary-800">
-                            ✓ Delivery Available
+                            ✓ {t('deliveryAreas.deliveryAvailable')}
                           </span>
                         </div>
                       </div>
@@ -207,7 +207,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
               <h3 className="font-semibold text-gray-900">{area.name}</h3>
               <div className="mt-2 inline-flex items-center px-2 py-1 bg-green-100 rounded-full">
                 <span className="text-xs font-medium text-green-800">
-                  ✓ Active
+                  ✓ {t('deliveryAreas.active')}
                 </span>
               </div>
             </div>
@@ -219,20 +219,19 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
           <div className="flex items-center justify-center mb-3">
             <Truck className="w-6 h-6 mr-2" style={{ color: 'var(--brand-accent)' }} />
             <h3 className="text-lg font-semibold text-gray-900">
-              Current Service Coverage
+              {t('deliveryAreas.currentCoverage')}
             </h3>
           </div>
           <p className="text-gray-700 leading-relaxed mb-4">
-            We currently deliver to <span className="font-semibold" style={{ color: 'var(--brand-accent-hover)' }}>Vancouver, Burnaby, Langley, Surrey, and Coquitlam</span>.
-            Our delivery network covers over <span className="font-semibold">1.8 million residents</span> across Greater Vancouver.
+            {t('deliveryAreas.coverageDescription')} <span className="font-semibold" style={{ color: 'var(--brand-accent-hover)' }}>{t('deliveryAreas.coverageCities')}</span>.
+            {' '}{t('deliveryAreas.coverageStats')} <span className="font-semibold">{t('deliveryAreas.residents')}</span> {t('deliveryAreas.acrossVancouver')}
           </p>
           <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--brand-accent-subtle)', borderColor: 'var(--brand-accent-border)' }}>
             <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              🚀 Expanding Soon!
+              🚀 {t('deliveryAreas.expandingSoon')}
             </p>
             <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              We're working to include Richmond, North Vancouver, West Vancouver, and New Westminster.
-              Stay tuned for updates!
+              {t('deliveryAreas.expandingDescription')}
             </p>
           </div>
         </div>
@@ -240,7 +239,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
         {/* Footer */}
         <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
           <div className="text-sm text-gray-500">
-            Service areas updated December 2024
+            {t('deliveryAreas.lastUpdated')}
           </div>
           <button
             onClick={onClose}
@@ -250,7 +249,7 @@ export const DeliveryAreasModal: React.FC<DeliveryAreasModalProps> = ({ isOpen, 
               color: 'var(--brand-cta-text)'
             }}
           >
-            Got it!
+            {t('deliveryAreas.gotIt')}
           </button>
         </div>
       </div>

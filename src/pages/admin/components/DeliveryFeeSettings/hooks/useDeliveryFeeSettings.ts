@@ -36,6 +36,9 @@ interface UseDeliveryFeeSettingsReturn {
   setBaseFee: (value: number) => void;
   setMinFee: (value: number) => void;
   setMaxFee: (value: number) => void;
+  setMaxDeliveryDistance: (value: number) => void;
+  setDiscountPercentage: (value: number) => void;
+  setDiscountEligibleOrders: (value: number) => void;
 
   // Tier operations
   updateTier: (index: number, field: keyof DistanceTier, value: number) => void;
@@ -92,6 +95,10 @@ export function useDeliveryFeeSettings(): UseDeliveryFeeSettingsReturn {
   const isDirty = JSON.stringify(config) !== JSON.stringify(savedConfig);
 
   // Config setters
+  const setEnabled = useCallback((enabled: boolean) => {
+    setConfig((prev) => ({ ...prev, enabled }));
+  }, []);
+
   const setBaseFee = useCallback((baseFee: number) => {
     setConfig((prev) => ({ ...prev, baseFee }));
   }, []);
@@ -102,6 +109,18 @@ export function useDeliveryFeeSettings(): UseDeliveryFeeSettingsReturn {
 
   const setMaxFee = useCallback((maxFee: number) => {
     setConfig((prev) => ({ ...prev, maxFee }));
+  }, []);
+
+  const setMaxDeliveryDistance = useCallback((maxDeliveryDistance: number) => {
+    setConfig((prev) => ({ ...prev, maxDeliveryDistance }));
+  }, []);
+
+  const setDiscountPercentage = useCallback((discountPercentage: number) => {
+    setConfig((prev) => ({ ...prev, discountPercentage }));
+  }, []);
+
+  const setDiscountEligibleOrders = useCallback((discountEligibleOrders: number) => {
+    setConfig((prev) => ({ ...prev, discountEligibleOrders }));
   }, []);
 
   // Tier operations
@@ -188,9 +207,13 @@ export function useDeliveryFeeSettings(): UseDeliveryFeeSettingsReturn {
     isSaving,
     error,
     isDirty,
+    setEnabled,
     setBaseFee,
     setMinFee,
     setMaxFee,
+    setMaxDeliveryDistance,
+    setDiscountPercentage,
+    setDiscountEligibleOrders,
     updateTier,
     addTier,
     removeTier,

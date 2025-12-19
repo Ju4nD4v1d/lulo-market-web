@@ -7,10 +7,12 @@
  * and applies new customer discount (20% off first 3 orders).
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDeliveryFeeCalculation } from '../../../hooks/useDeliveryFeeCalculation';
 import { useDeliveryFeeDiscount, calculateDeliveryDiscount } from '../../../hooks/useDeliveryFeeDiscount';
 import { DeliveryFeeDiscountData } from '../../../context/CartContext';
+import { checkDeliveryDistance } from '../../../services/delivery/deliveryFeeCalculator';
+import { MAX_DELIVERY_DISTANCE_KM } from '../../../services/delivery/constants';
 
 interface DeliveryAddress {
   street: string;
@@ -53,6 +55,10 @@ interface UseCheckoutDeliveryFeeReturn {
   calculateDeliveryFeeForAddress: (addressOverride?: DeliveryAddress) => Promise<boolean>;
   /** Reset delivery fee calculation state */
   resetDeliveryFee: () => void;
+  /** Whether delivery is not supported due to distance exceeding max limit */
+  isDistanceTooFar: boolean;
+  /** Maximum delivery distance in km */
+  maxDeliveryDistance: number;
 }
 
 export function useCheckoutDeliveryFee({
@@ -68,18 +74,35 @@ export function useCheckoutDeliveryFee({
     fee: deliveryFee,
     distance: deliveryDistance,
     isCalculating: isCalculatingDeliveryFee,
-    error: deliveryFeeError,
+    error: baseError,
     calculate: calculateFee,
     reset: resetDeliveryFeeBase,
+    maxDeliveryDistance: configMaxDistance,
+    discountPercentage: configDiscountPercentage,
+    discountEligibleOrders: configDiscountEligibleOrders,
   } = useDeliveryFeeCalculation();
 
-  // Calculate discount for new customers (20% off first 3 orders)
-  const discount = useDeliveryFeeDiscount(deliveryFee, userTotalOrders, isLoggedIn);
+  // State for distance-too-far error
+  const [isDistanceTooFar, setIsDistanceTooFar] = useState(false);
+  const [distanceError, setDistanceError] = useState<string | null>(null);
+
+  // Combine base error with distance error
+  const deliveryFeeError = distanceError || baseError;
+
+  // Build discount config from Firestore values (if available)
+  const discountConfig = configDiscountPercentage !== null && configDiscountEligibleOrders !== null
+    ? { discountPercentage: configDiscountPercentage, discountEligibleOrders: configDiscountEligibleOrders }
+    : undefined;
+
+  // Calculate discount for new customers using dynamic config from Firestore
+  const discount = useDeliveryFeeDiscount(deliveryFee, userTotalOrders, isLoggedIn, discountConfig);
 
   // Reset both fee and discount
   const resetDeliveryFee = useCallback(() => {
     resetDeliveryFeeBase();
     setCartDeliveryFeeDiscount(null);
+    setIsDistanceTooFar(false);
+    setDistanceError(null);
   }, [resetDeliveryFeeBase, setCartDeliveryFeeDiscount]);
 
   // Track last calculated address to detect changes
@@ -92,6 +115,10 @@ export function useCheckoutDeliveryFee({
    * Returns true if calculation succeeded, false if it failed.
    */
   const calculateDeliveryFeeForAddress = useCallback(async (addressOverride?: DeliveryAddress): Promise<boolean> => {
+    // Reset distance error state
+    setIsDistanceTooFar(false);
+    setDistanceError(null);
+
     // Use override address if provided, otherwise use form state
     const address = addressOverride || deliveryAddress;
 
@@ -127,28 +154,48 @@ export function useCheckoutDeliveryFee({
       storeCoordinates
     );
 
-    // If calculation succeeded, update the cart with the new fee and discount
-    if (result.fee !== null) {
+    // If calculation succeeded, check if distance is within the allowed limit
+    if (result.fee !== null && result.distance !== null) {
+      // Check if delivery is supported based on distance
+      // Use dynamic maxDeliveryDistance from Firestore config, fallback to hardcoded constant
+      const maxDistanceToUse = result.maxDeliveryDistance ?? MAX_DELIVERY_DISTANCE_KM;
+      const distanceCheck = checkDeliveryDistance(result.distance, maxDistanceToUse);
+
+      if (!distanceCheck.isSupported) {
+        // Distance exceeds maximum - block checkout
+        setIsDistanceTooFar(true);
+        setDistanceError(distanceCheck.reason);
+        return false;
+      }
+
+      // Distance is OK - update the cart with the new fee and discount
       setCartDeliveryFee(result.fee);
 
       // Calculate and set discount for new customers using shared pure function
       // Note: We use the pure function here since the hook value won't update until re-render
-      const discountResult = calculateDeliveryDiscount(result.fee, userTotalOrders, isLoggedIn);
-      setCartDeliveryFeeDiscount(discountResult);
+      // Pass the discount config from Firestore result if available
+      const resultDiscountConfig = result.discountPercentage !== null && result.discountEligibleOrders !== null
+        ? { discountPercentage: result.discountPercentage, discountEligibleOrders: result.discountEligibleOrders }
+        : undefined;
+      const discountResult = calculateDeliveryDiscount(result.fee, userTotalOrders, isLoggedIn, resultDiscountConfig);
+      // Include discountPercentage from config for UI display
+      const discountPercentageValue = resultDiscountConfig?.discountPercentage ?? 0.20;
+      setCartDeliveryFeeDiscount({
+        ...discountResult,
+        discountPercentage: discountPercentageValue,
+      });
+
+      // Store the address hash for change detection
+      // This is done here (not in useEffect) to avoid race conditions between
+      // the address hash update and the address change detection effect
+      const addressHash = `${address.street}|${address.city}|${address.postalCode}`;
+      lastCalculatedAddressRef.current = addressHash;
 
       return true;
     }
 
     return false;
   }, [deliveryAddress, storeCoordinates, calculateFee, setCartDeliveryFee, setCartDeliveryFeeDiscount, isLoggedIn, userTotalOrders]);
-
-  // Store the address hash when fee is calculated successfully
-  useEffect(() => {
-    if (deliveryFee !== null && deliveryDistance !== null) {
-      const addressHash = `${deliveryAddress.street}|${deliveryAddress.city}|${deliveryAddress.postalCode}`;
-      lastCalculatedAddressRef.current = addressHash;
-    }
-  }, [deliveryFee, deliveryDistance, deliveryAddress]);
 
   // Reset delivery fee when address changes after calculation
   useEffect(() => {
@@ -180,5 +227,7 @@ export function useCheckoutDeliveryFee({
     isCalculatingDeliveryFee,
     calculateDeliveryFeeForAddress,
     resetDeliveryFee,
+    isDistanceTooFar,
+    maxDeliveryDistance: configMaxDistance ?? MAX_DELIVERY_DISTANCE_KM,
   };
 }

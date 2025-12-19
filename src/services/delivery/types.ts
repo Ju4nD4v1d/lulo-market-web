@@ -15,6 +15,12 @@ export interface DeliveryFeeConfig {
   minFee: number;
   maxFee: number;
   tiers: DistanceTier[];
+  /** Maximum delivery distance in kilometers. Orders beyond this distance are not supported. */
+  maxDeliveryDistance: number;
+  /** Discount percentage for new customers (0.20 = 20%). Applied to first N orders. */
+  discountPercentage: number;
+  /** Number of orders that receive the new customer discount */
+  discountEligibleOrders: number;
 }
 
 export interface TierBreakdown {
@@ -36,4 +42,18 @@ export interface FeeCalculationResult {
 export interface Coordinates {
   lat: number;
   lng: number;
+}
+
+/**
+ * Result of checking if delivery is supported based on distance
+ */
+export interface DeliveryDistanceCheckResult {
+  /** Whether delivery is supported for this distance */
+  isSupported: boolean;
+  /** The calculated distance in kilometers */
+  distance: number;
+  /** Maximum allowed delivery distance */
+  maxDistance: number;
+  /** Human-readable reason if delivery is not supported */
+  reason: string | null;
 }

@@ -1,4 +1,5 @@
 import { Product } from './product';
+import { DeliveryFeeDiscount } from './deliveryFeeDiscount';
 
 export interface CartItem {
   id: string;
@@ -37,13 +38,7 @@ export interface CartSummary {
   appliedPromoCodes?: string[]; // Applied promotional codes
 
   // New customer delivery fee discount (first 3 orders)
-  deliveryFeeDiscount?: {
-    originalFee: number; // Original delivery fee before discount
-    discountedFee: number; // Discounted delivery fee
-    discountAmount: number; // Amount saved
-    isEligible: boolean; // Whether discount was applied
-    ordersRemaining: number; // Discounted orders remaining (0-3)
-  };
+  deliveryFeeDiscount?: DeliveryFeeDiscount;
 }
 
 export interface CartState {

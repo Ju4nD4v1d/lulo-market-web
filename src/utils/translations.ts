@@ -346,6 +346,22 @@ export const translations = {
     'footer.privacy': 'Privacy Policy',
     'footer.copyright': '© 2024 LuloCart. All rights reserved.',
 
+    // Delivery Areas Modal
+    'deliveryAreas.subtitle': 'Greater Vancouver Service Coverage',
+    'deliveryAreas.population': 'Population',
+    'deliveryAreas.deliveryAvailable': 'Delivery Available',
+    'deliveryAreas.active': 'Active',
+    'deliveryAreas.currentCoverage': 'Current Service Coverage',
+    'deliveryAreas.coverageDescription': 'We currently deliver to',
+    'deliveryAreas.coverageCities': 'Vancouver, Burnaby, Langley, Surrey, and Coquitlam',
+    'deliveryAreas.coverageStats': 'Our delivery network covers over',
+    'deliveryAreas.residents': '1.8 million residents',
+    'deliveryAreas.acrossVancouver': 'across Greater Vancouver.',
+    'deliveryAreas.expandingSoon': 'Expanding Soon!',
+    'deliveryAreas.expandingDescription': "We're working to include Richmond, North Vancouver, West Vancouver, and New Westminster. Stay tuned for updates!",
+    'deliveryAreas.lastUpdated': 'Service areas updated December 2024',
+    'deliveryAreas.gotIt': 'Got it!',
+
     // Cookie Consent
     'cookieConsent.message': 'We use cookies to analyze site usage and improve your experience.',
     'cookieConsent.accept': 'Accept',
@@ -1036,6 +1052,9 @@ export const translations = {
     'deliveryFeeSimulator.feeCappedAt': 'Fee capped at',
     'deliveryFeeSimulator.resetToDefaults': 'Reset to Defaults',
     'deliveryFeeSimulator.unlimited': 'Unlimited',
+    'deliveryFeeSimulator.discountPercentage': 'Discount %',
+    'deliveryFeeSimulator.discountEligibleOrders': 'Eligible Orders',
+    'deliveryFeeSimulator.orders': 'orders',
 
     // Delivery Fee Settings (Admin)
     'deliveryFeeSettings.title': 'Delivery Fee Settings',
@@ -1045,6 +1064,7 @@ export const translations = {
     'deliveryFeeSettings.baseFee': 'Base Fee',
     'deliveryFeeSettings.minFee': 'Minimum Fee',
     'deliveryFeeSettings.maxFee': 'Maximum Fee',
+    'deliveryFeeSettings.maxDeliveryDistance': 'Max Delivery Distance',
     'deliveryFeeSettings.distanceTiers': 'Distance Tiers',
     'deliveryFeeSettings.from': 'From (km)',
     'deliveryFeeSettings.to': 'To (km)',
@@ -1065,6 +1085,10 @@ export const translations = {
     'deliveryFeeSettings.confirmReset.message': 'Are you sure you want to reset all delivery fee settings to their default values?',
     'deliveryFeeSettings.confirmReset.confirm': 'Reset',
     'deliveryFeeSettings.confirmReset.cancel': 'Cancel',
+    'deliveryFeeSettings.newCustomerDiscount': 'New Customer Discount',
+    'deliveryFeeSettings.discountPercentage': 'Discount Percentage',
+    'deliveryFeeSettings.discountEligibleOrders': 'Eligible Orders',
+    'deliveryFeeSettings.orders': 'orders',
 
     // Platform Fee Settings (Admin)
     'admin.platformFee.title': 'Platform Fee Settings',
@@ -1991,6 +2015,7 @@ If the customer disputes a payment:
     'cart.summary.secureCheckout': 'Secure checkout powered by Stripe',
     'cart.summary.loginRequired': 'You\'ll be asked to log in or create an account to complete your order',
     'cart.summary.newCustomerDiscount': '20% OFF',
+    'cart.summary.discountLabel': 'OFF',
     'cart.summary.ordersRemaining': '{count} discounted deliveries left',
     'cart.summary.ordersRemainingSingular': '1 discounted delivery left',
     'cart.summary.firstOrdersPromo': 'New customer: 20% off delivery on your first 3 orders!',
@@ -1998,6 +2023,9 @@ If the customer disputes a payment:
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculated at checkout',
     'checkout.validatingAddress': 'Validating address...',
+    'checkout.deliveryNotAvailable': 'Delivery Not Available',
+    'checkout.distanceTooFar': 'Your location is {distance} km away, but we only deliver within {maxDistance} km.',
+    'checkout.tryDifferentAddress': 'Please try a different delivery address closer to the store.',
 
     // Delivery Info Banner
     'cart.deliveryInfo.cancellationPolicy': 'This delivery is coming up soon! If you proceed, please note that orders within 24 hours of delivery cannot be cancelled.',
@@ -2810,6 +2838,22 @@ If the customer disputes a payment:
     'footer.privacy': 'Política de Privacidad',
     'footer.copyright': '© 2024 LuloCart. Todos los derechos reservados.',
 
+    // Delivery Areas Modal
+    'deliveryAreas.subtitle': 'Cobertura de Servicio en Greater Vancouver',
+    'deliveryAreas.population': 'Población',
+    'deliveryAreas.deliveryAvailable': 'Entrega Disponible',
+    'deliveryAreas.active': 'Activo',
+    'deliveryAreas.currentCoverage': 'Cobertura Actual',
+    'deliveryAreas.coverageDescription': 'Actualmente entregamos en',
+    'deliveryAreas.coverageCities': 'Vancouver, Burnaby, Langley, Surrey y Coquitlam',
+    'deliveryAreas.coverageStats': 'Nuestra red de entrega cubre más de',
+    'deliveryAreas.residents': '1.8 millones de residentes',
+    'deliveryAreas.acrossVancouver': 'en Greater Vancouver.',
+    'deliveryAreas.expandingSoon': '¡Próximamente!',
+    'deliveryAreas.expandingDescription': 'Estamos trabajando para incluir Richmond, North Vancouver, West Vancouver y New Westminster. ¡Mantente atento!',
+    'deliveryAreas.lastUpdated': 'Áreas de servicio actualizadas en diciembre 2024',
+    'deliveryAreas.gotIt': '¡Entendido!',
+
     // Cookie Consent
     'cookieConsent.message': 'Usamos cookies para analizar el uso del sitio y mejorar tu experiencia.',
     'cookieConsent.accept': 'Aceptar',
@@ -3510,6 +3554,9 @@ If the customer disputes a payment:
     'deliveryFeeSimulator.feeCappedAt': 'Tarifa limitada a',
     'deliveryFeeSimulator.resetToDefaults': 'Restablecer Valores',
     'deliveryFeeSimulator.unlimited': 'Ilimitado',
+    'deliveryFeeSimulator.discountPercentage': 'Descuento %',
+    'deliveryFeeSimulator.discountEligibleOrders': 'Pedidos Elegibles',
+    'deliveryFeeSimulator.orders': 'pedidos',
 
     // Delivery Fee Settings (Admin)
     'deliveryFeeSettings.title': 'Configuración de Tarifa de Envío',
@@ -3519,6 +3566,7 @@ If the customer disputes a payment:
     'deliveryFeeSettings.baseFee': 'Tarifa Base',
     'deliveryFeeSettings.minFee': 'Tarifa Mínima',
     'deliveryFeeSettings.maxFee': 'Tarifa Máxima',
+    'deliveryFeeSettings.maxDeliveryDistance': 'Distancia Máxima de Envío',
     'deliveryFeeSettings.distanceTiers': 'Niveles de Distancia',
     'deliveryFeeSettings.from': 'Desde (km)',
     'deliveryFeeSettings.to': 'Hasta (km)',
@@ -3539,6 +3587,10 @@ If the customer disputes a payment:
     'deliveryFeeSettings.confirmReset.message': '¿Estás seguro de que deseas restablecer toda la configuración de tarifa de envío a sus valores predeterminados?',
     'deliveryFeeSettings.confirmReset.confirm': 'Restablecer',
     'deliveryFeeSettings.confirmReset.cancel': 'Cancelar',
+    'deliveryFeeSettings.newCustomerDiscount': 'Descuento para Nuevos Clientes',
+    'deliveryFeeSettings.discountPercentage': 'Porcentaje de Descuento',
+    'deliveryFeeSettings.discountEligibleOrders': 'Pedidos Elegibles',
+    'deliveryFeeSettings.orders': 'pedidos',
 
     // Platform Fee Settings (Admin)
     'admin.platformFee.title': 'Configuración de Comisión',
@@ -4434,6 +4486,7 @@ Si el cliente disputa el pago:
     'cart.summary.secureCheckout': 'Pago seguro con Stripe',
     'cart.summary.loginRequired': 'Se te pedirá iniciar sesión o crear una cuenta para completar tu pedido',
     'cart.summary.newCustomerDiscount': '20% DESC',
+    'cart.summary.discountLabel': 'DESC',
     'cart.summary.ordersRemaining': '{count} envíos con descuento restantes',
     'cart.summary.ordersRemainingSingular': '1 envío con descuento restante',
     'cart.summary.firstOrdersPromo': 'Cliente nuevo: ¡20% de descuento en envío en tus primeros 3 pedidos!',
@@ -4441,6 +4494,9 @@ Si el cliente disputa el pago:
     // Dynamic Delivery Fee
     'cart.deliveryFeeAtCheckout': 'Calculado al pagar',
     'checkout.validatingAddress': 'Validando dirección...',
+    'checkout.deliveryNotAvailable': 'Entrega No Disponible',
+    'checkout.distanceTooFar': 'Tu ubicación está a {distance} km, pero solo entregamos dentro de {maxDistance} km.',
+    'checkout.tryDifferentAddress': 'Por favor intenta con una dirección de entrega más cercana a la tienda.',
 
     // Delivery Info Banner
     'cart.deliveryInfo.cancellationPolicy': 'Esta entrega es pronto. Si continuas, ten en cuenta que los pedidos dentro de 24 horas de la entrega no pueden cancelarse.',
