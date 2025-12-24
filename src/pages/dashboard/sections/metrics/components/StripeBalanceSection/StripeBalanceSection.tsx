@@ -9,7 +9,6 @@ import {
   TotalBalanceCard,
   AvailableBalanceCard,
   FuturePayoutsCard,
-  InTransitCard,
 } from './cards';
 import styles from './StripeBalanceSection.module.css';
 
@@ -117,11 +116,6 @@ export const StripeBalanceSection: React.FC<StripeBalanceSectionProps> = ({ stor
         />
         <FuturePayoutsCard
           value={balance?.pending}
-          loading={isLoading}
-          error={error}
-        />
-        <InTransitCard
-          value={balance?.inTransit}
           loading={isLoading}
           error={error}
         />
