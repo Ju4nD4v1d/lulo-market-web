@@ -4,7 +4,6 @@ import { StoreData } from '../../types';
 import { Product } from '../../types';
 import { MarketplaceHero } from '../../components/MarketplaceHero';
 import { Footer } from '../../components/Footer';
-import { ChristmasBanner } from '../../components/ChristmasBanner';
 import { HomeHeader } from './components/HomeHeader';
 import { HowItWorks } from './components/HowItWorks';
 import { HorizontalStoreRow } from './components/HorizontalStoreRow';
@@ -153,9 +152,6 @@ export const HomePage = () => {
         }}
         t={t}
       />
-
-      {/* Christmas Banner */}
-      <ChristmasBanner />
 
       {/* Hero Section */}
       <MarketplaceHero
